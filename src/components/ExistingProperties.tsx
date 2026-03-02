@@ -46,7 +46,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
 
   return (
     <section>
-      <h2 className="font-serif text-2xl font-bold text-foreground mb-1 gold-underline pb-2">
+      <h2 className="text-2xl font-bold text-foreground mb-1 gold-underline pb-2">
         Your Existing Investment Properties
       </h2>
       <div className="h-6" />
@@ -69,7 +69,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
               <input
                 value={p.nickname}
                 onChange={(e) => update({ nickname: e.target.value })}
-                className="font-serif font-semibold text-lg text-foreground mb-3 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none w-full transition-colors"
+                className="font-semibold text-lg text-foreground mb-3 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none w-full transition-colors"
                 placeholder="Property nickname"
               />
               <div className="space-y-2 text-sm">
@@ -110,7 +110,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
           </DialogTrigger>
           <DialogContent className="bg-card">
             <DialogHeader>
-              <DialogTitle className="font-serif">Add Existing Property</DialogTitle>
+              <DialogTitle>Add Existing Property</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-2">
               <input
