@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import OwnershipToggle from "@/components/OwnershipToggle";
 
 export interface FutureProperty {
   id: string;
@@ -8,6 +9,7 @@ export interface FutureProperty {
   purchasePrice: number;
   rentalYield: number;
   projectedEquity5yr: number;
+  ownership: "trust" | "personal";
 }
 
 interface Props {
@@ -37,6 +39,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
         purchasePrice: price,
         rentalYield: yieldPct,
         projectedEquity5yr: projectedEquity,
+        ownership: "personal" as const,
       },
     ]);
     setForm({ suburb: '', purchasePrice: '', rentalYield: '' });
@@ -72,6 +75,12 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
               <p className="text-muted-foreground">Purchase price: <span className="text-foreground font-medium">${p.purchasePrice.toLocaleString()}</span></p>
               <p className="text-muted-foreground">Rental yield: <span className="text-foreground font-medium">{p.rentalYield}%</span></p>
               <p className="text-muted-foreground">Projected equity (5yr): <span className="text-accent font-bold">${p.projectedEquity5yr.toLocaleString()}</span></p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-border">
+              <OwnershipToggle
+                value={p.ownership}
+                onChange={(v) => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, ownership: v } : prop))}
+              />
             </div>
           </div>
         ))}

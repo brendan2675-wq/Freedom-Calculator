@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
+import OwnershipToggle from "@/components/OwnershipToggle";
 
 export interface ExistingProperty {
   id: string;
@@ -9,6 +10,7 @@ export interface ExistingProperty {
   estimatedValue: number;
   loanBalance: number;
   earmarked: boolean;
+  ownership: "trust" | "personal";
 }
 
 interface Props {
@@ -30,6 +32,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
         estimatedValue: parseInt(form.estimatedValue.replace(/[^0-9]/g, '')) || 0,
         loanBalance: parseInt(form.loanBalance.replace(/[^0-9]/g, '')) || 0,
         earmarked: false,
+        ownership: "personal" as const,
       },
     ]);
     setForm({ nickname: '', estimatedValue: '', loanBalance: '' });
@@ -93,9 +96,12 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
                 </div>
                 <p className="text-muted-foreground pt-1">Usable equity: <span className="text-accent font-bold">${equity.toLocaleString()}</span></p>
               </div>
-              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border">
-                <Switch checked={p.earmarked} onCheckedChange={() => toggleEarmark(p.id)} />
-                <span className="text-sm text-muted-foreground">Sell down</span>
+              <div className="mt-4 pt-3 border-t border-border space-y-3">
+                <OwnershipToggle value={p.ownership} onChange={(v) => update({ ownership: v })} />
+                <div className="flex items-center gap-2">
+                  <Switch checked={p.earmarked} onCheckedChange={() => toggleEarmark(p.id)} />
+                  <span className="text-sm text-muted-foreground">Sell down</span>
+                </div>
               </div>
             </div>
           );

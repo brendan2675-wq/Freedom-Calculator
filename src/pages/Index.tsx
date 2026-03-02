@@ -14,11 +14,11 @@ const Index = () => {
   const [targetYear, setTargetYear] = useState(2036);
   const [growthRate, setGrowthRate] = useState(7);
   const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>([
-    { id: "1", nickname: "Parramatta Unit", estimatedValue: 620000, loanBalance: 480000, earmarked: true },
-    { id: "2", nickname: "Liverpool Townhouse", estimatedValue: 750000, loanBalance: 630000, earmarked: true },
+    { id: "1", nickname: "Parramatta Unit", estimatedValue: 620000, loanBalance: 480000, earmarked: true, ownership: "trust" as const },
+    { id: "2", nickname: "Liverpool Townhouse", estimatedValue: 750000, loanBalance: 630000, earmarked: true, ownership: "personal" as const },
   ]);
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([
-    { id: "3", suburb: "Investment property purchase 1", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585 },
+    { id: "3", suburb: "Investment property purchase 1", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585, ownership: "trust" as const },
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
