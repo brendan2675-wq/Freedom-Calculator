@@ -10,6 +10,7 @@ interface KeyInputsProps {
   setTargetYear: (v: number) => void;
   percentage: number;
   remaining: number;
+  totalEquity: number;
   suburb: string;
   setSuburb: (v: string) => void;
 }
@@ -17,7 +18,7 @@ interface KeyInputsProps {
 const KeyInputs = ({
   loanBalance, setLoanBalance,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  percentage, remaining, suburb, setSuburb,
+  percentage, remaining, totalEquity, suburb, setSuburb,
 }: KeyInputsProps) => {
   const timeAway = useMemo(() => {
     const now = new Date();
@@ -89,13 +90,17 @@ const KeyInputs = ({
 
       {/* Card 3: Progress Tracker */}
       <div className="bg-card rounded-xl shadow-md p-4 border border-border flex flex-col items-center">
+        <HouseProgress percentage={percentage} remaining={remaining} />
+        <div className="w-full mt-3 pt-3 border-t border-border text-center">
+          <p className="text-muted-foreground text-xs uppercase tracking-wider">Equity Available</p>
+          <p className="text-accent font-bold text-xl">${totalEquity.toLocaleString()}</p>
+        </div>
         <input
           value={suburb}
           onChange={(e) => setSuburb(e.target.value)}
-          className="w-full text-center font-semibold text-foreground mb-2 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none transition-colors"
+          className="w-full text-center text-sm text-muted-foreground mt-2 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none transition-colors"
           placeholder="Enter suburb"
         />
-        <HouseProgress percentage={percentage} remaining={remaining} />
       </div>
     </div>
     </section>
