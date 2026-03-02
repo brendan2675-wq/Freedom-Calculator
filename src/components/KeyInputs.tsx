@@ -10,12 +10,14 @@ interface KeyInputsProps {
   setTargetYear: (v: number) => void;
   percentage: number;
   remaining: number;
+  suburb: string;
+  setSuburb: (v: string) => void;
 }
 
 const KeyInputs = ({
   loanBalance, setLoanBalance,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  percentage, remaining,
+  percentage, remaining, suburb, setSuburb,
 }: KeyInputsProps) => {
   const timeAway = useMemo(() => {
     const now = new Date();
@@ -86,7 +88,13 @@ const KeyInputs = ({
       </div>
 
       {/* Card 3: Progress Tracker */}
-      <div className="bg-card rounded-xl shadow-md p-4 border border-border flex items-center justify-center">
+      <div className="bg-card rounded-xl shadow-md p-4 border border-border flex flex-col items-center">
+        <input
+          value={suburb}
+          onChange={(e) => setSuburb(e.target.value)}
+          className="w-full text-center font-semibold text-foreground mb-2 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none transition-colors"
+          placeholder="Enter suburb"
+        />
         <HouseProgress percentage={percentage} remaining={remaining} />
       </div>
     </div>
