@@ -18,7 +18,7 @@ const PaydownSummary = ({ totalEquity, loanRemaining, yearsToGoal, blurred }: Pr
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-primary z-50 border-t border-border">
+    <div className="fixed bottom-0 left-0 right-0 bg-header z-50 border-t border-border">
       <div className={`container mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3 transition-all ${blurred ? 'blur-md select-none' : ''}`}>
         <div className="flex items-center gap-6 flex-wrap">
           <div>
