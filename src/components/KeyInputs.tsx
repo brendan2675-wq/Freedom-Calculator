@@ -90,6 +90,7 @@ const KeyInputs = ({
 
       {/* Card 3: Progress Tracker */}
       <div className="bg-card rounded-xl shadow-md p-4 border border-border flex flex-col items-center">
+        <h3 className="text-lg font-semibold text-foreground mb-2 self-start">Progress Tracker</h3>
         <HouseProgress percentage={percentage} remaining={remaining} />
         <div className="w-full mt-3 pt-3 border-t border-border text-center">
           <p className="text-muted-foreground text-xs uppercase tracking-wider">Equity Available</p>
