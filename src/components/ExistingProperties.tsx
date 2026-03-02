@@ -86,7 +86,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
                   />
                 </div>
                 <div>
-                  <label className="text-muted-foreground text-xs">Loan Against It ($)</label>
+                  <label className="text-muted-foreground text-xs">Current Loan ($)</label>
                   <input
                     inputMode="numeric"
                     value={p.loanBalance.toLocaleString()}
@@ -133,7 +133,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
                 className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <input
-                placeholder="Loan against it ($)"
+                placeholder="Current loan ($)"
                 inputMode="numeric"
                 value={form.loanBalance}
                 onChange={(e) => setForm({ ...form, loanBalance: e.target.value.replace(/[^0-9]/g, '') })}
