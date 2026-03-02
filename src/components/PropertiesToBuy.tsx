@@ -61,7 +61,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {properties.map((p) => (
-          <div key={p.id} className="bg-card rounded-xl shadow-md p-5 border border-border relative flex flex-col">
+          <div key={p.id} className="bg-card rounded-xl shadow-md p-5 border-2 border-border relative flex flex-col">
             <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
               <X size={16} />
             </button>
