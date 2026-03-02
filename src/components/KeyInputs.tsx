@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { DollarSign, CalendarClock, Percent } from "lucide-react";
+import { DollarSign, CalendarClock, Percent, TrendingUp } from "lucide-react";
 import HouseProgress from "@/components/HouseProgress";
 
 interface KeyInputsProps {
@@ -113,7 +113,10 @@ const KeyInputs = ({
 
       {/* Card 2: Progress Tracker */}
       <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col items-center">
-        <h3 className="text-lg font-semibold text-foreground mb-1 self-start">Progress Tracker</h3>
+        <div className="flex items-center gap-2 mb-1 self-start">
+          <TrendingUp size={18} className="text-accent" />
+          <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
+        </div>
         <div className="flex-1 flex items-center justify-center">
           <HouseProgress percentage={percentage} remaining={remaining} />
         </div>
