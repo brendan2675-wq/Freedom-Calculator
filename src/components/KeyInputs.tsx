@@ -31,7 +31,12 @@ const KeyInputs = ({
   const years = Array.from({ length: 20 }, (_, i) => 2025 + i);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <section>
+      <h2 className="text-2xl font-bold text-foreground mb-1 gold-underline pb-2">
+        The Target
+      </h2>
+      <div className="h-6" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Card 1: Loan Balance */}
       <div className="bg-card rounded-xl shadow-md p-6 border border-border">
         <h3 className="text-lg font-semibold text-foreground mb-1">Loan to Pay Down</h3>
@@ -85,6 +90,7 @@ const KeyInputs = ({
         <HouseProgress percentage={percentage} remaining={remaining} />
       </div>
     </div>
+    </section>
   );
 };
 
