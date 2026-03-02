@@ -87,7 +87,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button className="bg-accent text-accent-foreground rounded-xl shadow-md p-5 flex flex-col items-center justify-center gap-2 min-h-[180px] hover:opacity-90 transition-opacity font-medium">
+            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[180px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
               <Plus size={28} />
               Add Property
             </button>
