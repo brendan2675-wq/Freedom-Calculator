@@ -42,11 +42,10 @@ const HouseProgress = ({ percentage, remaining }: HouseProgressProps) => {
             x="100"
             y="155"
             textAnchor="middle"
-            fill="white"
+            fill="hsl(var(--foreground))"
             fontSize="28"
             fontWeight="bold"
             fontFamily="Inter, sans-serif"
-            style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}
           >
             {clampedPct.toFixed(0)}%
           </text>
