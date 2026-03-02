@@ -129,7 +129,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
       </div>
 
       {properties.length > 0 && (
-        <div className="mt-6 bg-primary rounded-xl p-4 text-center">
+        <div className="mt-6 bg-header rounded-xl p-4 text-center">
           <p className="text-primary-foreground text-sm">Total projected equity available</p>
           <p className="text-accent text-2xl font-bold">${totalEquity.toLocaleString()}</p>
         </div>
