@@ -1,3 +1,5 @@
+export type InvestmentType = "house" | "townhouse" | "unit" | "commercial";
+
 export interface LoanDetails {
   interestRate: number;
   interestOnlyPeriodYears: number;
@@ -26,6 +28,7 @@ export interface ExistingProperty {
   loanBalance: number;
   earmarked: boolean;
   ownership: "trust" | "personal";
+  investmentType: InvestmentType;
   loan: LoanDetails;
   rental: RentalDetails;
   purchase: PurchaseDetails;
@@ -38,6 +41,7 @@ export interface FutureProperty {
   rentalYield: number;
   projectedEquity5yr: number;
   ownership: "trust" | "personal";
+  investmentType: InvestmentType;
   loan: LoanDetails;
   rental: RentalDetails;
   purchase: PurchaseDetails;

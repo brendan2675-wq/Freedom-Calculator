@@ -18,11 +18,11 @@ const Index = () => {
   const [growthRate, setGrowthRate] = useState(7);
   const [pporSuburb, setPporSuburb] = useState("Bella Vista");
   const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>([
-    { id: "1", nickname: "Parramatta Unit", estimatedValue: 620000, loanBalance: 480000, earmarked: true, ownership: "trust", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
-    { id: "2", nickname: "Liverpool Townhouse", estimatedValue: 750000, loanBalance: 630000, earmarked: true, ownership: "personal", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
+    { id: "1", nickname: "Parramatta Unit", estimatedValue: 620000, loanBalance: 480000, earmarked: true, ownership: "trust", investmentType: "unit", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
+    { id: "2", nickname: "Liverpool Townhouse", estimatedValue: 750000, loanBalance: 630000, earmarked: true, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
   ]);
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([
-    { id: "3", suburb: "Investment property purchase 1", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585, ownership: "trust", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 850000 } },
+    { id: "3", suburb: "Investment property purchase 1", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585, ownership: "trust", investmentType: "house", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 850000 } },
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [clientName, setClientName] = useState("Client Name");
