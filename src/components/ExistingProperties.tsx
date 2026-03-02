@@ -62,7 +62,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
           return (
             <div
               key={p.id}
-              className={`bg-card rounded-xl shadow-md p-5 border-2 transition-all relative flex flex-col ${
+              className={`bg-card rounded-xl shadow-md p-5 border-2 transition-all relative flex flex-col min-h-[320px] ${
                 p.earmarked ? 'border-accent' : 'border-border'
               }`}
             >
@@ -102,7 +102,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
                 </div>
                 <p className="text-muted-foreground pt-1">Usable equity: <span className="text-accent font-bold">${equity.toLocaleString()}</span></p>
               </div>
-              <div className="mt-4 pt-3 border-t border-border space-y-3">
+              <div className="mt-auto pt-3 border-t border-border space-y-3">
                 <OwnershipToggle value={p.ownership} onChange={(v) => update({ ownership: v })} />
                 <div className="flex items-center gap-2">
                   <Switch checked={p.earmarked} onCheckedChange={() => toggleEarmark(p.id)} />
@@ -115,7 +115,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[180px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
+            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[320px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
               <Plus size={28} />
               Add Property
             </button>

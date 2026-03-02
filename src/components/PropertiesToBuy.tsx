@@ -61,7 +61,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {properties.map((p) => (
-          <div key={p.id} className="bg-card rounded-xl shadow-md p-5 border border-border relative flex flex-col">
+          <div key={p.id} className="bg-card rounded-xl shadow-md p-5 border border-border relative flex flex-col min-h-[320px]">
             <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
               <X size={16} />
             </button>
@@ -87,7 +87,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[180px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
+            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[320px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
               <Plus size={28} />
               Add Property
             </button>
