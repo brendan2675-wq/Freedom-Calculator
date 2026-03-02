@@ -42,14 +42,13 @@ const KeyInputs = ({
       <div className="h-6" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Card 1: Loan & Target Date */}
-      <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <DollarSign size={20} className="text-accent" />
-            <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
-          </div>
-          <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance ($)</p>
-          <div className="relative mb-5">
+      <div className="bg-card rounded-xl shadow-md p-6 border border-border">
+        <div className="flex items-center gap-2 mb-1">
+          <DollarSign size={18} className="text-accent" />
+          <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
+        </div>
+        <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance ($)</p>
+        <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
             <input
               type="text"
@@ -61,12 +60,11 @@ const KeyInputs = ({
               }}
               className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
             />
-          </div>
         </div>
 
-        <div className="pt-4 border-t border-border">
+        <div className="pt-4 mt-4 border-t border-border">
           <div className="flex items-center gap-2 mb-1">
-            <CalendarClock size={20} className="text-accent" />
+            <CalendarClock size={18} className="text-accent" />
             <h3 className="text-lg font-semibold text-foreground">Target Exit Date</h3>
           </div>
           <p className="text-muted-foreground text-sm mb-3">When you want to be debt-free</p>
