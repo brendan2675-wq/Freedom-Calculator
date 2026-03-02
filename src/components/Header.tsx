@@ -1,5 +1,4 @@
 import { UserCircle } from "lucide-react";
-import logo from "@/assets/logo.png";
 
 const Header = () => {
   return (
@@ -14,21 +13,13 @@ const Header = () => {
             Pay off your home in 10 years, not 30
           </p>
         </div>
-        <div className="flex flex-col items-center gap-2 flex-shrink-0">
-          <button
-            onClick={() => {}}
-            className="text-accent hover:text-accent/80 transition-colors"
-            aria-label="Profile"
-          >
-            <UserCircle size={28} />
-          </button>
-          <img
-            src={logo}
-            alt="Atelier Wealth logo"
-            className="w-14 h-14 md:w-20 md:h-20 object-contain"
-            style={{ filter: 'sepia(1) saturate(4) hue-rotate(-10deg) brightness(0.8)' }}
-          />
-        </div>
+        <button
+          onClick={() => {}}
+          className="text-accent hover:text-accent/80 transition-colors flex-shrink-0"
+          aria-label="Profile"
+        >
+          <UserCircle size={44} />
+        </button>
       </div>
     </header>
   );
