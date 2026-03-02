@@ -62,9 +62,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
           return (
             <div
               key={p.id}
-              className={`bg-card rounded-xl shadow-md p-5 border-2 transition-all relative flex flex-col ${
-                p.earmarked ? 'border-accent' : 'border-border'
-              }`}
+              className="bg-card rounded-xl shadow-md p-5 border-2 border-border transition-all relative flex flex-col"
             >
               <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
                 <X size={16} />
