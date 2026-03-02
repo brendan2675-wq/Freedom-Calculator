@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Slider } from "@/components/ui/slider";
+import HouseProgress from "@/components/HouseProgress";
 
 interface KeyInputsProps {
   loanBalance: number;
@@ -8,14 +8,14 @@ interface KeyInputsProps {
   targetYear: number;
   setTargetMonth: (v: number) => void;
   setTargetYear: (v: number) => void;
-  growthRate: number;
-  setGrowthRate: (v: number) => void;
+  percentage: number;
+  remaining: number;
 }
 
 const KeyInputs = ({
   loanBalance, setLoanBalance,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  growthRate, setGrowthRate,
+  percentage, remaining,
 }: KeyInputsProps) => {
   const timeAway = useMemo(() => {
     const now = new Date();
@@ -80,21 +80,9 @@ const KeyInputs = ({
         <p className="text-accent font-medium text-sm">{timeAway}</p>
       </div>
 
-      {/* Card 3: Growth Rate */}
-      <div className="bg-card rounded-xl shadow-md p-6 border border-border">
-        <h3 className="font-serif text-lg font-semibold text-foreground mb-1">Growth Assumption</h3>
-        <p className="text-muted-foreground text-sm mb-4">Annual property growth rate</p>
-        <div className="mb-4">
-          <Slider
-            value={[growthRate]}
-            onValueChange={(v) => setGrowthRate(v[0])}
-            min={1}
-            max={15}
-            step={0.5}
-            className="w-full"
-          />
-        </div>
-        <p className="text-accent text-2xl font-bold">{growthRate}%</p>
+      {/* Card 3: Progress Tracker */}
+      <div className="bg-card rounded-xl shadow-md p-4 border border-border flex items-center justify-center">
+        <HouseProgress percentage={percentage} remaining={remaining} />
       </div>
     </div>
   );
