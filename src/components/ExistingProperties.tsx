@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Plus, X, ChevronRight, Info } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -15,35 +14,30 @@ interface Props {
 }
 
 const ExistingProperties = ({ properties, setProperties }: Props) => {
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ nickname: '', estimatedValue: '', loanBalance: '' });
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
   const addProperty = () => {
-    if (!form.nickname) return;
-    setProperties([
-      ...properties,
-      {
-        id: crypto.randomUUID(),
-        nickname: form.nickname,
-        estimatedValue: parseInt(form.estimatedValue.replace(/[^0-9]/g, '')) || 0,
-        loanBalance: parseInt(form.loanBalance.replace(/[^0-9]/g, '')) || 0,
-        earmarked: false,
-        ownership: "personal" as const,
-        investmentType: "house" as const,
-        loan: { ...defaultLoanDetails },
-        rental: { ...defaultRentalDetails },
-        purchase: { ...defaultPurchaseDetails },
-      },
-    ]);
-    setForm({ nickname: '', estimatedValue: '', loanBalance: '' });
-    setOpen(false);
+    const newProperty: ExistingProperty = {
+      id: crypto.randomUUID(),
+      nickname: "",
+      estimatedValue: 0,
+      loanBalance: 0,
+      earmarked: false,
+      ownership: "personal",
+      investmentType: "house",
+      loan: { ...defaultLoanDetails },
+      rental: { ...defaultRentalDetails },
+      purchase: { ...defaultPurchaseDetails },
+    };
+    setProperties([...properties, newProperty]);
+    setSelectedId(newProperty.id);
   };
 
   const removeProperty = (id: string) => {
     setProperties(properties.filter((p) => p.id !== id));
+    if (selectedId === id) setSelectedId(null);
   };
 
   return (
@@ -119,53 +113,27 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
             );
           })}
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[200px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
-                <Plus size={28} />
-                Add Property
-              </button>
-            </DialogTrigger>
-            <DialogContent className="bg-card">
-              <DialogHeader>
-                <DialogTitle>Add Existing Property</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 mt-2">
-                <input
-                  placeholder="Property nickname"
-                  value={form.nickname}
-                  onChange={(e) => setForm({ ...form, nickname: e.target.value })}
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-                <input
-                  placeholder="Current value ($)"
-                  inputMode="numeric"
-                  value={form.estimatedValue}
-                  onChange={(e) => setForm({ ...form, estimatedValue: e.target.value.replace(/[^0-9]/g, '') })}
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-                <input
-                  placeholder="Current loan ($)"
-                  inputMode="numeric"
-                  value={form.loanBalance}
-                  onChange={(e) => setForm({ ...form, loanBalance: e.target.value.replace(/[^0-9]/g, '') })}
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-                <button
-                  onClick={addProperty}
-                  className="w-full bg-accent text-accent-foreground py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
-                >
-                  Add Property
-                </button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <button
+            onClick={addProperty}
+            className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[200px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent"
+          >
+            <Plus size={28} />
+            Add Property
+          </button>
         </div>
 
         <PropertyDetailSheet
           property={selectedProperty}
           open={!!selectedId}
-          onOpenChange={(o) => { if (!o) setSelectedId(null); }}
+          onOpenChange={(o) => {
+            if (!o) {
+              // Remove the property if it was just created with no data filled in
+              if (selectedProperty && !selectedProperty.nickname && selectedProperty.estimatedValue === 0) {
+                setProperties(properties.filter((p) => p.id !== selectedId));
+              }
+              setSelectedId(null);
+            }
+          }}
           onUpdate={(updated) => {
             setProperties(properties.map((p) => p.id === updated.id ? updated as ExistingProperty : p));
           }}
