@@ -9,12 +9,17 @@ import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
 
 const Index = () => {
-  const [loanBalance, setLoanBalance] = useState(650000);
+  const [loanBalance, setLoanBalance] = useState(2000000);
   const [targetMonth, setTargetMonth] = useState(2);
   const [targetYear, setTargetYear] = useState(2036);
   const [growthRate, setGrowthRate] = useState(7);
-  const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>([]);
-  const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([]);
+  const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>([
+    { id: "1", nickname: "Parramatta Unit", estimatedValue: 620000, loanBalance: 480000, earmarked: true },
+    { id: "2", nickname: "Liverpool Townhouse", estimatedValue: 750000, loanBalance: 630000, earmarked: true },
+  ]);
+  const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([
+    { id: "3", suburb: "Oran Park", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585 },
+  ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
   const calculations = useMemo(() => {
