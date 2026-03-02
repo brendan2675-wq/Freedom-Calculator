@@ -23,6 +23,7 @@ const Index = () => {
     { id: "3", suburb: "Investment property purchase 1", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585, ownership: "trust" as const },
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+  const [clientName, setClientName] = useState("Client Name");
 
   const calculations = useMemo(() => {
     const earmarkedEquity = existingProperties
@@ -44,7 +45,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header clientName={clientName} setClientName={setClientName} />
 
       <main className="container mx-auto px-4 py-8 space-y-12">
         <KeyInputs
