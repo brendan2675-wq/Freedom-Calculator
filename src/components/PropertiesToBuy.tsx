@@ -62,7 +62,12 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
             <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
               <X size={16} />
             </button>
-            <h4 className="font-serif font-semibold text-lg text-foreground mb-3">{p.suburb}</h4>
+            <input
+              value={p.suburb}
+              onChange={(e) => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, suburb: e.target.value } : prop))}
+              className="font-serif font-semibold text-lg text-foreground mb-3 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none w-full transition-colors"
+              placeholder="Enter suburb name"
+            />
             <div className="space-y-1 text-sm">
               <p className="text-muted-foreground">Purchase price: <span className="text-foreground font-medium">${p.purchasePrice.toLocaleString()}</span></p>
               <p className="text-muted-foreground">Rental yield: <span className="text-foreground font-medium">{p.rentalYield}%</span></p>
