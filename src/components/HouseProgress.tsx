@@ -21,7 +21,13 @@ const HouseProgress = ({ percentage, remaining }: HouseProgressProps) => {
           {/* House outline */}
           <polygon points="100,10 10,100 190,100" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
           <rect x="25" y="100" width="150" height="130" rx="4" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
-          {/* Fill from bottom */}
+          {/* Door */}
+          <rect x="80" y="170" width="40" height="60" rx="3" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" opacity="0.5" />
+          {/* Window left */}
+          <rect x="40" y="120" width="30" height="30" rx="2" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" opacity="0.5" />
+          {/* Window right */}
+          <rect x="130" y="120" width="30" height="30" rx="2" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" opacity="0.5" />
+          {/* Fill from bottom - drawn last to cover outlines */}
           <rect
             x="0"
             y={240 - (clampedPct / 100) * 230}
@@ -31,12 +37,6 @@ const HouseProgress = ({ percentage, remaining }: HouseProgressProps) => {
             clipPath="url(#houseClip)"
             className="transition-all duration-1000 ease-out"
           />
-          {/* Door */}
-          <rect x="80" y="170" width="40" height="60" rx="3" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" opacity="0.5" />
-          {/* Window left */}
-          <rect x="40" y="120" width="30" height="30" rx="2" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" opacity="0.5" />
-          {/* Window right */}
-          <rect x="130" y="120" width="30" height="30" rx="2" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" opacity="0.5" />
           {/* Percentage text */}
           <text
             x="100"
