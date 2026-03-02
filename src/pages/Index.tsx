@@ -41,7 +41,7 @@ const Index = () => {
   }, [loanBalance, existingProperties, futureProperties, targetMonth, targetYear]);
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background">
       <Header />
 
       <main className="container mx-auto px-4 py-8 space-y-12">
@@ -83,12 +83,7 @@ const Index = () => {
 
       <Footer />
 
-      <PaydownSummary
-        totalEquity={calculations.totalEquity}
-        loanRemaining={calculations.remaining}
-        yearsToGoal={calculations.yearsToGoal}
-        blurred={!disclaimerAccepted}
-      />
+
     </div>
   );
 };
