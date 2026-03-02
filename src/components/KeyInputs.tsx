@@ -34,7 +34,7 @@ const KeyInputs = ({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Card 1: Loan Balance */}
       <div className="bg-card rounded-xl shadow-md p-6 border border-border">
-        <h3 className="font-serif text-lg font-semibold text-foreground mb-1">Loan to Pay Down</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-1">Loan to Pay Down</h3>
         <p className="text-muted-foreground text-sm mb-4">Current PPOR loan balance ($)</p>
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
@@ -53,7 +53,7 @@ const KeyInputs = ({
 
       {/* Card 2: Target Date */}
       <div className="bg-card rounded-xl shadow-md p-6 border border-border">
-        <h3 className="font-serif text-lg font-semibold text-foreground mb-1">Target Exit Date</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-1">Target Exit Date</h3>
         <p className="text-muted-foreground text-sm mb-4">When you want to be debt-free</p>
         <div className="flex gap-3 mb-3">
           <select

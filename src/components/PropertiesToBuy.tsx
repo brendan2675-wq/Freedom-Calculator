@@ -51,7 +51,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
 
   return (
     <section>
-      <h2 className="font-serif text-2xl font-bold text-foreground mb-1 gold-underline pb-2">
+      <h2 className="text-2xl font-bold text-foreground mb-1 gold-underline pb-2">
         Investment Properties to Purchase
       </h2>
       <div className="h-6" />
@@ -65,7 +65,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
             <input
               value={p.suburb}
               onChange={(e) => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, suburb: e.target.value } : prop))}
-              className="font-serif font-semibold text-lg text-foreground mb-3 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none w-full transition-colors"
+              className="font-semibold text-lg text-foreground mb-3 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none w-full transition-colors"
               placeholder="Enter suburb name"
             />
             <div className="space-y-1 text-sm">
@@ -85,7 +85,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
           </DialogTrigger>
           <DialogContent className="bg-card">
             <DialogHeader>
-              <DialogTitle className="font-serif">Add Property to Purchase</DialogTitle>
+              <DialogTitle>Add Property to Purchase</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-2">
               <input

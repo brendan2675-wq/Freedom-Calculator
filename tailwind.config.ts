@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Raleway', 'system-ui', 'sans-serif'],
-        serif: ['Playfair Display', 'Georgia', 'serif'],
+        serif: ['Raleway', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -5,8 +5,8 @@ const Header = () => {
     <header className="bg-header text-primary-foreground">
       <div className="container mx-auto px-4 py-8 md:py-12 flex items-start justify-between">
         <div>
-          <p className="text-accent font-serif text-lg tracking-wider mb-4">Atelier Wealth</p>
-          <h1 className="text-3xl md:text-5xl font-serif font-bold mb-3">
+          <p className="text-accent text-lg tracking-wider mb-4">Atelier Wealth</p>
+          <h1 className="text-3xl md:text-5xl font-bold mb-3">
             PPOR Pay Down Goal
           </h1>
           <p className="text-accent text-lg md:text-xl font-light">
