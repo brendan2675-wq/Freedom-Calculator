@@ -61,12 +61,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
                 p.earmarked ? 'border-accent' : 'border-border'
               }`}
             >
-              {p.earmarked && (
-                <span className="absolute top-3 right-3 bg-warning text-warning-foreground text-xs font-bold px-2 py-0.5 rounded-full">
-                  Earmarked
-                </span>
-              )}
-              <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground" style={p.earmarked ? { right: '5.5rem' } : {}}>
+              <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
                 <X size={16} />
               </button>
               <h4 className="font-serif font-semibold text-lg text-foreground mb-3">{p.nickname}</h4>
