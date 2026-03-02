@@ -18,7 +18,7 @@ const Index = () => {
     { id: "2", nickname: "Liverpool Townhouse", estimatedValue: 750000, loanBalance: 630000, earmarked: true },
   ]);
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([
-    { id: "3", suburb: "Oran Park", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585 },
+    { id: "3", suburb: "Investment property purchase 1", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585 },
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
