@@ -62,7 +62,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
           return (
             <div
               key={p.id}
-              className={`bg-card rounded-xl shadow-md p-5 border-2 transition-all relative flex flex-col min-h-[320px] ${
+              className={`bg-card rounded-xl shadow-md p-5 border-2 transition-all relative flex flex-col ${
                 p.earmarked ? 'border-accent' : 'border-border'
               }`}
             >
@@ -115,7 +115,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[320px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
+            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[200px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
               <Plus size={28} />
               Add Property
             </button>

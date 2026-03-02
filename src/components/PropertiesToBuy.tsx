@@ -61,7 +61,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {properties.map((p) => (
-          <div key={p.id} className="bg-card rounded-xl shadow-md p-5 border border-border relative flex flex-col min-h-[320px]">
+          <div key={p.id} className="bg-card rounded-xl shadow-md p-5 border border-border relative flex flex-col">
             <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
               <X size={16} />
             </button>
@@ -71,10 +71,19 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
               className="font-semibold text-lg text-foreground mb-3 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none w-full transition-colors"
               placeholder="Enter suburb name"
             />
-            <div className="space-y-1 text-sm">
-              <p className="text-muted-foreground">Purchase price: <span className="text-foreground font-medium">${p.purchasePrice.toLocaleString()}</span></p>
-              <p className="text-muted-foreground">Rental yield: <span className="text-foreground font-medium">{p.rentalYield}%</span></p>
-              <p className="text-muted-foreground">Projected equity (5yr): <span className="text-accent font-bold">${p.projectedEquity5yr.toLocaleString()}</span></p>
+            <div className="space-y-2 text-sm">
+              <div>
+                <label className="text-muted-foreground text-xs">Purchase Price</label>
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground text-sm">$</span>
+                  <p className="text-foreground font-medium py-1">{p.purchasePrice.toLocaleString()}</p>
+                </div>
+              </div>
+              <div>
+                <label className="text-muted-foreground text-xs">Rental Yield</label>
+                <p className="text-foreground font-medium py-1">{p.rentalYield}%</p>
+              </div>
+              <p className="text-muted-foreground pt-1">Projected equity (5yr): <span className="text-accent font-bold">${p.projectedEquity5yr.toLocaleString()}</span></p>
             </div>
             <div className="mt-auto pt-3 border-t border-border">
               <OwnershipToggle
@@ -87,7 +96,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[320px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
+            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[200px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
               <Plus size={28} />
               Add Property
             </button>
