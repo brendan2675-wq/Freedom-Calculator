@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { DollarSign, CalendarClock } from "lucide-react";
 import HouseProgress from "@/components/HouseProgress";
 
 interface KeyInputsProps {
@@ -41,26 +42,34 @@ const KeyInputs = ({
       <div className="h-6" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Card 1: Loan & Target Date */}
-      <div className="bg-card rounded-xl shadow-md p-6 border border-border">
-        <h3 className="text-lg font-semibold text-foreground mb-1">Loan to Pay Down</h3>
-        <p className="text-muted-foreground text-sm mb-4">Current PPOR loan balance ($)</p>
-        <div className="relative mb-6">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={loanBalance.toLocaleString()}
-            onChange={(e) => {
-              const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-              setLoanBalance(v);
-            }}
-            className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
-          />
+      <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <DollarSign size={20} className="text-accent" />
+            <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
+          </div>
+          <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance ($)</p>
+          <div className="relative mb-5">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={loanBalance.toLocaleString()}
+              onChange={(e) => {
+                const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+                setLoanBalance(v);
+              }}
+              className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+            />
+          </div>
         </div>
 
         <div className="pt-4 border-t border-border">
-          <h3 className="text-lg font-semibold text-foreground mb-1">Target Exit Date</h3>
-          <p className="text-muted-foreground text-sm mb-4">When you want to be debt-free</p>
+          <div className="flex items-center gap-2 mb-1">
+            <CalendarClock size={20} className="text-accent" />
+            <h3 className="text-lg font-semibold text-foreground">Target Exit Date</h3>
+          </div>
+          <p className="text-muted-foreground text-sm mb-3">When you want to be debt-free</p>
           <div className="flex gap-3 mb-3">
             <select
               value={targetMonth}
