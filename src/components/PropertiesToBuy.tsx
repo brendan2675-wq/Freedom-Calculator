@@ -61,7 +61,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {properties.map((p) => (
-          <div key={p.id} className="bg-card rounded-xl shadow-md p-5 border border-border relative">
+          <div key={p.id} className="bg-card rounded-xl shadow-md p-5 border border-border relative flex flex-col">
             <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
               <X size={16} />
             </button>
@@ -76,7 +76,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
               <p className="text-muted-foreground">Rental yield: <span className="text-foreground font-medium">{p.rentalYield}%</span></p>
               <p className="text-muted-foreground">Projected equity (5yr): <span className="text-accent font-bold">${p.projectedEquity5yr.toLocaleString()}</span></p>
             </div>
-            <div className="mt-4 pt-3 border-t border-border">
+            <div className="mt-auto pt-3 border-t border-border">
               <OwnershipToggle
                 value={p.ownership}
                 onChange={(v) => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, ownership: v } : prop))}
