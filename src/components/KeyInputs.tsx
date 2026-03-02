@@ -122,11 +122,17 @@ const KeyInputs = ({
                 />
               </div>
               <div className="relative w-28">
-                <input
+              <input
                   type="text"
                   inputMode="decimal"
                   value={interestRate}
                   onChange={(e) => {
+                    const raw = e.target.value;
+                    if (raw === '' || /^\d*\.?\d*$/.test(raw)) {
+                      setInterestRate(raw as any);
+                    }
+                  }}
+                  onBlur={(e) => {
                     const v = parseFloat(e.target.value) || 0;
                     setInterestRate(v);
                   }}
