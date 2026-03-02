@@ -62,7 +62,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
           return (
             <div
               key={p.id}
-              className={`bg-card rounded-xl shadow-md p-5 border-2 transition-all relative ${
+              className={`bg-card rounded-xl shadow-md p-5 border-2 transition-all relative flex flex-col ${
                 p.earmarked ? 'border-accent' : 'border-border'
               }`}
             >
