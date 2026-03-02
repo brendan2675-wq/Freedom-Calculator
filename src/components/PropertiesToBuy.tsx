@@ -3,6 +3,7 @@ import { Plus, X, ChevronRight, Info } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
+import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
 import type { FutureProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 
@@ -38,6 +39,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
         rentalYield: yieldPct,
         projectedEquity5yr: projectedEquity,
         ownership: "personal" as const,
+        investmentType: "house" as const,
         loan: { ...defaultLoanDetails },
         rental: { ...defaultRentalDetails },
         purchase: { ...defaultPurchaseDetails, purchasePrice: price },
@@ -74,7 +76,10 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
               >
                 <X size={16} />
               </button>
-              <p className="font-semibold text-lg text-foreground mb-3">{p.suburb || "Untitled"}</p>
+              <div className="flex items-center gap-2 mb-3">
+                <InvestmentTypeIcon type={p.investmentType} size={20} className="text-accent shrink-0" />
+                <p className="font-semibold text-lg text-foreground">{p.suburb || "Untitled"}</p>
+              </div>
               <div className="space-y-2 text-sm">
                 <div>
                   <label className="text-muted-foreground text-xs">Purchase Price</label>
