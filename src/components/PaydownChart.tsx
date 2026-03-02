@@ -57,14 +57,14 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
                 fontSize: '13px',
               }}
             />
-            <ReferenceLine x={targetYear.toString()} stroke="hsl(38, 46%, 61%)" strokeDasharray="5 5" label={{ value: "Target", fill: "hsl(38, 46%, 61%)", fontSize: 12 }} />
+            <ReferenceLine x={targetYear.toString()} stroke="hsl(38, 46%, 50%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(38, 46%, 40%)", fontSize: 13, fontWeight: 600, position: "top" }} />
             <Area
               type="monotone"
               dataKey="equityAvailable"
               stackId="1"
               stroke="hsl(140, 26%, 39%)"
               fill="hsl(140, 26%, 39%)"
-              fillOpacity={0.3}
+              fillOpacity={0.45}
               name="equityAvailable"
             />
             <Area
@@ -73,20 +73,20 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
               stackId="1"
               stroke="hsl(38, 46%, 61%)"
               fill="hsl(38, 46%, 61%)"
-              fillOpacity={0.15}
+              fillOpacity={0.25}
               name="loanRemaining"
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex gap-6 mt-3 text-xs text-muted-foreground justify-center">
+      <div className="flex gap-6 mt-3 text-sm text-muted-foreground justify-center">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm bg-success opacity-60" />
-          <span>Equity Applied</span>
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(140, 26%, 39%)', opacity: 0.7 }} />
+          <span className="font-medium">Equity Applied</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm bg-accent opacity-40" />
-          <span>Loan Remaining</span>
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(38, 46%, 61%)', opacity: 0.6 }} />
+          <span className="font-medium">Loan Remaining</span>
         </div>
       </div>
     </div>

@@ -77,22 +77,28 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
               />
               <div className="space-y-2 text-sm">
                 <div>
-                  <label className="text-muted-foreground text-xs">Current Value ($)</label>
-                  <input
-                    inputMode="numeric"
-                    value={p.estimatedValue.toLocaleString()}
-                    onChange={(e) => update({ estimatedValue: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 })}
-                    className="w-full py-1 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none text-foreground font-medium transition-colors"
-                  />
+                  <label className="text-muted-foreground text-xs">Current Value</label>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground text-sm">$</span>
+                    <input
+                      inputMode="numeric"
+                      value={p.estimatedValue.toLocaleString()}
+                      onChange={(e) => update({ estimatedValue: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 })}
+                      className="w-full py-1 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none text-foreground font-medium transition-colors"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <label className="text-muted-foreground text-xs">Current Loan ($)</label>
-                  <input
-                    inputMode="numeric"
-                    value={p.loanBalance.toLocaleString()}
-                    onChange={(e) => update({ loanBalance: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 })}
-                    className="w-full py-1 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none text-foreground font-medium transition-colors"
-                  />
+                  <label className="text-muted-foreground text-xs">Current Loan</label>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground text-sm">$</span>
+                    <input
+                      inputMode="numeric"
+                      value={p.loanBalance.toLocaleString()}
+                      onChange={(e) => update({ loanBalance: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 })}
+                      className="w-full py-1 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none text-foreground font-medium transition-colors"
+                    />
+                  </div>
                 </div>
                 <p className="text-muted-foreground pt-1">Usable equity: <span className="text-accent font-bold">${equity.toLocaleString()}</span></p>
               </div>
@@ -109,7 +115,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <button className="bg-accent text-accent-foreground rounded-xl shadow-md p-5 flex flex-col items-center justify-center gap-2 min-h-[180px] hover:opacity-90 transition-opacity font-medium">
+            <button className="rounded-xl border-2 border-dashed border-accent/40 p-5 flex flex-col items-center justify-center gap-2 min-h-[180px] hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent">
               <Plus size={28} />
               Add Property
             </button>
