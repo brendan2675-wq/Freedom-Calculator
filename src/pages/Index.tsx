@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   const [loanBalance, setLoanBalance] = useState(2000000);
+  const [interestRate, setInterestRate] = useState(6.2);
   const [targetMonth, setTargetMonth] = useState(2);
   const [targetYear, setTargetYear] = useState(2036);
   const [growthRate, setGrowthRate] = useState(7);
@@ -49,6 +50,8 @@ const Index = () => {
         <KeyInputs
           loanBalance={loanBalance}
           setLoanBalance={setLoanBalance}
+          interestRate={interestRate}
+          setInterestRate={setInterestRate}
           targetMonth={targetMonth}
           targetYear={targetYear}
           setTargetMonth={setTargetMonth}
