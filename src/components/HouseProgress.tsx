@@ -7,8 +7,8 @@ const HouseProgress = ({ percentage, remaining }: HouseProgressProps) => {
   const clampedPct = Math.min(100, Math.max(0, percentage));
 
   return (
-    <div className="flex flex-col items-center py-8">
-      <div className="relative w-48 h-56 md:w-56 md:h-64">
+    <div className="flex flex-col items-center py-2">
+      <div className="relative w-36 h-44 md:w-44 md:h-52">
         <svg viewBox="0 0 200 240" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <clipPath id="houseClip">

@@ -62,7 +62,7 @@ const KeyInputs = ({
             />
         </div>
 
-        <div className="pt-4 mt-auto border-t border-border">
+        <div className="pt-4 mt-4 border-t border-border">
           <div className="flex items-center gap-2 mb-1">
             <CalendarClock size={18} className="text-accent" />
             <h3 className="text-lg font-semibold text-foreground">Target Exit Date</h3>
@@ -96,8 +96,8 @@ const KeyInputs = ({
 
       {/* Card 2: Progress Tracker */}
       <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col items-center">
-        <h3 className="text-lg font-semibold text-foreground mb-2 self-start">Progress Tracker</h3>
-        <div className="flex-1 flex items-center">
+        <h3 className="text-lg font-semibold text-foreground mb-1 self-start">Progress Tracker</h3>
+        <div className="flex-1 flex items-center justify-center">
           <HouseProgress percentage={percentage} remaining={remaining} />
         </div>
         <div className="w-full mt-3 pt-3 border-t border-border text-center">
