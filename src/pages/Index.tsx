@@ -1,12 +1,14 @@
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
-import ExistingProperties, { ExistingProperty } from "@/components/ExistingProperties";
-import PropertiesToBuy, { FutureProperty } from "@/components/PropertiesToBuy";
+import ExistingProperties from "@/components/ExistingProperties";
+import PropertiesToBuy from "@/components/PropertiesToBuy";
 import PaydownChart from "@/components/PaydownChart";
 import PaydownSummary from "@/components/PaydownSummary";
 import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
+import type { ExistingProperty, FutureProperty } from "@/types/property";
+import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 
 const Index = () => {
   const [loanBalance, setLoanBalance] = useState(2000000);
@@ -16,11 +18,11 @@ const Index = () => {
   const [growthRate, setGrowthRate] = useState(7);
   const [pporSuburb, setPporSuburb] = useState("Bella Vista");
   const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>([
-    { id: "1", nickname: "Parramatta Unit", estimatedValue: 620000, loanBalance: 480000, earmarked: true, ownership: "trust" as const },
-    { id: "2", nickname: "Liverpool Townhouse", estimatedValue: 750000, loanBalance: 630000, earmarked: true, ownership: "personal" as const },
+    { id: "1", nickname: "Parramatta Unit", estimatedValue: 620000, loanBalance: 480000, earmarked: true, ownership: "trust", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
+    { id: "2", nickname: "Liverpool Townhouse", estimatedValue: 750000, loanBalance: 630000, earmarked: true, ownership: "personal", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
   ]);
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([
-    { id: "3", suburb: "Investment property purchase 1", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585, ownership: "trust" as const },
+    { id: "3", suburb: "Investment property purchase 1", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 277585, ownership: "trust", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 850000 } },
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [clientName, setClientName] = useState("Client Name");

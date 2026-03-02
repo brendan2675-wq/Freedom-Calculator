@@ -3,15 +3,11 @@ import { Plus, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import OwnershipToggle from "@/components/OwnershipToggle";
+import PropertyDetailSheet from "@/components/PropertyDetailSheet";
+import type { ExistingProperty } from "@/types/property";
+import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 
-export interface ExistingProperty {
-  id: string;
-  nickname: string;
-  estimatedValue: number;
-  loanBalance: number;
-  earmarked: boolean;
-  ownership: "trust" | "personal";
-}
+export type { ExistingProperty } from "@/types/property";
 
 interface Props {
   properties: ExistingProperty[];
@@ -21,6 +17,9 @@ interface Props {
 const ExistingProperties = ({ properties, setProperties }: Props) => {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ nickname: '', estimatedValue: '', loanBalance: '' });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
   const addProperty = () => {
     if (!form.nickname) return;
@@ -33,14 +32,13 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
         loanBalance: parseInt(form.loanBalance.replace(/[^0-9]/g, '')) || 0,
         earmarked: false,
         ownership: "personal" as const,
+        loan: { ...defaultLoanDetails },
+        rental: { ...defaultRentalDetails },
+        purchase: { ...defaultPurchaseDetails },
       },
     ]);
     setForm({ nickname: '', estimatedValue: '', loanBalance: '' });
     setOpen(false);
-  };
-
-  const toggleEarmark = (id: string) => {
-    setProperties(properties.map((p) => (p.id === id ? { ...p, earmarked: !p.earmarked } : p)));
   };
 
   const removeProperty = (id: string) => {
@@ -57,53 +55,44 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {properties.map((p) => {
           const equity = Math.max(0, p.estimatedValue - p.loanBalance);
-          const update = (field: Partial<ExistingProperty>) =>
-            setProperties(properties.map((prop) => (prop.id === p.id ? { ...prop, ...field } : prop)));
           return (
             <div
               key={p.id}
-              className="bg-card rounded-xl shadow-md p-5 border-2 border-border transition-all relative flex flex-col"
+              onClick={() => setSelectedId(p.id)}
+              className="bg-card rounded-xl shadow-md p-5 border-2 border-border transition-all relative flex flex-col cursor-pointer hover:shadow-lg hover:border-accent/50"
             >
-              <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
+              <button
+                onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
+                className="absolute top-3 right-3 text-muted-foreground hover:text-foreground z-10"
+              >
                 <X size={16} />
               </button>
-              <input
-                value={p.nickname}
-                onChange={(e) => update({ nickname: e.target.value })}
-                className="font-semibold text-lg text-foreground mb-3 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none w-full transition-colors"
-                placeholder="Property nickname"
-              />
+              <p className="font-semibold text-lg text-foreground mb-3">{p.nickname || "Untitled"}</p>
               <div className="space-y-2 text-sm">
                 <div>
                   <label className="text-muted-foreground text-xs">Current Value</label>
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground text-sm">$</span>
-                    <input
-                      inputMode="numeric"
-                      value={p.estimatedValue.toLocaleString()}
-                      onChange={(e) => update({ estimatedValue: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 })}
-                      className="w-full py-1 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none text-foreground font-medium transition-colors"
-                    />
-                  </div>
+                  <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
                 </div>
                 <div>
                   <label className="text-muted-foreground text-xs">Current Loan</label>
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground text-sm">$</span>
-                    <input
-                      inputMode="numeric"
-                      value={p.loanBalance.toLocaleString()}
-                      onChange={(e) => update({ loanBalance: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 })}
-                      className="w-full py-1 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none text-foreground font-medium transition-colors"
-                    />
-                  </div>
+                  <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
                 </div>
                 <p className="text-muted-foreground pt-1">Usable equity: <span className="text-accent font-bold">${equity.toLocaleString()}</span></p>
               </div>
               <div className="mt-auto pt-3 border-t border-border space-y-3">
-                <OwnershipToggle value={p.ownership} onChange={(v) => update({ ownership: v })} />
+                <OwnershipToggle
+                  value={p.ownership}
+                  onChange={(v) => {
+                    setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, ownership: v } : prop));
+                  }}
+                />
                 <div className="flex items-center gap-2">
-                  <Switch checked={p.earmarked} onCheckedChange={() => toggleEarmark(p.id)} />
+                  <Switch
+                    checked={p.earmarked}
+                    onCheckedChange={() => {
+                      setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: !prop.earmarked } : prop));
+                    }}
+                  />
                   <span className="text-sm text-muted-foreground">Sell down</span>
                 </div>
               </div>
@@ -153,6 +142,16 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
           </DialogContent>
         </Dialog>
       </div>
+
+      <PropertyDetailSheet
+        property={selectedProperty}
+        open={!!selectedId}
+        onOpenChange={(o) => { if (!o) setSelectedId(null); }}
+        onUpdate={(updated) => {
+          setProperties(properties.map((p) => p.id === updated.id ? updated as ExistingProperty : p));
+        }}
+        variant="existing"
+      />
     </section>
   );
 };

@@ -2,15 +2,11 @@ import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import OwnershipToggle from "@/components/OwnershipToggle";
+import PropertyDetailSheet from "@/components/PropertyDetailSheet";
+import type { FutureProperty } from "@/types/property";
+import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 
-export interface FutureProperty {
-  id: string;
-  suburb: string;
-  purchasePrice: number;
-  rentalYield: number;
-  projectedEquity5yr: number;
-  ownership: "trust" | "personal";
-}
+export type { FutureProperty } from "@/types/property";
 
 interface Props {
   properties: FutureProperty[];
@@ -21,12 +17,14 @@ interface Props {
 const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ suburb: '', purchasePrice: '', rentalYield: '' });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
   const addProperty = () => {
     if (!form.suburb) return;
     const price = parseInt(form.purchasePrice.replace(/[^0-9]/g, '')) || 0;
     const yieldPct = parseFloat(form.rentalYield) || 0;
-    // Projected equity in 5 years: value * (1+growth)^5 - price (assuming 80% LVR)
     const futureValue = price * Math.pow(1 + growthRate / 100, 5);
     const loan = price * 0.8;
     const projectedEquity = Math.max(0, Math.round(futureValue - loan));
@@ -40,6 +38,9 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
         rentalYield: yieldPct,
         projectedEquity5yr: projectedEquity,
         ownership: "personal" as const,
+        loan: { ...defaultLoanDetails },
+        rental: { ...defaultRentalDetails },
+        purchase: { ...defaultPurchaseDetails, purchasePrice: price },
       },
     ]);
     setForm({ suburb: '', purchasePrice: '', rentalYield: '' });
@@ -61,27 +62,26 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {properties.map((p) => (
-          <div key={p.id} className="bg-card rounded-xl shadow-md p-5 border-2 border-border relative flex flex-col">
-            <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
+          <div
+            key={p.id}
+            onClick={() => setSelectedId(p.id)}
+            className="bg-card rounded-xl shadow-md p-5 border-2 border-border relative flex flex-col cursor-pointer hover:shadow-lg hover:border-accent/50"
+          >
+            <button
+              onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
+              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground z-10"
+            >
               <X size={16} />
             </button>
-            <input
-              value={p.suburb}
-              onChange={(e) => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, suburb: e.target.value } : prop))}
-              className="font-semibold text-lg text-foreground mb-3 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none w-full transition-colors"
-              placeholder="Enter suburb name"
-            />
+            <p className="font-semibold text-lg text-foreground mb-3">{p.suburb || "Untitled"}</p>
             <div className="space-y-2 text-sm">
               <div>
                 <label className="text-muted-foreground text-xs">Purchase Price</label>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground text-sm">$</span>
-                  <p className="text-foreground font-medium py-1">{p.purchasePrice.toLocaleString()}</p>
-                </div>
+                <p className="text-foreground font-medium">${p.purchasePrice.toLocaleString()}</p>
               </div>
               <div>
                 <label className="text-muted-foreground text-xs">Rental Yield</label>
-                <p className="text-foreground font-medium py-1">{p.rentalYield}%</p>
+                <p className="text-foreground font-medium">{p.rentalYield}%</p>
               </div>
               <p className="text-muted-foreground pt-1">Projected equity (5yr): <span className="text-accent font-bold">${p.projectedEquity5yr.toLocaleString()}</span></p>
             </div>
@@ -143,6 +143,16 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
           <p className="text-accent text-2xl font-bold">${totalEquity.toLocaleString()}</p>
         </div>
       )}
+
+      <PropertyDetailSheet
+        property={selectedProperty}
+        open={!!selectedId}
+        onOpenChange={(o) => { if (!o) setSelectedId(null); }}
+        onUpdate={(updated) => {
+          setProperties(properties.map((p) => p.id === updated.id ? updated as FutureProperty : p));
+        }}
+        variant="future"
+      />
     </section>
   );
 };
