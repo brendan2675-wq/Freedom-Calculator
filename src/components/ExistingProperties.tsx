@@ -77,7 +77,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
               />
               <div className="space-y-2 text-sm">
                 <div>
-                  <label className="text-muted-foreground text-xs">Estimated Value ($)</label>
+                  <label className="text-muted-foreground text-xs">Current Value ($)</label>
                   <input
                     inputMode="numeric"
                     value={p.estimatedValue.toLocaleString()}
@@ -126,7 +126,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
                 className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <input
-                placeholder="Estimated value ($)"
+                placeholder="Current value ($)"
                 inputMode="numeric"
                 value={form.estimatedValue}
                 onChange={(e) => setForm({ ...form, estimatedValue: e.target.value.replace(/[^0-9]/g, '') })}
