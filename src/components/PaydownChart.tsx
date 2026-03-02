@@ -57,7 +57,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
                 fontSize: '13px',
               }}
             />
-            <ReferenceLine x={targetYear.toString()} stroke="hsl(38, 46%, 50%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(38, 46%, 40%)", fontSize: 13, fontWeight: 600, position: "top" }} />
+            <ReferenceLine x={targetYear.toString()} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
             <Area
               type="monotone"
               dataKey="equityAvailable"
@@ -71,8 +71,8 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
               type="monotone"
               dataKey="loanRemaining"
               stackId="1"
-              stroke="hsl(38, 46%, 61%)"
-              fill="hsl(38, 46%, 61%)"
+              stroke="hsl(20, 60%, 52%)"
+              fill="hsl(20, 60%, 52%)"
               fillOpacity={0.25}
               name="loanRemaining"
             />
@@ -85,7 +85,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
           <span className="font-medium">Equity Applied</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(38, 46%, 61%)', opacity: 0.6 }} />
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(20, 60%, 52%)', opacity: 0.6 }} />
           <span className="font-medium">Loan Remaining</span>
         </div>
       </div>
