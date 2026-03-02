@@ -42,7 +42,7 @@ const KeyInputs = ({
       <div className="h-6" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Card 1: Loan & Target Date */}
-      <div className="bg-card rounded-xl shadow-md p-6 border border-border">
+      <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col">
         <div className="flex items-center gap-2 mb-1">
           <DollarSign size={18} className="text-accent" />
           <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
@@ -62,7 +62,7 @@ const KeyInputs = ({
             />
         </div>
 
-        <div className="pt-4 mt-4 border-t border-border">
+        <div className="pt-4 mt-auto border-t border-border">
           <div className="flex items-center gap-2 mb-1">
             <CalendarClock size={18} className="text-accent" />
             <h3 className="text-lg font-semibold text-foreground">Target Exit Date</h3>
@@ -95,9 +95,11 @@ const KeyInputs = ({
       </div>
 
       {/* Card 2: Progress Tracker */}
-      <div className="bg-card rounded-xl shadow-md p-4 border border-border flex flex-col items-center">
+      <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col items-center">
         <h3 className="text-lg font-semibold text-foreground mb-2 self-start">Progress Tracker</h3>
-        <HouseProgress percentage={percentage} remaining={remaining} />
+        <div className="flex-1 flex items-center">
+          <HouseProgress percentage={percentage} remaining={remaining} />
+        </div>
         <div className="w-full mt-3 pt-3 border-t border-border text-center">
           <p className="text-muted-foreground text-xs uppercase tracking-wider">Equity Available</p>
           <p className="text-accent font-bold text-xl">${totalEquity.toLocaleString()}</p>
