@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
-import HouseProgress from "@/components/HouseProgress";
 import ExistingProperties, { ExistingProperty } from "@/components/ExistingProperties";
 import PropertiesToBuy, { FutureProperty } from "@/components/PropertiesToBuy";
 import PaydownChart from "@/components/PaydownChart";
@@ -48,11 +47,6 @@ const Index = () => {
           targetYear={targetYear}
           setTargetMonth={setTargetMonth}
           setTargetYear={setTargetYear}
-          growthRate={growthRate}
-          setGrowthRate={setGrowthRate}
-        />
-
-        <HouseProgress
           percentage={calculations.percentage}
           remaining={calculations.remaining}
         />
