@@ -100,7 +100,7 @@ const KeyInputs = ({
             <select
               value={targetYear}
               onChange={(e) => setTargetYear(Number(e.target.value))}
-              className="w-28 py-3 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+              className="w-28 py-3 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-center"
             >
               {years.map((y) => (
                 <option key={y} value={y}>{y}</option>
