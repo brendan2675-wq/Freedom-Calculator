@@ -1,6 +1,6 @@
 const Header = () => {
   return (
-    <header className="bg-primary text-primary-foreground">
+    <header className="bg-header text-primary-foreground">
       <div className="container mx-auto px-4 py-8 md:py-12">
         <p className="text-accent font-serif text-lg tracking-wider mb-4">Atelier Wealth</p>
         <h1 className="text-3xl md:text-5xl font-serif font-bold mb-3">
