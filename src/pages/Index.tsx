@@ -4,6 +4,7 @@ import KeyInputs from "@/components/KeyInputs";
 import HouseProgress from "@/components/HouseProgress";
 import ExistingProperties, { ExistingProperty } from "@/components/ExistingProperties";
 import PropertiesToBuy, { FutureProperty } from "@/components/PropertiesToBuy";
+import PaydownChart from "@/components/PaydownChart";
 import PaydownSummary from "@/components/PaydownSummary";
 import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
@@ -11,7 +12,7 @@ import Footer from "@/components/Footer";
 const Index = () => {
   const [loanBalance, setLoanBalance] = useState(650000);
   const [targetMonth, setTargetMonth] = useState(2);
-  const [targetYear, setTargetYear] = useState(2030);
+  const [targetYear, setTargetYear] = useState(2036);
   const [growthRate, setGrowthRate] = useState(7);
   const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>([]);
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([]);
@@ -64,6 +65,14 @@ const Index = () => {
         <PropertiesToBuy
           properties={futureProperties}
           setProperties={setFutureProperties}
+          growthRate={growthRate}
+        />
+
+        <PaydownChart
+          loanBalance={loanBalance}
+          totalEquity={calculations.totalEquity}
+          targetYear={targetYear}
+          targetMonth={targetMonth}
           growthRate={growthRate}
         />
 
