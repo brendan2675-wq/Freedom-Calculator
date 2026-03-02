@@ -54,6 +54,8 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {properties.map((p) => {
           const equity = Math.max(0, p.estimatedValue - p.loanBalance);
+          const update = (field: Partial<ExistingProperty>) =>
+            setProperties(properties.map((prop) => (prop.id === p.id ? { ...prop, ...field } : prop)));
           return (
             <div
               key={p.id}
@@ -64,11 +66,32 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
               <button onClick={() => removeProperty(p.id)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
                 <X size={16} />
               </button>
-              <h4 className="font-serif font-semibold text-lg text-foreground mb-3">{p.nickname}</h4>
-              <div className="space-y-1 text-sm">
-                <p className="text-muted-foreground">Value: <span className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</span></p>
-                <p className="text-muted-foreground">Loan: <span className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</span></p>
-                <p className="text-muted-foreground">Usable equity: <span className="text-accent font-bold">${equity.toLocaleString()}</span></p>
+              <input
+                value={p.nickname}
+                onChange={(e) => update({ nickname: e.target.value })}
+                className="font-serif font-semibold text-lg text-foreground mb-3 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none w-full transition-colors"
+                placeholder="Property nickname"
+              />
+              <div className="space-y-2 text-sm">
+                <div>
+                  <label className="text-muted-foreground text-xs">Estimated Value ($)</label>
+                  <input
+                    inputMode="numeric"
+                    value={p.estimatedValue.toLocaleString()}
+                    onChange={(e) => update({ estimatedValue: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 })}
+                    className="w-full py-1 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none text-foreground font-medium transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="text-muted-foreground text-xs">Loan Against It ($)</label>
+                  <input
+                    inputMode="numeric"
+                    value={p.loanBalance.toLocaleString()}
+                    onChange={(e) => update({ loanBalance: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 })}
+                    className="w-full py-1 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none text-foreground font-medium transition-colors"
+                  />
+                </div>
+                <p className="text-muted-foreground pt-1">Usable equity: <span className="text-accent font-bold">${equity.toLocaleString()}</span></p>
               </div>
               <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border">
                 <Switch checked={p.earmarked} onCheckedChange={() => toggleEarmark(p.id)} />
