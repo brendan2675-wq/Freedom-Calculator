@@ -55,6 +55,7 @@ const Index = () => {
           setTargetYear={setTargetYear}
           percentage={calculations.percentage}
           remaining={calculations.remaining}
+          totalEquity={calculations.totalEquity}
           suburb={pporSuburb}
           setSuburb={setPporSuburb}
         />
