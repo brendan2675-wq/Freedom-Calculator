@@ -10,10 +10,11 @@ interface Props {
   setTargetMonth: (v: number) => void;
   setTargetYear: (v: number) => void;
   growthRate: number;
+  setGrowthRate: (v: number) => void;
   interestRate: number;
 }
 
-const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTargetMonth, setTargetYear, growthRate, interestRate }: Props) => {
+const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTargetMonth, setTargetYear, growthRate, setGrowthRate, interestRate }: Props) => {
   const data = useMemo(() => {
     const startYear = 2026;
     const points = [];
