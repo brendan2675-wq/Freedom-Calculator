@@ -17,6 +17,7 @@ interface Props {
 
 const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
