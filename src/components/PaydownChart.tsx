@@ -11,14 +11,12 @@ interface Props {
 
 const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growthRate }: Props) => {
   const data = useMemo(() => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
+    const startYear = 2026;
     const points = [];
-    const years = Math.max(1, targetYear - currentYear + 3);
+    const years = Math.max(1, targetYear - startYear + 3);
 
     for (let i = 0; i <= years; i++) {
-      const year = currentYear + i;
-      // Equity grows with growth rate compounding
+      const year = startYear + i;
       const equityAtYear = totalEquity * Math.pow(1 + growthRate / 100, i);
       const remainingLoan = Math.max(0, loanBalance - equityAtYear);
       points.push({
