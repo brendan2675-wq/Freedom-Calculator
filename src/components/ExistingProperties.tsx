@@ -78,14 +78,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   <InvestmentTypeIcon type={p.investmentType} size={20} className="text-accent shrink-0" />
                   <p className="font-semibold text-lg text-foreground">{p.nickname || "Untitled"}</p>
                 </div>
-                <div className="space-y-2 text-sm">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                   <div>
                     <label className="text-muted-foreground text-xs">Current Value</label>
                     <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <label className="text-muted-foreground text-xs">Future Value <span className="text-[10px] text-accent">(6% p.a.)</span></label>
-                    <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -99,9 +95,13 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     </div>
                     <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
                   </div>
-                  <div className="pt-1">
+                  <div>
+                    <label className="text-muted-foreground text-xs">Future Value <span className="text-[10px] text-accent">(6% p.a.)</span></label>
+                    <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
+                  </div>
+                  <div>
                     <div className="flex items-center gap-1 mb-1">
-                      <p className="text-muted-foreground text-xs">Equity Available</p>
+                      <label className="text-muted-foreground text-xs">Equity Available</label>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
