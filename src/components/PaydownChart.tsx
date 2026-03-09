@@ -76,51 +76,56 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
   return (
     <div className="p-5">
-      <div className="mb-5 pb-5 border-b border-border text-center">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Target size={16} className="text-accent" />
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Time Left</h3>
-        </div>
-        <div className="flex gap-4 justify-center items-center">
-          {/* Years box */}
-          <div className="flex flex-col items-center">
-            <div className="relative w-20 h-20 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
-              <select
-                value={duration.years}
-                onChange={(e) => setDuration(Number(e.target.value), duration.months)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              >
-                {yearDurationOptions.map((y) => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </select>
-              <span className="text-3xl font-bold text-accent">{duration.years}</span>
+      <div className="mb-5 pb-5 border-b border-border">
+        <div className="flex items-center justify-between">
+          {/* Left: Icon + Title + Target date */}
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+              <Target size={24} className="text-accent" strokeWidth={2.5} />
             </div>
-            <span className="text-[11px] font-medium text-muted-foreground mt-2 uppercase tracking-wide">years</span>
+            <div>
+              <h3 className="text-xl font-bold text-foreground">Time Left</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Target: <span className="font-semibold text-foreground">{targetDateLabel}</span>
+              </p>
+            </div>
           </div>
 
-          <span className="text-lg font-medium text-muted-foreground/60 mt-[-1.5rem]">and</span>
-
-          {/* Months box */}
-          <div className="flex flex-col items-center">
-            <div className="relative w-20 h-20 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
-              <select
-                value={duration.months}
-                onChange={(e) => setDuration(duration.years, Number(e.target.value))}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              >
-                {monthDurationOptions.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-              <span className="text-3xl font-bold text-accent">{duration.months}</span>
+          {/* Right: Countdown boxes */}
+          <div className="flex gap-3 items-center">
+            <div className="flex flex-col items-center">
+              <div className="relative w-16 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+                <select
+                  value={duration.years}
+                  onChange={(e) => setDuration(Number(e.target.value), duration.months)}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                >
+                  {yearDurationOptions.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+                <span className="text-2xl font-bold text-accent">{duration.years}</span>
+              </div>
+              <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">years</span>
             </div>
-            <span className="text-[11px] font-medium text-muted-foreground mt-2 uppercase tracking-wide">months</span>
+            <span className="text-sm font-medium text-muted-foreground/50 mt-[-1rem]">:</span>
+            <div className="flex flex-col items-center">
+              <div className="relative w-16 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+                <select
+                  value={duration.months}
+                  onChange={(e) => setDuration(duration.years, Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                >
+                  {monthDurationOptions.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <span className="text-2xl font-bold text-accent">{duration.months}</span>
+              </div>
+              <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">months</span>
+            </div>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-4">
-          Target Exit: <span className="font-semibold text-foreground">{targetDateLabel}</span>
-        </p>
       </div>
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
