@@ -116,7 +116,7 @@ const KeyInputs = ({
               <div className="w-full mt-2">
                 <div className="flex justify-between text-sm mb-1.5">
                   <span className="text-success font-semibold">{Math.min(100, Math.max(0, percentage)).toFixed(1)}% paid down</span>
-                  <span className="text-muted-foreground font-medium">${remaining.toLocaleString()} remaining</span>
+                  
                 </div>
                 <div className="w-full h-4 rounded-full bg-secondary overflow-hidden">
                   <div
