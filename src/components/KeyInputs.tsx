@@ -124,7 +124,7 @@ const KeyInputs = ({
                   style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
                 >
                   {percentage > 15 && (
-                    <span className="text-xs font-semibold text-white">paid down</span>
+                    <span className="text-xs font-semibold text-white">${(loanBalance - remaining).toLocaleString()} paid down</span>
                   )}
                 </div>
               </div>
