@@ -134,7 +134,7 @@ const KeyInputs = ({
                   ))}
                 </select>
               </div>
-              <p className="text-accent font-medium text-sm">{timeAway}</p>
+              
             </div>
 
             {/* Progress Tracker */}
