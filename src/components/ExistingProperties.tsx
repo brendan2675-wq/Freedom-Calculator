@@ -82,6 +82,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
                   </div>
                   <div>
+                    <label className="text-muted-foreground text-xs">Future Value <span className="text-[10px] text-accent">(6% p.a.)</span></label>
+                    <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
+                  </div>
+                  <div>
                     <div className="flex items-center gap-2">
                       <label className="text-muted-foreground text-xs">Current Loan</label>
                       {p.loan.interestOnlyPeriodYears === 0 && (
