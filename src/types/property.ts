@@ -21,6 +21,12 @@ export interface PurchaseDetails {
   settlementDate: string; // ISO date string
 }
 
+export interface LoanSplit {
+  id: string;
+  label: string;
+  amount: number;
+}
+
 export interface ExistingProperty {
   id: string;
   nickname: string;
@@ -32,6 +38,7 @@ export interface ExistingProperty {
   loan: LoanDetails;
   rental: RentalDetails;
   purchase: PurchaseDetails;
+  loanSplits?: LoanSplit[];
 }
 
 export interface FutureProperty {

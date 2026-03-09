@@ -3,9 +3,9 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import OwnershipToggle from "@/components/OwnershipToggle";
 import { InvestmentTypeIcon, investmentTypes, getInvestmentTypeLabel } from "@/components/InvestmentTypeIcon";
-import type { ExistingProperty, FutureProperty, LoanDetails, RentalDetails, PurchaseDetails, InvestmentType } from "@/types/property";
+import type { ExistingProperty, FutureProperty, LoanDetails, RentalDetails, PurchaseDetails, InvestmentType, LoanSplit } from "@/types/property";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -168,6 +168,67 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                     onChange={(v) => update({ loanBalance: v } as Partial<ExistingProperty>)}
                   />
                 </FieldGroup>
+
+                {/* Loan Splits */}
+                <div className="pl-2 border-l-2 border-accent/20 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs text-muted-foreground font-medium">Loan Splits</label>
+                    <button
+                      onClick={() => {
+                        const ep = property as ExistingProperty;
+                        const splits = ep.loanSplits || [];
+                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: `Split ${splits.length + 1}`, amount: 0 };
+                        update({ loanSplits: [...splits, newSplit] } as Partial<ExistingProperty>);
+                      }}
+                      className="text-accent hover:text-accent/80 transition-colors p-0.5"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                  {((property as ExistingProperty).loanSplits || []).map((split, idx) => (
+                    <div key={split.id} className="flex items-center gap-2">
+                      <input
+                        value={split.label}
+                        onChange={(e) => {
+                          const ep = property as ExistingProperty;
+                          const splits = [...(ep.loanSplits || [])];
+                          splits[idx] = { ...splits[idx], label: e.target.value };
+                          update({ loanSplits: splits } as Partial<ExistingProperty>);
+                        }}
+                        className="w-24 py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-accent"
+                        placeholder="Label"
+                      />
+                      <div className="flex-1">
+                        <CurrencyInput
+                          value={split.amount}
+                          onChange={(v) => {
+                            const ep = property as ExistingProperty;
+                            const splits = [...(ep.loanSplits || [])];
+                            splits[idx] = { ...splits[idx], amount: v };
+                            const total = splits.reduce((s, sp) => s + sp.amount, 0);
+                            update({ loanSplits: splits, loanBalance: total } as Partial<ExistingProperty>);
+                          }}
+                        />
+                      </div>
+                      <button
+                        onClick={() => {
+                          const ep = property as ExistingProperty;
+                          const splits = (ep.loanSplits || []).filter((_, i) => i !== idx);
+                          const total = splits.reduce((s, sp) => s + sp.amount, 0);
+                          update({ loanSplits: splits, loanBalance: total } as Partial<ExistingProperty>);
+                        }}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  {((property as ExistingProperty).loanSplits || []).length > 0 && (
+                    <p className="text-[10px] text-muted-foreground">
+                      Total: <span className="font-semibold text-foreground">${((property as ExistingProperty).loanSplits || []).reduce((s, sp) => s + sp.amount, 0).toLocaleString()}</span>
+                    </p>
+                  )}
+                </div>
               </>
             ) : (
               <>
