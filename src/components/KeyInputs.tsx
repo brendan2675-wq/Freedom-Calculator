@@ -209,6 +209,7 @@ const KeyInputs = ({
               targetYear={targetYear}
               targetMonth={targetMonth}
               growthRate={growthRate}
+              interestRate={interestRate}
             />
           </div>
         </div>
