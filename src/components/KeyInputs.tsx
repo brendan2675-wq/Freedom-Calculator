@@ -146,7 +146,12 @@ const KeyInputs = ({
                   />
                 </div>
               </div>
-              <div className="w-full mt-3 pt-3 border-t border-border flex justify-center gap-8">
+              <div className="w-full mt-3 pt-3 border-t border-border">
+                <div className="flex items-center gap-2 mb-3">
+                  <Wallet size={18} className="text-accent" />
+                  <h3 className="text-lg font-semibold text-foreground">Equity Pull</h3>
+                </div>
+                <div className="flex justify-center gap-8">
                 <div className="text-center">
                   <p className="text-muted-foreground text-xs uppercase tracking-wider">Current Value</p>
                   <p className="text-foreground font-bold text-xl">$2,500,000</p>
@@ -164,6 +169,7 @@ const KeyInputs = ({
                     </Tooltip>
                   </div>
                   <p className="text-accent font-bold text-xl">${totalEquity.toLocaleString()}</p>
+                </div>
                 </div>
               </div>
               <input
