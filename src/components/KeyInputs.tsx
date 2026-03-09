@@ -27,7 +27,7 @@ const KeyInputs = ({
   percentage, remaining, totalEquity, suburb, setSuburb, growthRate,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
-  const pporValue = 2500000;
+  const pporValue = 2750000;
   const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
     const now = new Date();
@@ -154,7 +154,7 @@ const KeyInputs = ({
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={(2500000).toLocaleString()}
+                      value={(2750000).toLocaleString()}
                       readOnly
                       className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none transition-all"
                     />
