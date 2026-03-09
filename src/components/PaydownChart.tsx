@@ -125,6 +125,22 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               </div>
               <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">months</span>
             </div>
+            <span className="text-sm font-medium text-muted-foreground/50 mt-[-1rem]">|</span>
+            <div className="flex flex-col items-center">
+              <div className="relative w-16 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+                <select
+                  value={growthRate}
+                  onChange={(e) => setGrowthRate(Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                >
+                  {Array.from({ length: 51 }, (_, i) => (4 + i * 0.1).toFixed(1)).map((v) => (
+                    <option key={v} value={Number(v)}>{v}%</option>
+                  ))}
+                </select>
+                <span className="text-lg font-bold text-accent">{growthRate}%</span>
+              </div>
+              <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">growth</span>
+            </div>
           </div>
         </div>
       </div>

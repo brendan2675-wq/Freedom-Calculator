@@ -214,6 +214,7 @@ const KeyInputs = ({
               setTargetMonth={setTargetMonth}
               setTargetYear={setTargetYear}
               growthRate={growthRate}
+              setGrowthRate={setGrowthRate}
               interestRate={interestRate}
             />
           </div>
