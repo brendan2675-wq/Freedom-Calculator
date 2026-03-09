@@ -146,19 +146,25 @@ const KeyInputs = ({
                   />
                 </div>
               </div>
-              <div className="w-full mt-3 pt-3 border-t border-border text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <p className="text-muted-foreground text-xs uppercase tracking-wider">Equity Available</p>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[200px]">
-                      <p className="text-xs">Combined equity from existing properties marked for sell-down plus projected equity from future purchases.</p>
-                    </TooltipContent>
-                  </Tooltip>
+              <div className="w-full mt-3 pt-3 border-t border-border flex justify-center gap-8">
+                <div className="text-center">
+                  <p className="text-muted-foreground text-xs uppercase tracking-wider">Current Value</p>
+                  <p className="text-foreground font-bold text-xl">$2,500,000</p>
                 </div>
-                <p className="text-accent font-bold text-xl">${totalEquity.toLocaleString()}</p>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <p className="text-muted-foreground text-xs uppercase tracking-wider">Equity Available</p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[200px]">
+                        <p className="text-xs">Combined equity from existing properties marked for sell-down plus projected equity from future purchases.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <p className="text-accent font-bold text-xl">${totalEquity.toLocaleString()}</p>
+                </div>
               </div>
               <input
                 value={suburb}
