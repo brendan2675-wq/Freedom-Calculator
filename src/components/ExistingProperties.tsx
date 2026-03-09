@@ -60,7 +60,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {properties.map((p) => {
             const lvr = lvrRates[p.id] ?? 0.8;
-            const equity = Math.max(0, (p.estimatedValue - p.loanBalance) * lvr);
+            const equity = Math.max(0, (p.estimatedValue * lvr) - p.loanBalance);
             const futureValue = Math.round(p.estimatedValue * Math.pow(1.06, yearsToTarget));
             return (
               <div
@@ -107,7 +107,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                           <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-[220px]">
-                          <p className="text-xs">(Current Value − Loan Balance) × LVR</p>
+                          <p className="text-xs">(Current Value × LVR) − Loan Balance</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
