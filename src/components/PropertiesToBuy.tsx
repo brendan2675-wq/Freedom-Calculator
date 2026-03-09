@@ -103,7 +103,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           style={{ scrollSnapType: "x mandatory" }}
         >
           {properties.map((p) => {
-            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget));
+            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100);
             return (
               <div
                 key={p.id}
@@ -149,7 +149,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                     <p className="text-foreground font-medium">{p.rentalYield}%</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-[10px]">Future Value <span className{growthRate}%accent">(6% p.a.)</span></label>
+                    <label className="text-muted-foreground text-[10px]">Future Value <span className{growthRate}%acc="text-accent">({growthRate}%
                     <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
