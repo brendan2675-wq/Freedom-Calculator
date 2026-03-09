@@ -60,7 +60,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {properties.map((p) => {
             const lvr = lvrRates[p.id] ?? 0.8;
-            const equity = Math.max(0, (p.estimatedValue - p.loanBalance) * lvr);
+            const equity = Math.max(0, (p.estimatedValue * lvr) - p.loanBalance);
             const futureValue = Math.round(p.estimatedValue * Math.pow(1.06, yearsToTarget));
             return (
               <div
