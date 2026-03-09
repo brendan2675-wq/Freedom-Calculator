@@ -180,18 +180,30 @@ const KeyInputs = ({
                         <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[200px]">
-                        <p className="text-xs">Combined equity from existing properties marked for sell-down plus projected equity from future purchases.</p>
+                        <p className="text-xs">Current Value × LVR − Loan Balance</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                    <input
-                      type="text"
-                      value={totalEquity.toLocaleString()}
-                      readOnly
-                      className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-accent text-lg font-bold focus:outline-none transition-all"
-                    />
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
+                      <input
+                        type="text"
+                        value={equityAvailable.toLocaleString()}
+                        readOnly
+                        className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-accent text-lg font-bold focus:outline-none transition-all"
+                      />
+                    </div>
+                    <select
+                      value={lvrRate}
+                      onChange={(e) => setLvrRate(Number(e.target.value))}
+                      className="w-28 py-3 px-2 rounded-lg border border-border bg-background text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent"
+                    >
+                      <option value={0.8}>80% LVR</option>
+                      <option value={0.88}>88% LVR</option>
+                      <option value={0.9}>90% LVR</option>
+                      <option value={0.95}>95% LVR</option>
+                    </select>
                   </div>
                 </div>
               </div>
