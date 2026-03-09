@@ -159,7 +159,7 @@ const KeyInputs = ({
 
             {/* Equity Pull */}
             <div className="pt-4 mt-4 border-t border-border">
-              <div className="flex items-center justify-between mb-1">
+              <div className="grid grid-cols-2 gap-3 mb-1">
                 <div className="flex items-center gap-2">
                   <Home size={18} className="text-accent" />
                   <h3 className="text-lg font-semibold text-foreground">{suburb}</h3>
