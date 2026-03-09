@@ -13,12 +13,13 @@ interface Props {
   setProperties: (p: ExistingProperty[]) => void;
   targetMonth: number;
   targetYear: number;
+  growthRate: number;
   onMoveToProposals?: (p: ExistingProperty) => void;
 }
 
 const VISIBLE_SLOTS = 5;
 
-const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, onMoveToProposals }: Props) => {
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -106,7 +107,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           {properties.map((p) => {
             const lvr = lvrRates[p.id] ?? 0.8;
             const equity = Math.max(0, (p.estimatedValue * lvr) - p.loanBalance);
-            const futureValue = Math.round(p.estimatedValue * Math.pow(1.06, yearsToTarget));
+            const futureValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, yearsToTarget));
             return (
               <div
                 key={p.id}
@@ -162,7 +163,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-[10px]">Future Value <span className="text-accent">(6%)</span></label>
+                    <label className="text-muted-foreground text-[10px]">{"Future Value (" + growthRate + "%)"}</label>
                     <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
