@@ -146,30 +146,48 @@ const KeyInputs = ({
                   />
                 </div>
               </div>
-              <div className="w-full mt-3 pt-3 border-t border-border">
-                <div className="flex items-center gap-2 mb-3">
+              <div className="pt-4 mt-4 border-t border-border">
+                <div className="flex items-center gap-2 mb-1">
                   <Wallet size={18} className="text-accent" />
                   <h3 className="text-lg font-semibold text-foreground">Equity Pull</h3>
                 </div>
-                <div className="flex justify-center gap-8">
-                <div className="text-center">
-                  <p className="text-muted-foreground text-xs uppercase tracking-wider">Current Value</p>
-                  <p className="text-foreground font-bold text-xl">$2,500,000</p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <p className="text-muted-foreground text-xs uppercase tracking-wider">Equity Available</p>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[200px]">
-                        <p className="text-xs">Combined equity from existing properties marked for sell-down plus projected equity from future purchases.</p>
-                      </TooltipContent>
-                    </Tooltip>
+                <p className="text-muted-foreground text-sm mb-3">PPOR current value & available equity</p>
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <label className="text-muted-foreground text-xs font-medium mb-1 block">Current Value</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={(2500000).toLocaleString()}
+                        readOnly
+                        className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+                      />
+                    </div>
                   </div>
-                  <p className="text-accent font-bold text-xl">${totalEquity.toLocaleString()}</p>
-                </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1 mb-1">
+                      <label className="text-muted-foreground text-xs font-medium">Equity Available</label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[200px]">
+                          <p className="text-xs">Combined equity from existing properties marked for sell-down plus projected equity from future purchases.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
+                      <input
+                        type="text"
+                        value={totalEquity.toLocaleString()}
+                        readOnly
+                        className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-accent text-lg font-bold focus:outline-none transition-all"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
               <input
