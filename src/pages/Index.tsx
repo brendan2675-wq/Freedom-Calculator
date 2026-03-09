@@ -73,6 +73,7 @@ const Index = () => {
           setProperties={setExistingProperties}
           targetMonth={targetMonth}
           targetYear={targetYear}
+          growthRate={growthRate}
           onMoveToProposals={(ep) => {
             const future: FutureProperty = {
               id: ep.id,
