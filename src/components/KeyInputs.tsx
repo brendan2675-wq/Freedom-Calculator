@@ -52,7 +52,7 @@ const KeyInputs = ({
     <TooltipProvider>
       <section>
         <h2 className="text-2xl font-bold text-foreground mb-1 gold-underline pb-2">
-          The Target
+          The Goal
         </h2>
         <div className="h-6" />
 
