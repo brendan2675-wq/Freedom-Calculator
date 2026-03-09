@@ -117,17 +117,13 @@ const KeyInputs = ({
                   <TrendingUp size={18} className="text-accent" />
                   <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
                 </div>
-                <span className="text-success font-bold text-lg">{Math.min(100, Math.max(0, percentage)).toFixed(1)}%</span>
+                <span className="text-success font-bold text-lg">5.0%</span>
               </div>
               <div className="w-full h-8 rounded-full bg-secondary overflow-hidden">
                 <div
                   className="h-full bg-success rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-3"
-                  style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
-                >
-                  {percentage > 15 && (
-                    <span className="text-xs font-semibold text-white">$100,000 paid down</span>
-                  )}
-                </div>
+                  style={{ width: "5%" }}
+                />
               </div>
             </div>
 
