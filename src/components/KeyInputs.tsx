@@ -106,36 +106,6 @@ const KeyInputs = ({
               </div>
             </div>
 
-            <div className="pt-4 mt-4 border-t border-border">
-              <div className="flex items-center gap-2 mb-1">
-                <CalendarClock size={18} className="text-accent" />
-                <h3 className="text-lg font-semibold text-foreground">Target Exit Date</h3>
-              </div>
-              <p className="text-muted-foreground text-sm mb-3">When you want to be debt-free</p>
-              <div className="flex gap-3 mb-3">
-                <select
-                  value={targetMonth}
-                  onChange={(e) => setTargetMonth(Number(e.target.value))}
-                  className="flex-1 py-3 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-                >
-                  {months.map((m) => (
-                    <option key={m} value={m}>
-                      {new Date(2000, m - 1).toLocaleString('default', { month: 'long' })}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={targetYear}
-                  onChange={(e) => setTargetYear(Number(e.target.value))}
-                  className="w-28 py-3 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-center"
-                >
-                  {years.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-              </div>
-              
-            </div>
 
             {/* Progress Tracker */}
             <div className="pt-4 mt-4 border-t border-border">
@@ -232,6 +202,8 @@ const KeyInputs = ({
               totalEquity={totalEquity}
               targetYear={targetYear}
               targetMonth={targetMonth}
+              setTargetMonth={setTargetMonth}
+              setTargetYear={setTargetYear}
               growthRate={growthRate}
               interestRate={interestRate}
             />

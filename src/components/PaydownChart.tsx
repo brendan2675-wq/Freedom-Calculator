@@ -1,17 +1,19 @@
 import { useMemo } from "react";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Target } from "lucide-react";
+import { Target, CalendarClock } from "lucide-react";
 
 interface Props {
   loanBalance: number;
   totalEquity: number;
   targetYear: number;
   targetMonth: number;
+  setTargetMonth: (v: number) => void;
+  setTargetYear: (v: number) => void;
   growthRate: number;
   interestRate: number;
 }
 
-const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growthRate, interestRate }: Props) => {
+const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTargetMonth, setTargetYear, growthRate, interestRate }: Props) => {
   const data = useMemo(() => {
     const startYear = 2026;
     const points = [];
@@ -49,6 +51,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
     return `${years} year${years !== 1 ? 's' : ''} and ${rem} month${rem !== 1 ? 's' : ''}`;
   }, [targetMonth, targetYear]);
 
+  const monthOptions = Array.from({ length: 12 }, (_, i) => i + 1);
+  const yearOptions = Array.from({ length: 20 }, (_, i) => 2025 + i);
+
   const formatDollar = (value: number) => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
     if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
@@ -57,12 +62,43 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
 
   return (
     <div className="p-5">
-      <div className="mb-4 pb-4 border-b border-border">
-        <div className="flex items-center gap-2 mb-1">
-          <Target size={18} className="text-accent" />
-          <h3 className="text-lg font-semibold text-foreground">Target</h3>
+      <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-border">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <CalendarClock size={18} className="text-accent" />
+            <h3 className="text-lg font-semibold text-foreground">Target Exit Date</h3>
+          </div>
+          <p className="text-muted-foreground text-sm mb-3">When you want to be debt-free</p>
+          <div className="flex gap-3">
+            <select
+              value={targetMonth}
+              onChange={(e) => setTargetMonth(Number(e.target.value))}
+              className="flex-1 py-3 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+              {monthOptions.map((m) => (
+                <option key={m} value={m}>
+                  {new Date(2000, m - 1).toLocaleString('default', { month: 'long' })}
+                </option>
+              ))}
+            </select>
+            <select
+              value={targetYear}
+              onChange={(e) => setTargetYear(Number(e.target.value))}
+              className="w-28 py-3 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-center"
+            >
+              {yearOptions.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
         </div>
-        <p className="text-accent font-bold text-xl">{timeToTarget}</p>
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Target size={18} className="text-accent" />
+            <h3 className="text-lg font-semibold text-foreground">Target</h3>
+          </div>
+          <p className="text-accent font-bold text-xl">{timeToTarget}</p>
+        </div>
       </div>
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
