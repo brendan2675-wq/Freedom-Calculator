@@ -51,53 +51,6 @@ const KeyInputs = ({
         </h2>
         <div className="h-6" />
 
-        {/* Summary stat cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-card rounded-xl border border-border p-4 text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Target size={14} className="text-accent" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Loan</p>
-            </div>
-            <p className="text-lg font-bold text-foreground">${loanBalance.toLocaleString()}</p>
-          </div>
-          <div className="bg-card rounded-xl border border-border p-4 text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Wallet size={14} className="text-accent" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Equity</p>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-[200px]">
-                  <p className="text-xs">Total equity available from existing and future investment properties.</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            <p className="text-lg font-bold text-accent">${totalEquity.toLocaleString()}</p>
-          </div>
-          <div className="bg-card rounded-xl border border-border p-4 text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <DollarSign size={14} className="text-accent" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Remaining</p>
-            </div>
-            <p className="text-lg font-bold text-foreground">${remaining.toLocaleString()}</p>
-          </div>
-          <div className="bg-card rounded-xl border border-border p-4 text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Clock size={14} className="text-accent" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Interest/mo</p>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent className="max-w-[200px]">
-                  <p className="text-xs">Approximate monthly interest cost at current rate on the full loan balance.</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            <p className="text-lg font-bold text-destructive">${monthlyCost.toLocaleString()}</p>
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Card 1: Loan & Target Date */}
