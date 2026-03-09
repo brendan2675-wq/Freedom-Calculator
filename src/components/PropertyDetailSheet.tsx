@@ -277,13 +277,18 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
               <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
             </FieldGroup>
             {isExisting && (
-              <div className="flex items-center gap-3">
-                <Switch
-                  checked={(property as ExistingProperty).earmarked}
-                  onCheckedChange={(v) => update({ earmarked: v } as Partial<ExistingProperty>)}
-                />
-                <span className="text-sm text-muted-foreground">Sell down this property</span>
-              </div>
+              <>
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={(property as ExistingProperty).earmarked}
+                    onCheckedChange={(v) => update({ earmarked: v } as Partial<ExistingProperty>)}
+                  />
+                  <span className="text-sm text-muted-foreground">Sell down this property</span>
+                </div>
+                <FieldGroup label="Settlement Date">
+                  <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
+                </FieldGroup>
+              </>
             )}
           </div>
 
