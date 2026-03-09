@@ -47,7 +47,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate }: Props) => {
     <TooltipProvider>
       <section>
         <h2 className="text-2xl font-bold text-foreground mb-1 gold-underline pb-2">
-          Investment Properties to Purchase
+          Your Proposed Purchases
         </h2>
         <div className="h-6" />
 
