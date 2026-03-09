@@ -75,7 +75,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
                   <div>
                     <label className="text-muted-foreground text-xs">Current Loan</label>
                     <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
-                    {p.loan.interestOnlyPeriodYears > 0 && (
+                    {p.loan.interestOnlyPeriodYears === 0 && (
                       <div className="flex items-center gap-1.5 mt-1 px-2 py-1 rounded-md bg-destructive/10 border border-destructive/20">
                         <AlertTriangle size={12} className="text-destructive shrink-0" />
                         <span className="text-xs text-destructive font-medium">Update Loan Amount</span>
