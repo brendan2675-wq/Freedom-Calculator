@@ -73,14 +73,16 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
                     <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-xs">Current Loan</label>
+                    <div className="flex items-center gap-2">
+                      <label className="text-muted-foreground text-xs">Current Loan</label>
+                      {p.loan.interestOnlyPeriodYears === 0 && (
+                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-destructive/10 border border-destructive/20">
+                          <AlertTriangle size={10} className="text-destructive shrink-0" />
+                          <span className="text-[10px] text-destructive font-medium leading-none">Update</span>
+                        </div>
+                      )}
+                    </div>
                     <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
-                    {p.loan.interestOnlyPeriodYears === 0 && (
-                      <div className="flex items-center gap-1.5 mt-1 px-2 py-1 rounded-md bg-destructive/10 border border-destructive/20">
-                        <AlertTriangle size={12} className="text-destructive shrink-0" />
-                        <span className="text-xs text-destructive font-medium">Update Loan Amount</span>
-                      </div>
-                    )}
                   </div>
                   <div className="flex items-center gap-1 pt-1">
                     <p className="text-muted-foreground">
