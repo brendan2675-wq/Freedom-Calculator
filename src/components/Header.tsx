@@ -11,13 +11,13 @@ const Header = ({ clientName, setClientName }: HeaderProps) => {
   return (
     <header className="bg-header text-primary-foreground">
       <div className="container mx-auto px-4 py-8 md:py-12 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           <button
             onClick={() => navigate("/")}
-            className="text-accent/70 hover:text-accent transition-colors"
+            className="w-14 h-14 rounded-xl bg-accent/15 border-2 border-accent/30 flex items-center justify-center text-accent hover:bg-accent/25 hover:border-accent/50 transition-all"
             aria-label="Back to Dashboard"
           >
-            <LayoutDashboard size={28} />
+            <LayoutDashboard size={32} />
           </button>
           <div>
             <h1 className="text-3xl md:text-5xl font-bold mb-3">
