@@ -66,8 +66,8 @@ const KeyInputs = ({
             </div>
             <div className="flex items-center gap-2 mb-3">
               <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
-              <span className="inline-flex items-center gap-1 text-[10px] text-warning font-medium bg-warning/10 px-1.5 py-0.5 rounded">
-                <AlertTriangle size={10} className="text-warning" />
+              <span className="inline-flex items-center gap-1 text-[10px] text-destructive font-medium bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">
+                <AlertTriangle size={10} className="text-destructive" />
                 Update
               </span>
             </div>
