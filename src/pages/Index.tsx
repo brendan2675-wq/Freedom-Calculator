@@ -10,7 +10,7 @@ import type { ExistingProperty, FutureProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 
 const Index = () => {
-  const [loanBalance, setLoanBalance] = useState(1500000);
+  const [loanBalance, setLoanBalance] = useState(2000000);
   const [interestRate, setInterestRate] = useState(6.2);
   const [targetMonth, setTargetMonth] = useState(2);
   const [targetYear, setTargetYear] = useState(2036);
