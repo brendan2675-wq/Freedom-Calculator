@@ -27,7 +27,7 @@ const KeyInputs = ({
   percentage, remaining, totalEquity, suburb, setSuburb, growthRate,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
-  const pporValue = 2500000;
+  const pporValue = 2750000;
   const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
     const now = new Date();
