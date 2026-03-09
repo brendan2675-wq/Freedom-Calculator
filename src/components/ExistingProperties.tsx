@@ -17,6 +17,7 @@ interface Props {
 
 const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
@@ -58,7 +59,8 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {properties.map((p) => {
-            const equity = Math.max(0, p.estimatedValue - p.loanBalance);
+            const lvr = lvrRates[p.id] ?? 0.8;
+            const equity = Math.max(0, (p.estimatedValue * lvr) - p.loanBalance);
             const futureValue = Math.round(p.estimatedValue * Math.pow(1.06, yearsToTarget));
             return (
               <div
@@ -97,19 +99,35 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     </div>
                     <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
                   </div>
-                  <div className="flex items-center gap-1 pt-1">
-                    <p className="text-muted-foreground">
-                      Usable equity:{" "}
+                  <div className="pt-1">
+                    <div className="flex items-center gap-1 mb-1">
+                      <p className="text-muted-foreground text-xs">Equity Available</p>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[220px]">
+                          <p className="text-xs">Current Value × LVR − Loan Balance</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <span className="text-accent font-bold">${equity.toLocaleString()}</span>
-                    </p>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info size={14} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[220px]">
-                        <p className="text-xs">The difference between property value and loan balance — equity that could be accessed.</p>
-                      </TooltipContent>
-                    </Tooltip>
+                      <select
+                        value={lvr}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          setLvrRates({ ...lvrRates, [p.id]: Number(e.target.value) });
+                        }}
+                        className="py-1 px-1.5 rounded border border-border bg-background text-foreground text-[10px] font-medium focus:outline-none focus:ring-2 focus:ring-accent"
+                      >
+                        <option value={0.8}>80% LVR</option>
+                        <option value={0.88}>88% LVR</option>
+                        <option value={0.9}>90% LVR</option>
+                        <option value={0.95}>95% LVR</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
