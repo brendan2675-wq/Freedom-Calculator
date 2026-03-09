@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { Target } from "lucide-react";
 
 interface Props {
   loanBalance: number;
@@ -16,9 +17,8 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
     const points = [];
     const years = Math.max(1, targetYear - startYear + 3);
     const monthlyRate = interestRate / 100 / 12;
-    const totalMonths = 30 * 12; // 30-year loan term
+    const totalMonths = 30 * 12;
     
-    // Calculate monthly P&I payment
     const monthlyPayment = monthlyRate > 0
       ? loanBalance * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1)
       : loanBalance / totalMonths;
@@ -29,7 +29,6 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
         year: (startYear + i).toString(),
         loanRemaining: Math.round(Math.max(0, balance)),
       });
-      // Amortize 12 months
       for (let m = 0; m < 12; m++) {
         const interest = balance * monthlyRate;
         const principal = monthlyPayment - interest;
@@ -40,6 +39,16 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
     return points;
   }, [loanBalance, targetYear, interestRate]);
 
+  const timeToTarget = useMemo(() => {
+    const startMonth = 1; // January 2026
+    const startYear = 2026;
+    let months = (targetYear - startYear) * 12 + (targetMonth - startMonth);
+    if (months < 0) months = 0;
+    const years = Math.floor(months / 12);
+    const rem = months % 12;
+    return `${years}yr ${rem}mo`;
+  }, [targetMonth, targetYear]);
+
   const formatDollar = (value: number) => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
     if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
@@ -48,7 +57,13 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
 
   return (
     <div className="p-5">
-      <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-foreground">Paydown Projection</h3>
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent bg-accent/10 px-3 py-1.5 rounded-full">
+          <Target size={14} />
+          {timeToTarget}
+        </span>
+      </div>
       <div className="h-64 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
