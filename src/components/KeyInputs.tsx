@@ -59,64 +59,65 @@ const KeyInputs = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Card 1: Loan, Target Date & Progress */}
-          <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col">
-            <div className="flex items-center gap-2 mb-1">
-              <DollarSign size={18} className="text-accent" />
-              <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
-            </div>
-            <div className="flex items-center gap-2 mb-3">
-              <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
-              <span className="inline-flex items-center gap-1 text-[10px] text-destructive font-medium bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">
-                <AlertTriangle size={10} className="text-destructive" />
-                Update
-              </span>
-            </div>
-            <div className="flex gap-3">
-              <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={loanBalance.toLocaleString()}
-                  onChange={(e) => {
-                    const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-                    setLoanBalance(v);
-                  }}
-                  className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
-                />
+          <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col justify-between">
+            {/* Loan to Pay Down */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <DollarSign size={18} className="text-accent" />
+                <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
               </div>
-              <div className="relative w-28">
-              <input
-                  type="text"
-                  inputMode="decimal"
-                  value={interestRate}
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    if (raw === '' || /^\d*\.?\d*$/.test(raw)) {
-                      setInterestRate(raw as any);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const v = parseFloat(e.target.value) || 0;
-                    setInterestRate(v);
-                  }}
-                  className="w-full pl-3 pr-8 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all text-center"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">%</span>
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
+                <span className="inline-flex items-center gap-1 text-[10px] text-destructive font-medium bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">
+                  <AlertTriangle size={10} className="text-destructive" />
+                  Update
+                </span>
+              </div>
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={loanBalance.toLocaleString()}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+                      setLoanBalance(v);
+                    }}
+                    className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+                  />
+                </div>
+                <div className="relative w-28">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={interestRate}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === '' || /^\d*\.?\d*$/.test(raw)) {
+                        setInterestRate(raw as any);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const v = parseFloat(e.target.value) || 0;
+                      setInterestRate(v);
+                    }}
+                    className="w-full pl-3 pr-8 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all text-center"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">%</span>
+                </div>
               </div>
             </div>
-
 
             {/* Progress Tracker */}
-            <div className="pt-4 mt-4 border-t border-border">
-              <div className="flex items-center gap-2 mb-1">
+            <div className="pt-5 mt-5 border-t border-border">
+              <div className="flex items-center gap-2 mb-2">
                 <TrendingUp size={18} className="text-accent" />
                 <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
               </div>
-              <div className="w-full mt-2">
+              <div className="w-full">
                 <div className="flex justify-between text-sm mb-1.5">
                   <span className="text-success font-semibold">{Math.min(100, Math.max(0, percentage)).toFixed(1)}% paid down</span>
-                  
                 </div>
                 <div className="w-full h-4 rounded-full bg-secondary overflow-hidden">
                   <div
@@ -128,8 +129,8 @@ const KeyInputs = ({
             </div>
 
             {/* Equity Pull */}
-            <div className="pt-4 mt-4 border-t border-border">
-              <div className="grid grid-cols-2 gap-3 mb-1">
+            <div className="pt-5 mt-5 border-t border-border">
+              <div className="grid grid-cols-2 gap-3 mb-2">
                 <div className="flex items-center gap-2">
                   <Home size={18} className="text-accent" />
                   <h3 className="text-lg font-semibold text-foreground">{suburb}</h3>
