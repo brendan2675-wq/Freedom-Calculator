@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, X, ChevronRight, Info, AlertTriangle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
@@ -11,12 +11,20 @@ export type { ExistingProperty } from "@/types/property";
 interface Props {
   properties: ExistingProperty[];
   setProperties: (p: ExistingProperty[]) => void;
+  targetMonth: number;
+  targetYear: number;
 }
 
-const ExistingProperties = ({ properties, setProperties }: Props) => {
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
+
+  const yearsToTarget = useMemo(() => {
+    const now = new Date();
+    const target = new Date(targetYear, targetMonth - 1);
+    return Math.max(0, (target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+  }, [targetMonth, targetYear]);
 
   const addProperty = () => {
     const newProperty: ExistingProperty = {
@@ -51,6 +59,7 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {properties.map((p) => {
             const equity = Math.max(0, p.estimatedValue - p.loanBalance);
+            const futureValue = Math.round(p.estimatedValue * Math.pow(1.06, yearsToTarget));
             return (
               <div
                 key={p.id}
@@ -71,6 +80,10 @@ const ExistingProperties = ({ properties, setProperties }: Props) => {
                   <div>
                     <label className="text-muted-foreground text-xs">Current Value</label>
                     <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground text-xs">Future Value <span className="text-[10px] text-accent">(6% p.a.)</span></label>
+                    <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
