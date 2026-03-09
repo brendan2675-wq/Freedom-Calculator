@@ -14,7 +14,7 @@ const Index = () => {
   const [interestRate, setInterestRate] = useState(6.2);
   const [targetMonth, setTargetMonth] = useState(2);
   const [targetYear, setTargetYear] = useState(2036);
-  const [growthRate, setGrowthRate] = useState(7);
+  const [growthRate, setGrowthRate] = useState(6);
   const [pporSuburb, setPporSuburb] = useState("Bella Vista");
   const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>([
      { id: "1", nickname: "Parramatta", estimatedValue: 580000, loanBalance: 480000, earmarked: true, ownership: "trust", investmentType: "unit", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
