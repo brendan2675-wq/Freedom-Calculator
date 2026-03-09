@@ -154,7 +154,7 @@ const KeyInputs = ({
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={(2500000).toLocaleString()}
+                      value={(2750000).toLocaleString()}
                       readOnly
                       className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none transition-all"
                     />
