@@ -78,6 +78,25 @@ const Index = () => {
           properties={futureProperties}
           setProperties={setFutureProperties}
           growthRate={growthRate}
+          targetMonth={targetMonth}
+          targetYear={targetYear}
+          onMoveToPortfolio={(fp) => {
+            // Convert FutureProperty → ExistingProperty
+            const existing: ExistingProperty = {
+              id: fp.id,
+              nickname: fp.suburb,
+              estimatedValue: fp.purchasePrice,
+              loanBalance: Math.round(fp.purchasePrice * 0.8),
+              earmarked: false,
+              ownership: fp.ownership,
+              investmentType: fp.investmentType,
+              loan: { ...fp.loan },
+              rental: { ...fp.rental },
+              purchase: { ...fp.purchase },
+            };
+            setExistingProperties([...existingProperties, existing]);
+            setFutureProperties(futureProperties.filter((p) => p.id !== fp.id));
+          }}
         />
 
         <Disclaimer
