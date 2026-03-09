@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, ArrowDownRight } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -13,11 +13,12 @@ interface Props {
   setProperties: (p: ExistingProperty[]) => void;
   targetMonth: number;
   targetYear: number;
+  onMoveToProposals?: (p: ExistingProperty) => void;
 }
 
 const VISIBLE_SLOTS = 5;
 
-const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear }: Props) => {
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, onMoveToProposals }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -113,12 +114,32 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-pointer hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
                 style={{ width: "calc((100% - 48px) / 5)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
-                <button
-                  onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
-                  className="absolute top-2 right-2 text-muted-foreground hover:text-foreground z-10"
-                >
-                  <X size={14} />
-                </button>
+                <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
+                  {onMoveToProposals && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onMoveToProposals(p);
+                          }}
+                          className="text-accent hover:text-accent/80 hover:bg-accent/10 rounded p-0.5 transition-colors"
+                        >
+                          <ArrowDownRight size={14} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        <p className="text-xs">Move to Proposals</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <InvestmentTypeIcon type={p.investmentType} size={16} className="text-accent shrink-0" />
                   <p className="font-semibold text-sm text-foreground truncate">{p.nickname || "Untitled"}</p>

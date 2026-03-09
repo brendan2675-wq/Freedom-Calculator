@@ -72,6 +72,22 @@ const Index = () => {
           setProperties={setExistingProperties}
           targetMonth={targetMonth}
           targetYear={targetYear}
+          onMoveToProposals={(ep) => {
+            const future: FutureProperty = {
+              id: ep.id,
+              suburb: ep.nickname,
+              purchasePrice: ep.estimatedValue,
+              rentalYield: 0,
+              projectedEquity5yr: 0,
+              ownership: ep.ownership,
+              investmentType: ep.investmentType,
+              loan: { ...ep.loan },
+              rental: { ...ep.rental },
+              purchase: { ...ep.purchase },
+            };
+            setFutureProperties([...futureProperties, future]);
+            setExistingProperties(existingProperties.filter((p) => p.id !== ep.id));
+          }}
         />
 
         <PropertiesToBuy
