@@ -41,18 +41,32 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
     return points;
   }, [loanBalance, targetYear, interestRate]);
 
-  const timeToTarget = useMemo(() => {
-    const startMonth = 1;
-    const startYear = 2026;
-    let months = (targetYear - startYear) * 12 + (targetMonth - startMonth);
+  // Compute years/months duration from now to target
+  const duration = useMemo(() => {
+    const now = new Date();
+    let months = (targetYear - now.getFullYear()) * 12 + (targetMonth - now.getMonth() - 1);
     if (months < 0) months = 0;
     const years = Math.floor(months / 12);
     const rem = months % 12;
-    return `${years} year${years !== 1 ? 's' : ''} and ${rem} month${rem !== 1 ? 's' : ''}`;
+    return { years, months: rem };
   }, [targetMonth, targetYear]);
 
-  const monthOptions = Array.from({ length: 12 }, (_, i) => i + 1);
-  const yearOptions = Array.from({ length: 20 }, (_, i) => 2025 + i);
+  // Compute target date label
+  const targetDateLabel = useMemo(() => {
+    const monthName = new Date(targetYear, targetMonth - 1).toLocaleString('default', { month: 'long' });
+    return `${monthName} ${targetYear}`;
+  }, [targetMonth, targetYear]);
+
+  // Update target from duration dropdowns
+  const setDuration = (years: number, months: number) => {
+    const now = new Date();
+    const target = new Date(now.getFullYear(), now.getMonth() + years * 12 + months);
+    setTargetMonth(target.getMonth() + 1);
+    setTargetYear(target.getFullYear());
+  };
+
+  const yearDurationOptions = Array.from({ length: 31 }, (_, i) => i);
+  const monthDurationOptions = Array.from({ length: 12 }, (_, i) => i);
 
   const formatDollar = (value: number) => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
@@ -67,30 +81,36 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           <Target size={18} className="text-accent" />
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Time Left</h3>
         </div>
-        <p className="text-3xl font-bold text-accent tracking-tight">{timeToTarget}</p>
-        <p className="text-xs text-muted-foreground mt-2 mb-3">Target Exit Date</p>
-        <div className="flex gap-3 justify-center max-w-xs mx-auto">
-          <select
-            value={targetMonth}
-            onChange={(e) => setTargetMonth(Number(e.target.value))}
-            className="flex-1 py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-          >
-            {monthOptions.map((m) => (
-              <option key={m} value={m}>
-                {new Date(2000, m - 1).toLocaleString('default', { month: 'long' })}
-              </option>
-            ))}
-          </select>
-          <select
-            value={targetYear}
-            onChange={(e) => setTargetYear(Number(e.target.value))}
-            className="w-24 py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent text-center"
-          >
-            {yearOptions.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+        <div className="flex gap-3 justify-center items-end my-3">
+          <div className="flex flex-col items-center">
+            <select
+              value={duration.years}
+              onChange={(e) => setDuration(Number(e.target.value), duration.months)}
+              className="py-2 px-3 rounded-lg border border-border bg-background text-accent text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-accent text-center appearance-none cursor-pointer"
+            >
+              {yearDurationOptions.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <span className="text-xs text-muted-foreground mt-1">years</span>
+          </div>
+          <span className="text-2xl font-bold text-accent pb-5">and</span>
+          <div className="flex flex-col items-center">
+            <select
+              value={duration.months}
+              onChange={(e) => setDuration(duration.years, Number(e.target.value))}
+              className="py-2 px-3 rounded-lg border border-border bg-background text-accent text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-accent text-center appearance-none cursor-pointer"
+            >
+              {monthDurationOptions.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+            <span className="text-xs text-muted-foreground mt-1">months</span>
+          </div>
         </div>
+        <p className="text-sm text-muted-foreground">
+          Target Exit: <span className="font-semibold text-foreground">{targetDateLabel}</span>
+        </p>
       </div>
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
