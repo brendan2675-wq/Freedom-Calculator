@@ -232,6 +232,8 @@ const KeyInputs = ({
               totalEquity={totalEquity}
               targetYear={targetYear}
               targetMonth={targetMonth}
+              setTargetMonth={setTargetMonth}
+              setTargetYear={setTargetYear}
               growthRate={growthRate}
               interestRate={interestRate}
             />
