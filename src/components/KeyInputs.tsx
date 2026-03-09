@@ -219,7 +219,6 @@ const KeyInputs = ({
                   </div>
                 </div>
               </div>
-              />
             </div>
           </div>
 
