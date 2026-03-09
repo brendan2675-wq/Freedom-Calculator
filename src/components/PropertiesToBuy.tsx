@@ -15,11 +15,13 @@ interface Props {
   targetMonth: number;
   targetYear: number;
   onMoveToPortfolio: (p: FutureProperty) => void;
+  pporLoanBalance: number;
+  portfolioLoanTotal: number;
 }
 
 const VISIBLE_SLOTS = 5;
 
-const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio }: Props) => {
+const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -210,9 +212,19 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
         </div>
 
         {properties.length > 0 && (
-          <div className="mt-4 bg-header rounded-xl p-3 text-center">
-            <p className="text-primary-foreground text-sm">Total projected equity available</p>
-            <p className="text-accent text-2xl font-bold">${totalEquity.toLocaleString()}</p>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="bg-header rounded-xl p-3 text-center">
+              <p className="text-primary-foreground text-sm">Total projected equity available</p>
+              <p className="text-accent text-2xl font-bold">${totalEquity.toLocaleString()}</p>
+            </div>
+            <div className="bg-header rounded-xl p-3 text-center">
+              <p className="text-primary-foreground text-sm">Total Loan amounts</p>
+              <p className="text-accent text-2xl font-bold">${(pporLoanBalance + portfolioLoanTotal).toLocaleString()}</p>
+            </div>
+            <div className="bg-header rounded-xl p-3 text-center">
+              <p className="text-primary-foreground text-sm">Portfolio Loan amount</p>
+              <p className="text-accent text-2xl font-bold">${portfolioLoanTotal.toLocaleString()}</p>
+            </div>
           </div>
         )}
 

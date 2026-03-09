@@ -98,6 +98,8 @@ const Index = () => {
           growthRate={growthRate}
           targetMonth={targetMonth}
           targetYear={targetYear}
+          pporLoanBalance={loanBalance}
+          portfolioLoanTotal={existingProperties.reduce((sum, p) => sum + p.loanBalance, 0)}
           onMoveToPortfolio={(fp) => {
             // Convert FutureProperty → ExistingProperty
             const existing: ExistingProperty = {
