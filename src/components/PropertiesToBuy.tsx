@@ -149,7 +149,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                     <p className="text-foreground font-medium">{p.rentalYield}%</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-[10px]">Future Value <span className="text-accent">({growthRate}%)</span></label>
+                    <label className="text-muted-foreground text-[10px]">Future Value <span className="text-accent">(6% p.a.)</span></label>
                     <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
