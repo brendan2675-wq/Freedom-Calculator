@@ -17,15 +17,13 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
 
     for (let i = 0; i <= years; i++) {
       const year = startYear + i;
-      const equityAtYear = totalEquity * Math.pow(1 + growthRate / 100, i);
-      const remainingLoan = Math.max(0, loanBalance - equityAtYear);
       points.push({
         year: year.toString(),
-        loanRemaining: Math.round(remainingLoan),
+        loanRemaining: Math.round(loanBalance),
       });
     }
     return points;
-  }, [loanBalance, totalEquity, targetYear, growthRate]);
+  }, [loanBalance, targetYear]);
 
   const formatDollar = (value: number) => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
