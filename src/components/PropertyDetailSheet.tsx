@@ -313,12 +313,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
             <FieldGroup label="Weekly Rent">
               <CurrencyInput value={property.rental.weeklyRent} onChange={(v) => updateRental({ weeklyRent: v })} />
             </FieldGroup>
-            <FieldGroup label="Vacancy Rate">
-              <NumberInput value={property.rental.vacancyRatePercent} onChange={(v) => updateRental({ vacancyRatePercent: v })} suffix="%" placeholder="2" />
-            </FieldGroup>
-            <FieldGroup label="Property Manager Fee">
-              <NumberInput value={property.rental.propertyManagerFeePercent} onChange={(v) => updateRental({ propertyManagerFeePercent: v })} suffix="%" placeholder="7" />
-            </FieldGroup>
           </div>
 
           {/* Purchase Details */}
