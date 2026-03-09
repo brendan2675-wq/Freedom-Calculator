@@ -107,7 +107,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           {properties.map((p) => {
             const lvr = lvrRates[p.id] ?? 0.8;
             const equity = Math.max(0, (p.estimatedValue * lvr) - p.loanBalance);
-            const futureValue = Math.round(p.estimatedValue * Math.pow(1.06, yearsToTarget));
+            const futureValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, yearsToTarget));
             return (
               <div
                 key={p.id}
