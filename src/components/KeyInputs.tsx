@@ -164,15 +164,15 @@ const KeyInputs = ({
                 <h3 className="text-lg font-semibold text-foreground">Equity Pull</h3>
               </div>
               <p className="text-muted-foreground text-sm mb-3">PPOR current value & available equity</p>
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <label className="text-muted-foreground text-xs font-medium">Current Value</label>
-                    <span className="text-foreground text-xs font-semibold">· {suburb}</span>
-                    <button className="text-[10px] text-accent font-medium bg-accent/10 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors whitespace-nowrap">
-                      Request property report
-                    </button>
-                  </div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-foreground text-sm font-semibold">{suburb}</span>
+                <button className="text-[10px] text-accent font-medium bg-accent/10 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors whitespace-nowrap">
+                  Request property report
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-muted-foreground text-xs font-medium mb-1 block">Current Value</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
                     <input
@@ -180,11 +180,11 @@ const KeyInputs = ({
                       inputMode="numeric"
                       value={(2500000).toLocaleString()}
                       readOnly
-                      className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+                      className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none transition-all"
                     />
                   </div>
                 </div>
-                <div className="flex-1">
+                <div>
                   <div className="flex items-center gap-1 mb-1">
                     <label className="text-muted-foreground text-xs font-medium">Equity Available</label>
                     <Tooltip>
@@ -209,7 +209,7 @@ const KeyInputs = ({
                     <select
                       value={lvrRate}
                       onChange={(e) => setLvrRate(Number(e.target.value))}
-                      className="w-28 py-3 px-2 rounded-lg border border-border bg-background text-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent"
+                      className="w-24 py-3 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent"
                     >
                       <option value={0.8}>80% LVR</option>
                       <option value={0.88}>88% LVR</option>
