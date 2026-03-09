@@ -28,7 +28,7 @@ const KeyInputs = ({
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
   const pporValue = 2750000;
-  const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
+  const equityAvailable = useMemo(() => Math.max(0, (pporValue - loanBalance) * lvrRate), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
     const now = new Date();
     const target = new Date(targetYear, targetMonth - 1);
