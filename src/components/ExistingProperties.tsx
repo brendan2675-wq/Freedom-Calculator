@@ -13,12 +13,13 @@ interface Props {
   setProperties: (p: ExistingProperty[]) => void;
   targetMonth: number;
   targetYear: number;
+  growthRate: number;
   onMoveToProposals?: (p: ExistingProperty) => void;
 }
 
 const VISIBLE_SLOTS = 5;
 
-const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, onMoveToProposals }: Props) => {
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
