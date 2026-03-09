@@ -161,15 +161,15 @@ const KeyInputs = ({
             <div className="pt-4 mt-4 border-t border-border">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
-                  <Wallet size={18} className="text-accent" />
-                  <h3 className="text-lg font-semibold text-foreground">Equity Pull</h3>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Home size={18} className="text-foreground" />
-                  <span className="text-foreground text-lg font-semibold">{suburb}</span>
+                  <Home size={18} className="text-accent" />
+                  <h3 className="text-lg font-semibold text-foreground">{suburb}</h3>
                   <button className="text-[9px] leading-tight text-accent font-medium bg-accent/10 px-1.5 py-1 rounded hover:bg-accent/20 transition-colors w-16 text-center">
                     Request property report
                   </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Wallet size={18} className="text-accent" />
+                  <span className="text-lg font-semibold text-foreground">Equity Pull</span>
                 </div>
               </div>
               <p className="text-muted-foreground text-sm mb-3">PPOR current value & available equity</p>
