@@ -1,4 +1,5 @@
-import { UserCircle } from "lucide-react";
+import { UserCircle, LayoutDashboard } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   clientName: string;
