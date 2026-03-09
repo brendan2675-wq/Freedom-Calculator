@@ -84,7 +84,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               <Target size={24} className="text-accent" strokeWidth={2.5} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-foreground">Time Left</h3>
+              <h3 className="text-xl font-bold text-foreground">Target Paydown</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Target: <span className="font-semibold text-foreground">{targetDateLabel}</span>
               </p>
