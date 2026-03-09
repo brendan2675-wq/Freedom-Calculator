@@ -134,7 +134,18 @@ const KeyInputs = ({
                 <TrendingUp size={18} className="text-accent" />
                 <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
               </div>
-              <HouseProgress percentage={percentage} remaining={remaining} />
+              <div className="w-full mt-2">
+                <div className="flex justify-between text-sm mb-1.5">
+                  <span className="text-success font-semibold">{Math.min(100, Math.max(0, percentage)).toFixed(1)}% paid down</span>
+                  <span className="text-muted-foreground font-medium">${remaining.toLocaleString()} remaining</span>
+                </div>
+                <div className="w-full h-4 rounded-full bg-secondary overflow-hidden">
+                  <div
+                    className="h-full bg-success rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
+                  />
+                </div>
+              </div>
               <div className="w-full mt-3 pt-3 border-t border-border text-center">
                 <div className="flex items-center justify-center gap-1">
                   <p className="text-muted-foreground text-xs uppercase tracking-wider">Equity Available</p>
