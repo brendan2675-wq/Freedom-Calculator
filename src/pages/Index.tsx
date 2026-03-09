@@ -64,24 +64,6 @@ const Index = () => {
           totalEquity={calculations.totalEquity}
           suburb={pporSuburb}
           setSuburb={setPporSuburb}
-        />
-
-        <ExistingProperties
-          properties={existingProperties}
-          setProperties={setExistingProperties}
-        />
-
-        <PropertiesToBuy
-          properties={futureProperties}
-          setProperties={setFutureProperties}
-          growthRate={growthRate}
-        />
-
-        <PaydownChart
-          loanBalance={loanBalance}
-          totalEquity={calculations.totalEquity}
-          targetYear={targetYear}
-          targetMonth={targetMonth}
           growthRate={growthRate}
         />
 
