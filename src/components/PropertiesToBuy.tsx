@@ -103,7 +103,8 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           style={{ scrollSnapType: "x mandatory" }}
         >
           {properties.map((p) => {
-            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget)eturn (
+            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget));
+            return (
               <div
                 key={p.id}
                 onClick={() => setSelectedId(p.id)}
@@ -148,7 +149,10 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                     <p className="text-foreground font-medium">{p.rentalYield}%</p>
                   </div>
                   <div>
-                    <label className="text-muted-foregrou{"Future Value (nd text-[10px]">Future Value ({growthRate}%)</label>     <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
+                    <label className="text-muted-foreground text-[10px]">
+                      {"Future Value (" + growthRate + "%)"}
+                    </label>
+                    <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-0.5">
