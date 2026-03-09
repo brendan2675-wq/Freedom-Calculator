@@ -118,7 +118,7 @@ const KeyInputs = ({
                 </div>
                 <span className="text-success font-bold text-lg">{Math.min(100, Math.max(0, percentage)).toFixed(1)}%</span>
               </div>
-              <div className="w-full h-8 rounded-full bg-secondary overflow-hidden">
+              <div className="w-full h-8 rounded-full bg-secondary overflow-hidden relative">
                 <div
                   className="h-full bg-success rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-3"
                   style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
@@ -127,6 +127,11 @@ const KeyInputs = ({
                     <span className="text-xs font-semibold text-white">${(loanBalance - remaining).toLocaleString()} paid down</span>
                   )}
                 </div>
+                {remaining > 0 && percentage < 85 && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">
+                    ${remaining.toLocaleString()} remaining
+                  </span>
+                )}
               </div>
             </div>
 
