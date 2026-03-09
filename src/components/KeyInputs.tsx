@@ -165,8 +165,8 @@ const KeyInputs = ({
                   <h3 className="text-lg font-semibold text-foreground">Equity Pull</h3>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-foreground text-sm font-semibold">{suburb}</span>
-                  <button className="text-[10px] text-accent font-medium bg-accent/10 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors whitespace-nowrap">
+                  <span className="text-foreground text-lg font-semibold">{suburb}</span>
+                  <button className="text-[9px] leading-tight text-accent font-medium bg-accent/10 px-1.5 py-1 rounded hover:bg-accent/20 transition-colors w-16 text-center">
                     Request property report
                   </button>
                 </div>
