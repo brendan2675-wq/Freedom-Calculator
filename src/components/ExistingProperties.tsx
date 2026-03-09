@@ -156,8 +156,13 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 flex-wrap">
                       <span className="text-accent font-bold">${equity.toLocaleString()}</span>
+                      {equity > 150000 && (
+                        <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full bg-success/15 text-success border border-success/30">
+                          Go again
+                        </span>
+                      )}
                       <select
                         value={lvr}
                         onClick={(e) => e.stopPropagation()}
