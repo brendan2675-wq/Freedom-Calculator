@@ -4,7 +4,6 @@ import KeyInputs from "@/components/KeyInputs";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertiesToBuy from "@/components/PropertiesToBuy";
 import Disclaimer from "@/components/Disclaimer";
-import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
 import type { ExistingProperty, FutureProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
