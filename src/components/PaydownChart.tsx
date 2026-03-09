@@ -24,7 +24,6 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
       points.push({
         year: year.toString(),
         loanRemaining: Math.round(remainingLoan),
-        equityAvailable: Math.round(Math.min(equityAtYear, loanBalance)),
       });
     }
     return points;
@@ -46,9 +45,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
             <XAxis dataKey="year" fontSize={12} tick={{ fill: 'hsl(0, 0%, 42%)' }} />
             <YAxis tickFormatter={formatDollar} fontSize={11} tick={{ fill: 'hsl(0, 0%, 42%)' }} width={55} />
             <Tooltip
-              formatter={(value: number, name: string) => [
+              formatter={(value: number) => [
                 `$${value.toLocaleString()}`,
-                name === 'loanRemaining' ? 'Loan Remaining' : 'Equity Applied',
+                'Loan Remaining',
               ]}
               contentStyle={{
                 backgroundColor: 'hsl(0, 0%, 100%)',
@@ -60,17 +59,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
             <ReferenceLine x={targetYear.toString()} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
             <Area
               type="monotone"
-              dataKey="equityAvailable"
-              stackId="1"
-              stroke="hsl(140, 26%, 39%)"
-              fill="hsl(140, 26%, 39%)"
-              fillOpacity={0.45}
-              name="equityAvailable"
-            />
-            <Area
-              type="monotone"
               dataKey="loanRemaining"
-              stackId="1"
               stroke="hsl(20, 60%, 52%)"
               fill="hsl(20, 60%, 52%)"
               fillOpacity={0.25}
@@ -80,10 +69,6 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
         </ResponsiveContainer>
       </div>
       <div className="flex gap-6 mt-3 text-sm text-muted-foreground justify-center">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(140, 26%, 39%)', opacity: 0.7 }} />
-          <span className="font-medium">Equity Applied</span>
-        </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(20, 60%, 52%)', opacity: 0.6 }} />
           <span className="font-medium">Loan Remaining</span>
