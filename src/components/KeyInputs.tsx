@@ -28,7 +28,7 @@ const KeyInputs = ({
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
   const pporValue = 2750000;
-  const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
+  const equityAvailable = useMemo(() => Math.max(0, (pporValue - loanBalance) * lvrRate), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
     const now = new Date();
     const target = new Date(targetYear, targetMonth - 1);
@@ -168,7 +168,7 @@ const KeyInputs = ({
                         <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[200px]">
-                        <p className="text-xs">Current Value × LVR − Loan Balance</p>
+                        <p className="text-xs">(Current Value − Loan Balance) × LVR</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
