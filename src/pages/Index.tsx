@@ -17,7 +17,7 @@ const Index = () => {
   const [growthRate, setGrowthRate] = useState(6);
   const [pporSuburb, setPporSuburb] = useState("Bella Vista");
   const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>([
-     { id: "1", nickname: "Parramatta", estimatedValue: 580000, loanBalance: 480000, earmarked: true, ownership: "trust", investmentType: "unit", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails }, loanSplits: [{ id: "s1", label: "Split 1", amount: 400000 }, { id: "s2", label: "Split 2", amount: 80000 }] },
+     { id: "1", nickname: "Parramatta", estimatedValue: 580000, loanBalance: 480000, earmarked: true, ownership: "trust", investmentType: "unit", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails }, loanSplits: [{ id: "s1", label: "Parramatta loan", amount: 400000 }, { id: "s2", label: "Liverpool equity", amount: 80000 }] },
     { id: "2", nickname: "Liverpool", estimatedValue: 750000, loanBalance: 530000, earmarked: true, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
   ]);
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([
