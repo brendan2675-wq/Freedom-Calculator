@@ -22,6 +22,7 @@ const Index = () => {
   ]);
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([
     { id: "3", suburb: "Marsden Park", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 530000, ownership: "trust", investmentType: "house", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 850000 } },
+    { id: "4", suburb: "Hoppers Crossing", purchasePrice: 620000, rentalYield: 4.8, projectedEquity5yr: 385000, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 620000 } },
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [clientName, setClientName] = useState("Client Name");
@@ -77,6 +78,25 @@ const Index = () => {
           properties={futureProperties}
           setProperties={setFutureProperties}
           growthRate={growthRate}
+          targetMonth={targetMonth}
+          targetYear={targetYear}
+          onMoveToPortfolio={(fp) => {
+            // Convert FutureProperty → ExistingProperty
+            const existing: ExistingProperty = {
+              id: fp.id,
+              nickname: fp.suburb,
+              estimatedValue: fp.purchasePrice,
+              loanBalance: Math.round(fp.purchasePrice * 0.8),
+              earmarked: false,
+              ownership: fp.ownership,
+              investmentType: fp.investmentType,
+              loan: { ...fp.loan },
+              rental: { ...fp.rental },
+              purchase: { ...fp.purchase },
+            };
+            setExistingProperties([...existingProperties, existing]);
+            setFutureProperties(futureProperties.filter((p) => p.id !== fp.id));
+          }}
         />
 
         <Disclaimer
