@@ -34,6 +34,13 @@ const Header = ({ clientName, setClientName }: HeaderProps) => {
             className="text-center text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-32 md:w-40"
             placeholder="Client name"
           />
+          <button
+            onClick={() => navigate("/")}
+            className="text-accent/70 hover:text-accent transition-colors mt-1"
+            aria-label="Back to Dashboard"
+          >
+            <LayoutDashboard size={20} />
+          </button>
         </div>
       </div>
     </header>
