@@ -170,6 +170,7 @@ const KeyInputs = ({
                   </div>
                   <p className="text-accent font-bold text-xl">${totalEquity.toLocaleString()}</p>
                 </div>
+                </div>
               </div>
               <input
                 value={suburb}
