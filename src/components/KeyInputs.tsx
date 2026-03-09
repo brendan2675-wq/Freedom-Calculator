@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info } from "lucide-react";
+import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info, AlertTriangle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import HouseProgress from "@/components/HouseProgress";
 import PaydownChart from "@/components/PaydownChart";
@@ -64,7 +64,13 @@ const KeyInputs = ({
               <DollarSign size={18} className="text-accent" />
               <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
             </div>
-            <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
+            <div className="flex items-center gap-2 mb-3">
+              <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
+              <span className="inline-flex items-center gap-1 text-[10px] text-warning font-medium bg-warning/10 px-1.5 py-0.5 rounded">
+                <AlertTriangle size={10} className="text-warning" />
+                Update
+              </span>
+            </div>
             <div className="flex gap-3">
               <div className="relative flex-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
