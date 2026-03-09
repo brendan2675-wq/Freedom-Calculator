@@ -76,39 +76,49 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
   return (
     <div className="p-5">
-      <div className="mb-4 pb-4 border-b border-border text-center">
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <Target size={18} className="text-accent" />
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Time Left</h3>
+      <div className="mb-5 pb-5 border-b border-border text-center">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Target size={16} className="text-accent" />
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Time Left</h3>
         </div>
-        <div className="flex gap-3 justify-center items-end my-3">
+        <div className="flex gap-4 justify-center items-center">
+          {/* Years box */}
           <div className="flex flex-col items-center">
-            <select
-              value={duration.years}
-              onChange={(e) => setDuration(Number(e.target.value), duration.months)}
-              className="py-2 px-3 rounded-lg border border-border bg-background text-accent text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-accent text-center appearance-none cursor-pointer"
-            >
-              {yearDurationOptions.map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-            <span className="text-xs text-muted-foreground mt-1">years</span>
+            <div className="relative w-20 h-20 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+              <select
+                value={duration.years}
+                onChange={(e) => setDuration(Number(e.target.value), duration.months)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              >
+                {yearDurationOptions.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+              <span className="text-3xl font-bold text-accent">{duration.years}</span>
+            </div>
+            <span className="text-[11px] font-medium text-muted-foreground mt-2 uppercase tracking-wide">years</span>
           </div>
-          <span className="text-2xl font-bold text-accent pb-5">and</span>
+
+          <span className="text-lg font-medium text-muted-foreground/60 mt-[-1.5rem]">and</span>
+
+          {/* Months box */}
           <div className="flex flex-col items-center">
-            <select
-              value={duration.months}
-              onChange={(e) => setDuration(duration.years, Number(e.target.value))}
-              className="py-2 px-3 rounded-lg border border-border bg-background text-accent text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-accent text-center appearance-none cursor-pointer"
-            >
-              {monthDurationOptions.map((m) => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
-            <span className="text-xs text-muted-foreground mt-1">months</span>
+            <div className="relative w-20 h-20 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+              <select
+                value={duration.months}
+                onChange={(e) => setDuration(duration.years, Number(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              >
+                {monthDurationOptions.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <span className="text-3xl font-bold text-accent">{duration.months}</span>
+            </div>
+            <span className="text-[11px] font-medium text-muted-foreground mt-2 uppercase tracking-wide">months</span>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground mt-4">
           Target Exit: <span className="font-semibold text-foreground">{targetDateLabel}</span>
         </p>
       </div>
