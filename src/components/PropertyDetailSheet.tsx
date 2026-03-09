@@ -329,12 +329,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
             <FieldGroup label="Original Purchase Price">
               <CurrencyInput value={property.purchase.purchasePrice} onChange={(v) => updatePurchase({ purchasePrice: v })} />
             </FieldGroup>
-            <FieldGroup label="Stamp Duty">
-              <CurrencyInput value={property.purchase.stampDuty} onChange={(v) => updatePurchase({ stampDuty: v })} />
-            </FieldGroup>
-            <FieldGroup label="Settlement Date">
-              <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
-            </FieldGroup>
           </div>
         </div>
       </SheetContent>
