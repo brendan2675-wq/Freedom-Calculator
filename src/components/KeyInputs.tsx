@@ -172,7 +172,7 @@ const KeyInputs = ({
                   <span className="text-lg font-semibold text-foreground">Equity Pull</span>
                 </div>
               </div>
-              <p className="text-muted-foreground text-sm mb-3">PPOR current value & available equity</p>
+              
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-muted-foreground text-xs font-medium mb-1 block">Current Value</label>
