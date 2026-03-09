@@ -95,7 +95,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Target size={18} className="text-accent" />
-            <h3 className="text-lg font-semibold text-foreground">Target</h3>
+            <h3 className="text-lg font-semibold text-foreground">Time Left</h3>
           </div>
           <p className="text-accent font-bold text-xl">{timeToTarget}</p>
         </div>
