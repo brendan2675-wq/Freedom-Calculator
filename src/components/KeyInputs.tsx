@@ -168,7 +168,7 @@ const KeyInputs = ({
                         <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-[200px]">
-                        <p className="text-xs">(Current Value − Loan Balance) × LVR</p>
+                        <p className="text-xs">(Current Value × LVR) − Loan Balance</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>

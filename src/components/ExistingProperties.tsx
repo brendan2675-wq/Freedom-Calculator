@@ -107,7 +107,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                           <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-[220px]">
-                          <p className="text-xs">(Current Value − Loan Balance) × LVR</p>
+                          <p className="text-xs">(Current Value × LVR) − Loan Balance</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>
