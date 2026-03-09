@@ -3,8 +3,6 @@ import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertiesToBuy from "@/components/PropertiesToBuy";
-import PaydownChart from "@/components/PaydownChart";
-import PaydownSummary from "@/components/PaydownSummary";
 import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
 import type { ExistingProperty, FutureProperty } from "@/types/property";
@@ -64,24 +62,6 @@ const Index = () => {
           totalEquity={calculations.totalEquity}
           suburb={pporSuburb}
           setSuburb={setPporSuburb}
-        />
-
-        <ExistingProperties
-          properties={existingProperties}
-          setProperties={setExistingProperties}
-        />
-
-        <PropertiesToBuy
-          properties={futureProperties}
-          setProperties={setFutureProperties}
-          growthRate={growthRate}
-        />
-
-        <PaydownChart
-          loanBalance={loanBalance}
-          totalEquity={calculations.totalEquity}
-          targetYear={targetYear}
-          targetMonth={targetMonth}
           growthRate={growthRate}
         />
 
