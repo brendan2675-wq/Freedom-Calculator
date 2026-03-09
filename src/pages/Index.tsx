@@ -69,6 +69,8 @@ const Index = () => {
         <ExistingProperties
           properties={existingProperties}
           setProperties={setExistingProperties}
+          targetMonth={targetMonth}
+          targetYear={targetYear}
         />
 
         <PropertiesToBuy
