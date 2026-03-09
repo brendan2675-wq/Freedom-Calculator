@@ -20,6 +20,12 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
+  const yearsToTarget = useMemo(() => {
+    const now = new Date();
+    const target = new Date(targetYear, targetMonth - 1);
+    return Math.max(0, (target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+  }, [targetMonth, targetYear]);
+
   const addProperty = () => {
     const newProperty: ExistingProperty = {
       id: crypto.randomUUID(),
