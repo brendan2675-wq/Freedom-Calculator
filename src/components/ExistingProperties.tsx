@@ -11,9 +11,11 @@ export type { ExistingProperty } from "@/types/property";
 interface Props {
   properties: ExistingProperty[];
   setProperties: (p: ExistingProperty[]) => void;
+  targetMonth: number;
+  targetYear: number;
 }
 
-const ExistingProperties = ({ properties, setProperties }: Props) => {
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
