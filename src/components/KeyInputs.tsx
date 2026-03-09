@@ -1,7 +1,8 @@
 import { useMemo } from "react";
-import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info } from "lucide-react";
+import { DollarSign, CalendarClock, TrendingUp, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import HouseProgress from "@/components/HouseProgress";
+import PaydownChart from "@/components/PaydownChart";
 
 interface KeyInputsProps {
   loanBalance: number;
@@ -17,12 +18,13 @@ interface KeyInputsProps {
   totalEquity: number;
   suburb: string;
   setSuburb: (v: string) => void;
+  growthRate: number;
 }
 
 const KeyInputs = ({
   loanBalance, setLoanBalance, interestRate, setInterestRate,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  percentage, remaining, totalEquity, suburb, setSuburb,
+  percentage, remaining, totalEquity, suburb, setSuburb, growthRate,
 }: KeyInputsProps) => {
   const timeAway = useMemo(() => {
     const now = new Date();
@@ -37,12 +39,6 @@ const KeyInputs = ({
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const years = Array.from({ length: 20 }, (_, i) => 2025 + i);
 
-  const monthlyCost = useMemo(() => {
-    const monthlyRate = interestRate / 100 / 12;
-    if (monthlyRate <= 0) return 0;
-    return Math.round(loanBalance * monthlyRate);
-  }, [loanBalance, interestRate]);
-
   return (
     <TooltipProvider>
       <section>
@@ -51,9 +47,8 @@ const KeyInputs = ({
         </h2>
         <div className="h-6" />
 
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Card 1: Loan & Target Date */}
+          {/* Card 1: Loan, Target Date & Progress */}
           <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col">
             <div className="flex items-center gap-2 mb-1">
               <DollarSign size={18} className="text-accent" />
@@ -125,38 +120,47 @@ const KeyInputs = ({
               </div>
               <p className="text-accent font-medium text-sm">{timeAway}</p>
             </div>
+
+            {/* Progress Tracker - moved here */}
+            <div className="pt-4 mt-4 border-t border-border flex flex-col items-center">
+              <div className="flex items-center gap-2 mb-1 self-start">
+                <TrendingUp size={18} className="text-accent" />
+                <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
+              </div>
+              <div className="flex items-center justify-center py-2">
+                <HouseProgress percentage={percentage} remaining={remaining} />
+              </div>
+              <div className="w-full mt-3 pt-3 border-t border-border text-center">
+                <div className="flex items-center justify-center gap-1">
+                  <p className="text-muted-foreground text-xs uppercase tracking-wider">Equity Available</p>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[200px]">
+                      <p className="text-xs">Combined equity from existing properties marked for sell-down plus projected equity from future purchases.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <p className="text-accent font-bold text-xl">${totalEquity.toLocaleString()}</p>
+              </div>
+              <input
+                value={suburb}
+                onChange={(e) => setSuburb(e.target.value)}
+                className="w-full text-center text-sm text-muted-foreground mt-2 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none transition-colors"
+                placeholder="Enter suburb"
+              />
+            </div>
           </div>
 
-          {/* Card 2: Progress Tracker */}
-          <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col items-center">
-            <div className="flex items-center gap-2 mb-1 self-start">
-              <TrendingUp size={18} className="text-accent" />
-              <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
-            </div>
-            <div className="flex-1 flex items-center justify-center">
-              <HouseProgress percentage={percentage} remaining={remaining} />
-            </div>
-            <div className="w-full mt-3 pt-3 border-t border-border text-center">
-              <div className="flex items-center justify-center gap-1">
-                <p className="text-muted-foreground text-xs uppercase tracking-wider">Equity Available</p>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[200px]">
-                    <p className="text-xs">Combined equity from existing properties marked for sell-down plus projected equity from future purchases.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <p className="text-accent font-bold text-xl">${totalEquity.toLocaleString()}</p>
-            </div>
-            <input
-              value={suburb}
-              onChange={(e) => setSuburb(e.target.value)}
-              className="w-full text-center text-sm text-muted-foreground mt-2 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none transition-colors"
-              placeholder="Enter suburb"
-            />
-          </div>
+          {/* Card 2: Paydown Projection */}
+          <PaydownChart
+            loanBalance={loanBalance}
+            totalEquity={totalEquity}
+            targetYear={targetYear}
+            targetMonth={targetMonth}
+            growthRate={growthRate}
+          />
         </div>
       </section>
     </TooltipProvider>
