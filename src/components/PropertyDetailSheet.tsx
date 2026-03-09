@@ -285,6 +285,39 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                   />
                   <span className="text-sm text-muted-foreground">Sell down this property</span>
                 </div>
+                {(property as ExistingProperty).earmarked && (() => {
+                  const ep = property as ExistingProperty;
+                  const currentValue = ep.estimatedValue;
+                  const loanBal = ep.loanBalance;
+                  const stampDuty = Math.round(currentValue * 0.05);
+                  const sellingFees = Math.round(currentValue * 0.02);
+                  const saleProceeds = currentValue - loanBal - stampDuty - sellingFees;
+                  return (
+                    <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Current Value</span>
+                        <span className="text-foreground font-medium">${currentValue.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Less: Loan Balance</span>
+                        <span className="text-destructive font-medium">-${loanBal.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Less: Stamp Duty (5%)</span>
+                        <span className="text-destructive font-medium">-${stampDuty.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Less: Selling Fees (2%)</span>
+                        <span className="text-destructive font-medium">-${sellingFees.toLocaleString()}</span>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between text-sm font-bold">
+                        <span className="text-foreground">Sale Proceeds</span>
+                        <span className={saleProceeds >= 0 ? "text-accent" : "text-destructive"}>${saleProceeds.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
                 <FieldGroup label="Settlement Date">
                   <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
                 </FieldGroup>
