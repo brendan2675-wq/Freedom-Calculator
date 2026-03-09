@@ -172,7 +172,7 @@ const KeyInputs = ({
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                     <div className="relative flex-1">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
                       <input
@@ -182,6 +182,11 @@ const KeyInputs = ({
                         className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-accent text-lg font-bold focus:outline-none transition-all"
                       />
                     </div>
+                    {equityAvailable > 150000 && (
+                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-success/15 text-success border border-success/30 whitespace-nowrap">
+                        Go again
+                      </span>
+                    )}
                     <select
                       value={lvrRate}
                       onChange={(e) => setLvrRate(Number(e.target.value))}
