@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import HouseProgress from "@/components/HouseProgress";
+import PaydownChart from "@/components/PaydownChart";
 
 interface KeyInputsProps {
   loanBalance: number;
@@ -17,12 +18,13 @@ interface KeyInputsProps {
   totalEquity: number;
   suburb: string;
   setSuburb: (v: string) => void;
+  growthRate: number;
 }
 
 const KeyInputs = ({
   loanBalance, setLoanBalance, interestRate, setInterestRate,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  percentage, remaining, totalEquity, suburb, setSuburb,
+  percentage, remaining, totalEquity, suburb, setSuburb, growthRate,
 }: KeyInputsProps) => {
   const timeAway = useMemo(() => {
     const now = new Date();
