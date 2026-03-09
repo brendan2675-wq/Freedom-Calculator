@@ -103,7 +103,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           style={{ scrollSnapType: "x mandatory" }}
         >
           {properties.map((p) => {
-            const futureValue = Math.round(p.purchasePrice * Math.pow(1.06, yearsToTarget));
+            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget));
             return (
               <div
                 key={p.id}
