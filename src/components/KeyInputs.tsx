@@ -19,12 +19,13 @@ interface KeyInputsProps {
   suburb: string;
   setSuburb: (v: string) => void;
   growthRate: number;
+  setGrowthRate: (v: number) => void;
 }
 
 const KeyInputs = ({
   loanBalance, setLoanBalance, interestRate, setInterestRate,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  percentage, remaining, totalEquity, suburb, setSuburb, growthRate,
+  percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
   const pporValue = 2750000;
