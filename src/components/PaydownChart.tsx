@@ -37,7 +37,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
   };
 
   return (
-    <div className="bg-card rounded-xl shadow-md p-5 border border-border">
+    <div className="p-5">
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
       <div className="h-64 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
