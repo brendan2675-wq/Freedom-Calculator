@@ -40,13 +40,13 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
   }, [loanBalance, targetYear, interestRate]);
 
   const timeToTarget = useMemo(() => {
-    const startMonth = 1; // January 2026
+    const startMonth = 1;
     const startYear = 2026;
     let months = (targetYear - startYear) * 12 + (targetMonth - startMonth);
     if (months < 0) months = 0;
     const years = Math.floor(months / 12);
     const rem = months % 12;
-    return `${years}yr ${rem}mo`;
+    return `${years} year${years !== 1 ? 's' : ''} and ${rem} month${rem !== 1 ? 's' : ''}`;
   }, [targetMonth, targetYear]);
 
   const formatDollar = (value: number) => {
@@ -57,15 +57,15 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
 
   return (
     <div className="p-5">
-      <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
-
-      <div className="mb-4">
+      <div className="mb-4 pb-4 border-b border-border">
         <div className="flex items-center gap-2 mb-1">
           <Target size={18} className="text-accent" />
           <h3 className="text-lg font-semibold text-foreground">Target</h3>
         </div>
-        <p className="text-accent font-medium text-sm">{timeToTarget}</p>
+        <p className="text-accent font-bold text-xl">{timeToTarget}</p>
       </div>
+
+      <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
       <div className="h-64 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
