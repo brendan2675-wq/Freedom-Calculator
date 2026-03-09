@@ -166,7 +166,13 @@ const KeyInputs = ({
               <p className="text-muted-foreground text-sm mb-3">PPOR current value & available equity</p>
               <div className="flex gap-3">
                 <div className="flex-1">
-                  <label className="text-muted-foreground text-xs font-medium mb-1 block">Current Value</label>
+                  <div className="flex items-center gap-2 mb-1">
+                    <label className="text-muted-foreground text-xs font-medium">Current Value</label>
+                    <span className="text-foreground text-xs font-semibold">· {suburb}</span>
+                    <button className="text-[10px] text-accent font-medium bg-accent/10 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors whitespace-nowrap">
+                      Request property report
+                    </button>
+                  </div>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
                     <input
@@ -213,11 +219,6 @@ const KeyInputs = ({
                   </div>
                 </div>
               </div>
-              <input
-                value={suburb}
-                onChange={(e) => setSuburb(e.target.value)}
-                className="w-full text-center text-sm text-muted-foreground mt-2 bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-none transition-colors"
-                placeholder="Enter suburb"
               />
             </div>
           </div>
