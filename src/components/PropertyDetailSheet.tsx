@@ -277,13 +277,18 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
               <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
             </FieldGroup>
             {isExisting && (
-              <div className="flex items-center gap-3">
-                <Switch
-                  checked={(property as ExistingProperty).earmarked}
-                  onCheckedChange={(v) => update({ earmarked: v } as Partial<ExistingProperty>)}
-                />
-                <span className="text-sm text-muted-foreground">Sell down this property</span>
-              </div>
+              <>
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={(property as ExistingProperty).earmarked}
+                    onCheckedChange={(v) => update({ earmarked: v } as Partial<ExistingProperty>)}
+                  />
+                  <span className="text-sm text-muted-foreground">Sell down this property</span>
+                </div>
+                <FieldGroup label="Settlement Date">
+                  <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
+                </FieldGroup>
+              </>
             )}
           </div>
 
@@ -313,12 +318,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
             <FieldGroup label="Weekly Rent">
               <CurrencyInput value={property.rental.weeklyRent} onChange={(v) => updateRental({ weeklyRent: v })} />
             </FieldGroup>
-            <FieldGroup label="Vacancy Rate">
-              <NumberInput value={property.rental.vacancyRatePercent} onChange={(v) => updateRental({ vacancyRatePercent: v })} suffix="%" placeholder="2" />
-            </FieldGroup>
-            <FieldGroup label="Property Manager Fee">
-              <NumberInput value={property.rental.propertyManagerFeePercent} onChange={(v) => updateRental({ propertyManagerFeePercent: v })} suffix="%" placeholder="7" />
-            </FieldGroup>
           </div>
 
           {/* Purchase Details */}
@@ -329,12 +328,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
             </FieldGroup>
             <FieldGroup label="Original Purchase Price">
               <CurrencyInput value={property.purchase.purchasePrice} onChange={(v) => updatePurchase({ purchasePrice: v })} />
-            </FieldGroup>
-            <FieldGroup label="Stamp Duty">
-              <CurrencyInput value={property.purchase.stampDuty} onChange={(v) => updatePurchase({ stampDuty: v })} />
-            </FieldGroup>
-            <FieldGroup label="Settlement Date">
-              <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
             </FieldGroup>
           </div>
         </div>
