@@ -111,19 +111,21 @@ const KeyInputs = ({
 
             {/* Progress Tracker */}
             <div className="pt-5 mt-5 border-t border-border">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp size={18} className="text-accent" />
-                <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
-              </div>
-              <div className="w-full">
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-success font-semibold">{Math.min(100, Math.max(0, percentage)).toFixed(1)}% paid down</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <TrendingUp size={18} className="text-accent" />
+                  <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
                 </div>
-                <div className="w-full h-4 rounded-full bg-secondary overflow-hidden">
-                  <div
-                    className="h-full bg-success rounded-full transition-all duration-1000 ease-out"
-                    style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
-                  />
+                <span className="text-success font-bold text-lg">{Math.min(100, Math.max(0, percentage)).toFixed(1)}%</span>
+              </div>
+              <div className="w-full h-8 rounded-full bg-secondary overflow-hidden">
+                <div
+                  className="h-full bg-success rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-3"
+                  style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
+                >
+                  {percentage > 15 && (
+                    <span className="text-xs font-semibold text-white">paid down</span>
+                  )}
                 </div>
               </div>
             </div>
