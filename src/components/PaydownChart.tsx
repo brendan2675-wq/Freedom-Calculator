@@ -62,42 +62,34 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
   return (
     <div className="p-5">
-      <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-border">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <CalendarClock size={18} className="text-accent" />
-            <h3 className="text-lg font-semibold text-foreground">Target Exit Date</h3>
-          </div>
-          <p className="text-muted-foreground text-sm mb-3">When you want to be debt-free</p>
-          <div className="flex gap-3">
-            <select
-              value={targetMonth}
-              onChange={(e) => setTargetMonth(Number(e.target.value))}
-              className="flex-1 py-3 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
-            >
-              {monthOptions.map((m) => (
-                <option key={m} value={m}>
-                  {new Date(2000, m - 1).toLocaleString('default', { month: 'long' })}
-                </option>
-              ))}
-            </select>
-            <select
-              value={targetYear}
-              onChange={(e) => setTargetYear(Number(e.target.value))}
-              className="w-28 py-3 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-center"
-            >
-              {yearOptions.map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          </div>
+      <div className="mb-4 pb-4 border-b border-border text-center">
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <Target size={18} className="text-accent" />
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Time Left</h3>
         </div>
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Target size={18} className="text-accent" />
-            <h3 className="text-lg font-semibold text-foreground">Time Left</h3>
-          </div>
-          <p className="text-accent font-bold text-xl">{timeToTarget}</p>
+        <p className="text-3xl font-bold text-accent tracking-tight">{timeToTarget}</p>
+        <p className="text-xs text-muted-foreground mt-2 mb-3">Target Exit Date</p>
+        <div className="flex gap-3 justify-center max-w-xs mx-auto">
+          <select
+            value={targetMonth}
+            onChange={(e) => setTargetMonth(Number(e.target.value))}
+            className="flex-1 py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+          >
+            {monthOptions.map((m) => (
+              <option key={m} value={m}>
+                {new Date(2000, m - 1).toLocaleString('default', { month: 'long' })}
+              </option>
+            ))}
+          </select>
+          <select
+            value={targetYear}
+            onChange={(e) => setTargetYear(Number(e.target.value))}
+            className="w-24 py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent text-center"
+          >
+            {yearOptions.map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
       </div>
 
