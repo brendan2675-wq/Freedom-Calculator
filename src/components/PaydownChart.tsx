@@ -7,23 +7,38 @@ interface Props {
   targetYear: number;
   targetMonth: number;
   growthRate: number;
+  interestRate: number;
 }
 
-const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growthRate }: Props) => {
+const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growthRate, interestRate }: Props) => {
   const data = useMemo(() => {
     const startYear = 2026;
     const points = [];
     const years = Math.max(1, targetYear - startYear + 3);
+    const monthlyRate = interestRate / 100 / 12;
+    const totalMonths = 30 * 12; // 30-year loan term
+    
+    // Calculate monthly P&I payment
+    const monthlyPayment = monthlyRate > 0
+      ? loanBalance * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1)
+      : loanBalance / totalMonths;
 
+    let balance = loanBalance;
     for (let i = 0; i <= years; i++) {
-      const year = startYear + i;
       points.push({
-        year: year.toString(),
-        loanRemaining: Math.round(loanBalance),
+        year: (startYear + i).toString(),
+        loanRemaining: Math.round(Math.max(0, balance)),
       });
+      // Amortize 12 months
+      for (let m = 0; m < 12; m++) {
+        const interest = balance * monthlyRate;
+        const principal = monthlyPayment - interest;
+        balance -= principal;
+        if (balance <= 0) { balance = 0; break; }
+      }
     }
     return points;
-  }, [loanBalance, targetYear]);
+  }, [loanBalance, targetYear, interestRate]);
 
   const formatDollar = (value: number) => {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
