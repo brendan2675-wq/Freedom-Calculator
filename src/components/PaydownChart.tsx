@@ -57,12 +57,14 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, growt
 
   return (
     <div className="p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Paydown Projection</h3>
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent bg-accent/10 px-3 py-1.5 rounded-full">
-          <Target size={14} />
-          {timeToTarget}
-        </span>
+      <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
+
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <Target size={18} className="text-accent" />
+          <h3 className="text-lg font-semibold text-foreground">Target</h3>
+        </div>
+        <p className="text-accent font-medium text-sm">{timeToTarget}</p>
       </div>
       <div className="h-64 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
