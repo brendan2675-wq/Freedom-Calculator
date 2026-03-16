@@ -103,7 +103,7 @@ const HomePage = () => {
           </button>
 
           {/* Right — Goal tiles */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
             {tiles.map((tile) => {
               const Icon = tile.icon;
               const isActive = !!tile.route;
