@@ -28,6 +28,17 @@ const KeyInputs = ({
   percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
+  const [startingBalance, setStartingBalance] = useState(1842105);
+  const [pporInterestRate, setPporInterestRate] = useState(6.2);
+  const [repaymentType, setRepaymentType] = useState<"pi" | "io">("pi");
+  const [loanTermYears, setLoanTermYears] = useState(30);
+  const [loanTermMonths, setLoanTermMonths] = useState(0);
+  const [ioPeriodYears, setIoPeriodYears] = useState(5);
+
+  const paydownPercent = useMemo(() => {
+    if (startingBalance <= 0) return 0;
+    return ((startingBalance - loanBalance) / startingBalance) * 100;
+  }, [startingBalance, loanBalance]);
   const pporValue = 2750000;
   const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
@@ -117,13 +128,110 @@ const KeyInputs = ({
                   <TrendingUp size={18} className="text-accent" />
                   <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
                 </div>
-                <span className="text-success font-bold text-lg">5.0%</span>
+                <span className="text-success font-bold text-lg">{paydownPercent.toFixed(1)}%</span>
               </div>
-              <div className="w-full h-8 rounded-full bg-secondary overflow-hidden">
-                <div
-                  className="h-full bg-success rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-3"
-                  style={{ width: "5%" }}
-                />
+
+              <div className="flex gap-4">
+                {/* Sidebar inputs */}
+                <div className="flex flex-col gap-2.5 min-w-[200px] text-xs">
+                  <div>
+                    <label className="text-muted-foreground font-medium mb-0.5 block">Starting Balance</label>
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={startingBalance.toLocaleString()}
+                        onChange={(e) => {
+                          const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+                          setStartingBalance(v);
+                        }}
+                        className="w-full pl-6 pr-2 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-muted-foreground font-medium mb-0.5 block">Interest Rate</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={pporInterestRate}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === '' || /^\d*\.?\d*$/.test(raw)) setPporInterestRate(raw as any);
+                        }}
+                        onBlur={(e) => setPporInterestRate(parseFloat(e.target.value) || 0)}
+                        className="w-full pl-2.5 pr-6 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent transition-all text-center"
+                      />
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">%</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-muted-foreground font-medium mb-0.5 block">Repayment Type</label>
+                    <select
+                      value={repaymentType}
+                      onChange={(e) => setRepaymentType(e.target.value as "pi" | "io")}
+                      className="w-full py-2 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent"
+                    >
+                      <option value="pi">Principal & Interest</option>
+                      <option value="io">Interest Only</option>
+                    </select>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <label className="text-muted-foreground font-medium mb-0.5 block">Term (yrs)</label>
+                      <input
+                        type="number"
+                        min={1} max={40}
+                        value={loanTermYears}
+                        onChange={(e) => setLoanTermYears(parseInt(e.target.value) || 0)}
+                        className="w-full px-2 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-muted-foreground font-medium mb-0.5 block">+ Months</label>
+                      <input
+                        type="number"
+                        min={0} max={11}
+                        value={loanTermMonths}
+                        onChange={(e) => setLoanTermMonths(parseInt(e.target.value) || 0)}
+                        className="w-full px-2 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
+                      />
+                    </div>
+                  </div>
+
+                  {repaymentType === "io" && (
+                    <div>
+                      <label className="text-muted-foreground font-medium mb-0.5 block">IO Period (yrs)</label>
+                      <input
+                        type="number"
+                        min={0} max={15}
+                        value={ioPeriodYears}
+                        onChange={(e) => setIoPeriodYears(parseInt(e.target.value) || 0)}
+                        className="w-full px-2 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Progress bar */}
+                <div className="flex-1 flex flex-col justify-center gap-2">
+                  <div className="w-full h-8 rounded-full bg-secondary overflow-hidden">
+                    <div
+                      className="h-full bg-success rounded-full transition-all duration-1000 ease-out"
+                      style={{ width: `${Math.min(100, paydownPercent)}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                    <span>${startingBalance.toLocaleString()}</span>
+                    <span className="font-semibold text-foreground">${loanBalance.toLocaleString()} remaining</span>
+                    <span>$0</span>
+                  </div>
+                </div>
               </div>
             </div>
 
