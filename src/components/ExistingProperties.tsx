@@ -17,7 +17,7 @@ interface Props {
   onMoveToProposals?: (p: ExistingProperty) => void;
 }
 
-const VISIBLE_SLOTS = 5;
+const VISIBLE_SLOTS = 4;
 
 const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
