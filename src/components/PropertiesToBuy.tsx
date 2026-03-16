@@ -192,7 +192,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           <button
             onClick={addProperty}
             className="rounded-xl border-2 border-dashed border-accent/40 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent shrink-0"
-            style={{ width: "calc((100% - 48px) / 5)", minWidth: "200px", scrollSnapAlign: "start" }}
+            style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
           >
             <Plus size={24} />
             <span className="text-sm">Add Property</span>
