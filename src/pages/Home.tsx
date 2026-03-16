@@ -75,9 +75,9 @@ const HomePage = () => {
               <h2 className="text-xl font-bold text-foreground mb-1">Your Portfolio</h2>
               <p className="text-sm text-muted-foreground">View and manage your full property portfolio</p>
             </div>
-            <span className="absolute top-4 right-4 text-[10px] font-semibold px-2 py-1 rounded-full bg-muted text-muted-foreground">
-              Coming soon
-            </span>
+            <div className="absolute bottom-4 right-4 text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+              Open →
+            </div>
           </button>
 
           {/* Right — Goal tiles */}
