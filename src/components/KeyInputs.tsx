@@ -28,7 +28,17 @@ const KeyInputs = ({
   percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
-  const pporValue = 2750000;
+  const [startingBalance, setStartingBalance] = useState(1842105);
+  const [pporInterestRate, setPporInterestRate] = useState(6.2);
+  const [repaymentType, setRepaymentType] = useState<"pi" | "io">("pi");
+  const [loanTermYears, setLoanTermYears] = useState(30);
+  const [loanTermMonths, setLoanTermMonths] = useState(0);
+  const [ioPeriodYears, setIoPeriodYears] = useState(5);
+
+  const paydownPercent = useMemo(() => {
+    if (startingBalance <= 0) return 0;
+    return ((startingBalance - loanBalance) / startingBalance) * 100;
+  }, [startingBalance, loanBalance]);
   const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
     const now = new Date();
