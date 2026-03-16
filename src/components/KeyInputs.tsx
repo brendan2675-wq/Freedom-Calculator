@@ -123,23 +123,67 @@ const KeyInputs = ({
               </div>
             </div>
 
-            {/* Progress Tracker */}
-            <div className="pt-5 mt-5 border-t border-border">
+            {/* Progress Tracker - clickable to open sheet */}
+            <div
+              className="pt-5 mt-5 border-t border-border cursor-pointer group"
+              onClick={() => setTrackerOpen(true)}
+            >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <TrendingUp size={18} className="text-accent" />
                   <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
+                  <ChevronRight size={16} className="text-muted-foreground group-hover:text-accent transition-colors" />
                 </div>
                 <span className="text-success font-bold text-lg">{paydownPercent.toFixed(1)}%</span>
               </div>
+              <div className="w-full h-8 rounded-full bg-secondary overflow-hidden">
+                <div
+                  className="h-full bg-success rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: `${Math.min(100, paydownPercent)}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5">
+                <span>${startingBalance.toLocaleString()}</span>
+                <span className="font-semibold text-foreground">${loanBalance.toLocaleString()} remaining</span>
+                <span>$0</span>
+              </div>
+            </div>
 
-              <div className="flex gap-4">
-                {/* Sidebar inputs */}
-                <div className="flex flex-col gap-2.5 min-w-[200px] text-xs">
+            {/* Progress Tracker Sheet */}
+            <Sheet open={trackerOpen} onOpenChange={setTrackerOpen}>
+              <SheetContent className="overflow-y-auto">
+                <SheetHeader className="pb-4 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={20} className="text-accent" />
+                    <SheetTitle className="text-xl">Progress Tracker</SheetTitle>
+                  </div>
+                </SheetHeader>
+
+                <div className="space-y-6 pt-6">
+                  {/* Paydown visual */}
                   <div>
-                    <label className="text-muted-foreground font-medium mb-0.5 block">Starting Balance</label>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-muted-foreground">Paydown Progress</span>
+                      <span className="text-success font-bold text-2xl">{paydownPercent.toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full h-6 rounded-full bg-secondary overflow-hidden">
+                      <div
+                        className="h-full bg-success rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${Math.min(100, paydownPercent)}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>${startingBalance.toLocaleString()}</span>
+                      <span>${loanBalance.toLocaleString()} remaining</span>
+                      <span>$0</span>
+                    </div>
+                  </div>
+
+                  {/* Starting Balance */}
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Starting Loan Balance</label>
                     <div className="relative">
-                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -148,13 +192,14 @@ const KeyInputs = ({
                           const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
                           setStartingBalance(v);
                         }}
-                        className="w-full pl-6 pr-2 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                        className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent transition-all"
                       />
                     </div>
                   </div>
 
+                  {/* Interest Rate */}
                   <div>
-                    <label className="text-muted-foreground font-medium mb-0.5 block">Interest Rate</label>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Interest Rate</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -165,76 +210,85 @@ const KeyInputs = ({
                           if (raw === '' || /^\d*\.?\d*$/.test(raw)) setPporInterestRate(raw as any);
                         }}
                         onBlur={(e) => setPporInterestRate(parseFloat(e.target.value) || 0)}
-                        className="w-full pl-2.5 pr-6 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent transition-all text-center"
+                        className="w-full pl-4 pr-8 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent transition-all text-center"
                       />
-                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">%</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">%</span>
                     </div>
                   </div>
 
+                  {/* Repayment Type */}
                   <div>
-                    <label className="text-muted-foreground font-medium mb-0.5 block">Repayment Type</label>
-                    <select
-                      value={repaymentType}
-                      onChange={(e) => setRepaymentType(e.target.value as "pi" | "io")}
-                      className="w-full py-2 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent"
-                    >
-                      <option value="pi">Principal & Interest</option>
-                      <option value="io">Interest Only</option>
-                    </select>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <label className="text-muted-foreground font-medium mb-0.5 block">Term (yrs)</label>
-                      <input
-                        type="number"
-                        min={1} max={40}
-                        value={loanTermYears}
-                        onChange={(e) => setLoanTermYears(parseInt(e.target.value) || 0)}
-                        className="w-full px-2 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-muted-foreground font-medium mb-0.5 block">+ Months</label>
-                      <input
-                        type="number"
-                        min={0} max={11}
-                        value={loanTermMonths}
-                        onChange={(e) => setLoanTermMonths(parseInt(e.target.value) || 0)}
-                        className="w-full px-2 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
-                      />
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Repayment Type</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setRepaymentType("pi")}
+                        className={`py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
+                          repaymentType === "pi"
+                            ? "border-accent bg-accent/10 text-accent"
+                            : "border-border bg-background text-muted-foreground hover:border-accent/50"
+                        }`}
+                      >
+                        Principal & Interest
+                      </button>
+                      <button
+                        onClick={() => setRepaymentType("io")}
+                        className={`py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
+                          repaymentType === "io"
+                            ? "border-accent bg-accent/10 text-accent"
+                            : "border-border bg-background text-muted-foreground hover:border-accent/50"
+                        }`}
+                      >
+                        Interest Only
+                      </button>
                     </div>
                   </div>
 
+                  {/* Loan Term */}
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Loan Term</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Years</label>
+                        <input
+                          type="number"
+                          min={1} max={40}
+                          value={loanTermYears}
+                          onChange={(e) => setLoanTermYears(parseInt(e.target.value) || 0)}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Months</label>
+                        <input
+                          type="number"
+                          min={0} max={11}
+                          value={loanTermMonths}
+                          onChange={(e) => setLoanTermMonths(parseInt(e.target.value) || 0)}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* IO Period - only when Interest Only selected */}
                   {repaymentType === "io" && (
                     <div>
-                      <label className="text-muted-foreground font-medium mb-0.5 block">IO Period (yrs)</label>
-                      <input
-                        type="number"
-                        min={0} max={15}
-                        value={ioPeriodYears}
-                        onChange={(e) => setIoPeriodYears(parseInt(e.target.value) || 0)}
-                        className="w-full px-2 py-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
-                      />
+                      <label className="text-sm font-medium text-foreground mb-1.5 block">Interest-Only Period</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min={0} max={15}
+                          value={ioPeriodYears}
+                          onChange={(e) => setIoPeriodYears(parseInt(e.target.value) || 0)}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">years</span>
+                      </div>
                     </div>
                   )}
                 </div>
-
-                {/* Progress bar */}
-                <div className="flex-1 flex flex-col justify-center gap-2">
-                  <div className="w-full h-8 rounded-full bg-secondary overflow-hidden">
-                    <div
-                      className="h-full bg-success rounded-full transition-all duration-1000 ease-out"
-                      style={{ width: `${Math.min(100, paydownPercent)}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] text-muted-foreground">
-                    <span>${startingBalance.toLocaleString()}</span>
-                    <span className="font-semibold text-foreground">${loanBalance.toLocaleString()} remaining</span>
-                    <span>$0</span>
-                  </div>
-                </div>
-              </div>
+              </SheetContent>
+            </Sheet>
             </div>
 
             {/* Equity Pull */}
