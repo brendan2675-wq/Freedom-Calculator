@@ -18,11 +18,12 @@ interface Props {
   pporLoanBalance: number;
   portfolioLoanTotal: number;
   currentPortfolioValue: number;
+  currentEquity: number;
 }
 
 const VISIBLE_SLOTS = 4;
 
-const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue }: Props) => {
+const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue, currentEquity }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -219,16 +220,16 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
               <p className="text-accent text-2xl font-bold">${currentPortfolioValue.toLocaleString()}</p>
             </div>
             <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Total projected equity available</p>
-              <p className="text-accent text-2xl font-bold">${totalEquity.toLocaleString()}</p>
-            </div>
-            <div className="bg-header rounded-xl p-3 text-center">
               <p className="text-primary-foreground text-sm">Total Loan amounts</p>
               <p className="text-accent text-2xl font-bold">${(pporLoanBalance + portfolioLoanTotal).toLocaleString()}</p>
             </div>
             <div className="bg-header rounded-xl p-3 text-center">
               <p className="text-primary-foreground text-sm">Portfolio Loan amount</p>
               <p className="text-accent text-2xl font-bold">${portfolioLoanTotal.toLocaleString()}</p>
+            </div>
+            <div className="bg-header rounded-xl p-3 text-center">
+              <p className="text-primary-foreground text-sm">Current Equity</p>
+              <p className="text-accent text-2xl font-bold">${currentEquity.toLocaleString()}</p>
             </div>
           </div>
         )}
