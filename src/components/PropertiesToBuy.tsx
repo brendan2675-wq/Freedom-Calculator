@@ -17,6 +17,7 @@ interface Props {
   onMoveToPortfolio: (p: FutureProperty) => void;
   pporLoanBalance: number;
   portfolioLoanTotal: number;
+  currentPortfolioValue: number;
 }
 
 const VISIBLE_SLOTS = 4;
