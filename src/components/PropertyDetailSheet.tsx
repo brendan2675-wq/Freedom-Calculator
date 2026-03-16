@@ -298,10 +298,11 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                   const totalImprovements = sc.renovations + sc.structuralWork;
                   const totalOwnership = sc.ownershipCostsTotal;
                   const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
-                  const costBase = totalAcquisition + totalImprovements + totalOwnership;
+                  // ATO: Cost base includes acquisition + improvements + ownership + selling costs
+                  const costBase = totalAcquisition + totalImprovements + totalOwnership + totalSelling;
                   const capitalGain = Math.max(0, currentValue - costBase);
+                  // Cash proceeds = sale price - loan - selling costs
                   const saleProceeds = currentValue - loanBal - totalSelling;
-                  const cgtPayable = capitalGain; // raw capital gain before discount
 
                   const updateSaleCosts = (fields: Partial<SaleCosts>) => {
                     update({ saleCosts: { ...sc, ...fields } } as Partial<ExistingProperty>);
@@ -396,7 +397,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                             <option value={0}>0% (held less than 12 months)</option>
                           </select>
                         </FieldGroup>
-                        <FieldGroup label="Marginal Income Tax Rate">
+                        <FieldGroup label="Marginal Tax Rate (excl. Medicare)">
                           <select
                             value={sc.incomeTaxRate}
                             onChange={(e) => updateSaleCosts({ incomeTaxRate: Number(e.target.value) })}
@@ -409,17 +410,20 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                             <option value={0.45}>45% – $190,001+</option>
                           </select>
                         </FieldGroup>
+                        <p className="text-[10px] text-muted-foreground">+ 2% Medicare levy applied automatically</p>
                       </div>
 
                       {/* Summary */}
                       {(() => {
                         const discountedGain = capitalGain * (1 - sc.cgtDiscount);
-                        const cgtPayable = Math.round(discountedGain * sc.incomeTaxRate);
+                        const effectiveRate = sc.incomeTaxRate + 0.02; // + 2% Medicare levy
+                        const cgtPayable = Math.round(discountedGain * effectiveRate);
                         const netAfterCGT = saleProceeds - cgtPayable;
                         return (
                           <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-2">
+                            <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Cash Position</h4>
                             <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Current Value</span>
+                              <span className="text-muted-foreground">Sale Price</span>
                               <span className="text-foreground font-medium">${currentValue.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-sm">
@@ -435,10 +439,16 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                               <span className="text-foreground">Net Sale Proceeds</span>
                               <span className={saleProceeds >= 0 ? "text-accent" : "text-destructive"}>${saleProceeds.toLocaleString()}</span>
                             </div>
+
                             <Separator />
+                            <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider pt-1">CGT Calculation</h4>
                             <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Cost Base</span>
-                              <span className="text-foreground font-medium">${costBase.toLocaleString()}</span>
+                              <span className="text-muted-foreground">Sale Price</span>
+                              <span className="text-foreground font-medium">${currentValue.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Less: Cost Base (incl. selling)</span>
+                              <span className="text-destructive font-medium">-${costBase.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Capital Gain</span>
@@ -449,12 +459,16 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                               <span className="text-foreground font-medium">${discountedGain.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Less: CGT Payable ({(sc.incomeTaxRate * 100).toFixed(0)}%)</span>
+                              <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}% + 2% ML)</span>
+                              <span className="text-foreground font-medium">{(effectiveRate * 100).toFixed(0)}%</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Less: CGT Payable</span>
                               <span className="text-destructive font-medium">-${cgtPayable.toLocaleString()}</span>
                             </div>
                             <Separator />
                             <div className="flex justify-between text-sm font-bold">
-                              <span className="text-foreground">Net After CGT</span>
+                              <span className="text-foreground">Net Proceeds After CGT</span>
                               <span className={netAfterCGT >= 0 ? "text-accent" : "text-destructive"}>${netAfterCGT.toLocaleString()}</span>
                             </div>
                           </div>
