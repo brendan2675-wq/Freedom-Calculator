@@ -220,16 +220,16 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
               <p className="text-accent text-2xl font-bold">${currentPortfolioValue.toLocaleString()}</p>
             </div>
             <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Total projected equity available</p>
-              <p className="text-accent text-2xl font-bold">${totalEquity.toLocaleString()}</p>
-            </div>
-            <div className="bg-header rounded-xl p-3 text-center">
               <p className="text-primary-foreground text-sm">Total Loan amounts</p>
               <p className="text-accent text-2xl font-bold">${(pporLoanBalance + portfolioLoanTotal).toLocaleString()}</p>
             </div>
             <div className="bg-header rounded-xl p-3 text-center">
               <p className="text-primary-foreground text-sm">Portfolio Loan amount</p>
               <p className="text-accent text-2xl font-bold">${portfolioLoanTotal.toLocaleString()}</p>
+            </div>
+            <div className="bg-header rounded-xl p-3 text-center">
+              <p className="text-primary-foreground text-sm">Current Equity</p>
+              <p className="text-accent text-2xl font-bold">${currentEquity.toLocaleString()}</p>
             </div>
           </div>
         )}
