@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart } from "lucide-react";
+import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 const tiles = [
@@ -66,39 +66,52 @@ const HomePage = () => {
           {/* Left — Your Portfolio */}
           <button
             onClick={() => navigate("/portfolio")}
-            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer p-8 text-left transition-all flex flex-col justify-between overflow-hidden"
+            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer text-left transition-all flex flex-col overflow-hidden"
           >
-            {/* Decorative background icons */}
-            <div className="absolute -right-4 -bottom-4 opacity-[0.04] pointer-events-none">
-              <Building2 size={180} strokeWidth={1} />
-            </div>
-
-            <div>
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-accent/10 mb-4">
+            {/* Top section with gradient accent bar */}
+            <div className="relative px-8 pt-8 pb-6">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-accent/60 to-transparent" />
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-accent/10 mb-5">
                 <PieChart size={28} className="text-accent" />
               </div>
               <h2 className="text-xl font-bold text-foreground mb-1">Your Portfolio</h2>
-              <p className="text-sm text-muted-foreground mb-6">View and manage your full property portfolio</p>
+              <p className="text-sm text-muted-foreground">View and manage your full property portfolio</p>
             </div>
 
-            {/* Mini stats row */}
-            <div className="flex items-center gap-4 mt-auto">
-              <div className="flex items-center gap-2 bg-accent/5 rounded-lg px-3 py-2">
-                <Building2 size={16} className="text-accent" />
-                <span className="text-xs font-semibold text-foreground">3 Properties</span>
-              </div>
-              <div className="flex items-center gap-2 bg-accent/5 rounded-lg px-3 py-2">
-                <Landmark size={16} className="text-accent" />
-                <span className="text-xs font-semibold text-foreground">$2.76M</span>
-              </div>
-              <div className="flex items-center gap-2 bg-accent/5 rounded-lg px-3 py-2">
-                <ArrowUpRight size={16} className="text-green-500" />
-                <span className="text-xs font-semibold text-green-600">+12.4%</span>
-              </div>
+            {/* Mini property cards */}
+            <div className="px-8 flex-1 flex flex-col gap-2.5">
+              {[
+                { name: "PPOR — Parramatta", value: "$1.2M", icon: Home },
+                { name: "IP1 — Wollongong", value: "$820K", icon: Building2 },
+                { name: "IP2 — Newcastle", value: "$740K", icon: Building2 },
+              ].map((prop) => (
+                <div
+                  key={prop.name}
+                  className="flex items-center gap-3 rounded-xl bg-muted/50 border border-border/60 px-4 py-3"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                    <prop.icon size={18} className="text-accent" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-foreground truncate">{prop.name}</p>
+                  </div>
+                  <span className="text-xs font-bold text-foreground">{prop.value}</span>
+                </div>
+              ))}
             </div>
 
-            <div className="absolute bottom-4 right-4 text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-              Open →
+            {/* Bottom stats bar */}
+            <div className="px-8 py-5 mt-auto">
+              <div className="flex items-center justify-between border-t border-border/60 pt-4">
+                <div className="flex items-center gap-1.5">
+                  <Landmark size={14} className="text-accent" />
+                  <span className="text-xs text-muted-foreground">Total Value</span>
+                  <span className="text-sm font-bold text-foreground ml-1">$2.76M</span>
+                </div>
+                <div className="flex items-center gap-1 text-accent text-xs font-medium opacity-60 group-hover:opacity-100 transition-opacity">
+                  View portfolio <ChevronRight size={14} />
+                </div>
+              </div>
             </div>
           </button>
 
