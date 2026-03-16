@@ -17,11 +17,12 @@ interface Props {
   onMoveToPortfolio: (p: FutureProperty) => void;
   pporLoanBalance: number;
   portfolioLoanTotal: number;
+  currentPortfolioValue: number;
 }
 
 const VISIBLE_SLOTS = 4;
 
-const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal }: Props) => {
+const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -212,7 +213,11 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
         </div>
 
         {properties.length > 0 && (
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-4 gap-3">
+            <div className="bg-header rounded-xl p-3 text-center">
+              <p className="text-primary-foreground text-sm">Current portfolio value</p>
+              <p className="text-accent text-2xl font-bold">${currentPortfolioValue.toLocaleString()}</p>
+            </div>
             <div className="bg-header rounded-xl p-3 text-center">
               <p className="text-primary-foreground text-sm">Total projected equity available</p>
               <p className="text-accent text-2xl font-bold">${totalEquity.toLocaleString()}</p>
