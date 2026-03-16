@@ -308,7 +308,7 @@ const KeyInputs = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <Wallet size={18} className="text-accent" />
-                  <span className="text-lg font-semibold text-foreground">Equity Pull</span>
+                  <span className="text-lg font-semibold text-foreground">Equity Avail</span>
                 </div>
               </div>
               
