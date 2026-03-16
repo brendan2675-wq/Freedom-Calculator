@@ -62,11 +62,11 @@ const HomePage = () => {
 
       {/* Tiles */}
       <main className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 max-w-5xl mx-auto auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 max-w-5xl mx-auto items-stretch">
           {/* Left — Your Portfolio */}
           <button
             onClick={() => navigate("/portfolio")}
-            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer p-8 text-left transition-all flex flex-col justify-between min-h-[180px] md:row-span-2 overflow-hidden"
+            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer p-8 text-left transition-all flex flex-col justify-between overflow-hidden"
           >
             {/* Decorative background icons */}
             <div className="absolute -right-4 -bottom-4 opacity-[0.04] pointer-events-none">
