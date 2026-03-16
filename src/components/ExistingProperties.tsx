@@ -197,7 +197,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                         <option value={0.8}>80%</option>
                         <option value={0.88}>88%</option>
                         <option value={0.9}>90%</option>
-                        <option value={0.95}>95%</option>
+                        
                       </select>
                     </div>
                   </div>

@@ -362,7 +362,7 @@ const KeyInputs = ({
                       <option value={0.8}>80% LVR</option>
                       <option value={0.88}>88% LVR</option>
                       <option value={0.9}>90% LVR</option>
-                      <option value={0.95}>95% LVR</option>
+                      
                     </select>
                   </div>
                 </div>
