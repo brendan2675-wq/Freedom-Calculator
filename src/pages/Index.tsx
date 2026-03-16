@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { defaultSaleCosts } from "@/types/property";
-import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
 import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
 import ExistingProperties from "@/components/ExistingProperties";
@@ -28,11 +27,6 @@ const Index = () => {
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [clientName, setClientName] = useState("Client Name");
-  const [activeDragId, setActiveDragId] = useState<string | null>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
-  );
 
   const calculations = useMemo(() => {
     const earmarkedEquity = existingProperties
@@ -59,6 +53,7 @@ const Index = () => {
         const sc = p.saleCosts || { ...defaultSaleCosts };
         const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
         const proceeds = p.estimatedValue - p.loanBalance - totalSelling;
+        // Also subtract CGT
         const purchasePrice = p.purchase.purchasePrice || 0;
         const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
         const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
@@ -71,70 +66,6 @@ const Index = () => {
         return sum + Math.max(0, proceeds - cgtPayable);
       }, 0);
   }, [existingProperties]);
-
-  const moveToPortfolio = (fp: FutureProperty) => {
-    const existing: ExistingProperty = {
-      id: fp.id,
-      nickname: fp.suburb,
-      estimatedValue: fp.purchasePrice,
-      loanBalance: Math.round(fp.purchasePrice * 0.8),
-      earmarked: false,
-      ownership: fp.ownership,
-      investmentType: fp.investmentType,
-      loan: { ...fp.loan },
-      rental: { ...fp.rental },
-      purchase: { ...fp.purchase },
-    };
-    setExistingProperties((prev) => [...prev, existing]);
-    setFutureProperties((prev) => prev.filter((p) => p.id !== fp.id));
-  };
-
-  const moveToProposals = (ep: ExistingProperty) => {
-    const future: FutureProperty = {
-      id: ep.id,
-      suburb: ep.nickname,
-      purchasePrice: ep.estimatedValue,
-      rentalYield: 0,
-      projectedEquity5yr: 0,
-      ownership: ep.ownership,
-      investmentType: ep.investmentType,
-      loan: { ...ep.loan },
-      rental: { ...ep.rental },
-      purchase: { ...ep.purchase },
-    };
-    setFutureProperties((prev) => [...prev, future]);
-    setExistingProperties((prev) => prev.filter((p) => p.id !== ep.id));
-  };
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveDragId(event.active.id as string);
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    setActiveDragId(null);
-    const { active, over } = event;
-    if (!over) return;
-
-    const dragId = active.id as string;
-    const dropZone = over.id as string;
-
-    // Dragging from proposals → portfolio
-    if (dropZone === "portfolio-drop") {
-      const fp = futureProperties.find((p) => p.id === dragId);
-      if (fp) moveToPortfolio(fp);
-    }
-
-    // Dragging from portfolio → proposals
-    if (dropZone === "proposals-drop") {
-      const ep = existingProperties.find((p) => p.id === dragId);
-      if (ep) moveToProposals(ep);
-    }
-  };
-
-  // Find the dragged item for overlay
-  const draggedExisting = activeDragId ? existingProperties.find((p) => p.id === activeDragId) : null;
-  const draggedFuture = activeDragId ? futureProperties.find((p) => p.id === activeDragId) : null;
-  const dragLabel = draggedExisting?.nickname || draggedFuture?.suburb || "";
 
   return (
     <div className="min-h-screen bg-background">
@@ -160,45 +91,61 @@ const Index = () => {
           sellDownProceeds={sellDownProceeds}
         />
 
-        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <ExistingProperties
-            properties={existingProperties}
-            setProperties={setExistingProperties}
-            targetMonth={targetMonth}
-            targetYear={targetYear}
-            growthRate={growthRate}
-            onMoveToProposals={moveToProposals}
-            droppableId="portfolio-drop"
-            isDropTarget={!!draggedFuture}
-          />
+        <ExistingProperties
+          properties={existingProperties}
+          setProperties={setExistingProperties}
+          targetMonth={targetMonth}
+          targetYear={targetYear}
+          growthRate={growthRate}
+          onMoveToProposals={(ep) => {
+            const future: FutureProperty = {
+              id: ep.id,
+              suburb: ep.nickname,
+              purchasePrice: ep.estimatedValue,
+              rentalYield: 0,
+              projectedEquity5yr: 0,
+              ownership: ep.ownership,
+              investmentType: ep.investmentType,
+              loan: { ...ep.loan },
+              rental: { ...ep.rental },
+              purchase: { ...ep.purchase },
+            };
+            setFutureProperties([...futureProperties, future]);
+            setExistingProperties(existingProperties.filter((p) => p.id !== ep.id));
+          }}
+        />
 
-          <PropertiesToBuy
-            properties={futureProperties}
-            setProperties={setFutureProperties}
-            growthRate={growthRate}
-            targetMonth={targetMonth}
-            targetYear={targetYear}
-            pporLoanBalance={loanBalance}
-            portfolioLoanTotal={existingProperties.reduce((sum, p) => sum + p.loanBalance, 0)}
-            currentPortfolioValue={2750000 + existingProperties.reduce((sum, p) => sum + p.estimatedValue, 0)}
-            currentEquity={
-              Math.max(0, (2750000 * 0.8) - loanBalance) +
-              existingProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)
-            }
-            onMoveToPortfolio={moveToPortfolio}
-            droppableId="proposals-drop"
-            isDropTarget={!!draggedExisting}
-          />
-
-          <DragOverlay>
-            {activeDragId && dragLabel ? (
-              <div className="bg-card rounded-xl shadow-2xl p-4 border-2 border-accent opacity-90 min-w-[200px]">
-                <p className="font-semibold text-sm text-foreground">{dragLabel}</p>
-                <p className="text-xs text-muted-foreground mt-1">Drop to move</p>
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+        <PropertiesToBuy
+          properties={futureProperties}
+          setProperties={setFutureProperties}
+          growthRate={growthRate}
+          targetMonth={targetMonth}
+          targetYear={targetYear}
+          pporLoanBalance={loanBalance}
+          portfolioLoanTotal={existingProperties.reduce((sum, p) => sum + p.loanBalance, 0)}
+          currentPortfolioValue={2750000 + existingProperties.reduce((sum, p) => sum + p.estimatedValue, 0)}
+          currentEquity={
+            Math.max(0, (2750000 * 0.8) - loanBalance) +
+            existingProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)
+          }
+          onMoveToPortfolio={(fp) => {
+            // Convert FutureProperty → ExistingProperty
+            const existing: ExistingProperty = {
+              id: fp.id,
+              nickname: fp.suburb,
+              estimatedValue: fp.purchasePrice,
+              loanBalance: Math.round(fp.purchasePrice * 0.8),
+              earmarked: false,
+              ownership: fp.ownership,
+              investmentType: fp.investmentType,
+              loan: { ...fp.loan },
+              rental: { ...fp.rental },
+              purchase: { ...fp.purchase },
+            };
+            setExistingProperties([...existingProperties, existing]);
+            setFutureProperties(futureProperties.filter((p) => p.id !== fp.id));
+          }}
+        />
 
         <Disclaimer
           accepted={disclaimerAccepted}
