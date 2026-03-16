@@ -45,6 +45,9 @@ export interface SaleCosts {
   advertisingCosts: number;
   stylingCosts: number;
   sellerAdvisoryFees: number;
+  // CGT
+  cgtDiscount: number; // 0.5 or 0
+  incomeTaxRate: number; // e.g. 0.325
 }
 
 export const defaultSaleCosts: SaleCosts = {
@@ -61,6 +64,8 @@ export const defaultSaleCosts: SaleCosts = {
   advertisingCosts: 0,
   stylingCosts: 0,
   sellerAdvisoryFees: 0,
+  cgtDiscount: 0.5,
+  incomeTaxRate: 0.325,
 };
 
 export interface ExistingProperty {
