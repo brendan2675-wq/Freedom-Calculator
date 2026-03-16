@@ -92,9 +92,11 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
     });
   };
 
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: droppableId || "portfolio-drop" });
+
   return (
     <TooltipProvider>
-      <section>
+      <section ref={setDropRef} className={`rounded-xl transition-all ${isOver && isDropTarget ? "ring-2 ring-accent bg-accent/5" : ""}`}>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-2xl font-bold text-foreground gold-underline pb-2">
             Your Investment Portfolio
