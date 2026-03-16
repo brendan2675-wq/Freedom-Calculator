@@ -94,9 +94,11 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
 
   const totalEquity = properties.reduce((sum, p) => sum + p.projectedEquity5yr, 0);
 
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: droppableId || "proposals-drop" });
+
   return (
     <TooltipProvider>
-      <section>
+      <section ref={setDropRef} className={`rounded-xl transition-all ${isOver && isDropTarget ? "ring-2 ring-accent bg-accent/5" : ""}`}>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-2xl font-bold text-foreground gold-underline pb-2">
             Your Proposed Purchases
