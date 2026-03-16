@@ -397,7 +397,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                             <option value={0}>0% (held less than 12 months)</option>
                           </select>
                         </FieldGroup>
-                        <FieldGroup label="Marginal Income Tax Rate">
+                        <FieldGroup label="Marginal Tax Rate (excl. Medicare)">
                           <select
                             value={sc.incomeTaxRate}
                             onChange={(e) => updateSaleCosts({ incomeTaxRate: Number(e.target.value) })}
@@ -410,6 +410,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                             <option value={0.45}>45% – $190,001+</option>
                           </select>
                         </FieldGroup>
+                        <p className="text-[10px] text-muted-foreground">+ 2% Medicare levy applied automatically</p>
                       </div>
 
                       {/* Summary */}
