@@ -130,10 +130,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
             const equity = Math.max(0, (p.estimatedValue * lvr) - p.loanBalance);
             const futureValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, yearsToTarget));
             return (
+              <DraggableCard key={p.id} id={p.id}>
               <div
-                key={p.id}
                 onClick={() => setSelectedId(p.id)}
-                className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-pointer hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
+                className="group bg-card rounded-xl shadow-md p-4 pl-7 border-2 border-border transition-all relative flex flex-col cursor-pointer hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
