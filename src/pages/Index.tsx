@@ -88,6 +88,7 @@ const Index = () => {
           setSuburb={setPporSuburb}
           growthRate={growthRate}
           setGrowthRate={setGrowthRate}
+          sellDownProceeds={sellDownProceeds}
         />
 
         <ExistingProperties
