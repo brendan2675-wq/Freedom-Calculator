@@ -302,7 +302,7 @@ const KeyInputs = ({
                 <div className="flex items-center gap-2">
                   <Home size={18} className="text-accent" />
                   <h3 className="text-lg font-semibold text-foreground">{suburb}</h3>
-                  <button className="text-[10px] text-accent font-medium bg-accent/10 px-2 py-1 rounded hover:bg-accent/20 transition-colors whitespace-nowrap">
+                  <button className="text-xs text-accent font-medium bg-accent/10 px-3 py-1 rounded hover:bg-accent/20 transition-colors whitespace-nowrap">
                     Request property report
                   </button>
                 </div>
