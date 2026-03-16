@@ -62,7 +62,7 @@ const HomePage = () => {
 
       {/* Tiles */}
       <main className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 max-w-5xl mx-auto auto-rows-fr">
           {/* Left — Your Portfolio */}
           <button
             onClick={() => navigate("/portfolio")}
