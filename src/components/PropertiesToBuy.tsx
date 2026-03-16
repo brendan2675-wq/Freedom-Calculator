@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, X, ChevronRight, ChevronLeft, Info, ArrowUpRight } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, ArrowUpRight, GripVertical } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
 import type { FutureProperty } from "@/types/property";
@@ -19,11 +20,29 @@ interface Props {
   portfolioLoanTotal: number;
   currentPortfolioValue: number;
   currentEquity: number;
+  droppableId?: string;
+  isDropTarget?: boolean;
 }
 
 const VISIBLE_SLOTS = 4;
 
-const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue, currentEquity }: Props) => {
+function DraggableCard({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id });
+  return (
+    <div ref={setNodeRef} style={{ opacity: isDragging ? 0.3 : 1 }} className="relative">
+      <div
+        {...listeners}
+        {...attributes}
+        className="absolute top-2 left-2 z-10 cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+      >
+        <GripVertical size={14} />
+      </div>
+      {children}
+    </div>
+  );
+}
+
+const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue, currentEquity, droppableId, isDropTarget }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -75,9 +94,11 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
 
   const totalEquity = properties.reduce((sum, p) => sum + p.projectedEquity5yr, 0);
 
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: droppableId || "proposals-drop" });
+
   return (
     <TooltipProvider>
-      <section>
+      <section ref={setDropRef} className={`rounded-xl transition-all ${isOver && isDropTarget ? "ring-2 ring-accent bg-accent/5" : ""}`}>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-2xl font-bold text-foreground gold-underline pb-2">
             Your Proposed Purchases
@@ -109,10 +130,10 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           {properties.map((p) => {
             const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget));
             return (
+              <DraggableCard key={p.id} id={p.id}>
               <div
-                key={p.id}
                 onClick={() => setSelectedId(p.id)}
-                className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-pointer hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
+                className="group bg-card rounded-xl shadow-md p-4 pl-7 border-2 border-border transition-all relative flex flex-col cursor-pointer hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
