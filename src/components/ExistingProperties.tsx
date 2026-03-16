@@ -78,7 +78,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
       <section>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-2xl font-bold text-foreground gold-underline pb-2">
-            Your Portfolio
+            Your Investment Portfolio
           </h2>
           {showArrows && (
             <div className="flex items-center gap-1">
