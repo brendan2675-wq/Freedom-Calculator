@@ -21,12 +21,13 @@ interface KeyInputsProps {
   setSuburb: (v: string) => void;
   growthRate: number;
   setGrowthRate: (v: number) => void;
+  sellDownProceeds: number;
 }
 
 const KeyInputs = ({
   loanBalance, setLoanBalance, interestRate, setInterestRate,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate,
+  percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate, sellDownProceeds,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
   const [startingBalance, setStartingBalance] = useState(1842105);
@@ -37,10 +38,13 @@ const KeyInputs = ({
   const [ioPeriodYears, setIoPeriodYears] = useState(5);
   const [trackerOpen, setTrackerOpen] = useState(false);
 
+  const adjustedBalance = useMemo(() => Math.max(0, startingBalance - sellDownProceeds), [startingBalance, sellDownProceeds]);
+
   const paydownPercent = useMemo(() => {
-    if (startingBalance <= 0) return 0;
-    return ((startingBalance - loanBalance) / startingBalance) * 100;
-  }, [startingBalance, loanBalance]);
+    if (adjustedBalance <= 0) return 100;
+    if (loanBalance >= adjustedBalance) return 0;
+    return ((adjustedBalance - loanBalance) / adjustedBalance) * 100;
+  }, [adjustedBalance, loanBalance]);
   const pporValue = 2750000;
   const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
@@ -143,7 +147,7 @@ const KeyInputs = ({
                 />
               </div>
               <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5">
-                <span>${startingBalance.toLocaleString()}</span>
+                <span>${adjustedBalance.toLocaleString()}{sellDownProceeds > 0 && <span className="text-success"> (−${sellDownProceeds.toLocaleString()} sell down)</span>}</span>
                 <span className="font-semibold text-foreground">${loanBalance.toLocaleString()} remaining</span>
                 <span>$0</span>
               </div>
@@ -173,10 +177,13 @@ const KeyInputs = ({
                       />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>${startingBalance.toLocaleString()}</span>
+                      <span>${adjustedBalance.toLocaleString()}</span>
                       <span>${loanBalance.toLocaleString()} remaining</span>
                       <span>$0</span>
                     </div>
+                    {sellDownProceeds > 0 && (
+                      <p className="text-xs text-success mt-1">Sell-down proceeds applied: −${sellDownProceeds.toLocaleString()}</p>
+                    )}
                   </div>
 
                   {/* Starting Balance */}

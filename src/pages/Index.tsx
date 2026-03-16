@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { defaultSaleCosts } from "@/types/property";
 import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
 import ExistingProperties from "@/components/ExistingProperties";
@@ -45,6 +46,27 @@ const Index = () => {
     return { totalEquity, remaining, percentage, yearsToGoal };
   }, [loanBalance, existingProperties, futureProperties, targetMonth, targetYear]);
 
+  const sellDownProceeds = useMemo(() => {
+    return existingProperties
+      .filter((p) => p.earmarked)
+      .reduce((sum, p) => {
+        const sc = p.saleCosts || { ...defaultSaleCosts };
+        const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
+        const proceeds = p.estimatedValue - p.loanBalance - totalSelling;
+        // Also subtract CGT
+        const purchasePrice = p.purchase.purchasePrice || 0;
+        const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+        const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
+        const totalImprovements = sc.renovations + sc.structuralWork;
+        const costBase = totalAcquisition + totalImprovements + sc.ownershipCostsTotal + totalSelling;
+        const capitalGain = Math.max(0, p.estimatedValue - costBase);
+        const discountedGain = capitalGain * (1 - sc.cgtDiscount);
+        const effectiveRate = sc.incomeTaxRate + 0.02;
+        const cgtPayable = Math.round(discountedGain * effectiveRate);
+        return sum + Math.max(0, proceeds - cgtPayable);
+      }, 0);
+  }, [existingProperties]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header clientName={clientName} setClientName={setClientName} />
@@ -66,6 +88,7 @@ const Index = () => {
           setSuburb={setPporSuburb}
           growthRate={growthRate}
           setGrowthRate={setGrowthRate}
+          sellDownProceeds={sellDownProceeds}
         />
 
         <ExistingProperties
