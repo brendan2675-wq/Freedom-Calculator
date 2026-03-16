@@ -21,6 +21,7 @@ interface KeyInputsProps {
   setSuburb: (v: string) => void;
   growthRate: number;
   setGrowthRate: (v: number) => void;
+  sellDownProceeds: number;
 }
 
 const KeyInputs = ({
