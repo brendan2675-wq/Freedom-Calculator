@@ -66,15 +66,37 @@ const HomePage = () => {
           {/* Left — Your Portfolio */}
           <button
             onClick={() => navigate("/portfolio")}
-            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer p-8 text-left transition-all flex flex-col gap-4 min-h-[180px] md:row-span-2"
+            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer p-8 text-left transition-all flex flex-col justify-between min-h-[180px] md:row-span-2 overflow-hidden"
           >
-            <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-accent/10">
-              <BarChart3 size={28} className="text-accent" />
+            {/* Decorative background icons */}
+            <div className="absolute -right-4 -bottom-4 opacity-[0.04] pointer-events-none">
+              <Building2 size={180} strokeWidth={1} />
             </div>
+
             <div>
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-accent/10 mb-4">
+                <PieChart size={28} className="text-accent" />
+              </div>
               <h2 className="text-xl font-bold text-foreground mb-1">Your Portfolio</h2>
-              <p className="text-sm text-muted-foreground">View and manage your full property portfolio</p>
+              <p className="text-sm text-muted-foreground mb-6">View and manage your full property portfolio</p>
             </div>
+
+            {/* Mini stats row */}
+            <div className="flex items-center gap-4 mt-auto">
+              <div className="flex items-center gap-2 bg-accent/5 rounded-lg px-3 py-2">
+                <Building2 size={16} className="text-accent" />
+                <span className="text-xs font-semibold text-foreground">3 Properties</span>
+              </div>
+              <div className="flex items-center gap-2 bg-accent/5 rounded-lg px-3 py-2">
+                <Landmark size={16} className="text-accent" />
+                <span className="text-xs font-semibold text-foreground">$2.76M</span>
+              </div>
+              <div className="flex items-center gap-2 bg-accent/5 rounded-lg px-3 py-2">
+                <ArrowUpRight size={16} className="text-green-500" />
+                <span className="text-xs font-semibold text-green-600">+12.4%</span>
+              </div>
+            </div>
+
             <div className="absolute bottom-4 right-4 text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
               Open →
             </div>
