@@ -17,7 +17,7 @@ interface Props {
   onMoveToProposals?: (p: ExistingProperty) => void;
 }
 
-const VISIBLE_SLOTS = 5;
+const VISIBLE_SLOTS = 4;
 
 const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -113,7 +113,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 key={p.id}
                 onClick={() => setSelectedId(p.id)}
                 className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-pointer hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
-                style={{ width: "calc((100% - 48px) / 5)", minWidth: "200px", scrollSnapAlign: "start" }}
+                style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
                   {onMoveToProposals && (
@@ -228,7 +228,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           <button
             onClick={addProperty}
             className="rounded-xl border-2 border-dashed border-accent/40 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent shrink-0"
-            style={{ width: "calc((100% - 48px) / 5)", minWidth: "200px", scrollSnapAlign: "start" }}
+            style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
           >
             <Plus size={24} />
             <span className="text-sm">Add Property</span>
@@ -240,7 +240,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
               key={`empty-${i}`}
               onClick={addProperty}
               className="rounded-xl border-2 border-dashed border-border/30 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent/40 hover:bg-accent/5 transition-all font-medium text-muted-foreground/40 shrink-0"
-              style={{ width: "calc((100% - 48px) / 5)", minWidth: "200px", scrollSnapAlign: "start" }}
+              style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
             >
               <Plus size={20} />
             </button>
