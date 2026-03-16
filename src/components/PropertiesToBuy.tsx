@@ -19,7 +19,7 @@ interface Props {
   portfolioLoanTotal: number;
 }
 
-const VISIBLE_SLOTS = 5;
+const VISIBLE_SLOTS = 4;
 
 const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
