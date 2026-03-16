@@ -146,8 +146,8 @@ const KeyInputs = ({
                 />
               </div>
               <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5">
-                <span>${adjustedBalance.toLocaleString()}{sellDownProceeds > 0 && <span className="text-success"> (−${sellDownProceeds.toLocaleString()} sell down)</span>}</span>
-                <span className="font-semibold text-foreground">${loanBalance.toLocaleString()} remaining</span>
+                <span>${startingBalance.toLocaleString()}</span>
+                <span className="font-semibold text-foreground">${adjustedRemaining.toLocaleString()} remaining{sellDownProceeds > 0 && <span className="text-success"> (−${sellDownProceeds.toLocaleString()} sell down)</span>}</span>
                 <span>$0</span>
               </div>
             </div>
