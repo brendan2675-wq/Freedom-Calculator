@@ -38,13 +38,12 @@ const KeyInputs = ({
   const [ioPeriodYears, setIoPeriodYears] = useState(5);
   const [trackerOpen, setTrackerOpen] = useState(false);
 
-  const adjustedBalance = useMemo(() => Math.max(0, startingBalance - sellDownProceeds), [startingBalance, sellDownProceeds]);
+  const adjustedRemaining = useMemo(() => Math.max(0, loanBalance - sellDownProceeds), [loanBalance, sellDownProceeds]);
 
   const paydownPercent = useMemo(() => {
-    if (adjustedBalance <= 0) return 100;
-    if (loanBalance >= adjustedBalance) return 0;
-    return ((adjustedBalance - loanBalance) / adjustedBalance) * 100;
-  }, [adjustedBalance, loanBalance]);
+    if (startingBalance <= 0) return 0;
+    return ((startingBalance - adjustedRemaining) / startingBalance) * 100;
+  }, [startingBalance, adjustedRemaining]);
   const pporValue = 2750000;
   const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
