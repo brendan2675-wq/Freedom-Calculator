@@ -348,11 +348,6 @@ const KeyInputs = ({
                         className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-accent text-lg font-bold focus:outline-none transition-all"
                       />
                     </div>
-                    {equityAvailable > 150000 && (
-                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-success/15 text-success border border-success/30 whitespace-nowrap">
-                        Go again
-                      </span>
-                    )}
                     <select
                       value={lvrRate}
                       onChange={(e) => setLvrRate(Number(e.target.value))}
@@ -361,8 +356,12 @@ const KeyInputs = ({
                       <option value={0.8}>80% LVR</option>
                       <option value={0.88}>88% LVR</option>
                       <option value={0.9}>90% LVR</option>
-                      
                     </select>
+                    {equityAvailable > 150000 && (
+                      <span className="text-xs font-semibold px-2 py-3 rounded-lg bg-success/15 text-success border border-success/30 whitespace-nowrap">
+                        Go again
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
