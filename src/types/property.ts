@@ -27,6 +27,42 @@ export interface LoanSplit {
   amount: number;
 }
 
+export interface SaleCosts {
+  // Acquisition costs
+  stampDutyOnPurchase: number;
+  legalFeesBuy: number;
+  buyersAgentFees: number;
+  buildingPestFees: number;
+  mortgageEstablishmentFees: number;
+  // Capital improvements
+  renovations: number;
+  structuralWork: number;
+  // Ownership costs
+  ownershipCostsTotal: number;
+  // Selling costs
+  agentCommission: number;
+  legalFeesSell: number;
+  advertisingCosts: number;
+  stylingCosts: number;
+  sellerAdvisoryFees: number;
+}
+
+export const defaultSaleCosts: SaleCosts = {
+  stampDutyOnPurchase: 0,
+  legalFeesBuy: 0,
+  buyersAgentFees: 0,
+  buildingPestFees: 0,
+  mortgageEstablishmentFees: 0,
+  renovations: 0,
+  structuralWork: 0,
+  ownershipCostsTotal: 0,
+  agentCommission: 0,
+  legalFeesSell: 0,
+  advertisingCosts: 0,
+  stylingCosts: 0,
+  sellerAdvisoryFees: 0,
+};
+
 export interface ExistingProperty {
   id: string;
   nickname: string;
@@ -39,6 +75,7 @@ export interface ExistingProperty {
   rental: RentalDetails;
   purchase: PurchaseDetails;
   loanSplits?: LoanSplit[];
+  saleCosts?: SaleCosts;
 }
 
 export interface FutureProperty {
