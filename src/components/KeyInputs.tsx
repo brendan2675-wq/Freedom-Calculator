@@ -27,7 +27,7 @@ interface KeyInputsProps {
 const KeyInputs = ({
   loanBalance, setLoanBalance, interestRate, setInterestRate,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate,
+  percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate, sellDownProceeds,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
   const [startingBalance, setStartingBalance] = useState(1842105);
