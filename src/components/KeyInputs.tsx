@@ -39,6 +39,7 @@ const KeyInputs = ({
     if (startingBalance <= 0) return 0;
     return ((startingBalance - loanBalance) / startingBalance) * 100;
   }, [startingBalance, loanBalance]);
+  const pporValue = 2750000;
   const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
     const now = new Date();
