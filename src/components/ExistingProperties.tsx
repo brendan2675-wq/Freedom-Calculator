@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, ArrowDownRight } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, ArrowDownRight, GripVertical } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
 import type { ExistingProperty } from "@/types/property";
@@ -15,11 +16,29 @@ interface Props {
   targetYear: number;
   growthRate: number;
   onMoveToProposals?: (p: ExistingProperty) => void;
+  droppableId?: string;
+  isDropTarget?: boolean;
 }
 
 const VISIBLE_SLOTS = 4;
 
-const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals }: Props) => {
+function DraggableCard({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id });
+  return (
+    <div ref={setNodeRef} style={{ opacity: isDragging ? 0.3 : 1 }} className="relative">
+      <div
+        {...listeners}
+        {...attributes}
+        className="absolute top-2 left-2 z-10 cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+      >
+        <GripVertical size={14} />
+      </div>
+      {children}
+    </div>
+  );
+}
+
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, droppableId, isDropTarget }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
