@@ -298,10 +298,11 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                   const totalImprovements = sc.renovations + sc.structuralWork;
                   const totalOwnership = sc.ownershipCostsTotal;
                   const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
-                  const costBase = totalAcquisition + totalImprovements + totalOwnership;
+                  // ATO: Cost base includes acquisition + improvements + ownership + selling costs
+                  const costBase = totalAcquisition + totalImprovements + totalOwnership + totalSelling;
                   const capitalGain = Math.max(0, currentValue - costBase);
+                  // Cash proceeds = sale price - loan - selling costs
                   const saleProceeds = currentValue - loanBal - totalSelling;
-                  const cgtPayable = capitalGain; // raw capital gain before discount
 
                   const updateSaleCosts = (fields: Partial<SaleCosts>) => {
                     update({ saleCosts: { ...sc, ...fields } } as Partial<ExistingProperty>);
