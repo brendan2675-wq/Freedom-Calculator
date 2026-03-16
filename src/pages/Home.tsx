@@ -65,20 +65,19 @@ const HomePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 max-w-5xl mx-auto">
           {/* Left — Your Portfolio */}
           <button
-            onClick={() => {}}
-            disabled
-            className="group relative bg-card rounded-2xl shadow-md border-2 border-border/50 opacity-60 cursor-not-allowed p-8 text-left flex flex-col gap-4 min-h-[180px] md:row-span-2"
+            onClick={() => navigate("/portfolio")}
+            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer p-8 text-left transition-all flex flex-col gap-4 min-h-[180px] md:row-span-2"
           >
-            <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-muted">
-              <BarChart3 size={28} className="text-muted-foreground" />
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-accent/10">
+              <BarChart3 size={28} className="text-accent" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-foreground mb-1">Your Portfolio</h2>
               <p className="text-sm text-muted-foreground">View and manage your full property portfolio</p>
             </div>
-            <span className="absolute top-4 right-4 text-[10px] font-semibold px-2 py-1 rounded-full bg-muted text-muted-foreground">
-              Coming soon
-            </span>
+            <div className="absolute bottom-4 right-4 text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+              Open →
+            </div>
           </button>
 
           {/* Right — Goal tiles */}
