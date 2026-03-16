@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Home, DollarSign, TrendingUp, BarChart3, UserCircle } from "lucide-react";
+import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart } from "lucide-react";
 import { useState } from "react";
 
 const tiles = [
