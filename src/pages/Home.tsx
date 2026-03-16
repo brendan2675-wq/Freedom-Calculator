@@ -66,64 +66,18 @@ const HomePage = () => {
           {/* Left — Your Portfolio */}
           <button
             onClick={() => navigate("/portfolio")}
-            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer text-left transition-all flex flex-col overflow-hidden"
+            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer text-left transition-all flex flex-col items-center justify-center overflow-hidden"
           >
-            {/* Header area */}
-            <div className="px-7 pt-7 pb-5">
-              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
-                <PieChart size={24} className="text-accent" />
+            <div className="flex flex-col items-center gap-5 py-8">
+              <div className="w-20 h-20 rounded-2xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/15 transition-colors">
+                <PieChart size={40} className="text-accent" />
               </div>
-              <h2 className="text-xl font-bold text-foreground mb-1">Your Portfolio</h2>
-              <p className="text-sm text-muted-foreground">View and manage your full property portfolio</p>
-            </div>
-
-            {/* Donut-style visual + summary */}
-            <div className="px-7 flex-1 flex flex-col justify-center">
-              <div className="flex items-center gap-6">
-                {/* Simple donut ring via SVG */}
-                <div className="relative w-24 h-24 flex-shrink-0">
-                  <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-                    <circle cx="18" cy="18" r="14" fill="none" strokeWidth="3.5" className="stroke-border" />
-                    <circle cx="18" cy="18" r="14" fill="none" strokeWidth="3.5" className="stroke-accent" strokeDasharray="43 57" strokeLinecap="round" />
-                    <circle cx="18" cy="18" r="14" fill="none" strokeWidth="3.5" className="stroke-accent/40" strokeDasharray="30 70" strokeDashoffset="-43" strokeLinecap="round" />
-                    <circle cx="18" cy="18" r="14" fill="none" strokeWidth="3.5" className="stroke-accent/20" strokeDasharray="27 73" strokeDashoffset="-73" strokeLinecap="round" />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-[11px] font-bold text-foreground leading-tight">$2.76M</span>
-                    <span className="text-[9px] text-muted-foreground">Total</span>
-                  </div>
-                </div>
-
-                {/* Legend */}
-                <div className="flex flex-col gap-2.5">
-                  {[
-                    { label: "PPOR", value: "$1.2M", pct: "43%" },
-                    { label: "IP — Wollongong", value: "$820K", pct: "30%" },
-                    { label: "IP — Newcastle", value: "$740K", pct: "27%" },
-                  ].map((item, i) => (
-                    <div key={item.label} className="flex items-center gap-2.5">
-                      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                        i === 0 ? "bg-accent" : i === 1 ? "bg-accent/40" : "bg-accent/20"
-                      }`} />
-                      <span className="text-xs text-muted-foreground">{item.label}</span>
-                      <span className="text-xs font-semibold text-foreground ml-auto">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="text-center">
+                <h2 className="text-xl font-bold text-foreground mb-1">Your Portfolio</h2>
+                <p className="text-sm text-muted-foreground">View and manage your full property portfolio</p>
               </div>
-            </div>
-
-            {/* Footer CTA */}
-            <div className="px-7 py-4 mt-auto border-t border-border/50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground">3 properties</span>
-                  <span className="text-xs text-muted-foreground">·</span>
-                  <span className="text-xs text-muted-foreground">63% equity</span>
-                </div>
-                <div className="flex items-center gap-1 text-accent text-xs font-medium opacity-50 group-hover:opacity-100 transition-opacity">
-                  Open <ChevronRight size={14} />
-                </div>
+              <div className="flex items-center gap-1 text-accent text-xs font-medium opacity-50 group-hover:opacity-100 transition-opacity mt-2">
+                Open <ChevronRight size={14} />
               </div>
             </div>
           </button>
