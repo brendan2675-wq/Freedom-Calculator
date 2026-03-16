@@ -18,6 +18,7 @@ interface Props {
   pporLoanBalance: number;
   portfolioLoanTotal: number;
   currentPortfolioValue: number;
+  currentEquity: number;
 }
 
 const VISIBLE_SLOTS = 4;
