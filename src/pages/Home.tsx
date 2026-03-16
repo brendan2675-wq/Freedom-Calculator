@@ -62,43 +62,64 @@ const HomePage = () => {
 
       {/* Tiles */}
       <main className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {tiles.map((tile) => {
-            const Icon = tile.icon;
-            const isActive = !!tile.route;
-            return (
-              <button
-                key={tile.title}
-                onClick={() => tile.route && navigate(tile.route)}
-                disabled={!isActive}
-                className={`group relative bg-card rounded-2xl shadow-md border-2 p-8 text-left transition-all flex flex-col gap-4 min-h-[180px] ${
-                  isActive
-                    ? "border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer"
-                    : "border-border/50 opacity-60 cursor-not-allowed"
-                }`}
-              >
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                  isActive ? "bg-accent/10" : "bg-muted"
-                }`}>
-                  <Icon size={28} className={isActive ? "text-accent" : "text-muted-foreground"} />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-foreground mb-1">{tile.title}</h2>
-                  <p className="text-sm text-muted-foreground">{tile.description}</p>
-                </div>
-                {!isActive && (
-                  <span className="absolute top-4 right-4 text-[10px] font-semibold px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                    Coming soon
-                  </span>
-                )}
-                {isActive && (
-                  <div className="absolute bottom-4 right-4 text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                    Open →
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 max-w-5xl mx-auto">
+          {/* Left — Your Portfolio */}
+          <button
+            onClick={() => {}}
+            disabled
+            className="group relative bg-card rounded-2xl shadow-md border-2 border-border/50 opacity-60 cursor-not-allowed p-8 text-left flex flex-col gap-4 min-h-[180px] md:row-span-2"
+          >
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-muted">
+              <BarChart3 size={28} className="text-muted-foreground" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-foreground mb-1">Your Portfolio</h2>
+              <p className="text-sm text-muted-foreground">View and manage your full property portfolio</p>
+            </div>
+            <span className="absolute top-4 right-4 text-[10px] font-semibold px-2 py-1 rounded-full bg-muted text-muted-foreground">
+              Coming soon
+            </span>
+          </button>
+
+          {/* Right — Goal tiles */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {tiles.map((tile) => {
+              const Icon = tile.icon;
+              const isActive = !!tile.route;
+              return (
+                <button
+                  key={tile.title}
+                  onClick={() => tile.route && navigate(tile.route)}
+                  disabled={!isActive}
+                  className={`group relative bg-card rounded-2xl shadow-md border-2 p-6 text-left transition-all flex flex-col gap-3 min-h-[150px] ${
+                    isActive
+                      ? "border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+                      : "border-border/50 opacity-60 cursor-not-allowed"
+                  }`}
+                >
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    isActive ? "bg-accent/10" : "bg-muted"
+                  }`}>
+                    <Icon size={24} className={isActive ? "text-accent" : "text-muted-foreground"} />
                   </div>
-                )}
-              </button>
-            );
-          })}
+                  <div>
+                    <h2 className="text-lg font-bold text-foreground mb-1">{tile.title}</h2>
+                    <p className="text-xs text-muted-foreground">{tile.description}</p>
+                  </div>
+                  {!isActive && (
+                    <span className="absolute top-3 right-3 text-[10px] font-semibold px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                      Coming soon
+                    </span>
+                  )}
+                  {isActive && (
+                    <div className="absolute bottom-3 right-3 text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                      Open →
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </main>
     </div>
