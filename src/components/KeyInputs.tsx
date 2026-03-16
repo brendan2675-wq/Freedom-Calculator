@@ -289,7 +289,6 @@ const KeyInputs = ({
                 </div>
               </SheetContent>
             </Sheet>
-            </div>
 
             {/* Equity Pull */}
             <div className="pt-5 mt-5 border-t border-border">
