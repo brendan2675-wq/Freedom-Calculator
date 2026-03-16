@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, X, ChevronRight, ChevronLeft, Info, ArrowUpRight } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, ArrowUpRight, GripVertical } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
 import type { FutureProperty } from "@/types/property";
@@ -19,11 +20,29 @@ interface Props {
   portfolioLoanTotal: number;
   currentPortfolioValue: number;
   currentEquity: number;
+  droppableId?: string;
+  isDropTarget?: boolean;
 }
 
 const VISIBLE_SLOTS = 4;
 
-const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue, currentEquity }: Props) => {
+function DraggableCard({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id });
+  return (
+    <div ref={setNodeRef} style={{ opacity: isDragging ? 0.3 : 1 }} className="relative">
+      <div
+        {...listeners}
+        {...attributes}
+        className="absolute top-2 left-2 z-10 cursor-grab active:cursor-grabbing text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+      >
+        <GripVertical size={14} />
+      </div>
+      {children}
+    </div>
+  );
+}
+
+const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue, currentEquity, droppableId, isDropTarget }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
