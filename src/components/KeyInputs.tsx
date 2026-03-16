@@ -35,6 +35,7 @@ const KeyInputs = ({
   const [loanTermYears, setLoanTermYears] = useState(30);
   const [loanTermMonths, setLoanTermMonths] = useState(0);
   const [ioPeriodYears, setIoPeriodYears] = useState(5);
+  const [trackerOpen, setTrackerOpen] = useState(false);
 
   const paydownPercent = useMemo(() => {
     if (startingBalance <= 0) return 0;
