@@ -38,13 +38,12 @@ const KeyInputs = ({
   const [ioPeriodYears, setIoPeriodYears] = useState(5);
   const [trackerOpen, setTrackerOpen] = useState(false);
 
-  const adjustedBalance = useMemo(() => Math.max(0, startingBalance - sellDownProceeds), [startingBalance, sellDownProceeds]);
+  const adjustedRemaining = useMemo(() => Math.max(0, loanBalance - sellDownProceeds), [loanBalance, sellDownProceeds]);
 
   const paydownPercent = useMemo(() => {
-    if (adjustedBalance <= 0) return 100;
-    if (loanBalance >= adjustedBalance) return 0;
-    return ((adjustedBalance - loanBalance) / adjustedBalance) * 100;
-  }, [adjustedBalance, loanBalance]);
+    if (startingBalance <= 0) return 0;
+    return ((startingBalance - adjustedRemaining) / startingBalance) * 100;
+  }, [startingBalance, adjustedRemaining]);
   const pporValue = 2750000;
   const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
@@ -147,8 +146,8 @@ const KeyInputs = ({
                 />
               </div>
               <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5">
-                <span>${adjustedBalance.toLocaleString()}{sellDownProceeds > 0 && <span className="text-success"> (−${sellDownProceeds.toLocaleString()} sell down)</span>}</span>
-                <span className="font-semibold text-foreground">${loanBalance.toLocaleString()} remaining</span>
+                <span>${startingBalance.toLocaleString()}</span>
+                <span className="font-semibold text-foreground">${adjustedRemaining.toLocaleString()} remaining{sellDownProceeds > 0 && <span className="text-success"> (−${sellDownProceeds.toLocaleString()} sell down)</span>}</span>
                 <span>$0</span>
               </div>
             </div>
@@ -177,12 +176,12 @@ const KeyInputs = ({
                       />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>${adjustedBalance.toLocaleString()}</span>
-                      <span>${loanBalance.toLocaleString()} remaining</span>
+                      <span>${startingBalance.toLocaleString()}</span>
+                      <span>${adjustedRemaining.toLocaleString()} remaining</span>
                       <span>$0</span>
                     </div>
                     {sellDownProceeds > 0 && (
-                      <p className="text-xs text-success mt-1">Sell-down proceeds applied: −${sellDownProceeds.toLocaleString()}</p>
+                      <p className="text-xs text-success mt-1">Sell-down proceeds: −${sellDownProceeds.toLocaleString()} → ${adjustedRemaining.toLocaleString()} remaining</p>
                     )}
                   </div>
 
