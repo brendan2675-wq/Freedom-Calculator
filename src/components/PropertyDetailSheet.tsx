@@ -277,211 +277,216 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
             <FieldGroup label="Ownership Structure">
               <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
             </FieldGroup>
-            {isExisting && (
-              <>
-                <div className="flex items-center gap-3">
-                  <Switch
-                    checked={(property as ExistingProperty).earmarked}
-                    onCheckedChange={(v) => update({ earmarked: v } as Partial<ExistingProperty>)}
-                  />
-                  <span className="text-sm text-muted-foreground">Sell down this property</span>
-                </div>
-                {(property as ExistingProperty).earmarked && (() => {
-                  const ep = property as ExistingProperty;
-                  const sc = ep.saleCosts || { ...defaultSaleCosts };
-                  const currentValue = ep.estimatedValue;
-                  const loanBal = ep.loanBalance;
-                  const purchasePrice = ep.purchase.purchasePrice || 0;
-                  const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+            {isExisting && (() => {
+              const ep = property as ExistingProperty;
+              const sc = ep.saleCosts || { ...defaultSaleCosts };
+              const purchasePrice = ep.purchase.purchasePrice || 0;
+              const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+              const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
 
-                  const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
-                  const totalImprovements = sc.renovations + sc.structuralWork;
-                  const totalOwnership = sc.ownershipCostsTotal;
-                  const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
-                  // ATO: Cost base includes acquisition + improvements + ownership + selling costs
-                  const costBase = totalAcquisition + totalImprovements + totalOwnership + totalSelling;
-                  const capitalGain = Math.max(0, currentValue - costBase);
-                  // Cash proceeds = sale price - loan - selling costs
-                  const saleProceeds = currentValue - loanBal - totalSelling;
+              const updateSaleCosts = (fields: Partial<SaleCosts>) => {
+                update({ saleCosts: { ...sc, ...fields } } as Partial<ExistingProperty>);
+              };
 
-                  const updateSaleCosts = (fields: Partial<SaleCosts>) => {
-                    update({ saleCosts: { ...sc, ...fields } } as Partial<ExistingProperty>);
-                  };
+              const hasEmptyAcquisition = !purchasePrice && !sc.stampDutyOnPurchase && !sc.legalFeesBuy && !sc.buyersAgentFees && !sc.buildingPestFees && !sc.mortgageEstablishmentFees;
 
-                  return (
-                    <div className="space-y-4">
-                      {/* 1) Original Acquisition Costs */}
-                      <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
-                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Original Acquisition Costs</h4>
-                        <FieldGroup label="Purchase Price">
-                          <CurrencyInput value={purchasePrice} onChange={(v) => updatePurchase({ purchasePrice: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Stamp Duty (rule of thumb 5%)">
-                          <CurrencyInput value={stampDutyAcq} onChange={(v) => updateSaleCosts({ stampDutyOnPurchase: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Legal / Conveyancing Fees">
-                          <CurrencyInput value={sc.legalFeesBuy} onChange={(v) => updateSaleCosts({ legalFeesBuy: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Buyer's Agent Fees">
-                          <CurrencyInput value={sc.buyersAgentFees} onChange={(v) => updateSaleCosts({ buyersAgentFees: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Building & Pest Inspection">
-                          <CurrencyInput value={sc.buildingPestFees} onChange={(v) => updateSaleCosts({ buildingPestFees: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Mortgage Establishment Fees">
-                          <CurrencyInput value={sc.mortgageEstablishmentFees} onChange={(v) => updateSaleCosts({ mortgageEstablishmentFees: v })} />
-                        </FieldGroup>
-                        <div className="flex justify-between text-xs pt-1 border-t border-border">
-                          <span className="text-muted-foreground">Subtotal</span>
-                          <span className="font-semibold text-foreground">${totalAcquisition.toLocaleString()}</span>
-                        </div>
-                      </div>
-
-                      {/* 2) Capital Improvements */}
-                      <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
-                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Capital Improvements</h4>
-                        <FieldGroup label="Renovations">
-                          <CurrencyInput value={sc.renovations} onChange={(v) => updateSaleCosts({ renovations: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Structural Work">
-                          <CurrencyInput value={sc.structuralWork} onChange={(v) => updateSaleCosts({ structuralWork: v })} />
-                        </FieldGroup>
-                        <div className="flex justify-between text-xs pt-1 border-t border-border">
-                          <span className="text-muted-foreground">Subtotal</span>
-                          <span className="font-semibold text-foreground">${totalImprovements.toLocaleString()}</span>
-                        </div>
-                      </div>
-
-                      {/* 3) Ownership Costs */}
-                      <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
-                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Ownership Costs</h4>
-                        <FieldGroup label="Ownership Costs Total">
-                          <CurrencyInput value={sc.ownershipCostsTotal} onChange={(v) => updateSaleCosts({ ownershipCostsTotal: v })} />
-                        </FieldGroup>
-                      </div>
-
-                      {/* 4) Selling Costs */}
-                      <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
-                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Selling Costs</h4>
-                        <FieldGroup label="Real Estate Agent Commission">
-                          <CurrencyInput value={sc.agentCommission} onChange={(v) => updateSaleCosts({ agentCommission: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Legal / Conveyancing Fees (Sale)">
-                          <CurrencyInput value={sc.legalFeesSell} onChange={(v) => updateSaleCosts({ legalFeesSell: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Advertising / Marketing">
-                          <CurrencyInput value={sc.advertisingCosts} onChange={(v) => updateSaleCosts({ advertisingCosts: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Styling / Staging">
-                          <CurrencyInput value={sc.stylingCosts} onChange={(v) => updateSaleCosts({ stylingCosts: v })} />
-                        </FieldGroup>
-                        <FieldGroup label="Seller's Agent / Advisory Fees">
-                          <CurrencyInput value={sc.sellerAdvisoryFees} onChange={(v) => updateSaleCosts({ sellerAdvisoryFees: v })} />
-                        </FieldGroup>
-                        <div className="flex justify-between text-xs pt-1 border-t border-border">
-                          <span className="text-muted-foreground">Subtotal</span>
-                          <span className="font-semibold text-foreground">${totalSelling.toLocaleString()}</span>
-                        </div>
-                      </div>
-
-                      {/* 5) CGT Settings */}
-                      <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
-                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Capital Gains Tax</h4>
-                        <FieldGroup label="CGT Discount">
-                          <select
-                            value={sc.cgtDiscount}
-                            onChange={(e) => updateSaleCosts({ cgtDiscount: Number(e.target.value) })}
-                            className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                          >
-                            <option value={0.5}>50% (held 12+ months)</option>
-                            <option value={0}>0% (held less than 12 months)</option>
-                          </select>
-                        </FieldGroup>
-                        <FieldGroup label="Marginal Tax Rate (excl. Medicare)">
-                          <select
-                            value={sc.incomeTaxRate}
-                            onChange={(e) => updateSaleCosts({ incomeTaxRate: Number(e.target.value) })}
-                            className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                          >
-                            <option value={0}>0% – $0 – $18,200</option>
-                            <option value={0.16}>16% – $18,201 – $45,000</option>
-                            <option value={0.30}>30% – $45,001 – $135,000</option>
-                            <option value={0.37}>37% – $135,001 – $190,000</option>
-                            <option value={0.45}>45% – $190,001+</option>
-                          </select>
-                        </FieldGroup>
-                        <p className="text-[10px] text-muted-foreground">+ 2% Medicare levy applied automatically</p>
-                      </div>
-
-                      {/* Summary */}
-                      {(() => {
-                        const discountedGain = capitalGain * (1 - sc.cgtDiscount);
-                        const effectiveRate = sc.incomeTaxRate + 0.02; // + 2% Medicare levy
-                        const cgtPayable = Math.round(discountedGain * effectiveRate);
-                        const netAfterCGT = saleProceeds - cgtPayable;
-                        return (
-                          <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-2">
-                            <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Cash Position</h4>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Sale Price</span>
-                              <span className="text-foreground font-medium">${currentValue.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Less: Loan Balance</span>
-                              <span className="text-destructive font-medium">-${loanBal.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Less: Selling Costs</span>
-                              <span className="text-destructive font-medium">-${totalSelling.toLocaleString()}</span>
-                            </div>
-                            <Separator />
-                            <div className="flex justify-between text-sm font-bold">
-                              <span className="text-foreground">Net Sale Proceeds</span>
-                              <span className={saleProceeds >= 0 ? "text-accent" : "text-destructive"}>${saleProceeds.toLocaleString()}</span>
-                            </div>
-
-                            <Separator />
-                            <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider pt-1">CGT Calculation</h4>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Sale Price</span>
-                              <span className="text-foreground font-medium">${currentValue.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Less: Cost Base (incl. selling)</span>
-                              <span className="text-destructive font-medium">-${costBase.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Capital Gain</span>
-                              <span className="text-foreground font-medium">${capitalGain.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">After {sc.cgtDiscount * 100}% Discount</span>
-                              <span className="text-foreground font-medium">${discountedGain.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}% + 2% ML)</span>
-                              <span className="text-foreground font-medium">{(effectiveRate * 100).toFixed(0)}%</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Less: CGT Payable</span>
-                              <span className="text-destructive font-medium">-${cgtPayable.toLocaleString()}</span>
-                            </div>
-                            <Separator />
-                            <div className="flex justify-between text-sm font-bold">
-                              <span className="text-foreground">Net Proceeds After CGT</span>
-                              <span className={netAfterCGT >= 0 ? "text-accent" : "text-destructive"}>${netAfterCGT.toLocaleString()}</span>
-                            </div>
-                          </div>
-                        );
-                      })()}
+              return (
+                <>
+                  {/* Original Acquisition Costs - always visible */}
+                  <div className={cn("bg-muted/30 border rounded-lg p-4 space-y-3", hasEmptyAcquisition ? "border-accent/50" : "border-border")}>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Original Acquisition Costs</h4>
+                      {hasEmptyAcquisition && (
+                        <span className="text-[10px] font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">Please complete</span>
+                      )}
                     </div>
-                  );
-                })()}
-                <FieldGroup label="Settlement Date">
-                  <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
-                </FieldGroup>
-              </>
-            )}
+                    <FieldGroup label="Purchase Price">
+                      <CurrencyInput value={purchasePrice} onChange={(v) => updatePurchase({ purchasePrice: v })} />
+                    </FieldGroup>
+                    <FieldGroup label="Stamp Duty (rule of thumb 5%)">
+                      <CurrencyInput value={stampDutyAcq} onChange={(v) => updateSaleCosts({ stampDutyOnPurchase: v })} />
+                    </FieldGroup>
+                    <FieldGroup label="Legal / Conveyancing Fees">
+                      <CurrencyInput value={sc.legalFeesBuy} onChange={(v) => updateSaleCosts({ legalFeesBuy: v })} />
+                    </FieldGroup>
+                    <FieldGroup label="Buyer's Agent Fees">
+                      <CurrencyInput value={sc.buyersAgentFees} onChange={(v) => updateSaleCosts({ buyersAgentFees: v })} />
+                    </FieldGroup>
+                    <FieldGroup label="Building & Pest Inspection">
+                      <CurrencyInput value={sc.buildingPestFees} onChange={(v) => updateSaleCosts({ buildingPestFees: v })} />
+                    </FieldGroup>
+                    <FieldGroup label="Mortgage Establishment Fees">
+                      <CurrencyInput value={sc.mortgageEstablishmentFees} onChange={(v) => updateSaleCosts({ mortgageEstablishmentFees: v })} />
+                    </FieldGroup>
+                    <div className="flex justify-between text-xs pt-1 border-t border-border">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="font-semibold text-foreground">${totalAcquisition.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Sell down toggle */}
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={ep.earmarked}
+                      onCheckedChange={(v) => update({ earmarked: v } as Partial<ExistingProperty>)}
+                    />
+                    <span className="text-sm text-muted-foreground">Sell down this property</span>
+                  </div>
+
+                  {/* Sell-down sections - only when earmarked */}
+                  {ep.earmarked && (() => {
+                    const currentValue = ep.estimatedValue;
+                    const loanBal = ep.loanBalance;
+                    const totalImprovements = sc.renovations + sc.structuralWork;
+                    const totalOwnership = sc.ownershipCostsTotal;
+                    const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
+                    const costBase = totalAcquisition + totalImprovements + totalOwnership + totalSelling;
+                    const capitalGain = Math.max(0, currentValue - costBase);
+                    const saleProceeds = currentValue - loanBal - totalSelling;
+
+                    return (
+                      <div className="space-y-4">
+                        <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
+                          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Capital Improvements</h4>
+                          <FieldGroup label="Renovations">
+                            <CurrencyInput value={sc.renovations} onChange={(v) => updateSaleCosts({ renovations: v })} />
+                          </FieldGroup>
+                          <FieldGroup label="Structural Work">
+                            <CurrencyInput value={sc.structuralWork} onChange={(v) => updateSaleCosts({ structuralWork: v })} />
+                          </FieldGroup>
+                          <div className="flex justify-between text-xs pt-1 border-t border-border">
+                            <span className="text-muted-foreground">Subtotal</span>
+                            <span className="font-semibold text-foreground">${totalImprovements.toLocaleString()}</span>
+                          </div>
+                        </div>
+
+                        <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
+                          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Ownership Costs</h4>
+                          <FieldGroup label="Ownership Costs Total">
+                            <CurrencyInput value={sc.ownershipCostsTotal} onChange={(v) => updateSaleCosts({ ownershipCostsTotal: v })} />
+                          </FieldGroup>
+                        </div>
+
+                        <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
+                          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Selling Costs</h4>
+                          <FieldGroup label="Real Estate Agent Commission">
+                            <CurrencyInput value={sc.agentCommission} onChange={(v) => updateSaleCosts({ agentCommission: v })} />
+                          </FieldGroup>
+                          <FieldGroup label="Legal / Conveyancing Fees (Sale)">
+                            <CurrencyInput value={sc.legalFeesSell} onChange={(v) => updateSaleCosts({ legalFeesSell: v })} />
+                          </FieldGroup>
+                          <FieldGroup label="Advertising / Marketing">
+                            <CurrencyInput value={sc.advertisingCosts} onChange={(v) => updateSaleCosts({ advertisingCosts: v })} />
+                          </FieldGroup>
+                          <FieldGroup label="Styling / Staging">
+                            <CurrencyInput value={sc.stylingCosts} onChange={(v) => updateSaleCosts({ stylingCosts: v })} />
+                          </FieldGroup>
+                          <FieldGroup label="Seller's Agent / Advisory Fees">
+                            <CurrencyInput value={sc.sellerAdvisoryFees} onChange={(v) => updateSaleCosts({ sellerAdvisoryFees: v })} />
+                          </FieldGroup>
+                          <div className="flex justify-between text-xs pt-1 border-t border-border">
+                            <span className="text-muted-foreground">Subtotal</span>
+                            <span className="font-semibold text-foreground">${totalSelling.toLocaleString()}</span>
+                          </div>
+                        </div>
+
+                        <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
+                          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Capital Gains Tax</h4>
+                          <FieldGroup label="CGT Discount">
+                            <select
+                              value={sc.cgtDiscount}
+                              onChange={(e) => updateSaleCosts({ cgtDiscount: Number(e.target.value) })}
+                              className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                            >
+                              <option value={0.5}>50% (held 12+ months)</option>
+                              <option value={0}>0% (held less than 12 months)</option>
+                            </select>
+                          </FieldGroup>
+                          <FieldGroup label="Marginal Tax Rate (excl. Medicare)">
+                            <select
+                              value={sc.incomeTaxRate}
+                              onChange={(e) => updateSaleCosts({ incomeTaxRate: Number(e.target.value) })}
+                              className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                            >
+                              <option value={0}>0% – $0 – $18,200</option>
+                              <option value={0.16}>16% – $18,201 – $45,000</option>
+                              <option value={0.30}>30% – $45,001 – $135,000</option>
+                              <option value={0.37}>37% – $135,001 – $190,000</option>
+                              <option value={0.45}>45% – $190,001+</option>
+                            </select>
+                          </FieldGroup>
+                          <p className="text-[10px] text-muted-foreground">+ 2% Medicare levy applied automatically</p>
+                        </div>
+
+                        {(() => {
+                          const discountedGain = capitalGain * (1 - sc.cgtDiscount);
+                          const effectiveRate = sc.incomeTaxRate + 0.02;
+                          const cgtPayable = Math.round(discountedGain * effectiveRate);
+                          const netAfterCGT = saleProceeds - cgtPayable;
+                          return (
+                            <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-2">
+                              <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Cash Position</h4>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Sale Price</span>
+                                <span className="text-foreground font-medium">${currentValue.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Less: Loan Balance</span>
+                                <span className="text-destructive font-medium">-${loanBal.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Less: Selling Costs</span>
+                                <span className="text-destructive font-medium">-${totalSelling.toLocaleString()}</span>
+                              </div>
+                              <Separator />
+                              <div className="flex justify-between text-sm font-bold">
+                                <span className="text-foreground">Net Sale Proceeds</span>
+                                <span className={saleProceeds >= 0 ? "text-accent" : "text-destructive"}>${saleProceeds.toLocaleString()}</span>
+                              </div>
+                              <Separator />
+                              <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider pt-1">CGT Calculation</h4>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Sale Price</span>
+                                <span className="text-foreground font-medium">${currentValue.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Less: Cost Base (incl. selling)</span>
+                                <span className="text-destructive font-medium">-${costBase.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Capital Gain</span>
+                                <span className="text-foreground font-medium">${capitalGain.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">After {sc.cgtDiscount * 100}% Discount</span>
+                                <span className="text-foreground font-medium">${discountedGain.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}% + 2% ML)</span>
+                                <span className="text-foreground font-medium">{(effectiveRate * 100).toFixed(0)}%</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Less: CGT Payable</span>
+                                <span className="text-destructive font-medium">-${cgtPayable.toLocaleString()}</span>
+                              </div>
+                              <Separator />
+                              <div className="flex justify-between text-sm font-bold">
+                                <span className="text-foreground">Net Proceeds After CGT</span>
+                                <span className={netAfterCGT >= 0 ? "text-accent" : "text-destructive"}>${netAfterCGT.toLocaleString()}</span>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    );
+                  })()}
+
+                  <FieldGroup label="Settlement Date">
+                    <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
+                  </FieldGroup>
+                </>
+              );
+            })()}
           </div>
 
           {/* Loan Details */}
