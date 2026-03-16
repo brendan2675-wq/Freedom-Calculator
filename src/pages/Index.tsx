@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { defaultSaleCosts } from "@/types/property";
 import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
 import ExistingProperties from "@/components/ExistingProperties";
