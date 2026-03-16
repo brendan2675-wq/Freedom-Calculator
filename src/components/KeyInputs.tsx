@@ -176,12 +176,12 @@ const KeyInputs = ({
                       />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                      <span>${adjustedBalance.toLocaleString()}</span>
-                      <span>${loanBalance.toLocaleString()} remaining</span>
+                      <span>${startingBalance.toLocaleString()}</span>
+                      <span>${adjustedRemaining.toLocaleString()} remaining</span>
                       <span>$0</span>
                     </div>
                     {sellDownProceeds > 0 && (
-                      <p className="text-xs text-success mt-1">Sell-down proceeds applied: −${sellDownProceeds.toLocaleString()}</p>
+                      <p className="text-xs text-success mt-1">Sell-down proceeds: −${sellDownProceeds.toLocaleString()} → ${adjustedRemaining.toLocaleString()} remaining</p>
                     )}
                   </div>
 
