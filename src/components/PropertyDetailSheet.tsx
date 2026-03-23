@@ -23,6 +23,7 @@ interface Props {
   variant: "existing" | "future";
   growthRate?: number;
   portfolioMode?: boolean;
+  pporMode?: boolean;
 }
 
 const currencyFormat = (v: number) => v.toLocaleString();
