@@ -266,13 +266,8 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                         </TooltipContent>
                       </Tooltip>
                     </div>
-                    <div className="flex items-center gap-1 flex-wrap">
+                    <div className="flex items-center gap-1">
                       <span className="text-accent font-bold">${equity.toLocaleString()}</span>
-                      {equity > 150000 && (
-                        <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full bg-success/15 text-success border border-success/30">
-                          Go again
-                        </span>
-                      )}
                       <select
                         value={lvr}
                         onClick={(e) => e.stopPropagation()}
@@ -280,14 +275,18 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                           e.stopPropagation();
                           setLvrRates({ ...lvrRates, [p.id]: Number(e.target.value) });
                         }}
-                        className="py-1 px-2 rounded-md border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                        className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-[10px] font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
                       >
                         <option value={0.8}>80%</option>
                         <option value={0.88}>88%</option>
                         <option value={0.9}>90%</option>
-                        
                       </select>
                     </div>
+                    {equity > 150000 && (
+                      <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full bg-success/15 text-success border border-success/30 mt-0.5 inline-block">
+                        Go again
+                      </span>
+                    )}
                   </div>
                 </div>
 
