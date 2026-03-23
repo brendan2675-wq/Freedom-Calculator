@@ -21,6 +21,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   onUpdate: (updated: PropertyType) => void;
   variant: "existing" | "future";
+  growthRate?: number;
 }
 
 const currencyFormat = (v: number) => v.toLocaleString();
