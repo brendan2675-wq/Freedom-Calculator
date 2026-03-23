@@ -88,7 +88,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header clientName={clientName} setClientName={setClientName} />
 
-      <main className="container mx-auto px-4 py-8 space-y-12">
+      <main className="container mx-auto px-4 py-8 space-y-16">
         <KeyInputs
           loanBalance={loanBalance}
           setLoanBalance={setLoanBalance}

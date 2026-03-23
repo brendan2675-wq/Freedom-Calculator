@@ -161,14 +161,14 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   <InvestmentTypeIcon type={p.investmentType} size={16} className="text-accent shrink-0" />
                   <p className="font-semibold text-sm text-foreground truncate">{p.nickname || "Untitled"}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
                   <div>
-                    <label className="text-muted-foreground text-[10px]">Current Value</label>
-                    <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
+                    <label className="text-muted-foreground text-[11px] font-medium">Current Value</label>
+                    <p className="text-foreground font-semibold">${p.estimatedValue.toLocaleString()}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-1">
-                      <label className="text-muted-foreground text-[10px]">Current Loan</label>
+                      <label className="text-muted-foreground text-[11px] font-medium">Current Loan</label>
                       {p.loan.interestOnlyPeriodYears === 0 && (
                         <div className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-destructive/10 border border-destructive/20">
                           <AlertTriangle size={8} className="text-destructive shrink-0" />
@@ -176,15 +176,15 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                         </div>
                       )}
                     </div>
-                    <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
+                    <p className="text-foreground font-semibold">${p.loanBalance.toLocaleString()}</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-[10px]">{"Future Value (" + growthRate + "%)"}</label>
-                    <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
+                    <label className="text-muted-foreground text-[11px] font-medium">{"Future Value (" + growthRate + "%)"}</label>
+                    <p className="text-accent font-semibold">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-0.5">
-                      <label className="text-muted-foreground text-[10px]">Equity Avail.</label>
+                      <label className="text-muted-foreground text-[11px] font-medium">Equity Avail.</label>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info size={10} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
