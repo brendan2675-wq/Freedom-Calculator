@@ -28,6 +28,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
