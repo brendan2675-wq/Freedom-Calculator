@@ -222,6 +222,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                   <ChevronRight size={12} />
                 </div>
               </div>
+              )}
             );
           })}
 
