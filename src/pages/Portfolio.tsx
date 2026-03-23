@@ -13,6 +13,7 @@ const Portfolio = () => {
   const [ppor, setPpor] = useState<ExistingProperty | null>(null);
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
   const [pporLvr, setPporLvr] = useState(0.8);
+  const [masterLvr, setMasterLvr] = useState(0.8);
 
   // Load from localStorage
   useEffect(() => {
@@ -75,14 +76,14 @@ const Portfolio = () => {
   const totals = useMemo(() => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
-    const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance), 0);
+    const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * masterLvr) - p.loanBalance), 0);
     const pporValue = ppor?.estimatedValue ?? 0;
     const pporLoan = ppor?.loanBalance ?? 0;
     const totalValue = pporValue + investmentValue;
     const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
     return { totalValue, totalLoan, totalEquity };
-  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity]);
+  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity, masterLvr]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,17 +120,36 @@ const Portfolio = () => {
       <main className="container mx-auto px-4 py-12 space-y-10">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { icon: Building2, label: "Total Portfolio Value", value: `$${totals.totalValue.toLocaleString()}`, color: "text-foreground" },
-            { icon: Landmark, label: "Total Loans", value: `$${totals.totalLoan.toLocaleString()}`, color: "text-destructive" },
-            { icon: TrendingUp, label: "Available Equity (80%)", value: `$${totals.totalEquity.toLocaleString()}`, color: "text-accent" },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
-              <stat.icon size={24} className="text-accent" />
-              <span className="text-sm text-muted-foreground">{stat.label}</span>
-              <span className={`text-2xl font-bold ${stat.color}`}>{stat.value}</span>
+          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
+            <Building2 size={24} className="text-accent" />
+            <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
+            <span className="text-2xl font-bold text-foreground">${totals.totalValue.toLocaleString()}</span>
+          </div>
+          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
+            <Landmark size={24} className="text-accent" />
+            <span className="text-sm text-muted-foreground">Total Loans</span>
+            <span className="text-2xl font-bold text-destructive">${totals.totalLoan.toLocaleString()}</span>
+          </div>
+          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
+            <TrendingUp size={24} className="text-accent" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm text-muted-foreground">Available Equity</span>
+              <select
+                value={masterLvr}
+                onChange={(e) => {
+                  const newLvr = Number(e.target.value);
+                  setMasterLvr(newLvr);
+                  setPporLvr(newLvr);
+                }}
+                className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+              >
+                <option value={0.8}>80%</option>
+                <option value={0.88}>88%</option>
+                <option value={0.9}>90%</option>
+              </select>
             </div>
-          ))}
+            <span className="text-2xl font-bold text-accent">${totals.totalEquity.toLocaleString()}</span>
+          </div>
         </div>
 
         {/* Owner Occupied Property */}
