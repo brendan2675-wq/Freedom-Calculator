@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, X, ChevronRight, ChevronLeft, Info, Home } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, Gavel } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -84,7 +84,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
         <div className="gold-underline pb-2 mb-1">
           <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Home size={22} className="text-accent" />
+            <Gavel size={22} className="text-accent" />
             Your Proposed Purchases
           </h2>
           {showArrows && (
