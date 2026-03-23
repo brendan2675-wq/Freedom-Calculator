@@ -183,9 +183,6 @@ const KeyInputs = ({
                       <span className="text-success font-bold text-2xl">{paydownPercent.toFixed(1)}%</span>
                     </div>
                     <div className="w-full h-6 rounded-full bg-secondary overflow-hidden relative shadow-inner">
-                      {[25, 50, 75].map((mark) => (
-                        <div key={mark} className="absolute top-0 bottom-0 w-px bg-border/60 z-10" style={{ left: `${mark}%` }} />
-                      ))}
                       <div
                         className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden bg-accent"
                         style={{
