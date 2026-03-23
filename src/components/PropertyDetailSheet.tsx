@@ -22,6 +22,7 @@ interface Props {
   onUpdate: (updated: PropertyType) => void;
   variant: "existing" | "future";
   growthRate?: number;
+  portfolioMode?: boolean;
 }
 
 const currencyFormat = (v: number) => v.toLocaleString();
