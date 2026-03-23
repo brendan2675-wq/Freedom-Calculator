@@ -149,14 +149,13 @@ const KeyInputs = ({
                   </div>
                 ))}
                 <div
-                  className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                  className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden bg-accent"
                   style={{
                     width: `${Math.min(100, paydownPercent)}%`,
-                    background: `linear-gradient(90deg, hsl(var(--success)), hsl(var(--accent)))`,
-                    boxShadow: `0 0 12px hsl(var(--success) / 0.4)`,
+                    boxShadow: `0 0 12px hsl(var(--accent) / 0.3)`,
                   }}
                 >
-                  <div className="absolute inset-0 opacity-20" style={{ background: 'linear-gradient(180deg, white 0%, transparent 60%)' }} />
+                  <div className="absolute inset-0 opacity-15" style={{ background: 'linear-gradient(180deg, white 0%, transparent 60%)' }} />
                 </div>
                 {/* Progress edge indicator */}
                 <div
