@@ -256,10 +256,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   <ChevronRight size={12} />
                 </div>
               </div>
-              )}
             );
-          })}
-
           {/* Primary Add Property button */}
           <button
             onClick={addProperty}
