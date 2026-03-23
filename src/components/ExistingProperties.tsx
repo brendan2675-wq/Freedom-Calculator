@@ -26,6 +26,19 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
   const scrollRef = useRef<HTMLDivElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [masterSellYear, setMasterSellYear] = useState(0);
+
+  const allEarmarked = properties.length > 0 && properties.every((p) => p.earmarked);
+
+  const handleMasterSellDown = () => {
+    setProperties(
+      properties.map((p) => ({
+        ...p,
+        earmarked: !allEarmarked,
+        sellInYears: !allEarmarked ? masterSellYear : p.sellInYears,
+      }))
+    );
+  };
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
