@@ -194,18 +194,8 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                     <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
-                    <div className="flex items-center gap-0.5">
-                      <label className="text-muted-foreground text-[11px]">Proj. Equity (5yr)</label>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info size={10} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-[200px]">
-                          <p className="text-xs">Estimated equity after 5 years based on growth rate and 80% LVR.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                    <p className="text-accent font-bold">${p.projectedEquity5yr.toLocaleString()}</p>
+                    <label className="text-muted-foreground text-[11px]">LVR</label>
+                    <p className="text-foreground font-medium">{p.lvr ?? 80}%</p>
                   </div>
                 </div>
 
