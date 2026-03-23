@@ -144,7 +144,9 @@ const KeyInputs = ({
               </div>
               <div className="w-full h-8 rounded-full bg-secondary overflow-hidden relative shadow-inner">
                 {[25, 50, 75].map((mark) => (
-                  <div key={mark} className="absolute top-0 bottom-0 w-px bg-border/60 z-10" style={{ left: `${mark}%` }} />
+                  <div key={mark} className="absolute top-0 bottom-0 z-10" style={{ left: `${mark}%` }}>
+                    <div className="w-px h-full bg-border/80" />
+                  </div>
                 ))}
                 <div
                   className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
@@ -156,11 +158,31 @@ const KeyInputs = ({
                 >
                   <div className="absolute inset-0 opacity-20" style={{ background: 'linear-gradient(180deg, white 0%, transparent 60%)' }} />
                 </div>
+                {/* Progress edge indicator */}
+                <div
+                  className="absolute top-1/2 w-4 h-4 rounded-full border-2 border-card bg-accent shadow-md z-20 transition-all duration-1000 ease-out"
+                  style={{ left: `${Math.min(100, paydownPercent)}%`, transform: 'translateX(-50%) translateY(-50%)' }}
+                />
               </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5">
-                <span>${startingBalance.toLocaleString()}</span>
-                <span className="font-semibold text-foreground">${adjustedRemaining.toLocaleString()} remaining{sellDownProceeds > 0 && <span className="text-success"> (−${sellDownProceeds.toLocaleString()} sell down)</span>}</span>
-                <span>$0</span>
+              {/* Milestone labels + range */}
+              <div className="relative w-full mt-2 h-5">
+                <span className="absolute left-0 text-[10px] text-muted-foreground">${startingBalance.toLocaleString()}</span>
+                <span className="absolute left-1/2 -translate-x-1/2 text-[10px] font-semibold text-foreground">
+                  ${adjustedRemaining.toLocaleString()} remaining{sellDownProceeds > 0 && <span className="text-success"> (−${sellDownProceeds.toLocaleString()} sell down)</span>}
+                </span>
+                <span className="absolute right-0 text-[10px] text-muted-foreground">$0</span>
+                {[25, 50, 75].map((mark) => {
+                  const reached = paydownPercent >= mark;
+                  return (
+                    <span
+                      key={mark}
+                      className={`absolute bottom-[-14px] text-[9px] font-semibold tracking-wide transition-colors ${reached ? 'text-success' : 'text-muted-foreground/50'}`}
+                      style={{ left: `${mark}%`, transform: 'translateX(-50%)' }}
+                    >
+                      {mark}%
+                    </span>
+                  );
+                })}
               </div>
             </div>
 
