@@ -107,8 +107,23 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
 
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
+          className={`flex gap-3 overflow-x-auto scrollbar-hide pb-2 rounded-xl transition-colors ${dragOver ? "bg-accent/10 ring-2 ring-accent/40" : ""}`}
           style={{ scrollSnapType: "x mandatory" }}
+          onDragOver={(e) => {
+            if (e.dataTransfer.types.includes("application/x-future-property")) {
+              e.preventDefault();
+              setDragOver(true);
+            }
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            const id = e.dataTransfer.getData("application/x-future-property");
+            if (id && onDropFromProposals) {
+              onDropFromProposals(id);
+            }
+          }}
         >
           {properties.map((p) => {
             const lvr = lvrRates[p.id] ?? 0.8;
