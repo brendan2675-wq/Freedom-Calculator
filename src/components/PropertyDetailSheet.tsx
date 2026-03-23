@@ -582,9 +582,11 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             <FieldGroup label="Interest Rate">
               <NumberInput value={property.loan.interestRate} onChange={(v) => updateLoan({ interestRate: v })} suffix="%" placeholder="6.2" />
             </FieldGroup>
-            <FieldGroup label="Interest-Only Period">
-              <NumberInput value={property.loan.interestOnlyPeriodYears} onChange={(v) => updateLoan({ interestOnlyPeriodYears: v })} suffix="years" placeholder="0" />
-            </FieldGroup>
+            {!pporMode && (
+              <FieldGroup label="Interest-Only Period">
+                <NumberInput value={property.loan.interestOnlyPeriodYears} onChange={(v) => updateLoan({ interestOnlyPeriodYears: v })} suffix="years" placeholder="0" />
+              </FieldGroup>
+            )}
             <FieldGroup label="Loan Term">
               <NumberInput value={property.loan.loanTermYears} onChange={(v) => updateLoan({ loanTermYears: v })} suffix="years" placeholder="30" />
             </FieldGroup>
