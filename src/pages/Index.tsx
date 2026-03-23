@@ -115,6 +115,25 @@ const Index = () => {
             setFutureProperties([...futureProperties, future]);
             setExistingProperties(existingProperties.filter((p) => p.id !== ep.id));
           }}
+          onDropFromProposals={(id) => {
+            const fp = futureProperties.find((p) => p.id === id);
+            if (!fp) return;
+            const existing: ExistingProperty = {
+              id: fp.id,
+              nickname: fp.suburb,
+              estimatedValue: fp.purchasePrice,
+              loanBalance: Math.round(fp.purchasePrice * 0.8),
+              earmarked: false,
+              sellInYears: 0,
+              ownership: fp.ownership,
+              investmentType: fp.investmentType,
+              loan: { ...fp.loan },
+              rental: { ...fp.rental },
+              purchase: { ...fp.purchase },
+            };
+            setExistingProperties([...existingProperties, existing]);
+            setFutureProperties(futureProperties.filter((p) => p.id !== id));
+          }}
         />
 
         <PropertiesToBuy
@@ -131,7 +150,6 @@ const Index = () => {
             existingProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)
           }
           onMoveToPortfolio={(fp) => {
-            // Convert FutureProperty → ExistingProperty
             const existing: ExistingProperty = {
               id: fp.id,
               nickname: fp.suburb,
@@ -147,6 +165,24 @@ const Index = () => {
             };
             setExistingProperties([...existingProperties, existing]);
             setFutureProperties(futureProperties.filter((p) => p.id !== fp.id));
+          }}
+          onDropFromPortfolio={(id) => {
+            const ep = existingProperties.find((p) => p.id === id);
+            if (!ep) return;
+            const future: FutureProperty = {
+              id: ep.id,
+              suburb: ep.nickname,
+              purchasePrice: ep.estimatedValue,
+              rentalYield: 0,
+              projectedEquity5yr: 0,
+              ownership: ep.ownership,
+              investmentType: ep.investmentType,
+              loan: { ...ep.loan },
+              rental: { ...ep.rental },
+              purchase: { ...ep.purchase },
+            };
+            setFutureProperties([...futureProperties, future]);
+            setExistingProperties(existingProperties.filter((p) => p.id !== id));
           }}
         />
 

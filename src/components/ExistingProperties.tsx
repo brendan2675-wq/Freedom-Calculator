@@ -15,14 +15,16 @@ interface Props {
   targetYear: number;
   growthRate: number;
   onMoveToProposals?: (p: ExistingProperty) => void;
+  onDropFromProposals?: (id: string) => void;
 }
 
 const VISIBLE_SLOTS = 4;
 
-const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals }: Props) => {
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, onDropFromProposals }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
@@ -105,8 +107,23 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
 
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
+          className={`flex gap-3 overflow-x-auto scrollbar-hide pb-2 rounded-xl transition-colors ${dragOver ? "bg-accent/10 ring-2 ring-accent/40" : ""}`}
           style={{ scrollSnapType: "x mandatory" }}
+          onDragOver={(e) => {
+            if (e.dataTransfer.types.includes("application/x-future-property")) {
+              e.preventDefault();
+              setDragOver(true);
+            }
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            const id = e.dataTransfer.getData("application/x-future-property");
+            if (id && onDropFromProposals) {
+              onDropFromProposals(id);
+            }
+          }}
         >
           {properties.map((p) => {
             const lvr = lvrRates[p.id] ?? 0.8;
@@ -115,8 +132,13 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
             return (
               <div
                 key={p.id}
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("application/x-existing-property", p.id);
+                  e.dataTransfer.effectAllowed = "move";
+                }}
                 onClick={() => setSelectedId(p.id)}
-                className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-pointer hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
+                className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">

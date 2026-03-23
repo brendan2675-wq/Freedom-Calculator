@@ -15,6 +15,7 @@ interface Props {
   targetMonth: number;
   targetYear: number;
   onMoveToPortfolio: (p: FutureProperty) => void;
+  onDropFromPortfolio?: (id: string) => void;
   pporLoanBalance: number;
   portfolioLoanTotal: number;
   currentPortfolioValue: number;
@@ -23,9 +24,10 @@ interface Props {
 
 const VISIBLE_SLOTS = 4;
 
-const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue, currentEquity }: Props) => {
+const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, onDropFromPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue, currentEquity }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
@@ -106,16 +108,36 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
 
         <div
           ref={scrollRef}
-          className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
+          className={`flex gap-3 overflow-x-auto scrollbar-hide pb-2 rounded-xl transition-colors ${dragOver ? "bg-accent/10 ring-2 ring-accent/40" : ""}`}
           style={{ scrollSnapType: "x mandatory" }}
+          onDragOver={(e) => {
+            if (e.dataTransfer.types.includes("application/x-existing-property")) {
+              e.preventDefault();
+              setDragOver(true);
+            }
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            const id = e.dataTransfer.getData("application/x-existing-property");
+            if (id && onDropFromPortfolio) {
+              onDropFromPortfolio(id);
+            }
+          }}
         >
           {properties.map((p) => {
             const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget));
             return (
               <div
                 key={p.id}
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("application/x-future-property", p.id);
+                  e.dataTransfer.effectAllowed = "move";
+                }}
                 onClick={() => setSelectedId(p.id)}
-                className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-pointer hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
+                className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
