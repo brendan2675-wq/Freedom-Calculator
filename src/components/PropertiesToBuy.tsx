@@ -232,21 +232,21 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
 
         {properties.length > 0 && (
           <div className="mt-4 grid grid-cols-4 gap-3">
-            <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Current portfolio value</p>
-              <p className="text-accent text-2xl font-bold">${currentPortfolioValue.toLocaleString()}</p>
+            <div className="bg-card rounded-xl p-3 text-center border border-border shadow-sm">
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Current portfolio value</p>
+              <p className="text-accent text-2xl font-bold mt-1">${currentPortfolioValue.toLocaleString()}</p>
             </div>
-            <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Total Loan amounts</p>
-              <p className="text-accent text-2xl font-bold">${(pporLoanBalance + portfolioLoanTotal).toLocaleString()}</p>
+            <div className="bg-card rounded-xl p-3 text-center border border-border shadow-sm">
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Total Loan amounts</p>
+              <p className="text-accent text-2xl font-bold mt-1">${(pporLoanBalance + portfolioLoanTotal).toLocaleString()}</p>
             </div>
-            <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Portfolio Loan amount</p>
-              <p className="text-accent text-2xl font-bold">${portfolioLoanTotal.toLocaleString()}</p>
+            <div className="bg-card rounded-xl p-3 text-center border border-border shadow-sm">
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Portfolio Loan amount</p>
+              <p className="text-accent text-2xl font-bold mt-1">${portfolioLoanTotal.toLocaleString()}</p>
             </div>
-            <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Current Equity</p>
-              <p className="text-accent text-2xl font-bold">${currentEquity.toLocaleString()}</p>
+            <div className="bg-card rounded-xl p-3 text-center border border-border shadow-sm">
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Current Equity</p>
+              <p className="text-accent text-2xl font-bold mt-1">${currentEquity.toLocaleString()}</p>
             </div>
           </div>
         )}
