@@ -83,8 +83,8 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
       <section>
         <div className="gold-underline pb-2 mb-1">
           <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Gavel size={22} className="text-accent" />
+          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+            <Gavel size={26} strokeWidth={2.25} className="text-accent" />
             Your Proposed Purchases
           </h2>
           {showArrows && (

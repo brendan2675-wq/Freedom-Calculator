@@ -82,8 +82,8 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
       <section>
         <div className="gold-underline pb-2 mb-1">
           <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Briefcase size={22} className="text-accent" />
+          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+            <Briefcase size={26} strokeWidth={2.25} className="text-accent" />
             Your Investment Portfolio
           </h2>
           {showArrows && (
