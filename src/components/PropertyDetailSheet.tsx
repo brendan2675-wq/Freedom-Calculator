@@ -440,7 +440,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                           <FieldGroup label="Marginal Tax Rate (excl. Medicare)">
                             <select
                               value={sc.incomeTaxRate}
-                              onChange={(e) => updateSaleCosts({ incomeTaxRate: Number(e.target.value) })}
+                              onChange={(e) => { manualTaxOverride.current = true; updateSaleCosts({ incomeTaxRate: Number(e.target.value) }); }}
                               className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                             >
                               <option value={0}>0% – $0 – $18,200</option>
