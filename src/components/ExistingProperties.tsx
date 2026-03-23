@@ -150,24 +150,6 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
-                  {onMoveToProposals && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onMoveToProposals(p);
-                          }}
-                          className="text-accent hover:text-accent/80 hover:bg-accent/10 rounded p-0.5 transition-colors"
-                        >
-                          <ArrowDownRight size={14} />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        <p className="text-xs">Move to Proposals</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
                   <button
                     onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
                     className="text-muted-foreground hover:text-foreground"
