@@ -148,6 +148,7 @@ const Portfolio = () => {
           targetMonth={2}
           targetYear={2036}
           growthRate={6}
+          portfolioMode
         />
       </main>
     </div>
