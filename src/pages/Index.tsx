@@ -51,21 +51,23 @@ const Index = () => {
       .filter((p) => p.earmarked)
       .reduce((sum, p) => {
         const sc = p.saleCosts || { ...defaultSaleCosts };
+        const sellYears = p.sellInYears || 0;
+        const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, sellYears));
         const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
-        const proceeds = p.estimatedValue - p.loanBalance - totalSelling;
+        const proceeds = projectedValue - p.loanBalance - totalSelling;
         // Also subtract CGT
         const purchasePrice = p.purchase.purchasePrice || 0;
         const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
         const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
         const totalImprovements = sc.renovations + sc.structuralWork;
         const costBase = totalAcquisition + totalImprovements + sc.ownershipCostsTotal + totalSelling;
-        const capitalGain = Math.max(0, p.estimatedValue - costBase);
+        const capitalGain = Math.max(0, projectedValue - costBase);
         const discountedGain = capitalGain * (1 - sc.cgtDiscount);
         const effectiveRate = sc.incomeTaxRate + 0.02;
         const cgtPayable = Math.round(discountedGain * effectiveRate);
         return sum + Math.max(0, proceeds - cgtPayable);
       }, 0);
-  }, [existingProperties]);
+  }, [existingProperties, growthRate]);
 
   return (
     <div className="min-h-screen bg-background">
