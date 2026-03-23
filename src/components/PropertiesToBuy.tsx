@@ -144,11 +144,10 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                 className={`group rounded-xl shadow-md p-4 border-2 transition-all relative flex flex-col shrink-0 ${
                   draggingId === p.id
                     ? "border-dashed border-accent/30 bg-accent/5 opacity-40"
-                    : "bg-card border-border cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent/50"
+                    : "bg-card border-border cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent hover:shadow-accent/10"
                 }`}
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
-                <GripVertical size={14} className="absolute top-2 left-2 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
                   <button
                     onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
