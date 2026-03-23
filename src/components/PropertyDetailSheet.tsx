@@ -6,7 +6,7 @@ import { InvestmentTypeIcon, investmentTypes, getInvestmentTypeLabel } from "@/c
 import type { ExistingProperty, FutureProperty, LoanDetails, RentalDetails, PurchaseDetails, InvestmentType, LoanSplit, SaleCosts } from "@/types/property";
 import { defaultSaleCosts } from "@/types/property";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, X } from "lucide-react";
+import { CalendarIcon, Plus, X, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -419,6 +419,17 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                         </div>
 
                         {(() => {
+                          if (!purchasePrice) {
+                            return (
+                              <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4 flex items-center gap-3">
+                                <AlertTriangle size={18} className="text-destructive shrink-0" />
+                                <div>
+                                  <p className="text-sm font-semibold text-foreground">Purchase Price required</p>
+                                  <p className="text-xs text-muted-foreground">Please enter the original Purchase Price above to calculate Net Proceeds After CGT.</p>
+                                </div>
+                              </div>
+                            );
+                          }
                           const discountedGain = capitalGain * (1 - sc.cgtDiscount);
                           const effectiveRate = sc.incomeTaxRate + 0.02;
                           const cgtPayable = Math.round(discountedGain * effectiveRate);
