@@ -76,8 +76,9 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
   return (
     <TooltipProvider>
       <section>
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-2xl font-bold text-foreground gold-underline pb-2 flex items-center gap-2">
+        <div className="gold-underline pb-2 mb-1">
+          <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Briefcase size={22} className="text-accent" />
             Your Investment Portfolio
           </h2>
