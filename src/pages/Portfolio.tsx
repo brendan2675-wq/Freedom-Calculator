@@ -152,6 +152,16 @@ const Portfolio = () => {
           </div>
         </div>
 
+        {/* Investment Properties Carousel */}
+        <ExistingProperties
+          properties={properties}
+          setProperties={handleSetProperties}
+          targetMonth={2}
+          targetYear={2036}
+          growthRate={6}
+          portfolioMode
+        />
+
         {/* Owner Occupied Property */}
         <section>
           <div className="gold-underline pb-2 mb-4">
@@ -214,24 +224,13 @@ const Portfolio = () => {
           ) : (
             <button
               onClick={addPpor}
-              className="rounded-xl border-2 border-dashed border-accent/40 p-6 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent max-w-xl w-full"
+              className="rounded-xl border-2 border-dashed border-border/40 p-4 flex items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-muted-foreground hover:text-accent max-w-sm"
             >
-              <Plus size={24} />
+              <Plus size={18} />
               <span className="text-sm">Add Owner Occupied Property</span>
-              <span className="text-xs text-muted-foreground font-normal">Click to add your primary residence</span>
             </button>
           )}
         </section>
-
-        {/* Investment Properties Carousel */}
-        <ExistingProperties
-          properties={properties}
-          setProperties={handleSetProperties}
-          targetMonth={2}
-          targetYear={2036}
-          growthRate={6}
-          portfolioMode
-        />
 
         {/* PPOR Detail Sheet */}
         {ppor && (
