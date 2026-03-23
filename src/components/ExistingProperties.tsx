@@ -305,7 +305,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
               key={`empty-${i}`}
               onClick={addProperty}
               className="rounded-xl border-2 border-dashed border-border/30 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent/40 hover:bg-accent/5 transition-all font-medium text-muted-foreground/40 shrink-0"
-              style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
+              style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
             >
               <Plus size={20} />
             </button>
