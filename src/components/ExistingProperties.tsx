@@ -312,6 +312,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
             </button>
           ))}
         </div>
+        </div>
 
         <PropertyDetailSheet
           property={selectedProperty}

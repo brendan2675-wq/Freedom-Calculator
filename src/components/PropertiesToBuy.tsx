@@ -233,6 +233,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
             </button>
           ))}
         </div>
+        </div>
 
 
         <PropertyDetailSheet
