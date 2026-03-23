@@ -279,15 +279,33 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                 <FieldGroup label="Purchase Price">
                   <CurrencyInput
                     value={(property as FutureProperty).purchasePrice}
-                    onChange={(v) => update({ purchasePrice: v } as Partial<FutureProperty>)}
+                    onChange={(v) => {
+                      const weeklyRent = property.rental.weeklyRent;
+                      const annualRent = weeklyRent * 52;
+                      const yieldPct = v > 0 ? parseFloat(((annualRent / v) * 100).toFixed(2)) : 0;
+                      update({ purchasePrice: v, rentalYield: yieldPct } as Partial<FutureProperty>);
+                    }}
                   />
                 </FieldGroup>
-                <FieldGroup label="Expected Rental Yield">
-                  <NumberInput
-                    value={(property as FutureProperty).rentalYield}
-                    onChange={(v) => update({ rentalYield: v } as Partial<FutureProperty>)}
-                    suffix="%"
+                <FieldGroup label="Weekly Rent">
+                  <CurrencyInput
+                    value={property.rental.weeklyRent}
+                    onChange={(v) => {
+                      const purchasePrice = (property as FutureProperty).purchasePrice;
+                      const annualRent = v * 52;
+                      const yieldPct = purchasePrice > 0 ? parseFloat(((annualRent / purchasePrice) * 100).toFixed(2)) : 0;
+                      updateRental({ weeklyRent: v });
+                      update({ rentalYield: yieldPct, rental: { ...property.rental, weeklyRent: v } } as Partial<FutureProperty>);
+                    }}
                   />
+                </FieldGroup>
+                <FieldGroup label="Rental Yield">
+                  <div className="py-2 px-3 rounded-lg border border-border bg-muted/50 text-foreground text-sm font-medium">
+                    {(property as FutureProperty).rentalYield}%
+                    <span className="text-muted-foreground text-xs ml-2">
+                      (${property.rental.weeklyRent ? (property.rental.weeklyRent * 52).toLocaleString() : "0"} p.a.)
+                    </span>
+                  </div>
                 </FieldGroup>
               </>
             )}
