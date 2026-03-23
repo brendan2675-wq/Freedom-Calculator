@@ -120,6 +120,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           onDrop={(e) => {
             e.preventDefault();
             setDragOver(false);
+            setDraggingId(null);
             const id = e.dataTransfer.getData("application/x-future-property");
             if (id && onDropFromProposals) {
               onDropFromProposals(id);

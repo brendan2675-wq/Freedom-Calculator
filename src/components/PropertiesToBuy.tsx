@@ -121,6 +121,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           onDrop={(e) => {
             e.preventDefault();
             setDragOver(false);
+            setDraggingId(null);
             const id = e.dataTransfer.getData("application/x-existing-property");
             if (id && onDropFromPortfolio) {
               onDropFromPortfolio(id);
