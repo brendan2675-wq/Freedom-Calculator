@@ -22,6 +22,7 @@ interface KeyInputsProps {
   growthRate: number;
   setGrowthRate: (v: number) => void;
   sellDownProceeds: number;
+  pporValue: number;
 }
 
 const KeyInputs = ({
