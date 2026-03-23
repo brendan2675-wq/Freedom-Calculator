@@ -237,6 +237,7 @@ const Index = () => {
               purchasePrice: ep.estimatedValue,
               rentalYield: 0,
               projectedEquity5yr: 0,
+              lvr: 80,
               ownership: ep.ownership,
               investmentType: ep.investmentType,
               loan: { ...ep.loan },
