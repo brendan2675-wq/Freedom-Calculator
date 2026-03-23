@@ -30,7 +30,19 @@ const Index = () => {
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [clientName, setClientName] = useState("Client Name");
 
-  const calculations = useMemo(() => {
+  useEffect(() => {
+    const hasSeenDragHint = localStorage.getItem("drag-hint-seen");
+    if (!hasSeenDragHint) {
+      const timer = setTimeout(() => {
+        toast("💡 Tip: You can drag property cards between sections to move them", {
+          duration: 5000,
+        });
+        localStorage.setItem("drag-hint-seen", "true");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
     const earmarkedEquity = existingProperties
       .filter((p) => p.earmarked)
       .reduce((sum, p) => sum + Math.max(0, p.estimatedValue - p.loanBalance), 0);
