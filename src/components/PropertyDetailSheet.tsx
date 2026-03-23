@@ -490,7 +490,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                             <div className="bg-accent/5 border border-accent/20 rounded-lg p-4 space-y-2">
                               <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Cash Position</h4>
                               <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Sale Price</span>
+                                <span className="text-muted-foreground">Sale Price{sellYears > 0 ? ` (in ${sellYears}yr @ ${growthRate}%)` : ""}</span>
                                 <span className="text-foreground font-medium">${currentValue.toLocaleString()}</span>
                               </div>
                               <div className="flex justify-between text-sm">
