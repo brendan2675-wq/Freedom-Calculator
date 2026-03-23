@@ -138,6 +138,11 @@ const Index = () => {
           }}
         />
 
+        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm">
+          <ArrowDownUp size={14} className="text-accent" />
+          <span>Drag cards between sections to move them</span>
+        </div>
+
         <PropertiesToBuy
           properties={futureProperties}
           setProperties={setFutureProperties}
