@@ -115,6 +115,25 @@ const Index = () => {
             setFutureProperties([...futureProperties, future]);
             setExistingProperties(existingProperties.filter((p) => p.id !== ep.id));
           }}
+          onDropFromProposals={(id) => {
+            const fp = futureProperties.find((p) => p.id === id);
+            if (!fp) return;
+            const existing: ExistingProperty = {
+              id: fp.id,
+              nickname: fp.suburb,
+              estimatedValue: fp.purchasePrice,
+              loanBalance: Math.round(fp.purchasePrice * 0.8),
+              earmarked: false,
+              sellInYears: 0,
+              ownership: fp.ownership,
+              investmentType: fp.investmentType,
+              loan: { ...fp.loan },
+              rental: { ...fp.rental },
+              purchase: { ...fp.purchase },
+            };
+            setExistingProperties([...existingProperties, existing]);
+            setFutureProperties(futureProperties.filter((p) => p.id !== id));
+          }}
         />
 
         <PropertiesToBuy
