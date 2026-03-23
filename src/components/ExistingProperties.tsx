@@ -130,8 +130,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
             const lvr = lvrRates[p.id] ?? 0.8;
             const equity = Math.max(0, (p.estimatedValue * lvr) - p.loanBalance);
             const futureValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, yearsToTarget));
-            return (
-              {draggingId === p.id ? (
+            return draggingId === p.id ? (
                 <div
                   key={p.id}
                   className="rounded-xl border-2 border-dashed border-accent/30 bg-accent/5 shrink-0"
