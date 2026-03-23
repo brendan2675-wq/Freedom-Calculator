@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
@@ -114,6 +115,41 @@ function SectionHeader({ title }: { title: string }) {
 }
 
 const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }: Props) => {
+  const isExisting = variant === "existing";
+  const manualTaxOverride = useRef(false);
+
+  useEffect(() => {
+    manualTaxOverride.current = false;
+  }, [property?.id]);
+
+  useEffect(() => {
+    if (!property || !isExisting || manualTaxOverride.current) return;
+    const ep = property as ExistingProperty;
+    if (!ep.earmarked) return;
+    const sc = ep.saleCosts || { ...defaultSaleCosts };
+    const purchasePrice = ep.purchase.purchasePrice || 0;
+    if (!purchasePrice) return;
+    const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+    const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
+    const totalImprovements = sc.renovations + sc.structuralWork;
+    const totalOwnership = sc.ownershipCostsTotal;
+    const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
+    const costBase = totalAcquisition + totalImprovements + totalOwnership + totalSelling;
+    const capitalGain = Math.max(0, ep.estimatedValue - costBase);
+    const discountedGain = capitalGain * (1 - sc.cgtDiscount);
+
+    let suggestedRate = 0;
+    if (discountedGain > 190000) suggestedRate = 0.45;
+    else if (discountedGain > 135000) suggestedRate = 0.37;
+    else if (discountedGain > 45000) suggestedRate = 0.30;
+    else if (discountedGain > 18200) suggestedRate = 0.16;
+    else suggestedRate = 0;
+
+    if (sc.incomeTaxRate !== suggestedRate) {
+      onUpdate({ ...property, saleCosts: { ...sc, incomeTaxRate: suggestedRate } } as ExistingProperty);
+    }
+  }, [isExisting, property, onUpdate]);
+
   if (!property) return null;
 
   const update = (fields: Partial<PropertyType>) => {
@@ -132,7 +168,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
     update({ purchase: { ...property.purchase, ...fields } });
   };
 
-  const isExisting = variant === "existing";
   const title = isExisting
     ? (property as ExistingProperty).nickname || "Property Details"
     : (property as FutureProperty).suburb || "Property Details";
@@ -405,7 +440,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                           <FieldGroup label="Marginal Tax Rate (excl. Medicare)">
                             <select
                               value={sc.incomeTaxRate}
-                              onChange={(e) => updateSaleCosts({ incomeTaxRate: Number(e.target.value) })}
+                              onChange={(e) => { manualTaxOverride.current = true; updateSaleCosts({ incomeTaxRate: Number(e.target.value) }); }}
                               className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                             >
                               <option value={0}>0% – $0 – $18,200</option>
