@@ -61,8 +61,8 @@ const Index = () => {
     return defaultExisting;
   });
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([
-    { id: "3", suburb: "Marsden Park", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 530000, ownership: "trust", investmentType: "house", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 687 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 850000 } },
-    { id: "4", suburb: "Hoppers Crossing", purchasePrice: 620000, rentalYield: 4.5, projectedEquity5yr: 385000, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 536 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 620000 } },
+    { id: "3", suburb: "Marsden Park", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 530000, lvr: 80, ownership: "trust", investmentType: "house", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 687 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 850000 } },
+    { id: "4", suburb: "Hoppers Crossing", purchasePrice: 620000, rentalYield: 4.5, projectedEquity5yr: 385000, lvr: 80, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 536 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 620000 } },
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
@@ -169,6 +169,7 @@ const Index = () => {
               purchasePrice: ep.estimatedValue,
               rentalYield: 0,
               projectedEquity5yr: 0,
+              lvr: 80,
               ownership: ep.ownership,
               investmentType: ep.investmentType,
               loan: { ...ep.loan },
@@ -236,6 +237,7 @@ const Index = () => {
               purchasePrice: ep.estimatedValue,
               rentalYield: 0,
               projectedEquity5yr: 0,
+              lvr: 80,
               ownership: ep.ownership,
               investmentType: ep.investmentType,
               loan: { ...ep.loan },
