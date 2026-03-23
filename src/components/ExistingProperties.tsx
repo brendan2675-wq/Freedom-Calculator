@@ -196,7 +196,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     ? "border-dashed border-accent/30 bg-accent/5 opacity-40"
                     : "bg-card border-border cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent hover:shadow-accent/10"
                 }`}
-                style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
+                style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
                   <button
