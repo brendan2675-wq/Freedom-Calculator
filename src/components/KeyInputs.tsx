@@ -152,11 +152,6 @@ const KeyInputs = ({
                 >
                   <div className="absolute inset-0 opacity-15" style={{ background: 'linear-gradient(180deg, white 0%, transparent 60%)' }} />
                 </div>
-                {/* Progress edge indicator */}
-                <div
-                  className="absolute top-1/2 w-4 h-4 rounded-full border-2 border-card bg-accent shadow-md z-20 transition-all duration-1000 ease-out"
-                  style={{ left: `${Math.min(100, paydownPercent)}%`, transform: 'translateX(-50%) translateY(-50%)' }}
-                />
               </div>
               <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5">
                 <span>${startingBalance.toLocaleString()}</span>
