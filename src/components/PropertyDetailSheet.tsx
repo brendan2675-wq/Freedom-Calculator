@@ -23,6 +23,7 @@ interface Props {
   variant: "existing" | "future";
   growthRate?: number;
   portfolioMode?: boolean;
+  pporMode?: boolean;
 }
 
 const currencyFormat = (v: number) => v.toLocaleString();
@@ -116,7 +117,7 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, growthRate = 6, portfolioMode = false }: Props) => {
+const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, growthRate = 6, portfolioMode = false, pporMode = false }: Props) => {
   const isExisting = variant === "existing";
   const manualTaxOverride = useRef(false);
 
@@ -310,28 +311,32 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                 </FieldGroup>
               </>
             )}
-            <FieldGroup label="Investment Type">
-              <div className="grid grid-cols-4 gap-2">
-                {investmentTypes.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => update({ investmentType: t })}
-                    className={cn(
-                      "flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg border text-sm font-medium transition-all",
-                      property.investmentType === t
-                        ? "border-accent bg-accent/10 text-accent"
-                        : "border-border text-muted-foreground hover:border-accent/50 hover:text-foreground"
-                    )}
-                  >
-                    <InvestmentTypeIcon type={t} size={20} />
-                    <span className="text-xs">{getInvestmentTypeLabel(t)}</span>
-                  </button>
-                ))}
-              </div>
-            </FieldGroup>
-            <FieldGroup label="Ownership Structure">
-              <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
-            </FieldGroup>
+            {!pporMode && (
+              <FieldGroup label="Investment Type">
+                <div className="grid grid-cols-4 gap-2">
+                  {investmentTypes.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => update({ investmentType: t })}
+                      className={cn(
+                        "flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg border text-sm font-medium transition-all",
+                        property.investmentType === t
+                          ? "border-accent bg-accent/10 text-accent"
+                          : "border-border text-muted-foreground hover:border-accent/50 hover:text-foreground"
+                      )}
+                    >
+                      <InvestmentTypeIcon type={t} size={20} />
+                      <span className="text-xs">{getInvestmentTypeLabel(t)}</span>
+                    </button>
+                  ))}
+                </div>
+              </FieldGroup>
+            )}
+            {!pporMode && (
+              <FieldGroup label="Ownership Structure">
+                <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
+              </FieldGroup>
+            )}
             {isExisting && !portfolioMode && (() => {
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
@@ -577,9 +582,11 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             <FieldGroup label="Interest Rate">
               <NumberInput value={property.loan.interestRate} onChange={(v) => updateLoan({ interestRate: v })} suffix="%" placeholder="6.2" />
             </FieldGroup>
-            <FieldGroup label="Interest-Only Period">
-              <NumberInput value={property.loan.interestOnlyPeriodYears} onChange={(v) => updateLoan({ interestOnlyPeriodYears: v })} suffix="years" placeholder="0" />
-            </FieldGroup>
+            {!pporMode && (
+              <FieldGroup label="Interest-Only Period">
+                <NumberInput value={property.loan.interestOnlyPeriodYears} onChange={(v) => updateLoan({ interestOnlyPeriodYears: v })} suffix="years" placeholder="0" />
+              </FieldGroup>
+            )}
             <FieldGroup label="Loan Term">
               <NumberInput value={property.loan.loanTermYears} onChange={(v) => updateLoan({ loanTermYears: v })} suffix="years" placeholder="30" />
             </FieldGroup>
@@ -591,13 +598,17 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             </FieldGroup>
           </div>
 
-          {/* Rental Income */}
-          <SectionHeader title="Rental Income" />
-          <div className="space-y-4">
-            <FieldGroup label="Weekly Rent">
-              <CurrencyInput value={property.rental.weeklyRent} onChange={(v) => updateRental({ weeklyRent: v })} />
-            </FieldGroup>
-          </div>
+          {/* Rental Income - hide for PPOR */}
+          {!pporMode && (
+            <>
+              <SectionHeader title="Rental Income" />
+              <div className="space-y-4">
+                <FieldGroup label="Weekly Rent">
+                  <CurrencyInput value={property.rental.weeklyRent} onChange={(v) => updateRental({ weeklyRent: v })} />
+                </FieldGroup>
+              </div>
+            </>
+          )}
 
           {/* Purchase Details */}
           <SectionHeader title="Purchase Details" />
