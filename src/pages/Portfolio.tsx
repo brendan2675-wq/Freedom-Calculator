@@ -41,22 +41,48 @@ const Portfolio = () => {
     localStorage.setItem("portfolio-properties", JSON.stringify(p));
   };
 
+  const addPpor = () => {
+    const newPpor: ExistingProperty = {
+      id: "ppor",
+      nickname: "",
+      estimatedValue: 0,
+      loanBalance: 0,
+      earmarked: false,
+      sellInYears: 0,
+      ownership: "personal",
+      investmentType: "house",
+      loan: { ...defaultLoanDetails },
+      rental: { ...defaultRentalDetails },
+      purchase: { ...defaultPurchaseDetails },
+    };
+    setPpor(newPpor);
+    localStorage.setItem("portfolio-ppor", JSON.stringify(newPpor));
+    setPporSheetOpen(true);
+  };
+
   const handleUpdatePpor = (updated: ExistingProperty) => {
     setPpor(updated);
     localStorage.setItem("portfolio-ppor", JSON.stringify(updated));
   };
 
-  const pporEquity = Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance);
+  const removePpor = () => {
+    setPpor(null);
+    localStorage.removeItem("portfolio-ppor");
+  };
+
+  const pporEquity = ppor ? Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance) : 0;
 
   const totals = useMemo(() => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
     const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance), 0);
-    const totalValue = ppor.estimatedValue + investmentValue;
-    const totalLoan = ppor.loanBalance + investmentLoan;
+    const pporValue = ppor?.estimatedValue ?? 0;
+    const pporLoan = ppor?.loanBalance ?? 0;
+    const totalValue = pporValue + investmentValue;
+    const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
     return { totalValue, totalLoan, totalEquity };
-  }, [properties, ppor.estimatedValue, ppor.loanBalance, pporEquity]);
+  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity]);
 
   return (
     <div className="min-h-screen bg-background">
