@@ -259,6 +259,17 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                       <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                     </div>
                   )}
+                  {portfolioMode && p.rental.weeklyRent > 0 && p.estimatedValue > 0 && (
+                    <div>
+                      <label className="text-muted-foreground text-[11px]">Rental Yield</label>
+                      <p className="text-accent font-medium">
+                        {((p.rental.weeklyRent * 52) / p.estimatedValue * 100).toFixed(1)}%
+                        <span className="text-muted-foreground text-[10px] ml-1">
+                          (${(p.rental.weeklyRent * 52).toLocaleString()} p.a.)
+                        </span>
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <div className="flex items-center gap-0.5">
                       <label className="text-muted-foreground text-[11px]">Equity Avail.</label>
