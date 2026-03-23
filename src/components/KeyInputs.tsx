@@ -181,11 +181,20 @@ const KeyInputs = ({
                       <span className="text-sm font-medium text-muted-foreground">Paydown Progress</span>
                       <span className="text-success font-bold text-2xl">{paydownPercent.toFixed(1)}%</span>
                     </div>
-                    <div className="w-full h-6 rounded-full bg-secondary overflow-hidden">
+                    <div className="w-full h-6 rounded-full bg-secondary overflow-hidden relative shadow-inner">
+                      {[25, 50, 75].map((mark) => (
+                        <div key={mark} className="absolute top-0 bottom-0 w-px bg-border/60 z-10" style={{ left: `${mark}%` }} />
+                      ))}
                       <div
-                        className="h-full bg-success rounded-full transition-all duration-1000 ease-out"
-                        style={{ width: `${Math.min(100, paydownPercent)}%` }}
-                      />
+                        className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                        style={{
+                          width: `${Math.min(100, paydownPercent)}%`,
+                          background: `linear-gradient(90deg, hsl(var(--success)), hsl(var(--accent)))`,
+                          boxShadow: `0 0 12px hsl(var(--success) / 0.4)`,
+                        }}
+                      >
+                        <div className="absolute inset-0 opacity-20" style={{ background: 'linear-gradient(180deg, white 0%, transparent 60%)' }} />
+                      </div>
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground mt-1">
                       <span>${startingBalance.toLocaleString()}</span>
