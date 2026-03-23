@@ -257,6 +257,8 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 </div>
               </div>
             );
+          })}
+
           {/* Primary Add Property button */}
           <button
             onClick={addProperty}
