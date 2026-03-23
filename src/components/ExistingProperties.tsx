@@ -221,11 +221,11 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
 
                 {/* Badges */}
                 <div className="mt-auto pt-2 border-t border-border flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
                     {p.ownership === "trust" ? "Trust" : "Personal"}
                   </span>
                   {p.earmarked && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
                       Sell down
                     </span>
                   )}
