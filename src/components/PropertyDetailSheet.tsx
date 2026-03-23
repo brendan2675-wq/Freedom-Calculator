@@ -410,6 +410,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
                             >
                               <option value={0}>0% – $0 – $18,200</option>
                               <option value={0.16}>16% – $18,201 – $45,000</option>
+                              <option value={0.25}>25% – Company Tax Rate</option>
                               <option value={0.30}>30% – $45,001 – $135,000</option>
                               <option value={0.37}>37% – $135,001 – $190,000</option>
                               <option value={0.45}>45% – $190,001+</option>
