@@ -82,6 +82,11 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
             <Gavel size={26} strokeWidth={2.25} className="text-accent" />
             Your Proposed Purchases
+            {properties.length > VISIBLE_SLOTS && (
+              <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                {properties.length} properties
+              </span>
+            )}
           </h2>
           {showArrows && (
             <div className="flex items-center gap-1">
