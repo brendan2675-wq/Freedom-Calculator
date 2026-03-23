@@ -74,6 +74,7 @@ export interface ExistingProperty {
   estimatedValue: number;
   loanBalance: number;
   earmarked: boolean;
+  sellInYears: number; // 0 = now, 1-10 = future years
   ownership: "trust" | "personal";
   investmentType: InvestmentType;
   loan: LoanDetails;

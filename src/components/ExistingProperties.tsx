@@ -39,6 +39,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
       estimatedValue: 0,
       loanBalance: 0,
       earmarked: false,
+      sellInYears: 0,
       ownership: "personal",
       investmentType: "house",
       loan: { ...defaultLoanDetails },
@@ -265,6 +266,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
             setProperties(properties.map((p) => p.id === updated.id ? updated as ExistingProperty : p));
           }}
           variant="existing"
+          growthRate={growthRate}
         />
       </section>
     </TooltipProvider>
