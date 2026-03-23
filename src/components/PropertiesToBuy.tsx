@@ -24,9 +24,10 @@ interface Props {
 
 const VISIBLE_SLOTS = 4;
 
-const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue, currentEquity }: Props) => {
+const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, targetYear, onMoveToPortfolio, onDropFromPortfolio, pporLoanBalance, portfolioLoanTotal, currentPortfolioValue, currentEquity }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
