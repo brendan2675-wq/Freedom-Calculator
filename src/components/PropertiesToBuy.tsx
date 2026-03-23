@@ -230,32 +230,6 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           ))}
         </div>
 
-        {properties.length > 0 && (
-          <div className="mt-6">
-            <div className="gold-underline pb-2 mb-4">
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
-                <TrendingUp size={26} strokeWidth={2.25} className="text-accent" />
-                Portfolio Summary
-              </h2>
-            </div>
-            <div className="grid grid-cols-4 gap-3">
-              {[
-                { icon: Building2, label: "Current portfolio value", value: `$${currentPortfolioValue.toLocaleString()}` },
-                { icon: Landmark, label: "Total Loan amounts", value: `$${(pporLoanBalance + portfolioLoanTotal).toLocaleString()}` },
-                { icon: Wallet, label: "Portfolio Loan amount", value: `$${portfolioLoanTotal.toLocaleString()}` },
-                { icon: TrendingUp, label: "Current Equity", value: `$${currentEquity.toLocaleString()}` },
-              ].map((stat) => (
-                <div key={stat.label} className="bg-card rounded-xl p-4 border border-border shadow-sm flex flex-col items-center gap-2">
-                  <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <stat.icon size={18} className="text-accent" />
-                  </div>
-                  <p className="text-muted-foreground text-xs font-medium text-center">{stat.label}</p>
-                  <p className="text-accent text-xl font-bold">{stat.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         <PropertyDetailSheet
           property={selectedProperty}
