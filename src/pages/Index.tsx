@@ -43,6 +43,7 @@ const Index = () => {
     }
   }, []);
 
+  const calculations = useMemo(() => {
     const earmarkedEquity = existingProperties
       .filter((p) => p.earmarked)
       .reduce((sum, p) => sum + Math.max(0, p.estimatedValue - p.loanBalance), 0);
