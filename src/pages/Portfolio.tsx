@@ -60,7 +60,7 @@ const Portfolio = () => {
     localStorage.setItem("portfolio-ppor", JSON.stringify(updated));
   };
 
-  const pporEquity = Math.max(0, (ppor.estimatedValue * 0.8) - ppor.loanBalance);
+  const pporEquity = Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance);
 
   const totals = useMemo(() => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
