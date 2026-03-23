@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, X, ChevronRight, ChevronLeft, Info, ArrowUpRight, Home } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, Home } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -149,22 +149,6 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onMoveToPortfolio(p);
-                        }}
-                        className="text-accent hover:text-accent/80 hover:bg-accent/10 rounded p-0.5 transition-colors"
-                      >
-                        <ArrowUpRight size={14} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p className="text-xs">Move to Portfolio</p>
-                    </TooltipContent>
-                  </Tooltip>
                   <button
                     onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
                     className="text-muted-foreground hover:text-foreground"
