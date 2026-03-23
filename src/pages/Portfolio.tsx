@@ -26,6 +26,7 @@ const Portfolio = () => {
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
   const [ppor, setPpor] = useState<ExistingProperty>(defaultPpor);
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
+  const [pporLvr, setPporLvr] = useState(0.8);
 
   // Load from localStorage
   useEffect(() => {
@@ -59,7 +60,7 @@ const Portfolio = () => {
     localStorage.setItem("portfolio-ppor", JSON.stringify(updated));
   };
 
-  const pporEquity = Math.max(0, (ppor.estimatedValue * 0.8) - ppor.loanBalance);
+  const pporEquity = Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance);
 
   const totals = useMemo(() => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
@@ -145,10 +146,23 @@ const Portfolio = () => {
                 <p className="text-foreground font-medium text-sm">${ppor.loanBalance.toLocaleString()}</p>
               </div>
               <div>
-                <label className="text-muted-foreground text-[11px] block mb-1">Equity (80% LVR)</label>
-                <p className="text-accent font-bold text-sm">
-                  ${pporEquity.toLocaleString()}
-                </p>
+                <label className="text-muted-foreground text-[11px] block mb-1">Equity Avail.</label>
+                <div className="flex items-center gap-1">
+                  <span className="text-accent font-bold text-sm">${pporEquity.toLocaleString()}</span>
+                  <select
+                    value={pporLvr}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setPporLvr(Number(e.target.value));
+                    }}
+                    className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                  >
+                    <option value={0.8}>80%</option>
+                    <option value={0.88}>88%</option>
+                    <option value={0.9}>90%</option>
+                  </select>
+                </div>
               </div>
             </div>
             {ppor.loan.lenderName && (
