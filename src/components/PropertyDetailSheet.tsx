@@ -115,35 +115,15 @@ function SectionHeader({ title }: { title: string }) {
 }
 
 const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }: Props) => {
-  if (!property) return null;
-
-  const update = (fields: Partial<PropertyType>) => {
-    onUpdate({ ...property, ...fields } as PropertyType);
-  };
-
-  const updateLoan = (fields: Partial<LoanDetails>) => {
-    update({ loan: { ...property.loan, ...fields } });
-  };
-
-  const updateRental = (fields: Partial<RentalDetails>) => {
-    update({ rental: { ...property.rental, ...fields } });
-  };
-
-  const updatePurchase = (fields: Partial<PurchaseDetails>) => {
-    update({ purchase: { ...property.purchase, ...fields } });
-  };
-
   const isExisting = variant === "existing";
-
-  // Auto-set marginal tax rate based on discounted capital gain
   const manualTaxOverride = useRef(false);
+
   useEffect(() => {
-    // Reset manual override when property changes
     manualTaxOverride.current = false;
   }, [property?.id]);
 
   useEffect(() => {
-    if (!isExisting || manualTaxOverride.current) return;
+    if (!property || !isExisting || manualTaxOverride.current) return;
     const ep = property as ExistingProperty;
     if (!ep.earmarked) return;
     const sc = ep.saleCosts || { ...defaultSaleCosts };
@@ -166,9 +146,27 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
     else suggestedRate = 0;
 
     if (sc.incomeTaxRate !== suggestedRate) {
-      update({ saleCosts: { ...sc, incomeTaxRate: suggestedRate } } as Partial<ExistingProperty>);
+      onUpdate({ ...property, saleCosts: { ...sc, incomeTaxRate: suggestedRate } } as ExistingProperty);
     }
-  }, [isExisting, property]);
+  }, [isExisting, property, onUpdate]);
+
+  if (!property) return null;
+
+  const update = (fields: Partial<PropertyType>) => {
+    onUpdate({ ...property, ...fields } as PropertyType);
+  };
+
+  const updateLoan = (fields: Partial<LoanDetails>) => {
+    update({ loan: { ...property.loan, ...fields } });
+  };
+
+  const updateRental = (fields: Partial<RentalDetails>) => {
+    update({ rental: { ...property.rental, ...fields } });
+  };
+
+  const updatePurchase = (fields: Partial<PurchaseDetails>) => {
+    update({ purchase: { ...property.purchase, ...fields } });
+  };
 
   const title = isExisting
     ? (property as ExistingProperty).nickname || "Property Details"
