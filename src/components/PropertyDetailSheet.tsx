@@ -22,6 +22,7 @@ interface Props {
   onUpdate: (updated: PropertyType) => void;
   variant: "existing" | "future";
   growthRate?: number;
+  portfolioMode?: boolean;
 }
 
 const currencyFormat = (v: number) => v.toLocaleString();
@@ -115,7 +116,7 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, growthRate = 6 }: Props) => {
+const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, growthRate = 6, portfolioMode = false }: Props) => {
   const isExisting = variant === "existing";
   const manualTaxOverride = useRef(false);
 
@@ -331,7 +332,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             <FieldGroup label="Ownership Structure">
               <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
             </FieldGroup>
-            {isExisting && (() => {
+            {isExisting && !portfolioMode && (() => {
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
               const purchasePrice = ep.purchase.purchasePrice || 0;
