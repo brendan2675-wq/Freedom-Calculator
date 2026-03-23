@@ -150,8 +150,8 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
-            <XAxis dataKey="year" fontSize={12} tick={{ fill: 'hsl(0, 0%, 42%)' }} />
-            <YAxis tickFormatter={formatDollar} fontSize={11} tick={{ fill: 'hsl(0, 0%, 42%)' }} width={55} />
+            <XAxis dataKey="year" fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} />
+            <YAxis tickFormatter={formatDollar} fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} width={60} />
             <Tooltip
               formatter={(value: number) => [
                 `$${value.toLocaleString()}`,
