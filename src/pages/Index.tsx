@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
-import { ArrowDownUp } from "lucide-react";
+import { ArrowDownUp, Building2, Landmark, Wallet, TrendingUp } from "lucide-react";
 import { defaultSaleCosts } from "@/types/property";
 import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
@@ -167,13 +167,6 @@ const Index = () => {
           growthRate={growthRate}
           targetMonth={targetMonth}
           targetYear={targetYear}
-          pporLoanBalance={loanBalance}
-          portfolioLoanTotal={existingProperties.reduce((sum, p) => sum + p.loanBalance, 0)}
-          currentPortfolioValue={2750000 + existingProperties.reduce((sum, p) => sum + p.estimatedValue, 0)}
-          currentEquity={
-            Math.max(0, (2750000 * 0.8) - loanBalance) +
-            existingProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)
-          }
           onMoveToPortfolio={(fp) => {
             const existing: ExistingProperty = {
               id: fp.id,
@@ -210,6 +203,33 @@ const Index = () => {
             setExistingProperties(existingProperties.filter((p) => p.id !== id));
           }}
         />
+
+        {existingProperties.length > 0 && (
+          <div>
+            <div className="gold-underline pb-2 mb-4">
+              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                <TrendingUp size={26} strokeWidth={2.25} className="text-accent" />
+                Portfolio Summary
+              </h2>
+            </div>
+            <div className="grid grid-cols-4 gap-3">
+              {[
+                { icon: Building2, label: "Current portfolio value", value: `$${(2750000 + existingProperties.reduce((sum, p) => sum + p.estimatedValue, 0)).toLocaleString()}` },
+                { icon: Landmark, label: "Total Loan amounts", value: `$${(loanBalance + existingProperties.reduce((sum, p) => sum + p.loanBalance, 0)).toLocaleString()}` },
+                { icon: Wallet, label: "Portfolio Loan amount", value: `$${existingProperties.reduce((sum, p) => sum + p.loanBalance, 0).toLocaleString()}` },
+                { icon: TrendingUp, label: "Current Equity", value: `$${(Math.max(0, (2750000 * 0.8) - loanBalance) + existingProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)).toLocaleString()}` },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-card rounded-xl p-4 border border-border shadow-sm flex flex-col items-center gap-2">
+                  <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+                    <stat.icon size={18} className="text-accent" />
+                  </div>
+                  <p className="text-muted-foreground text-xs font-medium text-center">{stat.label}</p>
+                  <p className="text-accent text-xl font-bold">{stat.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
       </main>
 
