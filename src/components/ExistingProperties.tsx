@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, Briefcase } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, Briefcase, GripVertical } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -149,6 +149,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 }`}
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
+                <GripVertical size={14} className="absolute top-2 left-2 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
                   <button
                     onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
