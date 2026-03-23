@@ -304,16 +304,33 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                         className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium hover:bg-destructive/20 transition-colors"
                       >
                         <X size={10} />
-                        Sell in {p.sellInYears === 0 ? "Now" : `${p.sellInYears}yr`}
+                        Clear Sell Down
                       </button>
                     ) : (
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true, sellInYears: 0 } : prop))}
-                          className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium hover:bg-accent/20 transition-colors"
+                      <div className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
+                        <BadgeDollarSign size={10} className="shrink-0" />
+                        <span>Sell in</span>
+                        <select
+                          value={p.sellInYears ?? 0}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, sellInYears: Number(e.target.value) } : prop));
+                          }}
+                          className="py-0.5 px-1 rounded border border-accent/30 bg-background text-foreground text-[11px] font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
                         >
-                          <BadgeDollarSign size={10} />
-                          Sell
+                          <option value={0}>Now</option>
+                          {Array.from({ length: 10 }, (_, i) => (
+                            <option key={i + 1} value={i + 1}>
+                              {i + 1} {i + 1 === 1 ? "yr" : "yrs"}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true } : prop))}
+                          className="px-1.5 py-0.5 rounded bg-accent text-accent-foreground text-[10px] font-semibold hover:bg-accent/90 transition-colors"
+                        >
+                          Go
                         </button>
                       </div>
                     )}
