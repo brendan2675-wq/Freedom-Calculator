@@ -157,6 +157,7 @@ const Index = () => {
           growthRate={growthRate}
           setGrowthRate={setGrowthRate}
            sellDownProceeds={sellDownProceeds}
+           sellDownEvents={sellDownEvents}
            pporValue={ppor.estimatedValue}
         />
 
