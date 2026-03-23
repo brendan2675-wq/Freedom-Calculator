@@ -100,6 +100,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
               </button>
             </div>
           )}
+          </div>
         </div>
         <div className="h-4" />
 
