@@ -25,6 +25,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
