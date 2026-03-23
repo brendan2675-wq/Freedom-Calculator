@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Target, CalendarClock } from "lucide-react";
+import { Target } from "lucide-react";
+import type { SellDownEvent } from "@/components/KeyInputs";
 
 interface Props {
   loanBalance: number;
@@ -12,35 +13,69 @@ interface Props {
   growthRate: number;
   setGrowthRate: (v: number) => void;
   interestRate: number;
+  sellDownEvents: SellDownEvent[];
 }
 
-const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTargetMonth, setTargetYear, growthRate, setGrowthRate, interestRate }: Props) => {
+const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTargetMonth, setTargetYear, growthRate, setGrowthRate, interestRate, sellDownEvents }: Props) => {
   const data = useMemo(() => {
-    const startYear = 2026;
-    const points = [];
+    const startYear = new Date().getFullYear();
     const years = Math.max(1, targetYear - startYear + 3);
     const monthlyRate = interestRate / 100 / 12;
     const totalMonths = 30 * 12;
-    
+
     const monthlyPayment = monthlyRate > 0
       ? loanBalance * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1)
       : loanBalance / totalMonths;
 
-    let balance = loanBalance;
+    // Aggregate sell-down proceeds by year
+    const proceedsByYear: Record<number, number> = {};
+    sellDownEvents.forEach((e) => {
+      proceedsByYear[e.year] = (proceedsByYear[e.year] || 0) + e.proceeds;
+    });
+
+    const points = [];
+
+    // Standard amortization
+    let standardBalance = loanBalance;
+    // Accelerated (with sell-down lump sums applied)
+    let acceleratedBalance = loanBalance;
+
     for (let i = 0; i <= years; i++) {
+      const year = startYear + i;
+
       points.push({
-        year: (startYear + i).toString(),
-        loanRemaining: Math.round(Math.max(0, balance)),
+        year: year.toString(),
+        standard: Math.round(Math.max(0, standardBalance)),
+        accelerated: Math.round(Math.max(0, acceleratedBalance)),
       });
+
+      // Simulate 12 months of P&I for both
       for (let m = 0; m < 12; m++) {
-        const interest = balance * monthlyRate;
-        const principal = monthlyPayment - interest;
-        balance -= principal;
-        if (balance <= 0) { balance = 0; break; }
+        if (standardBalance > 0) {
+          const interest = standardBalance * monthlyRate;
+          const principal = monthlyPayment - interest;
+          standardBalance -= principal;
+          if (standardBalance < 0) standardBalance = 0;
+        }
+        if (acceleratedBalance > 0) {
+          const interest = acceleratedBalance * monthlyRate;
+          const principal = monthlyPayment - interest;
+          acceleratedBalance -= principal;
+          if (acceleratedBalance < 0) acceleratedBalance = 0;
+        }
+      }
+
+      // Apply lump-sum sell-down proceeds at end of year for accelerated line
+      const nextYear = year + 1;
+      if (proceedsByYear[nextYear] && acceleratedBalance > 0) {
+        acceleratedBalance -= proceedsByYear[nextYear];
+        if (acceleratedBalance < 0) acceleratedBalance = 0;
       }
     }
     return points;
-  }, [loanBalance, targetYear, interestRate]);
+  }, [loanBalance, targetYear, interestRate, sellDownEvents]);
+
+  const hasSellDowns = sellDownEvents.length > 0;
 
   // Compute years/months duration from now to target
   const duration = useMemo(() => {
@@ -153,9 +188,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             <XAxis dataKey="year" fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} />
             <YAxis tickFormatter={formatDollar} fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} width={60} />
             <Tooltip
-              formatter={(value: number) => [
+              formatter={(value: number, name: string) => [
                 `$${value.toLocaleString()}`,
-                'Loan Remaining',
+                name === 'standard' ? 'Standard P&I' : 'With Sell-Down',
               ]}
               contentStyle={{
                 backgroundColor: 'hsl(0, 0%, 100%)',
@@ -167,20 +202,39 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             <ReferenceLine x={targetYear.toString()} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
             <Area
               type="monotone"
-              dataKey="loanRemaining"
-              stroke="hsl(20, 60%, 52%)"
-              fill="hsl(20, 60%, 52%)"
-              fillOpacity={0.25}
-              name="loanRemaining"
+              dataKey="standard"
+              stroke="hsl(0, 0%, 65%)"
+              fill="hsl(0, 0%, 65%)"
+              fillOpacity={0.1}
+              strokeDasharray={hasSellDowns ? "5 5" : undefined}
+              strokeWidth={hasSellDowns ? 1.5 : 2}
+              name="standard"
             />
+            {hasSellDowns && (
+              <Area
+                type="monotone"
+                dataKey="accelerated"
+                stroke="hsl(20, 60%, 52%)"
+                fill="hsl(20, 60%, 52%)"
+                fillOpacity={0.25}
+                strokeWidth={2.5}
+                name="accelerated"
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </div>
       <div className="flex gap-6 mt-3 text-sm text-muted-foreground justify-center">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(20, 60%, 52%)', opacity: 0.6 }} />
-          <span className="font-medium">Loan Remaining</span>
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: hasSellDowns ? 'hsl(0, 0%, 65%)' : 'hsl(20, 60%, 52%)', opacity: 0.6 }} />
+          <span className="font-medium">Standard P&I</span>
         </div>
+        {hasSellDowns && (
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(20, 60%, 52%)', opacity: 0.8 }} />
+            <span className="font-medium">With Sell-Down</span>
+          </div>
+        )}
       </div>
     </div>
   );

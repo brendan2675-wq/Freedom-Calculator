@@ -5,6 +5,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import HouseProgress from "@/components/HouseProgress";
 import PaydownChart from "@/components/PaydownChart";
 
+export interface SellDownEvent {
+  year: number;
+  proceeds: number;
+  nickname: string;
+}
+
 interface KeyInputsProps {
   loanBalance: number;
   setLoanBalance: (v: number) => void;
@@ -22,13 +28,14 @@ interface KeyInputsProps {
   growthRate: number;
   setGrowthRate: (v: number) => void;
   sellDownProceeds: number;
+  sellDownEvents: SellDownEvent[];
   pporValue: number;
 }
 
 const KeyInputs = ({
   loanBalance, setLoanBalance, interestRate, setInterestRate,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate, sellDownProceeds, pporValue,
+  percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate, sellDownProceeds, sellDownEvents, pporValue,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
   const [startingBalance, setStartingBalance] = useState(1842105);
@@ -394,6 +401,7 @@ const KeyInputs = ({
               growthRate={growthRate}
               setGrowthRate={setGrowthRate}
               interestRate={interestRate}
+              sellDownEvents={sellDownEvents}
             />
           </div>
         </div>
