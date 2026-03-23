@@ -5,6 +5,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import HouseProgress from "@/components/HouseProgress";
 import PaydownChart from "@/components/PaydownChart";
 
+export interface SellDownEvent {
+  year: number;
+  proceeds: number;
+  nickname: string;
+}
+
 interface KeyInputsProps {
   loanBalance: number;
   setLoanBalance: (v: number) => void;
@@ -22,6 +28,7 @@ interface KeyInputsProps {
   growthRate: number;
   setGrowthRate: (v: number) => void;
   sellDownProceeds: number;
+  sellDownEvents: SellDownEvent[];
   pporValue: number;
 }
 
