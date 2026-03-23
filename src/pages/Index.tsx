@@ -28,6 +28,11 @@ const Index = () => {
     { id: "4", suburb: "Hoppers Crossing", purchasePrice: 620000, rentalYield: 4.5, projectedEquity5yr: 385000, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 536 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 620000 } },
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+
+  // Sync properties to localStorage for cross-page access
+  useEffect(() => {
+    localStorage.setItem("portfolio-properties", JSON.stringify(existingProperties));
+  }, [existingProperties]);
   const [clientName, setClientName] = useState("Client Name");
 
   useEffect(() => {
