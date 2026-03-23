@@ -178,24 +178,24 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                   <InvestmentTypeIcon type={p.investmentType} size={16} className="text-accent shrink-0" />
                   <p className="font-semibold text-sm text-foreground truncate">{p.suburb || "Untitled"}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
                   <div>
-                    <label className="text-muted-foreground text-[10px]">Purchase Price</label>
+                    <label className="text-muted-foreground text-[11px]">Purchase Price</label>
                     <p className="text-foreground font-medium">${p.purchasePrice.toLocaleString()}</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-[10px]">Rental Yield</label>
+                    <label className="text-muted-foreground text-[11px]">Rental Yield</label>
                     <p className="text-foreground font-medium">{p.rentalYield}%</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-[10px]">
+                    <label className="text-muted-foreground text-[11px]">
                       {"Future Value (" + growthRate + "%)"}
                     </label>
                     <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-0.5">
-                      <label className="text-muted-foreground text-[10px]">Proj. Equity (5yr)</label>
+                      <label className="text-muted-foreground text-[11px]">Proj. Equity (5yr)</label>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info size={10} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
@@ -211,7 +211,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
 
                 {/* Badges */}
                 <div className="mt-auto pt-2 border-t border-border flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                  <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
                     {p.ownership === "trust" ? "Trust" : "Personal"}
                   </span>
                 </div>

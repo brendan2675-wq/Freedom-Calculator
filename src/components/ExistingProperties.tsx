@@ -233,14 +233,14 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   <InvestmentTypeIcon type={p.investmentType} size={16} className="text-accent shrink-0" />
                   <p className="font-semibold text-sm text-foreground truncate">{p.nickname || "Untitled"}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
                   <div>
-                    <label className="text-muted-foreground text-[10px]">Current Value</label>
+                    <label className="text-muted-foreground text-[11px]">Current Value</label>
                     <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-1">
-                      <label className="text-muted-foreground text-[10px]">Current Loan</label>
+                      <label className="text-muted-foreground text-[11px]">Current Loan</label>
                       {p.loan.interestOnlyPeriodYears === 0 && (
                         <div className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-destructive/10 border border-destructive/20">
                           <AlertTriangle size={8} className="text-destructive shrink-0" />
@@ -251,12 +251,12 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-[10px]">{"Future Value (" + growthRate + "%)"}</label>
+                    <label className="text-muted-foreground text-[11px]">{"Future Value (" + growthRate + "%)"}</label>
                     <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-0.5">
-                      <label className="text-muted-foreground text-[10px]">Equity Avail.</label>
+                      <label className="text-muted-foreground text-[11px]">Equity Avail.</label>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info size={10} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
@@ -275,7 +275,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                           e.stopPropagation();
                           setLvrRates({ ...lvrRates, [p.id]: Number(e.target.value) });
                         }}
-                        className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-[10px] font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                        className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
                       >
                         <option value={0.8}>80%</option>
                         <option value={0.88}>88%</option>
@@ -283,7 +283,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                       </select>
                     </div>
                     {equity > 150000 && (
-                      <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full bg-success/15 text-success border border-success/30 mt-0.5 inline-block">
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-success/15 text-success border border-success/30 mt-0.5 inline-block">
                         Go again
                       </span>
                     )}
@@ -292,11 +292,11 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
 
                 {/* Badges */}
                 <div className="mt-auto pt-2 border-t border-border flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                  <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
                     {p.ownership === "trust" ? "Trust" : "Personal"}
                   </span>
                   {p.earmarked && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
+                    <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
                       Sell down
                     </span>
                   )}
