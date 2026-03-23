@@ -160,24 +160,24 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                   <InvestmentTypeIcon type={p.investmentType} size={16} className="text-accent shrink-0" />
                   <p className="font-semibold text-sm text-foreground truncate">{p.suburb || "Untitled"}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
                   <div>
-                    <label className="text-muted-foreground text-[10px]">Purchase Price</label>
-                    <p className="text-foreground font-medium">${p.purchasePrice.toLocaleString()}</p>
+                    <label className="text-muted-foreground text-[11px] font-medium">Purchase Price</label>
+                    <p className="text-foreground font-semibold">${p.purchasePrice.toLocaleString()}</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-[10px]">Rental Yield</label>
-                    <p className="text-foreground font-medium">{p.rentalYield}%</p>
+                    <label className="text-muted-foreground text-[11px] font-medium">Rental Yield</label>
+                    <p className="text-foreground font-semibold">{p.rentalYield}%</p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-[10px]">
+                    <label className="text-muted-foreground text-[11px] font-medium">
                       {"Future Value (" + growthRate + "%)"}
                     </label>
-                    <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
+                    <p className="text-accent font-semibold">${futureValue.toLocaleString()}</p>
                   </div>
                   <div>
                     <div className="flex items-center gap-0.5">
-                      <label className="text-muted-foreground text-[10px]">Proj. Equity (5yr)</label>
+                      <label className="text-muted-foreground text-[11px] font-medium">Proj. Equity (5yr)</label>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info size={10} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />

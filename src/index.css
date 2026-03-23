@@ -88,11 +88,11 @@
 
 @layer components {
   .gold-underline {
-    @apply relative block;
+    @apply relative block pb-3;
   }
   .gold-underline::after {
     content: '';
-    @apply absolute bottom-0 left-0 w-full h-px bg-accent/30;
+    @apply absolute bottom-0 left-0 w-full h-[2px] bg-accent/40;
   }
 }
 

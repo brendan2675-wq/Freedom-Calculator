@@ -184,7 +184,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   </div>
                   <div>
                     <div className="flex items-center gap-0.5">
-                      <label className="text-muted-foreground text-[10px]">Equity Avail.</label>
+                      <label className="text-muted-foreground text-[11px] font-medium">Equity Avail.</label>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Info size={10} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
