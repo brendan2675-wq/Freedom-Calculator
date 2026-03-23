@@ -6,6 +6,8 @@ interface Props {
 }
 
 const Disclaimer = ({ accepted, setAccepted }: Props) => {
+  if (accepted) return null;
+
   return (
     <section className="bg-card rounded-xl shadow-md p-6 md:p-8 border border-border">
       <div className="flex items-start gap-3">
