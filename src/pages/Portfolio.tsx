@@ -10,7 +10,7 @@ const Portfolio = () => {
   const navigate = useNavigate();
   const [clientName, setClientName] = useState("Client Name");
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
-  const [ppor, setPpor] = useState<ExistingProperty>(defaultPpor);
+  const [ppor, setPpor] = useState<ExistingProperty | null>(null);
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
   const [pporLvr, setPporLvr] = useState(0.8);
 
