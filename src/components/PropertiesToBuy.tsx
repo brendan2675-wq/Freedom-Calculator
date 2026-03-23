@@ -15,6 +15,7 @@ interface Props {
   targetMonth: number;
   targetYear: number;
   onMoveToPortfolio: (p: FutureProperty) => void;
+  onDropFromPortfolio?: (id: string) => void;
   pporLoanBalance: number;
   portfolioLoanTotal: number;
   currentPortfolioValue: number;
