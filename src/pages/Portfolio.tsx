@@ -26,6 +26,7 @@ const Portfolio = () => {
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
   const [ppor, setPpor] = useState<ExistingProperty>(defaultPpor);
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
+  const [pporLvr, setPporLvr] = useState(0.8);
 
   // Load from localStorage
   useEffect(() => {
