@@ -120,31 +120,39 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           </h2>
           <div className="flex items-center gap-2">
             {properties.length > 0 && (
-              <div className="flex items-center gap-1.5">
-                <select
-                  value={masterSellYear}
-                  onChange={(e) => setMasterSellYear(Number(e.target.value))}
-                  className="py-1.5 px-2 rounded-md border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
-                >
-                  <option value={0}>Now</option>
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1} {i + 1 === 1 ? "year" : "years"}
-                    </option>
-                  ))}
-                </select>
+              allEarmarked ? (
                 <button
                   onClick={handleMasterSellDown}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs font-medium transition-colors ${
-                    allEarmarked
-                      ? "border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
-                      : "border-accent/30 bg-accent/10 text-accent hover:bg-accent/20"
-                  }`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-medium transition-colors"
+                >
+                  <X size={14} />
+                  Clear Sell Down
+                </button>
+              ) : (
+                <button
+                  onClick={handleMasterSellDown}
+                  className="flex items-center gap-1.5 pl-3 pr-1 py-1 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 text-xs font-medium transition-colors"
                 >
                   <BadgeDollarSign size={14} />
-                  {allEarmarked ? "Clear Sell Down" : "Sell Down All"}
+                  <span>Sell All in</span>
+                  <select
+                    value={masterSellYear}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setMasterSellYear(Number(e.target.value));
+                    }}
+                    className="py-1 px-1.5 rounded border border-accent/30 bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                  >
+                    <option value={0}>Now</option>
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1} {i + 1 === 1 ? "yr" : "yrs"}
+                      </option>
+                    ))}
+                  </select>
                 </button>
-              </div>
+              )
             )}
           </div>
           </div>
