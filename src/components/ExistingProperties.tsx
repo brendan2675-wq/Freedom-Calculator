@@ -138,7 +138,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   e.dataTransfer.effectAllowed = "move";
                 }}
                 onClick={() => setSelectedId(p.id)}
-                className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent/50 hover:-translate-y-1 shrink-0"
+                className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent/50 shrink-0"
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
