@@ -598,13 +598,17 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             </FieldGroup>
           </div>
 
-          {/* Rental Income */}
-          <SectionHeader title="Rental Income" />
-          <div className="space-y-4">
-            <FieldGroup label="Weekly Rent">
-              <CurrencyInput value={property.rental.weeklyRent} onChange={(v) => updateRental({ weeklyRent: v })} />
-            </FieldGroup>
-          </div>
+          {/* Rental Income - hide for PPOR */}
+          {!pporMode && (
+            <>
+              <SectionHeader title="Rental Income" />
+              <div className="space-y-4">
+                <FieldGroup label="Weekly Rent">
+                  <CurrencyInput value={property.rental.weeklyRent} onChange={(v) => updateRental({ weeklyRent: v })} />
+                </FieldGroup>
+              </div>
+            </>
+          )}
 
           {/* Purchase Details */}
           <SectionHeader title="Purchase Details" />
