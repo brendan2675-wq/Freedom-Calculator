@@ -16,6 +16,7 @@ interface Props {
   targetYear: number;
   onMoveToPortfolio: (p: FutureProperty) => void;
   onDropFromPortfolio?: (id: string) => void;
+}
 
 const VISIBLE_SLOTS = 4;
 
