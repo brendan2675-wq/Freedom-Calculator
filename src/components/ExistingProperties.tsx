@@ -134,30 +134,31 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 </button>
               </div>
             )}
-            {showArrows && (
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => scroll("left")}
-                  className="p-1.5 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
-                >
-                  <ChevronLeft size={18} />
-                </button>
-                <button
-                  onClick={() => scroll("right")}
-                  className="p-1.5 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent transition-colors"
-                >
-                  <ChevronRight size={18} />
-                </button>
-              </div>
-            )}
           </div>
           </div>
         </div>
         <div className="h-4" />
 
-        <div
-          ref={scrollRef}
-          className={`flex gap-3 overflow-x-auto scrollbar-hide pb-2 rounded-xl transition-colors ${dragOver ? "bg-accent/10 ring-2 ring-accent/40" : ""}`}
+        <div className="relative">
+          {showArrows && (
+            <>
+              <button
+                onClick={() => scroll("left")}
+                className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                onClick={() => scroll("right")}
+                className="absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </>
+          )}
+          <div
+            ref={scrollRef}
+            className={`flex gap-3 overflow-x-auto scrollbar-hide pb-2 rounded-xl transition-colors ${dragOver ? "bg-accent/10 ring-2 ring-accent/40" : ""}`}
           style={{ scrollSnapType: "x mandatory" }}
           onDragOver={(e) => {
             if (e.dataTransfer.types.includes("application/x-future-property")) {
@@ -310,6 +311,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
               <Plus size={20} />
             </button>
           ))}
+        </div>
         </div>
 
         <PropertyDetailSheet
