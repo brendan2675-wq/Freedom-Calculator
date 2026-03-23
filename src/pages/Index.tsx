@@ -167,13 +167,6 @@ const Index = () => {
           growthRate={growthRate}
           targetMonth={targetMonth}
           targetYear={targetYear}
-          pporLoanBalance={loanBalance}
-          portfolioLoanTotal={existingProperties.reduce((sum, p) => sum + p.loanBalance, 0)}
-          currentPortfolioValue={2750000 + existingProperties.reduce((sum, p) => sum + p.estimatedValue, 0)}
-          currentEquity={
-            Math.max(0, (2750000 * 0.8) - loanBalance) +
-            existingProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)
-          }
           onMoveToPortfolio={(fp) => {
             const existing: ExistingProperty = {
               id: fp.id,
