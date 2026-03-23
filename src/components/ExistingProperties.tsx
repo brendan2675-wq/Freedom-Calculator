@@ -253,10 +253,12 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     </div>
                     <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
                   </div>
-                  <div>
-                    <label className="text-muted-foreground text-[11px]">{"Future Value (" + growthRate + "%)"}</label>
-                    <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
-                  </div>
+                  {!portfolioMode && (
+                    <div>
+                      <label className="text-muted-foreground text-[11px]">{"Future Value (" + growthRate + "%)"}</label>
+                      <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
+                    </div>
+                  )}
                   <div>
                     <div className="flex items-center gap-0.5">
                       <label className="text-muted-foreground text-[11px]">Equity Avail.</label>
