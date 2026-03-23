@@ -77,8 +77,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
 
   // Number of empty "Add Property" slots to fill up to 5
   const emptySlots = Math.max(0, VISIBLE_SLOTS - properties.length - 1);
-  const totalItems = properties.length + 1 + emptySlots; // properties + main add button + empty slots
+  const totalItems = properties.length + 1 + emptySlots;
   const showArrows = totalItems > VISIBLE_SLOTS || properties.length >= VISIBLE_SLOTS;
+  const hasOverflow = properties.length >= VISIBLE_SLOTS;
+  const cardWidth = hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -98,6 +100,11 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
             <Briefcase size={26} strokeWidth={2.25} className="text-accent" />
             Your Investment Portfolio
+            {properties.length > VISIBLE_SLOTS && (
+              <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                {properties.length} properties
+              </span>
+            )}
           </h2>
           <div className="flex items-center gap-2">
             {properties.length > 0 && (
@@ -189,7 +196,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     ? "border-dashed border-accent/30 bg-accent/5 opacity-40"
                     : "bg-card border-border cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent hover:shadow-accent/10"
                 }`}
-                style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
+                style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
                   <button
@@ -286,7 +293,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           <button
             onClick={addProperty}
             className="rounded-xl border-2 border-dashed border-accent/40 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent shrink-0"
-            style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
+            style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
           >
             <Plus size={24} />
             <span className="text-sm">Add Property</span>
@@ -298,7 +305,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
               key={`empty-${i}`}
               onClick={addProperty}
               className="rounded-xl border-2 border-dashed border-border/30 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent/40 hover:bg-accent/5 transition-all font-medium text-muted-foreground/40 shrink-0"
-              style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
+              style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
             >
               <Plus size={20} />
             </button>
