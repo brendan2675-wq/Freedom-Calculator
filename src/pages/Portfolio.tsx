@@ -13,6 +13,7 @@ const Portfolio = () => {
   const [ppor, setPpor] = useState<ExistingProperty | null>(null);
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
   const [pporLvr, setPporLvr] = useState(0.8);
+  const [masterLvr, setMasterLvr] = useState(0.8);
 
   // Load from localStorage
   useEffect(() => {
