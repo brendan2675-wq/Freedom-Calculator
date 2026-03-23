@@ -311,28 +311,32 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                 </FieldGroup>
               </>
             )}
-            <FieldGroup label="Investment Type">
-              <div className="grid grid-cols-4 gap-2">
-                {investmentTypes.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => update({ investmentType: t })}
-                    className={cn(
-                      "flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg border text-sm font-medium transition-all",
-                      property.investmentType === t
-                        ? "border-accent bg-accent/10 text-accent"
-                        : "border-border text-muted-foreground hover:border-accent/50 hover:text-foreground"
-                    )}
-                  >
-                    <InvestmentTypeIcon type={t} size={20} />
-                    <span className="text-xs">{getInvestmentTypeLabel(t)}</span>
-                  </button>
-                ))}
-              </div>
-            </FieldGroup>
-            <FieldGroup label="Ownership Structure">
-              <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
-            </FieldGroup>
+            {!pporMode && (
+              <FieldGroup label="Investment Type">
+                <div className="grid grid-cols-4 gap-2">
+                  {investmentTypes.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => update({ investmentType: t })}
+                      className={cn(
+                        "flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg border text-sm font-medium transition-all",
+                        property.investmentType === t
+                          ? "border-accent bg-accent/10 text-accent"
+                          : "border-border text-muted-foreground hover:border-accent/50 hover:text-foreground"
+                      )}
+                    >
+                      <InvestmentTypeIcon type={t} size={20} />
+                      <span className="text-xs">{getInvestmentTypeLabel(t)}</span>
+                    </button>
+                  ))}
+                </div>
+              </FieldGroup>
+            )}
+            {!pporMode && (
+              <FieldGroup label="Ownership Structure">
+                <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
+              </FieldGroup>
+            )}
             {isExisting && !portfolioMode && (() => {
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
