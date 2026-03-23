@@ -136,6 +136,7 @@ const Index = () => {
               estimatedValue: fp.purchasePrice,
               loanBalance: Math.round(fp.purchasePrice * 0.8),
               earmarked: false,
+              sellInYears: 0,
               ownership: fp.ownership,
               investmentType: fp.investmentType,
               loan: { ...fp.loan },

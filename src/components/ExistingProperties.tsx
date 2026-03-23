@@ -39,6 +39,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
       estimatedValue: 0,
       loanBalance: 0,
       earmarked: false,
+      sellInYears: 0,
       ownership: "personal",
       investmentType: "house",
       loan: { ...defaultLoanDetails },
