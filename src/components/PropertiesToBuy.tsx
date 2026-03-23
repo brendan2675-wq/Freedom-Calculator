@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Plus, X, ChevronRight, ChevronLeft, Info, Gavel } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
@@ -25,6 +25,19 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
   const scrollRef = useRef<HTMLDivElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 1);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+  }, [properties.length, updateScrollState]);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
@@ -95,24 +108,25 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
         <div className="h-4" />
 
         <div className="relative">
-          {showArrows && (
-            <>
+          {showArrows && canScrollLeft && (
               <button
                 onClick={() => scroll("left")}
                 className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
               >
                 <ChevronLeft size={18} />
               </button>
+          )}
+          {showArrows && canScrollRight && (
               <button
                 onClick={() => scroll("right")}
                 className="absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
               >
                 <ChevronRight size={18} />
               </button>
-            </>
           )}
           <div
             ref={scrollRef}
+            onScroll={updateScrollState}
             className={`flex gap-3 overflow-x-auto scrollbar-hide pb-2 rounded-xl transition-colors ${dragOver ? "bg-accent/10 ring-2 ring-accent/40" : ""}`}
           style={{ scrollSnapType: "x mandatory" }}
           onDragOver={(e) => {
