@@ -119,44 +119,46 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
               </span>
             )}
           </h2>
-          <div className="flex items-center gap-2">
-            {properties.length > 0 && (
-              allEarmarked ? (
-                <button
-                  onClick={handleMasterSellDown}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-medium transition-colors"
-                >
-                  <X size={14} />
-                  Clear Sell Down
-                </button>
-              ) : (
-                <div
-                  className="flex items-center gap-1.5 pl-3 pr-1 py-1 rounded-md border border-accent/30 bg-accent/10 text-accent text-xs font-medium whitespace-nowrap"
-                >
-                  <BadgeDollarSign size={14} className="shrink-0 cursor-pointer" onClick={handleMasterSellDown} />
-                  <span className="cursor-pointer" onClick={handleMasterSellDown}>Sell All in</span>
-                  <select
-                    value={masterSellYear}
-                    onChange={(e) => setMasterSellYear(Number(e.target.value))}
-                    className="py-1 px-1.5 rounded border border-accent/30 bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
-                  >
-                    <option value={0}>Now</option>
-                    {Array.from({ length: 10 }, (_, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        {i + 1} {i + 1 === 1 ? "yr" : "yrs"}
-                      </option>
-                    ))}
-                  </select>
+          {!portfolioMode && (
+            <div className="flex items-center gap-2">
+              {properties.length > 0 && (
+                allEarmarked ? (
                   <button
                     onClick={handleMasterSellDown}
-                    className="ml-0.5 px-2 py-1 rounded bg-accent text-accent-foreground text-xs font-semibold hover:bg-accent/90 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-medium transition-colors"
                   >
-                    Go
+                    <X size={14} />
+                    Clear Sell Down
                   </button>
-                </div>
-              )
-            )}
-          </div>
+                ) : (
+                  <div
+                    className="flex items-center gap-1.5 pl-3 pr-1 py-1 rounded-md border border-accent/30 bg-accent/10 text-accent text-xs font-medium whitespace-nowrap"
+                  >
+                    <BadgeDollarSign size={14} className="shrink-0 cursor-pointer" onClick={handleMasterSellDown} />
+                    <span className="cursor-pointer" onClick={handleMasterSellDown}>Sell All in</span>
+                    <select
+                      value={masterSellYear}
+                      onChange={(e) => setMasterSellYear(Number(e.target.value))}
+                      className="py-1 px-1.5 rounded border border-accent/30 bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                    >
+                      <option value={0}>Now</option>
+                      {Array.from({ length: 10 }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          {i + 1} {i + 1 === 1 ? "yr" : "yrs"}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={handleMasterSellDown}
+                      className="ml-0.5 px-2 py-1 rounded bg-accent text-accent-foreground text-xs font-semibold hover:bg-accent/90 transition-colors"
+                    >
+                      Go
+                    </button>
+                  </div>
+                )
+              )}
+            </div>
+          )}
           </div>
         </div>
         <div className="h-4" />
