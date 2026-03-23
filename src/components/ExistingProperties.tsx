@@ -16,6 +16,7 @@ interface Props {
   growthRate: number;
   onMoveToProposals?: (p: ExistingProperty) => void;
   onDropFromProposals?: (id: string) => void;
+  portfolioMode?: boolean;
 }
 
 const VISIBLE_SLOTS = 4;

@@ -116,7 +116,7 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, growthRate = 6 }: Props) => {
+const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, growthRate = 6, portfolioMode = false }: Props) => {
   const isExisting = variant === "existing";
   const manualTaxOverride = useRef(false);
 
