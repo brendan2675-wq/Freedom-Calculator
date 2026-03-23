@@ -25,6 +25,19 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
   const scrollRef = useRef<HTMLDivElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 1);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+  }, [properties.length, updateScrollState]);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 

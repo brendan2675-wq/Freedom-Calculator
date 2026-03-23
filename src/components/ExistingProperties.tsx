@@ -27,7 +27,19 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
   const [dragOver, setDragOver] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [masterSellYear, setMasterSellYear] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 1);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+  }, [properties.length, updateScrollState]);
   const allEarmarked = properties.length > 0 && properties.every((p) => p.earmarked);
 
   const handleMasterSellDown = () => {
