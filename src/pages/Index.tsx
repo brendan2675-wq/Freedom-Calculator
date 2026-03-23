@@ -211,10 +211,6 @@ const Index = () => {
           }}
         />
 
-        <Disclaimer
-          accepted={disclaimerAccepted}
-          setAccepted={setDisclaimerAccepted}
-        />
       </main>
 
       <Footer />
