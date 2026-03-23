@@ -208,7 +208,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                           e.stopPropagation();
                           setLvrRates({ ...lvrRates, [p.id]: Number(e.target.value) });
                         }}
-                        className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-[9px] font-medium focus:outline-none focus:ring-1 focus:ring-accent"
+                        className="py-1 px-2 rounded-md border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
                       >
                         <option value={0.8}>80%</option>
                         <option value={0.88}>88%</option>
