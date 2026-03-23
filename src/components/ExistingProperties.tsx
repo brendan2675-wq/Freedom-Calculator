@@ -290,16 +290,34 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   </div>
                 </div>
 
-                {/* Badges */}
-                <div className="mt-4 pt-2 border-t border-border/70 flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                    {p.ownership === "trust" ? "Trust" : "Personal"}
-                  </span>
-                  {p.earmarked && (
-                    <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
-                      Sell down
+                {/* Badges & Sell Down */}
+                <div className="mt-4 pt-2 border-t border-border/70 flex items-center justify-between flex-wrap gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                      {p.ownership === "trust" ? "Trust" : "Personal"}
                     </span>
-                  )}
+                  </div>
+                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    {p.earmarked ? (
+                      <button
+                        onClick={() => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: false } : prop))}
+                        className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium hover:bg-destructive/20 transition-colors"
+                      >
+                        <X size={10} />
+                        Sell in {p.sellInYears === 0 ? "Now" : `${p.sellInYears}yr`}
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true, sellInYears: 0 } : prop))}
+                          className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium hover:bg-accent/20 transition-colors"
+                        >
+                          <BadgeDollarSign size={10} />
+                          Sell
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Click cue */}
