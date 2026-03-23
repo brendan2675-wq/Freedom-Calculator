@@ -16,11 +16,6 @@ interface Props {
   targetYear: number;
   onMoveToPortfolio: (p: FutureProperty) => void;
   onDropFromPortfolio?: (id: string) => void;
-  pporLoanBalance: number;
-  portfolioLoanTotal: number;
-  currentPortfolioValue: number;
-  currentEquity: number;
-}
 
 const VISIBLE_SLOTS = 4;
 
