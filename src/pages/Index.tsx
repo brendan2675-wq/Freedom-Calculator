@@ -88,7 +88,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header clientName={clientName} setClientName={setClientName} />
 
-      <main className="container mx-auto px-4 py-8 space-y-12">
+      <main className="container mx-auto px-4 py-8 space-y-8">
         <KeyInputs
           loanBalance={loanBalance}
           setLoanBalance={setLoanBalance}
@@ -151,7 +151,7 @@ const Index = () => {
           }}
         />
 
-        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm">
+        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm -my-2">
           <ArrowDownUp size={14} className="text-accent" />
           <span>Drag cards between sections to move them</span>
         </div>
