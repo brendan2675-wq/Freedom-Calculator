@@ -34,8 +34,8 @@ const Index = () => {
     const hasSeenDragHint = localStorage.getItem("drag-hint-seen");
     if (!hasSeenDragHint) {
       const timer = setTimeout(() => {
-        toast("💡 Tip: You can drag property cards between sections to move them", {
-          duration: 5000,
+        toast("⚠️ Important: These projections are estimates only and do not constitute financial advice. Please consult a qualified financial adviser before making any investment decisions.", {
+          duration: 8000,
         });
         localStorage.setItem("drag-hint-seen", "true");
       }, 2000);
