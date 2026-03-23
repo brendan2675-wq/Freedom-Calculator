@@ -265,6 +265,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
             setProperties(properties.map((p) => p.id === updated.id ? updated as ExistingProperty : p));
           }}
           variant="existing"
+          growthRate={growthRate}
         />
       </section>
     </TooltipProvider>

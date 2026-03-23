@@ -361,17 +361,32 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                   </div>
 
                   {/* Sell down toggle */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <Switch
                       checked={ep.earmarked}
-                      onCheckedChange={(v) => update({ earmarked: v } as Partial<ExistingProperty>)}
+                      onCheckedChange={(v) => update({ earmarked: v, sellInYears: ep.sellInYears ?? 0 } as Partial<ExistingProperty>)}
                     />
                     <span className="text-sm text-muted-foreground">Sell down this property</span>
+                    {ep.earmarked && (
+                      <select
+                        value={ep.sellInYears ?? 0}
+                        onChange={(e) => update({ sellInYears: Number(e.target.value) } as Partial<ExistingProperty>)}
+                        className="py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                      >
+                        <option value={0}>Now</option>
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map((yr) => (
+                          <option key={yr} value={yr}>In {yr} year{yr > 1 ? "s" : ""}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
 
                   {/* Sell-down sections - only when earmarked */}
                   {ep.earmarked && (() => {
-                    const currentValue = ep.estimatedValue;
+                    const sellYears = ep.sellInYears ?? 0;
+                    const currentValue = sellYears > 0
+                      ? Math.round(ep.estimatedValue * Math.pow(1 + growthRate / 100, sellYears))
+                      : ep.estimatedValue;
                     const loanBal = ep.loanBalance;
                     const totalImprovements = sc.renovations + sc.structuralWork;
                     const totalOwnership = sc.ownershipCostsTotal;
