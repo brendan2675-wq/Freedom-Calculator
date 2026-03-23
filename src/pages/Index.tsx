@@ -1,4 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { toast } from "sonner";
+import { ArrowDownUp } from "lucide-react";
 import { defaultSaleCosts } from "@/types/property";
 import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
@@ -27,6 +29,19 @@ const Index = () => {
   ]);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [clientName, setClientName] = useState("Client Name");
+
+  useEffect(() => {
+    const hasSeenDragHint = localStorage.getItem("drag-hint-seen");
+    if (!hasSeenDragHint) {
+      const timer = setTimeout(() => {
+        toast("💡 Tip: You can drag property cards between sections to move them", {
+          duration: 5000,
+        });
+        localStorage.setItem("drag-hint-seen", "true");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const calculations = useMemo(() => {
     const earmarkedEquity = existingProperties
@@ -135,6 +150,11 @@ const Index = () => {
             setFutureProperties(futureProperties.filter((p) => p.id !== id));
           }}
         />
+
+        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm">
+          <ArrowDownUp size={14} className="text-accent" />
+          <span>Drag cards between sections to move them</span>
+        </div>
 
         <PropertiesToBuy
           properties={futureProperties}
