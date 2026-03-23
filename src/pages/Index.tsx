@@ -151,7 +151,7 @@ const Index = () => {
           }}
         />
 
-        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm -my-2">
+        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm -my-4">
           <ArrowDownUp size={14} className="text-accent" />
           <span>Drag cards between sections to move them</span>
         </div>
