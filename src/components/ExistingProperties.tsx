@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, ArrowDownRight } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, ArrowDownRight, Briefcase } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -77,7 +77,8 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
     <TooltipProvider>
       <section>
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-2xl font-bold text-foreground gold-underline pb-2">
+          <h2 className="text-2xl font-bold text-foreground gold-underline pb-2 flex items-center gap-2">
+            <Briefcase size={22} className="text-accent" />
             Your Investment Portfolio
           </h2>
           {showArrows && (
