@@ -37,6 +37,11 @@ const Index = () => {
         toast("⚠️ Important: These projections are estimates only and do not constitute financial advice. Please consult a qualified financial adviser before making any investment decisions.", {
           duration: 8000,
         });
+        setTimeout(() => {
+          toast("💡 Tip: You can drag property cards between sections to move them", {
+            duration: 5000,
+          });
+        }, 1500);
         localStorage.setItem("drag-hint-seen", "true");
       }, 2000);
       return () => clearTimeout(timer);
