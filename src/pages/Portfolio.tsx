@@ -76,14 +76,14 @@ const Portfolio = () => {
   const totals = useMemo(() => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
-    const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance), 0);
+    const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * masterLvr) - p.loanBalance), 0);
     const pporValue = ppor?.estimatedValue ?? 0;
     const pporLoan = ppor?.loanBalance ?? 0;
     const totalValue = pporValue + investmentValue;
     const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
     return { totalValue, totalLoan, totalEquity };
-  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity]);
+  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity, masterLvr]);
 
   return (
     <div className="min-h-screen bg-background">
