@@ -134,6 +134,42 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant }
   };
 
   const isExisting = variant === "existing";
+
+  // Auto-set marginal tax rate based on discounted capital gain
+  const manualTaxOverride = useRef(false);
+  useEffect(() => {
+    // Reset manual override when property changes
+    manualTaxOverride.current = false;
+  }, [property?.id]);
+
+  useEffect(() => {
+    if (!isExisting || manualTaxOverride.current) return;
+    const ep = property as ExistingProperty;
+    if (!ep.earmarked) return;
+    const sc = ep.saleCosts || { ...defaultSaleCosts };
+    const purchasePrice = ep.purchase.purchasePrice || 0;
+    if (!purchasePrice) return;
+    const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+    const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
+    const totalImprovements = sc.renovations + sc.structuralWork;
+    const totalOwnership = sc.ownershipCostsTotal;
+    const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
+    const costBase = totalAcquisition + totalImprovements + totalOwnership + totalSelling;
+    const capitalGain = Math.max(0, ep.estimatedValue - costBase);
+    const discountedGain = capitalGain * (1 - sc.cgtDiscount);
+
+    let suggestedRate = 0;
+    if (discountedGain > 190000) suggestedRate = 0.45;
+    else if (discountedGain > 135000) suggestedRate = 0.37;
+    else if (discountedGain > 45000) suggestedRate = 0.30;
+    else if (discountedGain > 18200) suggestedRate = 0.16;
+    else suggestedRate = 0;
+
+    if (sc.incomeTaxRate !== suggestedRate) {
+      update({ saleCosts: { ...sc, incomeTaxRate: suggestedRate } } as Partial<ExistingProperty>);
+    }
+  }, [isExisting, property]);
+
   const title = isExisting
     ? (property as ExistingProperty).nickname || "Property Details"
     : (property as FutureProperty).suburb || "Property Details";
