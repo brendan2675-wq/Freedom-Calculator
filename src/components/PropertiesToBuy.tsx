@@ -62,6 +62,8 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
   const emptySlots = Math.max(0, VISIBLE_SLOTS - properties.length - 1);
   const totalItems = properties.length + 1 + emptySlots;
   const showArrows = totalItems > VISIBLE_SLOTS || properties.length >= VISIBLE_SLOTS;
+  const hasOverflow = properties.length >= VISIBLE_SLOTS;
+  const cardWidth = hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
