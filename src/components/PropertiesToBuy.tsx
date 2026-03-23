@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, X, ChevronRight, ChevronLeft, Info, Gavel } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, Gavel, Building2, Landmark, Wallet, TrendingUp } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -232,22 +232,20 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
 
         {properties.length > 0 && (
           <div className="mt-4 grid grid-cols-4 gap-3">
-            <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Current portfolio value</p>
-              <p className="text-accent text-2xl font-bold">${currentPortfolioValue.toLocaleString()}</p>
-            </div>
-            <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Total Loan amounts</p>
-              <p className="text-accent text-2xl font-bold">${(pporLoanBalance + portfolioLoanTotal).toLocaleString()}</p>
-            </div>
-            <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Portfolio Loan amount</p>
-              <p className="text-accent text-2xl font-bold">${portfolioLoanTotal.toLocaleString()}</p>
-            </div>
-            <div className="bg-header rounded-xl p-3 text-center">
-              <p className="text-primary-foreground text-sm">Current Equity</p>
-              <p className="text-accent text-2xl font-bold">${currentEquity.toLocaleString()}</p>
-            </div>
+            {[
+              { icon: Building2, label: "Current portfolio value", value: `$${currentPortfolioValue.toLocaleString()}` },
+              { icon: Landmark, label: "Total Loan amounts", value: `$${(pporLoanBalance + portfolioLoanTotal).toLocaleString()}` },
+              { icon: Wallet, label: "Portfolio Loan amount", value: `$${portfolioLoanTotal.toLocaleString()}` },
+              { icon: TrendingUp, label: "Current Equity", value: `$${currentEquity.toLocaleString()}` },
+            ].map((stat) => (
+              <div key={stat.label} className="bg-card rounded-xl p-4 border border-border shadow-sm flex flex-col items-center gap-2">
+                <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <stat.icon size={18} className="text-accent" />
+                </div>
+                <p className="text-muted-foreground text-xs font-medium text-center">{stat.label}</p>
+                <p className="text-accent text-xl font-bold">{stat.value}</p>
+              </div>
+            ))}
           </div>
         )}
 
