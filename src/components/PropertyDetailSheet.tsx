@@ -6,7 +6,7 @@ import { InvestmentTypeIcon, investmentTypes, getInvestmentTypeLabel } from "@/c
 import type { ExistingProperty, FutureProperty, LoanDetails, RentalDetails, PurchaseDetails, InvestmentType, LoanSplit, SaleCosts } from "@/types/property";
 import { defaultSaleCosts } from "@/types/property";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, X } from "lucide-react";
+import { CalendarIcon, Plus, X, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
