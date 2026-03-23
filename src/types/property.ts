@@ -90,6 +90,7 @@ export interface FutureProperty {
   purchasePrice: number;
   rentalYield: number;
   projectedEquity5yr: number;
+  lvr: number; // Loan-to-Value Ratio as percentage (e.g. 80)
   ownership: "trust" | "personal";
   investmentType: InvestmentType;
   loan: LoanDetails;

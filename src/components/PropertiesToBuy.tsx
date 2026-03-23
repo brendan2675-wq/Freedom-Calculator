@@ -54,6 +54,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
       purchasePrice: 0,
       rentalYield: 0,
       projectedEquity5yr: 0,
+      lvr: 80,
       ownership: "personal",
       investmentType: "house",
       loan: { ...defaultLoanDetails },
