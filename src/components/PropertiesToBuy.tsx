@@ -210,7 +210,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                 </div>
 
                 {/* Badges */}
-                <div className="mt-auto pt-5 border-t border-border flex items-center gap-1.5 flex-wrap">
+                <div className="mt-4 pt-2 border-t border-border/70 flex items-center gap-1.5 flex-wrap">
                   <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
                     {p.ownership === "trust" ? "Trust" : "Personal"}
                   </span>
