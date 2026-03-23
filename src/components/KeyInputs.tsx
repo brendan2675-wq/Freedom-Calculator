@@ -22,12 +22,13 @@ interface KeyInputsProps {
   growthRate: number;
   setGrowthRate: (v: number) => void;
   sellDownProceeds: number;
+  pporValue: number;
 }
 
 const KeyInputs = ({
   loanBalance, setLoanBalance, interestRate, setInterestRate,
   targetMonth, targetYear, setTargetMonth, setTargetYear,
-  percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate, sellDownProceeds,
+  percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate, sellDownProceeds, pporValue,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
   const [startingBalance, setStartingBalance] = useState(1842105);
@@ -44,7 +45,7 @@ const KeyInputs = ({
     if (startingBalance <= 0) return 0;
     return ((startingBalance - adjustedRemaining) / startingBalance) * 100;
   }, [startingBalance, adjustedRemaining]);
-  const pporValue = 2750000;
+  
   const equityAvailable = useMemo(() => Math.max(0, (pporValue * lvrRate) - loanBalance), [pporValue, lvrRate, loanBalance]);
   const timeAway = useMemo(() => {
     const now = new Date();

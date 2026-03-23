@@ -1,30 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, UserCircle, Building2, Landmark, TrendingUp, Home } from "lucide-react";
+import { LayoutDashboard, UserCircle, Building2, Landmark, TrendingUp, Home, Plus } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import type { ExistingProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 
-const defaultPpor: ExistingProperty = {
-  id: "ppor",
-  nickname: "Owner Occupied",
-  estimatedValue: 2750000,
-  loanBalance: 450000,
-  earmarked: false,
-  sellInYears: 0,
-  ownership: "personal",
-  investmentType: "house",
-  loan: { ...defaultLoanDetails },
-  rental: { ...defaultRentalDetails },
-  purchase: { ...defaultPurchaseDetails },
-};
-
 const Portfolio = () => {
   const navigate = useNavigate();
   const [clientName, setClientName] = useState("Client Name");
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
-  const [ppor, setPpor] = useState<ExistingProperty>(defaultPpor);
+  const [ppor, setPpor] = useState<ExistingProperty | null>(null);
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
   const [pporLvr, setPporLvr] = useState(0.8);
 
@@ -55,22 +41,48 @@ const Portfolio = () => {
     localStorage.setItem("portfolio-properties", JSON.stringify(p));
   };
 
+  const addPpor = () => {
+    const newPpor: ExistingProperty = {
+      id: "ppor",
+      nickname: "",
+      estimatedValue: 0,
+      loanBalance: 0,
+      earmarked: false,
+      sellInYears: 0,
+      ownership: "personal",
+      investmentType: "house",
+      loan: { ...defaultLoanDetails },
+      rental: { ...defaultRentalDetails },
+      purchase: { ...defaultPurchaseDetails },
+    };
+    setPpor(newPpor);
+    localStorage.setItem("portfolio-ppor", JSON.stringify(newPpor));
+    setPporSheetOpen(true);
+  };
+
   const handleUpdatePpor = (updated: ExistingProperty) => {
     setPpor(updated);
     localStorage.setItem("portfolio-ppor", JSON.stringify(updated));
   };
 
-  const pporEquity = Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance);
+  const removePpor = () => {
+    setPpor(null);
+    localStorage.removeItem("portfolio-ppor");
+  };
+
+  const pporEquity = ppor ? Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance) : 0;
 
   const totals = useMemo(() => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
     const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance), 0);
-    const totalValue = ppor.estimatedValue + investmentValue;
-    const totalLoan = ppor.loanBalance + investmentLoan;
+    const pporValue = ppor?.estimatedValue ?? 0;
+    const pporLoan = ppor?.loanBalance ?? 0;
+    const totalValue = pporValue + investmentValue;
+    const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
     return { totalValue, totalLoan, totalEquity };
-  }, [properties, ppor.estimatedValue, ppor.loanBalance, pporEquity]);
+  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -128,49 +140,67 @@ const Portfolio = () => {
               Owner Occupied Property
             </h2>
           </div>
-          <div
-            onClick={() => setPporSheetOpen(true)}
-            className="bg-card rounded-xl p-6 border-2 border-border shadow-sm max-w-xl cursor-pointer hover:shadow-xl hover:border-accent hover:shadow-accent/10 transition-all"
-          >
-            <div className="flex items-center gap-1.5 mb-3">
-              <Home size={16} className="text-accent shrink-0" />
-              <p className="font-semibold text-sm text-foreground">{ppor.nickname || "Owner Occupied"}</p>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="text-muted-foreground text-[11px] block mb-1">Property Value</label>
-                <p className="text-foreground font-medium text-sm">${ppor.estimatedValue.toLocaleString()}</p>
+          {ppor ? (
+            <div
+              onClick={() => setPporSheetOpen(true)}
+              className="bg-card rounded-xl p-6 border-2 border-border shadow-sm max-w-xl cursor-pointer hover:shadow-xl hover:border-accent hover:shadow-accent/10 transition-all relative group"
+            >
+              <button
+                onClick={(e) => { e.stopPropagation(); removePpor(); }}
+                className="absolute top-3 right-3 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-label="Remove PPOR"
+              >
+                <span className="text-xs">✕</span>
+              </button>
+              <div className="flex items-center gap-1.5 mb-3">
+                <Home size={16} className="text-accent shrink-0" />
+                <p className="font-semibold text-sm text-foreground">{ppor.nickname || "Owner Occupied"}</p>
               </div>
-              <div>
-                <label className="text-muted-foreground text-[11px] block mb-1">Loan Balance</label>
-                <p className="text-foreground font-medium text-sm">${ppor.loanBalance.toLocaleString()}</p>
-              </div>
-              <div>
-                <label className="text-muted-foreground text-[11px] block mb-1">Equity Avail.</label>
-                <div className="flex items-center gap-1">
-                  <span className="text-accent font-bold text-sm">${pporEquity.toLocaleString()}</span>
-                  <select
-                    value={pporLvr}
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      setPporLvr(Number(e.target.value));
-                    }}
-                    className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
-                  >
-                    <option value={0.8}>80%</option>
-                    <option value={0.88}>88%</option>
-                    <option value={0.9}>90%</option>
-                  </select>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="text-muted-foreground text-[11px] block mb-1">Property Value</label>
+                  <p className="text-foreground font-medium text-sm">${ppor.estimatedValue.toLocaleString()}</p>
+                </div>
+                <div>
+                  <label className="text-muted-foreground text-[11px] block mb-1">Loan Balance</label>
+                  <p className="text-foreground font-medium text-sm">${ppor.loanBalance.toLocaleString()}</p>
+                </div>
+                <div>
+                  <label className="text-muted-foreground text-[11px] block mb-1">Equity Avail.</label>
+                  <div className="flex items-center gap-1">
+                    <span className="text-accent font-bold text-sm">${pporEquity.toLocaleString()}</span>
+                    <select
+                      value={pporLvr}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        setPporLvr(Number(e.target.value));
+                      }}
+                      className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                    >
+                      <option value={0.8}>80%</option>
+                      <option value={0.88}>88%</option>
+                      <option value={0.9}>90%</option>
+                    </select>
+                  </div>
                 </div>
               </div>
+              {ppor.loan.lenderName && (
+                <p className="text-[11px] text-muted-foreground mt-3">
+                  Lender: <span className="text-foreground font-medium">{ppor.loan.lenderName}</span>
+                </p>
+              )}
             </div>
-            {ppor.loan.lenderName && (
-              <p className="text-[11px] text-muted-foreground mt-3">
-                Lender: <span className="text-foreground font-medium">{ppor.loan.lenderName}</span>
-              </p>
-            )}
-          </div>
+          ) : (
+            <button
+              onClick={addPpor}
+              className="rounded-xl border-2 border-dashed border-accent/40 p-6 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent max-w-xl w-full"
+            >
+              <Plus size={24} />
+              <span className="text-sm">Add Owner Occupied Property</span>
+              <span className="text-xs text-muted-foreground font-normal">Click to add your primary residence</span>
+            </button>
+          )}
         </section>
 
         {/* Investment Properties Carousel */}
@@ -184,15 +214,22 @@ const Portfolio = () => {
         />
 
         {/* PPOR Detail Sheet */}
-        <PropertyDetailSheet
-          property={ppor}
-          open={pporSheetOpen}
-          onOpenChange={setPporSheetOpen}
-          onUpdate={(updated) => handleUpdatePpor(updated as ExistingProperty)}
-          variant="existing"
-          portfolioMode
-          pporMode
-        />
+        {ppor && (
+          <PropertyDetailSheet
+            property={ppor}
+            open={pporSheetOpen}
+            onOpenChange={(o) => {
+              if (!o && ppor && !ppor.nickname && ppor.estimatedValue === 0) {
+                removePpor();
+              }
+              setPporSheetOpen(o);
+            }}
+            onUpdate={(updated) => handleUpdatePpor(updated as ExistingProperty)}
+            variant="existing"
+            portfolioMode
+            pporMode
+          />
+        )}
       </main>
     </div>
   );

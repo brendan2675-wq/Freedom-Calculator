@@ -13,12 +13,41 @@ import type { ExistingProperty, FutureProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 
 const Index = () => {
-  const [loanBalance, setLoanBalance] = useState(1750000);
   const [interestRate, setInterestRate] = useState(6.2);
   const [targetMonth, setTargetMonth] = useState(2);
   const [targetYear, setTargetYear] = useState(2036);
   const [growthRate, setGrowthRate] = useState(6);
   const [pporSuburb, setPporSuburb] = useState("Bella Vista");
+
+  // Shared PPOR state via localStorage
+  const [ppor, setPpor] = useState<ExistingProperty>(() => {
+    const stored = localStorage.getItem("portfolio-ppor");
+    if (stored) {
+      try { return JSON.parse(stored); } catch {}
+    }
+    const defaultPpor: ExistingProperty = {
+      id: "ppor",
+      nickname: "Owner Occupied",
+      estimatedValue: 2750000,
+      loanBalance: 1750000,
+      earmarked: false,
+      sellInYears: 0,
+      ownership: "personal",
+      investmentType: "house",
+      loan: { ...defaultLoanDetails },
+      rental: { ...defaultRentalDetails },
+      purchase: { ...defaultPurchaseDetails },
+    };
+    localStorage.setItem("portfolio-ppor", JSON.stringify(defaultPpor));
+    return defaultPpor;
+  });
+
+  const loanBalance = ppor.loanBalance;
+  const setLoanBalance = (v: number) => {
+    const updated = { ...ppor, loanBalance: v };
+    setPpor(updated);
+    localStorage.setItem("portfolio-ppor", JSON.stringify(updated));
+  };
   const defaultExisting: ExistingProperty[] = [
     { id: "1", nickname: "Parramatta", estimatedValue: 580000, loanBalance: 480000, earmarked: false, sellInYears: 0, ownership: "trust", investmentType: "unit", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 200000 }, loanSplits: [{ id: "s1", label: "Parramatta loan", amount: 400000 }, { id: "s2", label: "Liverpool equity", amount: 80000 }] },
     { id: "2", nickname: "Liverpool", estimatedValue: 750000, loanBalance: 530000, earmarked: false, sellInYears: 0, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
@@ -123,7 +152,8 @@ const Index = () => {
           setSuburb={setPporSuburb}
           growthRate={growthRate}
           setGrowthRate={setGrowthRate}
-          sellDownProceeds={sellDownProceeds}
+           sellDownProceeds={sellDownProceeds}
+           pporValue={ppor.estimatedValue}
         />
 
         <ExistingProperties
