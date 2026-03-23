@@ -401,6 +401,7 @@ const KeyInputs = ({
               growthRate={growthRate}
               setGrowthRate={setGrowthRate}
               interestRate={interestRate}
+              sellDownEvents={sellDownEvents}
             />
           </div>
         </div>
