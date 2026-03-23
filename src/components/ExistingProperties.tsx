@@ -98,6 +98,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
               </button>
             </div>
           )}
+          </div>
         </div>
         <div className="h-4" />
 
