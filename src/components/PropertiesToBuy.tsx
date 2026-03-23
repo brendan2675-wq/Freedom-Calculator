@@ -129,24 +129,22 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
         >
           {properties.map((p) => {
             const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget));
-            return draggingId === p.id ? (
-                <div
-                  key={p.id}
-                  className="rounded-xl border-2 border-dashed border-accent/30 bg-accent/5 shrink-0"
-                  style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
-                />
-              ) : (
+            return (
               <div
                 key={p.id}
                 draggable
                 onDragStart={(e) => {
                   e.dataTransfer.setData("application/x-future-property", p.id);
                   e.dataTransfer.effectAllowed = "move";
-                  setDraggingId(p.id);
+                  setTimeout(() => setDraggingId(p.id), 0);
                 }}
                 onDragEnd={() => setDraggingId(null)}
-                onClick={() => setSelectedId(p.id)}
-                className="group bg-card rounded-xl shadow-md p-4 border-2 border-border transition-all relative flex flex-col cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent/50 shrink-0"
+                onClick={() => { if (!draggingId) setSelectedId(p.id); }}
+                className={`group rounded-xl shadow-md p-4 border-2 transition-all relative flex flex-col shrink-0 ${
+                  draggingId === p.id
+                    ? "border-dashed border-accent/30 bg-accent/5 opacity-40"
+                    : "bg-card border-border cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent/50"
+                }`}
                 style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
               >
                 <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
