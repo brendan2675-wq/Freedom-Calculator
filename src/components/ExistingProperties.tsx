@@ -320,11 +320,6 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   </div>
                 </div>
 
-                {/* Click cue */}
-                <div className="absolute bottom-2 right-2 flex items-center gap-0.5 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span>Edit</span>
-                  <ChevronRight size={12} />
-                </div>
               </div>
             );
           })}
