@@ -129,19 +129,14 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   Clear Sell Down
                 </button>
               ) : (
-                <button
-                  onClick={handleMasterSellDown}
-                  className="flex items-center gap-1.5 pl-3 pr-1 py-1 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 text-xs font-medium transition-colors"
+                <div
+                  className="flex items-center gap-1.5 pl-3 pr-1 py-1 rounded-md border border-accent/30 bg-accent/10 text-accent text-xs font-medium whitespace-nowrap"
                 >
-                  <BadgeDollarSign size={14} />
-                  <span>Sell All in</span>
+                  <BadgeDollarSign size={14} className="shrink-0 cursor-pointer" onClick={handleMasterSellDown} />
+                  <span className="cursor-pointer" onClick={handleMasterSellDown}>Sell All in</span>
                   <select
                     value={masterSellYear}
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      setMasterSellYear(Number(e.target.value));
-                    }}
+                    onChange={(e) => setMasterSellYear(Number(e.target.value))}
                     className="py-1 px-1.5 rounded border border-accent/30 bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
                   >
                     <option value={0}>Now</option>
@@ -151,7 +146,13 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                       </option>
                     ))}
                   </select>
-                </button>
+                  <button
+                    onClick={handleMasterSellDown}
+                    className="ml-0.5 px-2 py-1 rounded bg-accent text-accent-foreground text-xs font-semibold hover:bg-accent/90 transition-colors"
+                  >
+                    Go
+                  </button>
+                </div>
               )
             )}
           </div>
