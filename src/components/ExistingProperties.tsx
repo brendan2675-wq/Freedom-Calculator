@@ -243,12 +243,11 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           {/* Primary Add Property button */}
           <button
             onClick={addProperty}
-            className="rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/10 transition-all font-medium text-accent shrink-0"
+            className="rounded-xl border-2 border-dashed border-accent/40 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent shrink-0"
             style={{ width: "calc((100% - 36px) / 4)", minWidth: "200px", scrollSnapAlign: "start" }}
           >
-            <Briefcase size={22} className="text-accent/70" />
-            <Plus size={20} />
-            <span className="text-sm">Add to Portfolio</span>
+            <Plus size={24} />
+            <span className="text-sm">Add Property</span>
           </button>
 
           {/* Empty placeholder slots to fill up to 5 */}
