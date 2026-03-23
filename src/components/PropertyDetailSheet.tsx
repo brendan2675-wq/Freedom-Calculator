@@ -332,7 +332,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             <FieldGroup label="Ownership Structure">
               <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
             </FieldGroup>
-            {isExisting && (() => {
+            {isExisting && !portfolioMode && (() => {
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
               const purchasePrice = ep.purchase.purchasePrice || 0;
