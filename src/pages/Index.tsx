@@ -19,10 +19,18 @@ const Index = () => {
   const [targetYear, setTargetYear] = useState(2036);
   const [growthRate, setGrowthRate] = useState(6);
   const [pporSuburb, setPporSuburb] = useState("Bella Vista");
-  const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>([
-     { id: "1", nickname: "Parramatta", estimatedValue: 580000, loanBalance: 480000, earmarked: false, sellInYears: 0, ownership: "trust", investmentType: "unit", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 200000 }, loanSplits: [{ id: "s1", label: "Parramatta loan", amount: 400000 }, { id: "s2", label: "Liverpool equity", amount: 80000 }] },
+  const defaultExisting: ExistingProperty[] = [
+    { id: "1", nickname: "Parramatta", estimatedValue: 580000, loanBalance: 480000, earmarked: false, sellInYears: 0, ownership: "trust", investmentType: "unit", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 200000 }, loanSplits: [{ id: "s1", label: "Parramatta loan", amount: 400000 }, { id: "s2", label: "Liverpool equity", amount: 80000 }] },
     { id: "2", nickname: "Liverpool", estimatedValue: 750000, loanBalance: 530000, earmarked: false, sellInYears: 0, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails } },
-  ]);
+  ];
+  const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>(() => {
+    const stored = localStorage.getItem("portfolio-properties");
+    if (stored) {
+      try { return JSON.parse(stored); } catch {}
+    }
+    localStorage.setItem("portfolio-properties", JSON.stringify(defaultExisting));
+    return defaultExisting;
+  });
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>([
     { id: "3", suburb: "Marsden Park", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 530000, ownership: "trust", investmentType: "house", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 687 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 850000 } },
     { id: "4", suburb: "Hoppers Crossing", purchasePrice: 620000, rentalYield: 4.5, projectedEquity5yr: 385000, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 536 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 620000 } },
