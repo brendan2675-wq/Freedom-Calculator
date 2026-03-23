@@ -93,7 +93,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           </div>
 
           {/* Right: Countdown boxes */}
-          <div className="flex gap-3 items-center">
+          <div className="flex gap-3 items-center bg-secondary/60 border border-border rounded-2xl px-4 py-3 shadow-sm">
             <div className="flex flex-col items-center">
               <div className="relative w-16 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
                 <select
@@ -125,7 +125,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               </div>
               <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">months</span>
             </div>
-            <span className="text-sm font-medium text-muted-foreground/50 mt-[-1rem]">|</span>
+            <div className="w-px h-10 bg-border mx-1" />
             <div className="flex flex-col items-center">
               <div className="relative w-16 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
                 <select
