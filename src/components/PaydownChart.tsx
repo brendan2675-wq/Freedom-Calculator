@@ -85,7 +85,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             // IO period: only pay interest, balance stays flat
           } else {
             if (acceleratedMonthElapsed === ioMonths) {
-              acceleratedPIPayment = calcPIPayment(acceleratedBalance);
+              acceleratedPIPayment = calcPIPayment(acceleratedBalance, piMonths);
             }
             const interest = acceleratedBalance * monthlyRate;
             const principal = acceleratedPIPayment - interest;
