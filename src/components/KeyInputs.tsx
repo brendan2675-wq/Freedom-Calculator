@@ -330,6 +330,11 @@ const KeyInputs = ({
                 <div className="flex items-center gap-2">
                   <Wallet size={18} className="text-accent" />
                   <span className="text-lg font-semibold text-foreground">Equity Avail</span>
+                  {equityAvailable > 150000 && (
+                    <span className="text-xs font-semibold px-2 py-1 rounded bg-success/15 text-success border border-success/30 whitespace-nowrap">
+                      Go again
+                    </span>
+                  )}
                 </div>
               </div>
               
@@ -378,11 +383,6 @@ const KeyInputs = ({
                       <option value={0.88}>88% LVR</option>
                       <option value={0.9}>90% LVR</option>
                     </select>
-                    {equityAvailable > 150000 && (
-                      <span className="text-xs font-semibold px-2 py-3 rounded-lg bg-success/15 text-success border border-success/30 whitespace-nowrap">
-                        Go again
-                      </span>
-                    )}
                   </div>
                 </div>
               </div>
