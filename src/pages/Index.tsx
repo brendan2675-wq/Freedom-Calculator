@@ -144,7 +144,9 @@ const Index = () => {
   }, [existingProperties, growthRate]);
 
   const sellDownProceeds = useMemo(() => {
-    return sellDownEvents.reduce((sum, e) => sum + e.proceeds, 0);
+    return sellDownEvents
+      .filter((e) => e.year === new Date().getFullYear())
+      .reduce((sum, e) => sum + e.proceeds, 0);
   }, [sellDownEvents]);
 
   return (
