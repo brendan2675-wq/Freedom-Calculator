@@ -226,7 +226,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
-            <XAxis dataKey="year" fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} />
+            <XAxis dataKey="year" interval={0} fontSize={12} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} angle={-35} textAnchor="end" height={45} />
             <YAxis tickFormatter={formatDollar} fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} width={60} />
             <Tooltip
               formatter={(value: number, name: string) => [
