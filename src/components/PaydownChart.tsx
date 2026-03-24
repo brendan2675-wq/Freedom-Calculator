@@ -87,24 +87,54 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
   const prevGoalAchieved = useRef(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     if (goalAchieved && !prevGoalAchieved.current) {
       setShowCelebration(true);
-      // Fire confetti burst
-      const end = Date.now() + 2500;
-      const fire = () => {
-        confetti({
-          particleCount: 80,
-          spread: 100,
-          origin: { y: 0.6, x: 0.5 },
-          colors: ['#E8914F', '#D4782F', '#F5C28A', '#FFD700', '#FF6B35'],
-        });
-        if (Date.now() < end) requestAnimationFrame(fire);
+
+      // Create a canvas scoped to the container
+      if (containerRef.current) {
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '10';
+        containerRef.current.appendChild(canvas);
+        canvasRef.current = canvas;
+
+        const scopedConfetti = confetti.create(canvas, { resize: true });
+        const end = Date.now() + 2500;
+        const fire = () => {
+          scopedConfetti({
+            particleCount: 60,
+            spread: 80,
+            origin: { y: 0.5, x: 0.5 },
+            colors: ['#E8914F', '#D4782F', '#F5C28A', '#FFD700', '#FF6B35'],
+          });
+          if (Date.now() < end) requestAnimationFrame(fire);
+        };
+        fire();
+      }
+
+      const timer = setTimeout(() => {
+        setShowCelebration(false);
+        if (canvasRef.current && canvasRef.current.parentNode) {
+          canvasRef.current.parentNode.removeChild(canvasRef.current);
+          canvasRef.current = null;
+        }
+      }, 4000);
+      return () => {
+        clearTimeout(timer);
+        if (canvasRef.current && canvasRef.current.parentNode) {
+          canvasRef.current.parentNode.removeChild(canvasRef.current);
+          canvasRef.current = null;
+        }
       };
-      fire();
-      const timer = setTimeout(() => setShowCelebration(false), 4000);
-      return () => clearTimeout(timer);
     }
     prevGoalAchieved.current = goalAchieved;
   }, [goalAchieved]);
@@ -143,7 +173,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   };
 
   return (
-    <div className="p-5">
+    <div ref={containerRef} className="p-5 relative overflow-hidden">
       <div className="mb-5 pb-5 border-b border-border">
         <div className="flex items-center justify-between">
           {/* Left: Icon + Title + Target date */}
