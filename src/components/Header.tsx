@@ -48,12 +48,13 @@ const Header = ({ clientName, setClientName }: HeaderProps) => {
           <div className="flex flex-col items-center gap-1">
             <p className="text-accent text-sm tracking-wider mb-1">Atelier Wealth</p>
             <button
-              onClick={() => {}}
+              onClick={() => setAuthOpen(true)}
               className="text-accent hover:text-accent/80 transition-colors"
               aria-label="Profile"
             >
               <UserCircle size={44} />
             </button>
+            <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} />
             <input
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
