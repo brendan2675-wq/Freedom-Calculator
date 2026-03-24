@@ -630,6 +630,14 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
           {/* Loan Details */}
           <SectionHeader title="Loan Details" />
           <div className="space-y-4">
+            {!isExisting && (
+              <FieldGroup label="Proposed Loan Amount">
+                <CurrencyInput
+                  value={(property as FutureProperty).proposedLoanAmount ?? Math.round((property as FutureProperty).purchasePrice * (property as FutureProperty).lvr / 100)}
+                  onChange={(v) => update({ proposedLoanAmount: v } as Partial<FutureProperty>)}
+                />
+              </FieldGroup>
+            )}
             <FieldGroup label="Interest Rate">
               <NumberInput value={property.loan.interestRate} onChange={(v) => updateLoan({ interestRate: v })} suffix="%" placeholder="6.2" />
             </FieldGroup>
