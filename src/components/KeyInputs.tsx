@@ -82,11 +82,7 @@ const KeyInputs = ({
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const years = Array.from({ length: 20 }, (_, i) => 2025 + i);
 
-  const monthlyCost = useMemo(() => {
-    const monthlyRate = interestRate / 100 / 12;
-    if (monthlyRate <= 0) return 0;
-    return Math.round(loanBalance * monthlyRate);
-  }, [loanBalance, interestRate]);
+
 
   return (
     <TooltipProvider>
