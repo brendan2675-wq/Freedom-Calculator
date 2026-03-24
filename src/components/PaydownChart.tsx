@@ -79,7 +79,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           standardMonthElapsed++;
         }
 
-        // Accelerated line
+        // Accelerated line (keeps original payment after lump sums to pay off faster)
         if (acceleratedBalance > 0) {
           if (acceleratedMonthElapsed < ioMonths) {
             // IO period: only pay interest, balance stays flat
@@ -97,14 +97,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       }
 
       // Apply lump-sum sell-down proceeds at end of year for accelerated line
+      // Keep the original payment amount so the loan pays off FASTER (not recast)
       const nextYear = year + 1;
       if (proceedsByYear[nextYear] && acceleratedBalance > 0) {
         acceleratedBalance -= proceedsByYear[nextYear];
         if (acceleratedBalance < 0) acceleratedBalance = 0;
-        // Recalculate PI payment with new lower balance over REMAINING months
-        const piMonthsElapsed = Math.max(0, acceleratedMonthElapsed - ioMonths);
-        const remainingPIMonths = Math.max(1, piMonths - piMonthsElapsed);
-        acceleratedPIPayment = calcPIPayment(acceleratedBalance, remainingPIMonths);
       }
     }
     return points;
