@@ -339,7 +339,7 @@ const KeyInputs = ({
                     <ChevronRight size={14} className="text-muted-foreground group-hover:text-accent transition-colors ml-auto" />
                   </div>
                   <p className="text-muted-foreground text-xs mb-2">Current Value</p>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between">
                     <p className="text-2xl font-bold text-foreground">${currentValue.toLocaleString()}</p>
                     {purchasePrice > 0 && (
                       <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
