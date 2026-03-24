@@ -65,7 +65,7 @@ export const defaultSaleCosts: SaleCosts = {
   stylingCosts: 0,
   sellerAdvisoryFees: 0,
   cgtDiscount: 0.5,
-  incomeTaxRate: 0.325,
+  incomeTaxRate: 0.45,
 };
 
 export interface ExistingProperty {

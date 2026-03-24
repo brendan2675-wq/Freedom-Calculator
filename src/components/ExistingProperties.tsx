@@ -354,7 +354,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                             ))}
                           </select>
                           <button
-                            onClick={() => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true } : prop))}
+                            onClick={() => {
+                              showSellDownReminder();
+                              setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true } : prop));
+                            }}
                             className="px-1.5 py-0.5 rounded bg-accent text-accent-foreground text-[10px] font-semibold hover:bg-accent/90 transition-colors"
                           >
                             Go

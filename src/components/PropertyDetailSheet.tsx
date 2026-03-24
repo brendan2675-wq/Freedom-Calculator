@@ -147,7 +147,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
     else if (discountedGain > 135000) suggestedRate = 0.37;
     else if (discountedGain > 45000) suggestedRate = 0.30;
     else if (discountedGain > 18200) suggestedRate = 0.16;
-    else suggestedRate = 0;
+    else suggestedRate = 0.45;
 
     if (sc.incomeTaxRate !== suggestedRate) {
       onUpdate({ ...property, saleCosts: { ...sc, incomeTaxRate: suggestedRate } } as ExistingProperty);
