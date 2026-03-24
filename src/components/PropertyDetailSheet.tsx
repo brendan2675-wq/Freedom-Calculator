@@ -54,11 +54,11 @@ function CurrencyInput({ value, onChange, placeholder }: { value: number; onChan
 }
 
 function NumberInput({ value, onChange, suffix, placeholder }: { value: number; onChange: (v: number) => void; suffix?: string; placeholder?: string }) {
-  const [raw, setRaw] = React.useState<string>(value ? String(value) : "");
-  const rawRef = React.useRef(raw);
+  const [raw, setRaw] = useState<string>(value ? String(value) : "");
+  const rawRef = useRef(raw);
   rawRef.current = raw;
 
-  React.useEffect(() => {
+  useEffect(() => {
     const parsed = parseFloat(rawRef.current);
     if (isNaN(parsed) || parsed !== value) {
       setRaw(value ? String(value) : "");
