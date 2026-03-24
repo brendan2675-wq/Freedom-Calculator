@@ -183,7 +183,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
       <div className="h-64 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+          <AreaChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
             <XAxis dataKey="year" fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} />
             <YAxis tickFormatter={formatDollar} fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} width={60} />
