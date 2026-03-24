@@ -106,45 +106,32 @@ const KeyInputs = ({
                 <DollarSign size={18} className="text-accent" />
                 <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
               </div>
-              <div className="flex items-center gap-2 mb-3">
-                <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
-                <span className="inline-flex items-center gap-1 text-[10px] text-destructive font-medium bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">
-                  <AlertTriangle size={10} className="text-destructive" />
-                  Update
-                </span>
-              </div>
-              <div className="flex gap-3">
-                <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={loanBalance.toLocaleString()}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-                      setLoanBalance(v);
-                    }}
-                    className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
-                  />
+              {showUpdateBadge && (
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
+                  <span className="inline-flex items-center gap-1 text-[10px] text-destructive font-medium bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">
+                    <AlertTriangle size={10} className="text-destructive" />
+                    {updateBadgeLabel}
+                  </span>
                 </div>
-                <div className="relative w-28">
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={interestRate}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw === '' || /^\d*\.?\d*$/.test(raw)) {
-                        setInterestRate(raw as any);
-                      }
-                    }}
-                    onBlur={(e) => {
-                      const v = parseFloat(e.target.value) || 0;
-                      setInterestRate(v);
-                    }}
-                    className="w-full pl-3 pr-8 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all text-center"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">%</span>
+              )}
+              {!showUpdateBadge && (
+                <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
+              )}
+              <div
+                className="flex gap-3 cursor-pointer group/loan"
+                onClick={() => setPporDetailOpen(true)}
+              >
+                <div className="relative flex-1 py-3 px-4 rounded-lg border border-border bg-muted/30 group-hover/loan:border-accent/40 transition-colors">
+                  <span className="text-muted-foreground text-xs">Balance</span>
+                  <p className="text-lg font-bold text-foreground">${loanBalance.toLocaleString()}</p>
+                </div>
+                <div className="relative w-28 py-3 px-4 rounded-lg border border-border bg-muted/30 group-hover/loan:border-accent/40 transition-colors text-center">
+                  <span className="text-muted-foreground text-xs">Rate</span>
+                  <p className="text-lg font-bold text-foreground">{interestRate}%</p>
+                </div>
+                <div className="flex items-center">
+                  <ChevronRight size={16} className="text-muted-foreground group-hover/loan:text-accent transition-colors" />
                 </div>
               </div>
               {sellDownProceeds > 0 && (
