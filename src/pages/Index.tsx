@@ -92,7 +92,7 @@ const Index = () => {
 
   const calculations = useMemo(() => {
     const earmarkedEquity = existingProperties
-      .filter((p) => p.earmarked)
+      .filter((p) => p.earmarked && p.sellInYears === 0)
       .reduce((sum, p) => sum + Math.max(0, p.estimatedValue - p.loanBalance), 0);
 
     const futureEquity = futureProperties.reduce((sum, p) => sum + p.projectedEquity5yr, 0);
