@@ -44,7 +44,16 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
   }, [properties.length, updateScrollState]);
   const allEarmarked = properties.length > 0 && properties.every((p) => p.earmarked);
 
+  const showSellDownReminder = () => {
+    const count = parseInt(localStorage.getItem("sell-down-reminder-count") || "0", 10);
+    if (count < 5) {
+      toast("📝 Have you entered in all details of the sale e.g. stamp duty, selling fees etc?", { duration: 5000 });
+      localStorage.setItem("sell-down-reminder-count", String(count + 1));
+    }
+  };
+
   const handleMasterSellDown = () => {
+    if (!allEarmarked) showSellDownReminder();
     setProperties(
       properties.map((p) => ({
         ...p,
