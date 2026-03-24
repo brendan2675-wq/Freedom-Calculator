@@ -43,6 +43,7 @@ const AuthFlow = ({ open, onOpenChange, clientName, setClientName }: AuthFlowPro
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
+      if (fullName.trim()) setClientName(fullName.trim());
       setStep("success");
     }, 800);
   };

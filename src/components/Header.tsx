@@ -54,7 +54,7 @@ const Header = ({ clientName, setClientName }: HeaderProps) => {
             >
               <UserCircle size={44} />
             </button>
-            <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} />
+            <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={setClientName} />
             <input
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
