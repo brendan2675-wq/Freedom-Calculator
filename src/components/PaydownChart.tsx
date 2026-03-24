@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useRef, useState } from "react";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Target } from "lucide-react";
+import { Target, Clock } from "lucide-react";
 import type { SellDownEvent } from "@/components/KeyInputs";
 import confetti from "canvas-confetti";
 
@@ -108,6 +108,20 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   }, [loanBalance, targetYear, interestRate, sellDownEvents, repaymentType, loanTermYears, loanTermMonths, ioPeriodYears]);
 
   const hasSellDowns = sellDownEvents.length > 0;
+
+  // Compute payoff years for time-saved callout (improvement #2)
+  const timeSaved = useMemo(() => {
+    if (!hasSellDowns) return null;
+    const startYear = new Date().getFullYear();
+    const standardPayoffYear = data.find((d, i) => i > 0 && d.standard <= 0)?.year;
+    const acceleratedPayoffYear = data.find((d, i) => i > 0 && d.accelerated <= 0)?.year;
+    const stdYears = standardPayoffYear ? parseInt(standardPayoffYear) - startYear : null;
+    const accYears = acceleratedPayoffYear ? parseInt(acceleratedPayoffYear) - startYear : null;
+    if (stdYears === null || accYears === null) return null;
+    const saved = stdYears - accYears;
+    if (saved <= 0) return null;
+    return { standardYears: stdYears, acceleratedYears: accYears, saved };
+  }, [data, hasSellDowns]);
 
   // Check if accelerated balance is at or below zero by target year
   const goalAchieved = useMemo(() => {
@@ -247,6 +261,16 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       </div>
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
+      {timeSaved && (
+        <div className="mb-4 rounded-xl bg-accent/8 border border-accent/20 px-5 py-3.5 flex items-center gap-3">
+          <Clock size={18} className="text-accent shrink-0" />
+          <p className="text-sm text-foreground">
+            Without sell-down: <span className="font-semibold">{timeSaved.standardYears} yrs</span>.
+            With sell-down: <span className="font-semibold text-accent">{timeSaved.acceleratedYears} yrs</span>.
+            <span className="font-bold text-success ml-1">You save {timeSaved.saved} years!</span>
+          </p>
+        </div>
+      )}
       {showCelebration && (
         <div className="animate-fade-in mb-4 rounded-2xl bg-accent/15 border-2 border-accent px-6 py-5 text-center shadow-lg relative z-20">
           <p className="text-accent font-extrabold text-2xl mb-1">🎉 Goal Achieved!</p>

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info, AlertTriangle, Home, ChevronRight } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info, AlertTriangle, Home, ChevronRight, ArrowDown } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import HouseProgress from "@/components/HouseProgress";
@@ -83,6 +83,27 @@ const KeyInputs = ({
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const years = Array.from({ length: 20 }, (_, i) => 2025 + i);
 
+  // Track last-updated timestamp for Update badge (improvement #3)
+  useEffect(() => {
+    localStorage.setItem("ppor-loan-last-updated", Date.now().toString());
+  }, [loanBalance, interestRate]);
+
+  const { showUpdateBadge, updateBadgeLabel } = useMemo(() => {
+    const stored = localStorage.getItem("ppor-loan-last-updated");
+    if (!stored) return { showUpdateBadge: true, updateBadgeLabel: "Not yet updated" };
+    const daysSince = Math.floor((Date.now() - parseInt(stored, 10)) / (1000 * 60 * 60 * 24));
+    if (daysSince < 90) return { showUpdateBadge: false, updateBadgeLabel: "" };
+    const monthsSince = Math.floor(daysSince / 30);
+    return {
+      showUpdateBadge: true,
+      updateBadgeLabel: monthsSince > 0 ? `Updated ${monthsSince}mo ago` : `Updated ${daysSince}d ago`,
+    };
+  }, [loanBalance, interestRate]);
+
+  // Sell-down bridge summary (improvement #4)
+  const earmarkedCount = sellDownEvents.length;
+  const totalSellDownProceeds = useMemo(() => sellDownEvents.reduce((sum, e) => sum + e.proceeds, 0), [sellDownEvents]);
+
 
 
   return (
@@ -106,45 +127,32 @@ const KeyInputs = ({
                 <DollarSign size={18} className="text-accent" />
                 <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
               </div>
-              <div className="flex items-center gap-2 mb-3">
-                <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
-                <span className="inline-flex items-center gap-1 text-[10px] text-destructive font-medium bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">
-                  <AlertTriangle size={10} className="text-destructive" />
-                  Update
-                </span>
-              </div>
-              <div className="flex gap-3">
-                <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={loanBalance.toLocaleString()}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-                      setLoanBalance(v);
-                    }}
-                    className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all"
-                  />
+              {showUpdateBadge && (
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
+                  <span className="inline-flex items-center gap-1 text-[10px] text-destructive font-medium bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">
+                    <AlertTriangle size={10} className="text-destructive" />
+                    {updateBadgeLabel}
+                  </span>
                 </div>
-                <div className="relative w-28">
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={interestRate}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw === '' || /^\d*\.?\d*$/.test(raw)) {
-                        setInterestRate(raw as any);
-                      }
-                    }}
-                    onBlur={(e) => {
-                      const v = parseFloat(e.target.value) || 0;
-                      setInterestRate(v);
-                    }}
-                    className="w-full pl-3 pr-8 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all text-center"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">%</span>
+              )}
+              {!showUpdateBadge && (
+                <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
+              )}
+              <div
+                className="flex gap-3 cursor-pointer group/loan"
+                onClick={() => setPporDetailOpen(true)}
+              >
+                <div className="relative flex-1 py-3 px-4 rounded-lg border border-border bg-muted/30 group-hover/loan:border-accent/40 transition-colors">
+                  <span className="text-muted-foreground text-xs">Balance</span>
+                  <p className="text-lg font-bold text-foreground">${loanBalance.toLocaleString()}</p>
+                </div>
+                <div className="relative w-28 py-3 px-4 rounded-lg border border-border bg-muted/30 group-hover/loan:border-accent/40 transition-colors text-center">
+                  <span className="text-muted-foreground text-xs">Rate</span>
+                  <p className="text-lg font-bold text-foreground">{interestRate}%</p>
+                </div>
+                <div className="flex items-center">
+                  <ChevronRight size={16} className="text-muted-foreground group-hover/loan:text-accent transition-colors" />
                 </div>
               </div>
               {sellDownProceeds > 0 && (
@@ -417,6 +425,23 @@ const KeyInputs = ({
             />
           </div>
         </div>
+
+        {/* Sell-Down Bridge (improvement #4) */}
+        {earmarkedCount > 0 && (
+          <div className="flex items-center justify-center gap-3 py-4">
+            <div className="h-px flex-1 bg-border" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/60 border border-border rounded-full px-4 py-2">
+              <ArrowDown size={14} className="text-accent" />
+              <span>
+                <span className="font-semibold text-foreground">{earmarkedCount}</span> {earmarkedCount === 1 ? 'property' : 'properties'} earmarked
+                <span className="mx-1.5">→</span>
+                <span className="font-semibold text-success">${totalSellDownProceeds.toLocaleString()}</span> net proceeds
+              </span>
+              <ArrowDown size={14} className="text-accent" />
+            </div>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+        )}
 
         {/* PPOR Detail Sheet */}
         <Sheet open={pporDetailOpen} onOpenChange={setPporDetailOpen}>
