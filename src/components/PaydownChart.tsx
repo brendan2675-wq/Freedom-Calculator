@@ -262,7 +262,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             <Tooltip
               formatter={(value: number, name: string) => [
                 `$${value.toLocaleString()}`,
-                name === 'standard' ? 'Standard P&I' : 'With Sell-Down',
+                name === 'standard' ? 'Loan Balance' : 'With Sell-Down',
               ]}
               contentStyle={{
                 backgroundColor: 'hsl(0, 0%, 100%)',
