@@ -109,6 +109,20 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
   const hasSellDowns = sellDownEvents.length > 0;
 
+  // Compute payoff years for time-saved callout (improvement #2)
+  const timeSaved = useMemo(() => {
+    if (!hasSellDowns) return null;
+    const startYear = new Date().getFullYear();
+    const standardPayoffYear = data.find((d, i) => i > 0 && d.standard <= 0)?.year;
+    const acceleratedPayoffYear = data.find((d, i) => i > 0 && d.accelerated <= 0)?.year;
+    const stdYears = standardPayoffYear ? parseInt(standardPayoffYear) - startYear : null;
+    const accYears = acceleratedPayoffYear ? parseInt(acceleratedPayoffYear) - startYear : null;
+    if (stdYears === null || accYears === null) return null;
+    const saved = stdYears - accYears;
+    if (saved <= 0) return null;
+    return { standardYears: stdYears, acceleratedYears: accYears, saved };
+  }, [data, hasSellDowns]);
+
   // Check if accelerated balance is at or below zero by target year
   const goalAchieved = useMemo(() => {
     if (!hasSellDowns) return false;
