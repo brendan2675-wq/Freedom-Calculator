@@ -38,7 +38,14 @@ const KeyInputs = ({
   percentage, remaining, totalEquity, suburb, setSuburb, growthRate, setGrowthRate, sellDownProceeds, sellDownEvents, pporValue,
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
-  const [startingBalance, setStartingBalance] = useState(1842105);
+  const [startingBalance, setStartingBalanceState] = useState(() => {
+    const stored = localStorage.getItem("ppor-starting-balance");
+    return stored ? parseInt(stored, 10) : 1842105;
+  });
+  const setStartingBalance = (v: number) => {
+    setStartingBalanceState(v);
+    localStorage.setItem("ppor-starting-balance", String(v));
+  };
   
   const [repaymentType, setRepaymentType] = useState<"pi" | "io">("pi");
   const [loanTermYears, setLoanTermYears] = useState(30);
