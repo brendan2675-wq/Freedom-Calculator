@@ -68,12 +68,13 @@ function NumberInput({ value, onChange, suffix, placeholder }: { value: number; 
   );
 }
 
-function TextInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+function TextInput({ value, onChange, placeholder, autoFocus }: { value: string; onChange: (v: string) => void; placeholder?: string; autoFocus?: boolean }) {
   return (
     <input
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
+      autoFocus={autoFocus}
       className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
     />
   );
@@ -271,11 +272,18 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               </>
             ) : (
               <>
+                {!(property as FutureProperty).suburb && (property as FutureProperty).purchasePrice === 0 && (
+                  <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-1">
+                    <p className="text-sm font-semibold text-accent">Enter property details</p>
+                    <p className="text-xs text-muted-foreground">Fill in the suburb and purchase price to get started.</p>
+                  </div>
+                )}
                 <FieldGroup label="Suburb">
                   <TextInput
                     value={(property as FutureProperty).suburb}
                     onChange={(v) => update({ suburb: v } as Partial<FutureProperty>)}
                     placeholder="e.g. Parramatta"
+                    autoFocus={!(property as FutureProperty).suburb}
                   />
                 </FieldGroup>
                 <FieldGroup label="Purchase Price">
