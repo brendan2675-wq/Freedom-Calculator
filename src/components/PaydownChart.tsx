@@ -173,7 +173,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   };
 
   return (
-    <div className="p-5">
+    <div ref={containerRef} className="p-5 relative overflow-hidden">
       <div className="mb-5 pb-5 border-b border-border">
         <div className="flex items-center justify-between">
           {/* Left: Icon + Title + Target date */}
