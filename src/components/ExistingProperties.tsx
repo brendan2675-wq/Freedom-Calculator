@@ -316,6 +316,17 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   </div>
                 </div>
 
+                {/* Missing purchase price warning */}
+                {p.earmarked && (!p.purchase.purchasePrice || p.purchase.purchasePrice <= 0) && (
+                  <div className="mt-3 rounded-lg bg-destructive/5 border border-destructive/20 px-3 py-2 flex items-start gap-2">
+                    <AlertTriangle size={14} className="text-destructive shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[11px] font-semibold text-destructive">Purchase price required</p>
+                      <p className="text-[10px] text-muted-foreground">Enter the original purchase price to calculate sell-down proceeds.</p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Badges & Sell Down */}
                 <div className="mt-4 pt-2 border-t border-border/70 flex items-center justify-between flex-wrap gap-1.5">
                   <div className="flex items-center gap-1.5">
