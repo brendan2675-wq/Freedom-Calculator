@@ -178,6 +178,7 @@ const Index = () => {
            sellDownProceeds={sellDownProceeds}
            sellDownEvents={sellDownEvents}
            pporValue={ppor.estimatedValue}
+           setPporValue={setPporValue}
         />
 
         <ExistingProperties
