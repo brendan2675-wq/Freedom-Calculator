@@ -223,7 +223,7 @@ const KeyInputs = ({
 
                   {/* Starting Balance */}
                   <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Starting Loan Balance</label>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Original Loan Amount</label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
                       <input
