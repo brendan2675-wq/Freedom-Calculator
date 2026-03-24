@@ -406,6 +406,99 @@ const KeyInputs = ({
             />
           </div>
         </div>
+
+        {/* PPOR Detail Sheet */}
+        <Sheet open={pporDetailOpen} onOpenChange={setPporDetailOpen}>
+          <SheetContent className="overflow-y-auto">
+            <SheetHeader className="pb-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Home size={20} className="text-accent" />
+                <SheetTitle className="text-xl">PPOR Details</SheetTitle>
+              </div>
+            </SheetHeader>
+
+            <div className="space-y-6 pt-6">
+              {/* Suburb */}
+              <div>
+                <label className="text-xs text-muted-foreground font-medium block mb-1">Suburb</label>
+                <input
+                  type="text"
+                  value={suburb}
+                  onChange={(e) => setSuburb(e.target.value)}
+                  placeholder="e.g. Paddington"
+                  className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                />
+              </div>
+
+              {/* Purchase Price */}
+              <div>
+                <label className="text-xs text-muted-foreground font-medium block mb-1">Purchase Price</label>
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground text-sm">$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={purchasePrice ? purchasePrice.toLocaleString() : ""}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+                      setPurchasePrice(v);
+                    }}
+                    placeholder="Enter purchase price"
+                    className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Current Value (read-only summary) */}
+              <div>
+                <label className="text-xs text-muted-foreground font-medium block mb-1">Current Value</label>
+                <p className="text-lg font-bold text-foreground">${currentValue.toLocaleString()}</p>
+                {purchasePrice > 0 && (
+                  <p className={`text-xs font-medium mt-1 ${growthPercent >= 0 ? "text-success" : "text-destructive"}`}>
+                    {growthPercent >= 0 ? "↑" : "↓"} {Math.abs(growthPercent).toFixed(1)}% since purchase (${(currentValue - purchasePrice).toLocaleString()})
+                  </p>
+                )}
+              </div>
+
+              {/* Loan Balance */}
+              <div>
+                <label className="text-xs text-muted-foreground font-medium block mb-1">Current Loan Balance</label>
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground text-sm">$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={loanBalance ? loanBalance.toLocaleString() : ""}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+                      setLoanBalance(v);
+                    }}
+                    className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Interest Rate */}
+              <div>
+                <label className="text-xs text-muted-foreground font-medium block mb-1">Interest Rate</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={interestRate}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === '' || /^\d*\.?\d*$/.test(raw)) setInterestRate(raw as any);
+                    }}
+                    onBlur={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
+                    className="w-full py-2 px-3 pr-8 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm text-center"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                </div>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </section>
     </TooltipProvider>
   );
