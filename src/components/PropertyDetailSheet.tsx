@@ -147,7 +147,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
     else if (discountedGain > 135000) suggestedRate = 0.37;
     else if (discountedGain > 45000) suggestedRate = 0.30;
     else if (discountedGain > 18200) suggestedRate = 0.16;
-    else suggestedRate = 0;
+    else suggestedRate = 0.45;
 
     if (sc.incomeTaxRate !== suggestedRate) {
       onUpdate({ ...property, saleCosts: { ...sc, incomeTaxRate: suggestedRate } } as ExistingProperty);
@@ -493,8 +493,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                             >
                               <option value={0}>0% – $0 – $18,200</option>
                               <option value={0.16}>16% – $18,201 – $45,000</option>
-                              <option value={0.25}>25% – Company Tax Rate</option>
-                              <option value={0.30}>30% – $45,001 – $135,000</option>
+                              <option value={0.25}>25% – Base Entity Rate</option>
+                              <option value={0.30}>30% – $45,001 – $135,000 &amp; Company Tax Rate</option>
                               <option value={0.37}>37% – $135,001 – $190,000</option>
                               <option value={0.45}>45% – $190,001+</option>
                             </select>
