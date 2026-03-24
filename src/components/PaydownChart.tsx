@@ -111,10 +111,12 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         const end = Date.now() + 2500;
         const fire = () => {
           scopedConfetti({
-            particleCount: 60,
-            spread: 80,
-            origin: { y: 0.5, x: 0.5 },
+            particleCount: 25,
+            spread: 60,
+            origin: { y: 0.4, x: 0.5 },
             colors: ['#E8914F', '#D4782F', '#F5C28A', '#FFD700', '#FF6B35'],
+            scalar: 0.6,
+            gravity: 1.2,
           });
           if (Date.now() < end) requestAnimationFrame(fire);
         };
@@ -244,9 +246,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
       {showCelebration && (
-        <div className="animate-fade-in mb-4 rounded-xl bg-accent/10 border border-accent/30 px-4 py-3 text-center">
-          <p className="text-accent font-bold text-lg">🎉 Goal Achieved!</p>
-          <p className="text-muted-foreground text-sm">Your strategy pays off the loan before the target date!</p>
+        <div className="animate-fade-in mb-4 rounded-2xl bg-accent/15 border-2 border-accent px-6 py-5 text-center shadow-lg relative z-20">
+          <p className="text-accent font-extrabold text-2xl mb-1">🎉 Goal Achieved!</p>
+          <p className="text-foreground text-base font-medium">Your strategy pays off the loan before the target date!</p>
         </div>
       )}
       <div className="h-64 md:h-72">
