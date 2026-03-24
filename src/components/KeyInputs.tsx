@@ -150,6 +150,22 @@ const KeyInputs = ({
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">%</span>
                 </div>
               </div>
+              {sellDownProceeds > 0 && (
+                <div className="mt-3 rounded-lg bg-success/5 border border-success/20 px-4 py-3">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>Current Loan</span>
+                    <span className="font-medium text-foreground">${loanBalance.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-success mt-1">
+                    <span>Sell-Down Proceeds</span>
+                    <span className="font-medium">− ${sellDownProceeds.toLocaleString()}</span>
+                  </div>
+                  <div className="border-t border-success/20 mt-2 pt-2 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-foreground">Net Balance</span>
+                    <span className="text-lg font-bold text-success">${adjustedRemaining.toLocaleString()}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Progress Tracker - clickable to open sheet */}
