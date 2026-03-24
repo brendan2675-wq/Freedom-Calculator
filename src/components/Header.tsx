@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { UserCircle, LayoutDashboard, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AuthFlow from "@/components/AuthFlow";
 
 interface HeaderProps {
   clientName: string;
@@ -8,6 +10,7 @@ interface HeaderProps {
 
 const Header = ({ clientName, setClientName }: HeaderProps) => {
   const navigate = useNavigate();
+  const [authOpen, setAuthOpen] = useState(false);
   return (
     <header className="bg-header text-primary-foreground">
       <div className="container mx-auto px-4 py-8 md:py-12 flex items-center justify-between">
