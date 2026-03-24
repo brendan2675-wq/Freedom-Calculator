@@ -39,7 +39,7 @@ const KeyInputs = ({
 }: KeyInputsProps) => {
   const [lvrRate, setLvrRate] = useState(0.8);
   const [startingBalance, setStartingBalance] = useState(1842105);
-  const [pporInterestRate, setPporInterestRate] = useState(6.2);
+  
   const [repaymentType, setRepaymentType] = useState<"pi" | "io">("pi");
   const [loanTermYears, setLoanTermYears] = useState(30);
   const [loanTermMonths, setLoanTermMonths] = useState(0);
@@ -229,25 +229,6 @@ const KeyInputs = ({
                         }}
                         className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent transition-all"
                       />
-                    </div>
-                  </div>
-
-                  {/* Interest Rate */}
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Interest Rate</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={pporInterestRate}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          if (raw === '' || /^\d*\.?\d*$/.test(raw)) setPporInterestRate(raw as any);
-                        }}
-                        onBlur={(e) => setPporInterestRate(parseFloat(e.target.value) || 0)}
-                        className="w-full pl-4 pr-8 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent transition-all text-center"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">%</span>
                     </div>
                   </div>
 
