@@ -67,6 +67,18 @@ const AuthFlow = ({ open, onOpenChange, clientName, setClientName }: AuthFlowPro
             </DialogHeader>
             <form onSubmit={handleLogin} className="space-y-4 pt-2">
               <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <div className="relative">
+                  <Input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="John Smith"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
