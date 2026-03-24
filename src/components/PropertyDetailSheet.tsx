@@ -637,8 +637,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             </FieldGroup>
           </div>
 
-          {/* Rental Income - hide for PPOR */}
-          {!pporMode && (
+          {/* Rental Income - hide for PPOR and future/proposed */}
+          {!pporMode && isExisting && (
             <>
               <SectionHeader title="Rental Income" />
               <div className="space-y-4">
