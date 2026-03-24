@@ -317,38 +317,27 @@ const KeyInputs = ({
               </SheetContent>
             </Sheet>
 
-            {/* Equity Pull */}
+            {/* PPOR & Equity */}
             <div className="pt-5 mt-5 border-t border-border">
-              <div className="grid grid-cols-2 gap-3 mb-2">
-                <div className="flex items-center gap-2">
-                  <Home size={18} className="text-accent" />
-                  <h3 className="text-lg font-semibold text-foreground">{suburb}</h3>
-                  <button className="text-xs text-accent font-medium bg-accent/10 px-3 py-1 rounded hover:bg-accent/20 transition-colors whitespace-nowrap">
-                    Request property report
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Wallet size={18} className="text-accent" />
-                  <span className="text-lg font-semibold text-foreground">Equity Avail</span>
-                  {equityAvailable > 150000 && (
-                    <span className="text-xs font-semibold px-2 py-1 rounded bg-success/15 text-success border border-success/30 whitespace-nowrap">
-                      Go again
-                    </span>
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex gap-3 items-end">
-                <div className="flex-1 min-w-0">
-                  <label className="text-muted-foreground text-xs font-medium mb-1 block">Current Value</label>
-                  <div className="flex items-center gap-1 py-3 px-3 rounded-lg border border-border bg-background">
-                    <span className="text-muted-foreground font-medium">$</span>
-                    <span className="text-foreground text-lg font-medium whitespace-nowrap">{(2750000).toLocaleString()}</span>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Property Value Card */}
+                <div className="rounded-xl border border-border bg-muted/30 p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Home size={16} className="text-accent" />
+                    <span className="text-sm font-semibold text-foreground">{suburb}</span>
+                    <button className="text-[10px] text-accent font-medium bg-accent/10 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors whitespace-nowrap ml-auto">
+                      Request property report
+                    </button>
                   </div>
+                  <p className="text-muted-foreground text-xs mb-2">Current Value</p>
+                  <p className="text-2xl font-bold text-foreground">${(2750000).toLocaleString()}</p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1 mb-1">
-                    <label className="text-muted-foreground text-xs font-medium">Equity Available</label>
+
+                {/* Equity Available Card */}
+                <div className="rounded-xl border border-border bg-muted/30 p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Wallet size={16} className="text-accent" />
+                    <span className="text-sm font-semibold text-foreground">Equity Avail</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
@@ -357,16 +346,19 @@ const KeyInputs = ({
                         <p className="text-xs">(Current Value × LVR) − Loan Balance</p>
                       </TooltipContent>
                     </Tooltip>
+                    {equityAvailable > 150000 && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-success/15 text-success border border-success/30 whitespace-nowrap ml-auto">
+                        Go again
+                      </span>
+                    )}
                   </div>
-                  <div className="flex gap-2 items-center">
-                    <div className="flex items-center gap-1 py-3 px-3 rounded-lg border border-border bg-background">
-                      <span className="text-muted-foreground font-medium">$</span>
-                      <span className="text-accent text-lg font-bold whitespace-nowrap">{equityAvailable.toLocaleString()}</span>
-                    </div>
+                  <p className="text-muted-foreground text-xs mb-2">Equity Available</p>
+                  <div className="flex items-end gap-3">
+                    <p className="text-2xl font-bold text-accent">${equityAvailable.toLocaleString()}</p>
                     <select
                       value={lvrRate}
                       onChange={(e) => setLvrRate(Number(e.target.value))}
-                      className="py-3 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent shrink-0"
+                      className="mb-0.5 py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent"
                     >
                       <option value={0.8}>80% LVR</option>
                       <option value={0.88}>88% LVR</option>
