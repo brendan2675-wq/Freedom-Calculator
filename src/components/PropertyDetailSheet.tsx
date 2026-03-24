@@ -297,26 +297,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                     }}
                   />
                 </FieldGroup>
-                <FieldGroup label="Weekly Rent">
-                  <CurrencyInput
-                    value={property.rental.weeklyRent}
-                    onChange={(v) => {
-                      const purchasePrice = (property as FutureProperty).purchasePrice;
-                      const annualRent = v * 52;
-                      const yieldPct = purchasePrice > 0 ? parseFloat(((annualRent / purchasePrice) * 100).toFixed(2)) : 0;
-                      updateRental({ weeklyRent: v });
-                      update({ rentalYield: yieldPct, rental: { ...property.rental, weeklyRent: v } } as Partial<FutureProperty>);
-                    }}
-                  />
-                </FieldGroup>
-                <FieldGroup label="Rental Yield">
-                  <div className="py-2 px-3 rounded-lg border border-border bg-muted/50 text-foreground text-sm font-medium">
-                    {(property as FutureProperty).rentalYield}%
-                    <span className="text-muted-foreground text-xs ml-2">
-                      (${property.rental.weeklyRent ? (property.rental.weeklyRent * 52).toLocaleString() : "0"} p.a.)
-                    </span>
-                  </div>
-                </FieldGroup>
               </>
             )}
             {!pporMode && (
