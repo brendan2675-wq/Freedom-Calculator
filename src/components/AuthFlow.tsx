@@ -183,7 +183,7 @@ const AuthFlow = ({ open, onOpenChange, clientName, setClientName }: AuthFlowPro
               <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center">
                 <CheckCircle2 size={40} className="text-green-500" />
               </div>
-              <p className="text-lg font-semibold text-foreground">{clientName}</p>
+              <p className="text-lg font-semibold text-foreground">{fullName || clientName}</p>
               <p className="text-sm text-muted-foreground text-center">
                 Your session is now active. All data is securely accessible.
               </p>
