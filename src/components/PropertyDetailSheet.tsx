@@ -54,12 +54,31 @@ function CurrencyInput({ value, onChange, placeholder }: { value: number; onChan
 }
 
 function NumberInput({ value, onChange, suffix, placeholder }: { value: number; onChange: (v: number) => void; suffix?: string; placeholder?: string }) {
+  const [raw, setRaw] = React.useState<string>(value ? String(value) : "");
+  const rawRef = React.useRef(raw);
+  rawRef.current = raw;
+
+  React.useEffect(() => {
+    const parsed = parseFloat(rawRef.current);
+    if (isNaN(parsed) || parsed !== value) {
+      setRaw(value ? String(value) : "");
+    }
+  }, [value]);
+
   return (
     <div className="flex items-center gap-1">
       <input
         inputMode="decimal"
-        value={value || ""}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        value={raw}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (v === "" || /^[0-9]*\.?[0-9]*$/.test(v)) {
+            setRaw(v);
+            const parsed = parseFloat(v);
+            if (!isNaN(parsed)) onChange(parsed);
+            else if (v === "") onChange(0);
+          }
+        }}
         placeholder={placeholder}
         className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
       />
