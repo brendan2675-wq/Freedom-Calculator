@@ -96,6 +96,7 @@ export interface FutureProperty {
   loan: LoanDetails;
   rental: RentalDetails;
   purchase: PurchaseDetails;
+  saleCosts?: SaleCosts;
 }
 
 export const defaultLoanDetails: LoanDetails = {
