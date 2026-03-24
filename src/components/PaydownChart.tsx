@@ -111,10 +111,12 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         const end = Date.now() + 2500;
         const fire = () => {
           scopedConfetti({
-            particleCount: 60,
-            spread: 80,
-            origin: { y: 0.5, x: 0.5 },
+            particleCount: 25,
+            spread: 60,
+            origin: { y: 0.4, x: 0.5 },
             colors: ['#E8914F', '#D4782F', '#F5C28A', '#FFD700', '#FF6B35'],
+            scalar: 0.6,
+            gravity: 1.2,
           });
           if (Date.now() < end) requestAnimationFrame(fire);
         };
