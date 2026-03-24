@@ -45,6 +45,14 @@ const KeyInputs = ({
   const [loanTermMonths, setLoanTermMonths] = useState(0);
   const [ioPeriodYears, setIoPeriodYears] = useState(5);
   const [trackerOpen, setTrackerOpen] = useState(false);
+  const [purchasePrice, setPurchasePrice] = useState(2200000);
+  const [pporDetailOpen, setPporDetailOpen] = useState(false);
+
+  const currentValue = pporValue || 2750000;
+  const growthPercent = useMemo(() => {
+    if (purchasePrice <= 0) return 0;
+    return ((currentValue - purchasePrice) / purchasePrice) * 100;
+  }, [currentValue, purchasePrice]);
 
   const adjustedRemaining = useMemo(() => Math.max(0, loanBalance - sellDownProceeds), [loanBalance, sellDownProceeds]);
 
