@@ -341,15 +341,9 @@ const KeyInputs = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-muted-foreground text-xs font-medium mb-1 block">Current Value</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={(2750000).toLocaleString()}
-                      readOnly
-                      className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none transition-all"
-                    />
+                  <div className="inline-flex items-center gap-1 py-3 px-3 rounded-lg border border-border bg-background">
+                    <span className="text-muted-foreground font-medium">$</span>
+                    <span className="text-foreground text-lg font-medium whitespace-nowrap">{(2750000).toLocaleString()}</span>
                   </div>
                 </div>
                 <div>
@@ -364,15 +358,10 @@ const KeyInputs = ({
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                    <div className="flex gap-2 items-center">
-                    <div className="relative flex-1">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
-                      <input
-                        type="text"
-                        value={equityAvailable.toLocaleString()}
-                        readOnly
-                        className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-accent text-lg font-bold focus:outline-none transition-all"
-                      />
+                  <div className="flex gap-2 items-center">
+                    <div className="inline-flex items-center gap-1 py-3 px-3 rounded-lg border border-border bg-background">
+                      <span className="text-muted-foreground font-medium">$</span>
+                      <span className="text-accent text-lg font-bold whitespace-nowrap">{equityAvailable.toLocaleString()}</span>
                     </div>
                     <select
                       value={lvrRate}
