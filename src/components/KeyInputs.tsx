@@ -30,6 +30,7 @@ interface KeyInputsProps {
   sellDownProceeds: number;
   sellDownEvents: SellDownEvent[];
   pporValue: number;
+  setPporValue: (v: number) => void;
 }
 
 const KeyInputs = ({
