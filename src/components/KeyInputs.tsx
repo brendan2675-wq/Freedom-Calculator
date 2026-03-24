@@ -454,10 +454,22 @@ const KeyInputs = ({
                 </div>
               </div>
 
-              {/* Current Value (read-only summary) */}
+              {/* Current Value */}
               <div>
                 <label className="text-xs text-muted-foreground font-medium block mb-1">Current Value</label>
-                <p className="text-lg font-bold text-foreground">${currentValue.toLocaleString()}</p>
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground text-sm">$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={currentValue ? currentValue.toLocaleString() : ""}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+                      setPporValue(v);
+                    }}
+                    className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                  />
+                </div>
                 {purchasePrice > 0 && (
                   <p className={`text-xs font-medium mt-1 ${growthPercent >= 0 ? "text-success" : "text-destructive"}`}>
                     {growthPercent >= 0 ? "↑" : "↓"} {Math.abs(growthPercent).toFixed(1)}% since purchase (${(currentValue - purchasePrice).toLocaleString()})
