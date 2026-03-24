@@ -30,10 +30,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
     const ioMonths = repaymentType === "io" ? ioPeriodYears * 12 : 0;
     const piMonths = Math.max(1, totalLoanMonths - ioMonths);
 
-    // P&I monthly payment (calculated on balance at end of IO period)
-    const calcPIPayment = (balance: number) => {
-      if (monthlyRate <= 0 || balance <= 0) return balance / Math.max(1, piMonths);
-      return balance * (monthlyRate * Math.pow(1 + monthlyRate, piMonths)) / (Math.pow(1 + monthlyRate, piMonths) - 1);
+    // P&I monthly payment (calculated on balance over remaining months)
+    const calcPIPayment = (balance: number, remainingMonths: number) => {
+      const rm = Math.max(1, remainingMonths);
+      if (monthlyRate <= 0 || balance <= 0) return balance / rm;
+      return balance * (monthlyRate * Math.pow(1 + monthlyRate, rm)) / (Math.pow(1 + monthlyRate, rm) - 1);
     };
 
     // Aggregate sell-down proceeds by year
@@ -68,7 +69,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             // IO period: only pay interest, balance stays flat
           } else {
             if (standardMonthElapsed === ioMonths) {
-              standardPIPayment = calcPIPayment(standardBalance);
+              standardPIPayment = calcPIPayment(standardBalance, piMonths);
             }
             const interest = standardBalance * monthlyRate;
             const principal = standardPIPayment - interest;
@@ -84,7 +85,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             // IO period: only pay interest, balance stays flat
           } else {
             if (acceleratedMonthElapsed === ioMonths) {
-              acceleratedPIPayment = calcPIPayment(acceleratedBalance);
+              acceleratedPIPayment = calcPIPayment(acceleratedBalance, piMonths);
             }
             const interest = acceleratedBalance * monthlyRate;
             const principal = acceleratedPIPayment - interest;
@@ -100,8 +101,10 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       if (proceedsByYear[nextYear] && acceleratedBalance > 0) {
         acceleratedBalance -= proceedsByYear[nextYear];
         if (acceleratedBalance < 0) acceleratedBalance = 0;
-        // Recalculate PI payment with new lower balance
-        acceleratedPIPayment = calcPIPayment(acceleratedBalance);
+        // Recalculate PI payment with new lower balance over REMAINING months
+        const piMonthsElapsed = Math.max(0, acceleratedMonthElapsed - ioMonths);
+        const remainingPIMonths = Math.max(1, piMonths - piMonthsElapsed);
+        acceleratedPIPayment = calcPIPayment(acceleratedBalance, remainingPIMonths);
       }
     }
     return points;
