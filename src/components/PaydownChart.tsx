@@ -56,7 +56,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       const year = startYear + i;
 
       points.push({
-        year: year.toString(),
+        year,
         standard: Math.round(Math.max(0, standardBalance)),
         accelerated: Math.round(Math.max(0, acceleratedBalance)),
       });
@@ -115,8 +115,8 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
     const startYear = new Date().getFullYear();
     const standardPayoffYear = data.find((d, i) => i > 0 && d.standard <= 0)?.year;
     const acceleratedPayoffYear = data.find((d, i) => i > 0 && d.accelerated <= 0)?.year;
-    const stdYears = standardPayoffYear ? parseInt(standardPayoffYear) - startYear : null;
-    const accYears = acceleratedPayoffYear ? parseInt(acceleratedPayoffYear) - startYear : null;
+    const stdYears = standardPayoffYear ? standardPayoffYear - startYear : null;
+    const accYears = acceleratedPayoffYear ? acceleratedPayoffYear - startYear : null;
     if (stdYears === null || accYears === null) return null;
     const saved = stdYears - accYears;
     if (saved <= 0) return null;
@@ -126,7 +126,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   // Check if accelerated balance is at or below zero by target year
   const goalAchieved = useMemo(() => {
     if (!hasSellDowns) return false;
-    const targetPoint = data.find((d) => d.year === targetYear.toString());
+    const targetPoint = data.find((d) => d.year === targetYear);
     return targetPoint ? targetPoint.accelerated <= 0 : false;
   }, [data, targetYear, hasSellDowns]);
 
@@ -281,7 +281,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
-            <XAxis dataKey="year" interval={0} fontSize={12} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} angle={-35} textAnchor="end" height={45} />
+            <XAxis dataKey="year" type="number" domain={['dataMin', 'dataMax']} tickCount={data.length} tickFormatter={(v: number) => v.toString()} interval={0} fontSize={12} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} angle={-35} textAnchor="end" height={45} />
             <YAxis tickFormatter={formatDollar} fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} width={60} />
             <Tooltip
               formatter={(value: number, name: string) => [
@@ -295,7 +295,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                 fontSize: '13px',
               }}
             />
-            <ReferenceLine x={targetYear.toString()} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
+            <ReferenceLine x={targetYear + (targetMonth - 1) / 12} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
             <Area
               type="monotone"
               dataKey="standard"
