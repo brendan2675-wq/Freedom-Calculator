@@ -83,6 +83,27 @@ const KeyInputs = ({
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const years = Array.from({ length: 20 }, (_, i) => 2025 + i);
 
+  // Track last-updated timestamp for Update badge (improvement #3)
+  useEffect(() => {
+    localStorage.setItem("ppor-loan-last-updated", Date.now().toString());
+  }, [loanBalance, interestRate]);
+
+  const { showUpdateBadge, updateBadgeLabel } = useMemo(() => {
+    const stored = localStorage.getItem("ppor-loan-last-updated");
+    if (!stored) return { showUpdateBadge: true, updateBadgeLabel: "Not yet updated" };
+    const daysSince = Math.floor((Date.now() - parseInt(stored, 10)) / (1000 * 60 * 60 * 24));
+    if (daysSince < 90) return { showUpdateBadge: false, updateBadgeLabel: "" };
+    const monthsSince = Math.floor(daysSince / 30);
+    return {
+      showUpdateBadge: true,
+      updateBadgeLabel: monthsSince > 0 ? `Updated ${monthsSince}mo ago` : `Updated ${daysSince}d ago`,
+    };
+  }, [loanBalance, interestRate]);
+
+  // Sell-down bridge summary (improvement #4)
+  const earmarkedCount = sellDownEvents.length;
+  const totalSellDownProceeds = useMemo(() => sellDownEvents.reduce((sum, e) => sum + e.proceeds, 0), [sellDownEvents]);
+
 
 
   return (
