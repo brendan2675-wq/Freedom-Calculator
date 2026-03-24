@@ -403,6 +403,10 @@ const KeyInputs = ({
               setGrowthRate={setGrowthRate}
               interestRate={interestRate}
               sellDownEvents={sellDownEvents}
+              repaymentType={repaymentType}
+              loanTermYears={loanTermYears}
+              loanTermMonths={loanTermMonths}
+              ioPeriodYears={ioPeriodYears}
             />
           </div>
         </div>
