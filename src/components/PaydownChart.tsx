@@ -87,8 +87,6 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
   const prevGoalAchieved = useRef(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     if (goalAchieved && !prevGoalAchieved.current) {
@@ -108,20 +106,8 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       };
       fire();
 
-      const timer = setTimeout(() => {
-        setShowCelebration(false);
-        if (canvasRef.current && canvasRef.current.parentNode) {
-          canvasRef.current.parentNode.removeChild(canvasRef.current);
-          canvasRef.current = null;
-        }
-      }, 4000);
-      return () => {
-        clearTimeout(timer);
-        if (canvasRef.current && canvasRef.current.parentNode) {
-          canvasRef.current.parentNode.removeChild(canvasRef.current);
-          canvasRef.current = null;
-        }
-      };
+      const timer = setTimeout(() => setShowCelebration(false), 4000);
+      return () => clearTimeout(timer);
     }
     prevGoalAchieved.current = goalAchieved;
   }, [goalAchieved]);
