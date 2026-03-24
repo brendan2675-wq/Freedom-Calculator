@@ -1,4 +1,4 @@
-import { UserCircle, LayoutDashboard } from "lucide-react";
+import { UserCircle, LayoutDashboard, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
@@ -28,21 +28,36 @@ const Header = ({ clientName, setClientName }: HeaderProps) => {
             </p>
           </div>
         </div>
-        <div className="flex flex-col items-center gap-1 flex-shrink-0">
-          <p className="text-accent text-sm tracking-wider mb-1">Atelier Wealth</p>
+        <div className="flex items-center gap-4 flex-shrink-0">
           <button
-            onClick={() => {}}
-            className="text-accent hover:text-accent/80 transition-colors"
-            aria-label="Profile"
+            onClick={() => {
+              if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
+                localStorage.clear();
+                window.location.reload();
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-accent/70 border border-accent/20 hover:bg-accent/10 hover:text-accent transition-all"
+            aria-label="Reset data"
           >
-            <UserCircle size={44} />
+            <RotateCcw size={14} />
+            Reset
           </button>
-          <input
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-            className="text-center text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-32 md:w-40"
-            placeholder="Client name"
-          />
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-accent text-sm tracking-wider mb-1">Atelier Wealth</p>
+            <button
+              onClick={() => {}}
+              className="text-accent hover:text-accent/80 transition-colors"
+              aria-label="Profile"
+            >
+              <UserCircle size={44} />
+            </button>
+            <input
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              className="text-center text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-32 md:w-40"
+              placeholder="Client name"
+            />
+          </div>
         </div>
       </div>
     </header>
