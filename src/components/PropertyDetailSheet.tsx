@@ -346,7 +346,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                       <span className="text-[10px] font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">Please complete</span>
                     )}
                   </div>
-                  <FieldGroup label="Stamp Duty (rule of thumb 5%)">
+                  <FieldGroup label="Stamp Duty">
                     <CurrencyInput value={stampDutyAcq} onChange={(v) => updateFutureSaleCosts({ stampDutyOnPurchase: v })} />
                   </FieldGroup>
                   <FieldGroup label="Legal / Conveyancing Fees">
@@ -394,7 +394,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                     <FieldGroup label="Purchase Price">
                       <CurrencyInput value={purchasePrice} onChange={(v) => updatePurchase({ purchasePrice: v })} />
                     </FieldGroup>
-                    <FieldGroup label="Stamp Duty (rule of thumb 5%)">
+                    <FieldGroup label="Stamp Duty">
                       <CurrencyInput value={stampDutyAcq} onChange={(v) => updateSaleCosts({ stampDutyOnPurchase: v })} />
                     </FieldGroup>
                     <FieldGroup label="Legal / Conveyancing Fees">
