@@ -337,7 +337,13 @@ const KeyInputs = ({
                   <div className="flex items-center gap-2 mb-1">
                     <Home size={16} className="text-accent" />
                     <span className="text-sm font-semibold text-foreground">{suburb}</span>
-                    <ChevronRight size={14} className="text-muted-foreground group-hover:text-accent transition-colors ml-auto" />
+                    <button
+                      className="text-[10px] text-accent font-medium bg-accent/10 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors whitespace-nowrap ml-auto"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Request property report
+                    </button>
+                    <ChevronRight size={14} className="text-muted-foreground group-hover:text-accent transition-colors" />
                   </div>
                   <p className="text-muted-foreground text-xs mb-2">Current Value</p>
                   <div className="flex items-center justify-between">
