@@ -426,6 +426,23 @@ const KeyInputs = ({
           </div>
         </div>
 
+        {/* Sell-Down Bridge (improvement #4) */}
+        {earmarkedCount > 0 && (
+          <div className="flex items-center justify-center gap-3 py-4">
+            <div className="h-px flex-1 bg-border" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/60 border border-border rounded-full px-4 py-2">
+              <ArrowDown size={14} className="text-accent" />
+              <span>
+                <span className="font-semibold text-foreground">{earmarkedCount}</span> {earmarkedCount === 1 ? 'property' : 'properties'} earmarked
+                <span className="mx-1.5">→</span>
+                <span className="font-semibold text-success">${totalSellDownProceeds.toLocaleString()}</span> net proceeds
+              </span>
+              <ArrowDown size={14} className="text-accent" />
+            </div>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+        )}
+
         {/* PPOR Detail Sheet */}
         <Sheet open={pporDetailOpen} onOpenChange={setPporDetailOpen}>
           <SheetContent className="overflow-y-auto">

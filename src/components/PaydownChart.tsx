@@ -261,6 +261,16 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       </div>
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
+      {timeSaved && (
+        <div className="mb-4 rounded-xl bg-accent/8 border border-accent/20 px-5 py-3.5 flex items-center gap-3">
+          <Clock size={18} className="text-accent shrink-0" />
+          <p className="text-sm text-foreground">
+            Without sell-down: <span className="font-semibold">{timeSaved.standardYears} yrs</span>.
+            With sell-down: <span className="font-semibold text-accent">{timeSaved.acceleratedYears} yrs</span>.
+            <span className="font-bold text-success ml-1">You save {timeSaved.saved} years!</span>
+          </p>
+        </div>
+      )}
       {showCelebration && (
         <div className="animate-fade-in mb-4 rounded-2xl bg-accent/15 border-2 border-accent px-6 py-5 text-center shadow-lg relative z-20">
           <p className="text-accent font-extrabold text-2xl mb-1">🎉 Goal Achieved!</p>
