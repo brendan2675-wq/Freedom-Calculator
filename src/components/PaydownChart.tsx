@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef, useState } from "react";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { Target } from "lucide-react";
 import type { SellDownEvent } from "@/components/KeyInputs";
+import confetti from "canvas-confetti";
 
 interface Props {
   loanBalance: number;
@@ -76,6 +77,37 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   }, [loanBalance, targetYear, interestRate, sellDownEvents]);
 
   const hasSellDowns = sellDownEvents.length > 0;
+
+  // Check if accelerated balance is at or below zero by target year
+  const goalAchieved = useMemo(() => {
+    if (!hasSellDowns) return false;
+    const targetPoint = data.find((d) => d.year === targetYear.toString());
+    return targetPoint ? targetPoint.accelerated <= 0 : false;
+  }, [data, targetYear, hasSellDowns]);
+
+  const prevGoalAchieved = useRef(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  useEffect(() => {
+    if (goalAchieved && !prevGoalAchieved.current) {
+      setShowCelebration(true);
+      // Fire confetti burst
+      const end = Date.now() + 2500;
+      const fire = () => {
+        confetti({
+          particleCount: 80,
+          spread: 100,
+          origin: { y: 0.6, x: 0.5 },
+          colors: ['#E8914F', '#D4782F', '#F5C28A', '#FFD700', '#FF6B35'],
+        });
+        if (Date.now() < end) requestAnimationFrame(fire);
+      };
+      fire();
+      const timer = setTimeout(() => setShowCelebration(false), 4000);
+      return () => clearTimeout(timer);
+    }
+    prevGoalAchieved.current = goalAchieved;
+  }, [goalAchieved]);
 
   // Compute years/months duration from now to target
   const duration = useMemo(() => {
@@ -181,6 +213,12 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       </div>
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
+      {showCelebration && (
+        <div className="animate-fade-in mb-4 rounded-xl bg-accent/10 border border-accent/30 px-4 py-3 text-center">
+          <p className="text-accent font-bold text-lg">🎉 Goal Achieved!</p>
+          <p className="text-muted-foreground text-sm">Your strategy pays off the loan before the target date!</p>
+        </div>
+      )}
       <div className="h-64 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
