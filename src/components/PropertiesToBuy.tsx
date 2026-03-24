@@ -128,7 +128,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           <div
             ref={scrollRef}
             onScroll={updateScrollState}
-            className={`flex gap-3 overflow-x-auto scrollbar-hide pb-2 rounded-xl transition-colors ${dragOver ? "bg-accent/10 ring-2 ring-accent/40" : ""}`}
+            className={`flex gap-3 overflow-x-auto ${properties.length > 4 ? "scrollbar-thin" : "scrollbar-hide"} pb-2 rounded-xl transition-colors ${dragOver ? "bg-accent/10 ring-2 ring-accent/40" : ""}`}
           style={{ scrollSnapType: "x mandatory" }}
           onDragOver={(e) => {
             if (e.dataTransfer.types.includes("application/x-existing-property")) {
