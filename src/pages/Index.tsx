@@ -78,6 +78,10 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem("portfolio-properties", JSON.stringify(existingProperties));
   }, [existingProperties]);
+
+  useEffect(() => {
+    localStorage.setItem("portfolio-future-properties", JSON.stringify(futureProperties));
+  }, [futureProperties]);
   const [clientName, setClientName] = useState("Client Name");
 
   useEffect(() => {
