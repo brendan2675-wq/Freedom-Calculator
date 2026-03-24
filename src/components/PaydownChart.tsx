@@ -78,6 +78,37 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
   const hasSellDowns = sellDownEvents.length > 0;
 
+  // Check if accelerated balance is at or below zero by target year
+  const goalAchieved = useMemo(() => {
+    if (!hasSellDowns) return false;
+    const targetPoint = data.find((d) => d.year === targetYear.toString());
+    return targetPoint ? targetPoint.accelerated <= 0 : false;
+  }, [data, targetYear, hasSellDowns]);
+
+  const prevGoalAchieved = useRef(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  useEffect(() => {
+    if (goalAchieved && !prevGoalAchieved.current) {
+      setShowCelebration(true);
+      // Fire confetti burst
+      const end = Date.now() + 2500;
+      const fire = () => {
+        confetti({
+          particleCount: 80,
+          spread: 100,
+          origin: { y: 0.6, x: 0.5 },
+          colors: ['#E8914F', '#D4782F', '#F5C28A', '#FFD700', '#FF6B35'],
+        });
+        if (Date.now() < end) requestAnimationFrame(fire);
+      };
+      fire();
+      const timer = setTimeout(() => setShowCelebration(false), 4000);
+      return () => clearTimeout(timer);
+    }
+    prevGoalAchieved.current = goalAchieved;
+  }, [goalAchieved]);
+
   // Compute years/months duration from now to target
   const duration = useMemo(() => {
     const now = new Date();
