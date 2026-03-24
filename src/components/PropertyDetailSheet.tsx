@@ -345,6 +345,49 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                 <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
               </FieldGroup>
             )}
+            {!isExisting && (() => {
+              const fp = property as FutureProperty;
+              const sc = fp.saleCosts || { ...defaultSaleCosts };
+              const purchasePrice = fp.purchasePrice || 0;
+              const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+              const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
+
+              const updateFutureSaleCosts = (fields: Partial<SaleCosts>) => {
+                update({ saleCosts: { ...sc, ...fields } } as Partial<FutureProperty>);
+              };
+
+              const hasEmptyAcquisition = !purchasePrice && !sc.stampDutyOnPurchase && !sc.legalFeesBuy && !sc.buyersAgentFees && !sc.buildingPestFees && !sc.mortgageEstablishmentFees;
+
+              return (
+                <div className={cn("bg-muted/30 border rounded-lg p-4 space-y-3", hasEmptyAcquisition ? "border-accent/50" : "border-border")}>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Original Acquisition Costs</h4>
+                    {hasEmptyAcquisition && (
+                      <span className="text-[10px] font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">Please complete</span>
+                    )}
+                  </div>
+                  <FieldGroup label="Stamp Duty (rule of thumb 5%)">
+                    <CurrencyInput value={stampDutyAcq} onChange={(v) => updateFutureSaleCosts({ stampDutyOnPurchase: v })} />
+                  </FieldGroup>
+                  <FieldGroup label="Legal / Conveyancing Fees">
+                    <CurrencyInput value={sc.legalFeesBuy} onChange={(v) => updateFutureSaleCosts({ legalFeesBuy: v })} />
+                  </FieldGroup>
+                  <FieldGroup label="Buyer's Agent Fees">
+                    <CurrencyInput value={sc.buyersAgentFees} onChange={(v) => updateFutureSaleCosts({ buyersAgentFees: v })} />
+                  </FieldGroup>
+                  <FieldGroup label="Building & Pest Inspection">
+                    <CurrencyInput value={sc.buildingPestFees} onChange={(v) => updateFutureSaleCosts({ buildingPestFees: v })} />
+                  </FieldGroup>
+                  <FieldGroup label="Mortgage Establishment Fees">
+                    <CurrencyInput value={sc.mortgageEstablishmentFees} onChange={(v) => updateFutureSaleCosts({ mortgageEstablishmentFees: v })} />
+                  </FieldGroup>
+                  <div className="flex justify-between text-xs pt-1 border-t border-border">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-semibold text-foreground">${totalAcquisition.toLocaleString()}</span>
+                  </div>
+                </div>
+              );
+            })()}
             {isExisting && !portfolioMode && (() => {
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
