@@ -213,6 +213,12 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       </div>
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
+      {showCelebration && (
+        <div className="animate-fade-in mb-4 rounded-xl bg-accent/10 border border-accent/30 px-4 py-3 text-center">
+          <p className="text-accent font-bold text-lg">🎉 Goal Achieved!</p>
+          <p className="text-muted-foreground text-sm">Your strategy pays off the loan before the target date!</p>
+        </div>
+      )}
       <div className="h-64 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
