@@ -69,7 +69,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             // IO period: only pay interest, balance stays flat
           } else {
             if (standardMonthElapsed === ioMonths) {
-              standardPIPayment = calcPIPayment(standardBalance);
+              standardPIPayment = calcPIPayment(standardBalance, piMonths);
             }
             const interest = standardBalance * monthlyRate;
             const principal = standardPIPayment - interest;
