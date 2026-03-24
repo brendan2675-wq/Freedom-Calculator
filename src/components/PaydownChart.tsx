@@ -299,7 +299,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       <div className="flex gap-6 mt-3 text-sm text-muted-foreground justify-center">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: hasSellDowns ? 'hsl(0, 0%, 65%)' : 'hsl(20, 60%, 52%)', opacity: 0.6 }} />
-          <span className="font-medium">Standard P&I</span>
+          <span className="font-medium">Loan Balance</span>
         </div>
         {hasSellDowns && (
           <div className="flex items-center gap-1.5">
