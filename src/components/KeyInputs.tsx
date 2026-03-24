@@ -338,15 +338,15 @@ const KeyInputs = ({
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
-                <div>
+              <div className="flex gap-3 items-end">
+                <div className="flex-1 min-w-0">
                   <label className="text-muted-foreground text-xs font-medium mb-1 block">Current Value</label>
-                  <div className="inline-flex items-center gap-1 py-3 px-3 rounded-lg border border-border bg-background">
+                  <div className="flex items-center gap-1 py-3 px-3 rounded-lg border border-border bg-background">
                     <span className="text-muted-foreground font-medium">$</span>
                     <span className="text-foreground text-lg font-medium whitespace-nowrap">{(2750000).toLocaleString()}</span>
                   </div>
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1 mb-1">
                     <label className="text-muted-foreground text-xs font-medium">Equity Available</label>
                     <Tooltip>
@@ -359,14 +359,14 @@ const KeyInputs = ({
                     </Tooltip>
                   </div>
                   <div className="flex gap-2 items-center">
-                    <div className="inline-flex items-center gap-1 py-3 px-3 rounded-lg border border-border bg-background">
+                    <div className="flex items-center gap-1 py-3 px-3 rounded-lg border border-border bg-background">
                       <span className="text-muted-foreground font-medium">$</span>
                       <span className="text-accent text-lg font-bold whitespace-nowrap">{equityAvailable.toLocaleString()}</span>
                     </div>
                     <select
                       value={lvrRate}
                       onChange={(e) => setLvrRate(Number(e.target.value))}
-                      className="w-24 py-3 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent"
+                      className="py-3 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent shrink-0"
                     >
                       <option value={0.8}>80% LVR</option>
                       <option value={0.88}>88% LVR</option>
