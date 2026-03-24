@@ -12,12 +12,14 @@ interface AuthFlowProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clientName: string;
+  setClientName: (name: string) => void;
 }
 
-const AuthFlow = ({ open, onOpenChange, clientName }: AuthFlowProps) => {
+const AuthFlow = ({ open, onOpenChange, clientName, setClientName }: AuthFlowProps) => {
   const [step, setStep] = useState<Step>("login");
   const [email, setEmail] = useState("client@example.com");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState(clientName);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +43,7 @@ const AuthFlow = ({ open, onOpenChange, clientName }: AuthFlowProps) => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
+      if (fullName.trim()) setClientName(fullName.trim());
       setStep("success");
     }, 800);
   };
@@ -64,6 +67,18 @@ const AuthFlow = ({ open, onOpenChange, clientName }: AuthFlowProps) => {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleLogin} className="space-y-4 pt-2">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <div className="relative">
+                  <Input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="John Smith"
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -169,7 +184,7 @@ const AuthFlow = ({ open, onOpenChange, clientName }: AuthFlowProps) => {
               <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center">
                 <CheckCircle2 size={40} className="text-green-500" />
               </div>
-              <p className="text-lg font-semibold text-foreground">{clientName}</p>
+              <p className="text-lg font-semibold text-foreground">{fullName || clientName}</p>
               <p className="text-sm text-muted-foreground text-center">
                 Your session is now active. All data is securely accessible.
               </p>
