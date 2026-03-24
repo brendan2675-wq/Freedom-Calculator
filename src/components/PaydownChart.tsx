@@ -30,10 +30,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
     const ioMonths = repaymentType === "io" ? ioPeriodYears * 12 : 0;
     const piMonths = Math.max(1, totalLoanMonths - ioMonths);
 
-    // P&I monthly payment (calculated on balance at end of IO period)
-    const calcPIPayment = (balance: number) => {
-      if (monthlyRate <= 0 || balance <= 0) return balance / Math.max(1, piMonths);
-      return balance * (monthlyRate * Math.pow(1 + monthlyRate, piMonths)) / (Math.pow(1 + monthlyRate, piMonths) - 1);
+    // P&I monthly payment (calculated on balance over remaining months)
+    const calcPIPayment = (balance: number, remainingMonths: number) => {
+      const rm = Math.max(1, remainingMonths);
+      if (monthlyRate <= 0 || balance <= 0) return balance / rm;
+      return balance * (monthlyRate * Math.pow(1 + monthlyRate, rm)) / (Math.pow(1 + monthlyRate, rm) - 1);
     };
 
     // Aggregate sell-down proceeds by year
