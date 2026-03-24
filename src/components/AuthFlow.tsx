@@ -12,12 +12,14 @@ interface AuthFlowProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clientName: string;
+  setClientName: (name: string) => void;
 }
 
-const AuthFlow = ({ open, onOpenChange, clientName }: AuthFlowProps) => {
+const AuthFlow = ({ open, onOpenChange, clientName, setClientName }: AuthFlowProps) => {
   const [step, setStep] = useState<Step>("login");
   const [email, setEmail] = useState("client@example.com");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState(clientName);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
