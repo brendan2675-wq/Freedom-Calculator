@@ -329,16 +329,28 @@ const KeyInputs = ({
             <div className="pt-5 mt-5 border-t border-border">
               <div className="grid grid-cols-2 gap-4">
                 {/* Property Value Card */}
-                <div className="rounded-xl border border-border bg-muted/30 p-4">
+                <div
+                  className="rounded-xl border border-border bg-muted/30 p-4 cursor-pointer group hover:border-accent/40 transition-colors"
+                  onClick={() => setPporDetailOpen(true)}
+                >
                   <div className="flex items-center gap-2 mb-1">
                     <Home size={16} className="text-accent" />
                     <span className="text-sm font-semibold text-foreground">{suburb}</span>
-                    <button className="text-[10px] text-accent font-medium bg-accent/10 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors whitespace-nowrap ml-auto">
-                      Request property report
-                    </button>
+                    <ChevronRight size={14} className="text-muted-foreground group-hover:text-accent transition-colors ml-auto" />
                   </div>
                   <p className="text-muted-foreground text-xs mb-2">Current Value</p>
-                  <p className="text-2xl font-bold text-foreground">${(2750000).toLocaleString()}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-2xl font-bold text-foreground">${currentValue.toLocaleString()}</p>
+                    {purchasePrice > 0 && (
+                      <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
+                        growthPercent >= 0
+                          ? "bg-success/15 text-success"
+                          : "bg-destructive/15 text-destructive"
+                      }`}>
+                        {growthPercent >= 0 ? "↑" : "↓"}{Math.abs(growthPercent).toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Equity Available Card */}
@@ -361,12 +373,12 @@ const KeyInputs = ({
                     )}
                   </div>
                   <p className="text-muted-foreground text-xs mb-2">Equity Available</p>
-                  <div className="flex items-end gap-3">
+                  <div className="flex items-center justify-between">
                     <p className="text-2xl font-bold text-accent">${equityAvailable.toLocaleString()}</p>
                     <select
                       value={lvrRate}
                       onChange={(e) => setLvrRate(Number(e.target.value))}
-                      className="mb-0.5 py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent"
+                      className="py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent"
                     >
                       <option value={0.8}>80% LVR</option>
                       <option value={0.88}>88% LVR</option>
