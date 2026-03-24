@@ -272,11 +272,18 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               </>
             ) : (
               <>
+                {!(property as FutureProperty).suburb && (property as FutureProperty).purchasePrice === 0 && (
+                  <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 mb-1">
+                    <p className="text-sm font-semibold text-accent">Enter property details</p>
+                    <p className="text-xs text-muted-foreground">Fill in the suburb and purchase price to get started.</p>
+                  </div>
+                )}
                 <FieldGroup label="Suburb">
                   <TextInput
                     value={(property as FutureProperty).suburb}
                     onChange={(v) => update({ suburb: v } as Partial<FutureProperty>)}
                     placeholder="e.g. Parramatta"
+                    autoFocus={!(property as FutureProperty).suburb}
                   />
                 </FieldGroup>
                 <FieldGroup label="Purchase Price">
