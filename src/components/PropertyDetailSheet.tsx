@@ -210,7 +210,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
     const sc = ep.saleCosts || { ...defaultSaleCosts };
     const purchasePrice = ep.purchase.purchasePrice || 0;
     if (!purchasePrice) return;
-    const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state, ep.purchase.purchaseDate || undefined) : Math.round(purchasePrice * 0.05);
+    const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state, ep.purchase.purchaseDate || undefined) : 0;
     const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
     const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
     const totalImprovements = sc.renovations + sc.structuralWork;
