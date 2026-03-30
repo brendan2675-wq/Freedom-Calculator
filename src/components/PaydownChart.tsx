@@ -23,7 +23,8 @@ interface Props {
 
 const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTargetMonth, setTargetYear, growthRate, setGrowthRate, interestRate, sellDownEvents, repaymentType, loanTermYears, loanTermMonths, ioPeriodYears }: Props) => {
   const [growthRateRaw, setGrowthRateRaw] = useState(growthRate.toFixed(2));
-  useEffect(() => { setGrowthRateRaw(growthRate.toFixed(2)); }, [growthRate]);
+  const [growthFocused, setGrowthFocused] = useState(false);
+  useEffect(() => { if (!growthFocused) setGrowthRateRaw(growthRate.toFixed(2)); }, [growthRate, growthFocused]);
   const data = useMemo(() => {
     const startYear = new Date().getFullYear();
     const years = Math.max(1, targetYear - startYear + 3);
