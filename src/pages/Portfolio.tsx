@@ -9,7 +9,12 @@ import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from
 
 const Portfolio = () => {
   const navigate = useNavigate();
-  const [clientName, setClientName] = useState("Client Name");
+  const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
+  const [authOpen, setAuthOpen] = useState(false);
+  const handleSetClientName = (name: string) => {
+    setClientName(name);
+    localStorage.setItem("client-name", name);
+  };
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
   const [ppor, setPpor] = useState<ExistingProperty | null>(null);
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
