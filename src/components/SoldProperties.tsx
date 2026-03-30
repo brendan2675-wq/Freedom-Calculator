@@ -54,16 +54,22 @@ const SoldProperties = ({ properties, onUpdate, growthRate }: Props) => {
           const costBase = totalAcquisition + totalImprovements + totalOwnership + totalSelling;
 
           const saleProceeds = p.estimatedValue - p.loanBalance - totalSelling;
-          const capitalGain = purchasePrice > 0 ? Math.max(0, p.estimatedValue - costBase) : 0;
-          const discountedGain = capitalGain * (1 - sc.cgtDiscount);
-          const effectiveRate = sc.incomeTaxRate + 0.02;
-          const cgtPayable = Math.round(discountedGain * effectiveRate);
-          const netProceeds = saleProceeds - cgtPayable;
           const capitalGainLoss = purchasePrice > 0 ? p.estimatedValue - costBase : 0;
 
           const settlementDate = p.purchase.settlementDate
             ? format(new Date(p.purchase.settlementDate), "dd MMM yyyy")
             : "—";
+
+          // Calculate hold time
+          let holdTime = "—";
+          if (p.purchase.purchaseDate && p.purchase.settlementDate) {
+            const start = new Date(p.purchase.purchaseDate);
+            const end = new Date(p.purchase.settlementDate);
+            const totalMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+            const years = Math.floor(totalMonths / 12);
+            const months = totalMonths % 12;
+            holdTime = years > 0 ? `${years}yr ${months}mo` : `${months}mo`;
+          }
 
           return (
             <div
@@ -86,10 +92,8 @@ const SoldProperties = ({ properties, onUpdate, growthRate }: Props) => {
                   </p>
                 </div>
                 <div>
-                  <label className="text-muted-foreground text-[11px]">Net After CGT</label>
-                  <p className={`font-medium ${netProceeds >= 0 ? "text-accent" : "text-destructive"}`}>
-                    ${netProceeds.toLocaleString()}
-                  </p>
+                  <label className="text-muted-foreground text-[11px]">Hold Time</label>
+                  <p className="text-foreground font-medium">{holdTime}</p>
                 </div>
                 <div>
                   <label className="text-muted-foreground text-[11px]">Capital Gain/Loss</label>
