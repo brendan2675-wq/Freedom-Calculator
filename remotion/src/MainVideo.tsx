@@ -4,8 +4,8 @@ export const MainVideo = () => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
 
-  const imgW = 9167;
-  const imgH = 5834;
+  const imgW = 4500;
+  const imgH = 2863;
   const videoW = 1920;
   const videoH = 1080;
 
