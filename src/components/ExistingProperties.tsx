@@ -296,7 +296,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                       </Tooltip>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="text-accent font-bold">${equity.toLocaleString()}</span>
+                      <span className={`font-bold ${equity > 50000 ? 'text-success' : 'text-accent'}`}>${equity.toLocaleString()}</span>
                       <select
                         value={lvr}
                         onClick={(e) => e.stopPropagation()}
@@ -311,11 +311,6 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                         <option value={0.9}>90%</option>
                       </select>
                     </div>
-                    {equity > 150000 && (
-                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-success/15 text-success border border-success/30 mt-0.5 inline-block">
-                        Go again
-                      </span>
-                    )}
                   </div>
                 </div>
 
