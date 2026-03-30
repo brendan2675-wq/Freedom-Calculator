@@ -409,7 +409,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               const purchasePrice = fp.purchasePrice || 0;
               const purchaseDate = fp.purchase?.purchaseDate || undefined;
               const autoStampDuty = fp.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, fp.state, purchaseDate) : 0;
-              const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty || Math.round(purchasePrice * 0.05);
+              const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
               const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
 
               const updateFutureSaleCosts = (fields: Partial<SaleCosts>) => {
@@ -470,7 +470,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               const purchasePrice = ep.purchase.purchasePrice || 0;
               const purchaseDate = ep.purchase.purchaseDate || undefined;
               const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state, purchaseDate) : 0;
-              const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty || Math.round(purchasePrice * 0.05);
+              const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
               const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
 
               const updateSaleCosts = (fields: Partial<SaleCosts>) => {
