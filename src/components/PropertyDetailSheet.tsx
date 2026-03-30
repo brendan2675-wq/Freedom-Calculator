@@ -562,8 +562,16 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                   {/* Sell-down sections - only when earmarked */}
                   {ep.earmarked && (() => {
                     const sellYears = ep.sellInYears ?? 0;
-                    const currentValue = sellYears > 0
-                      ? Math.round(ep.estimatedValue * Math.pow(1 + growthRate / 100, sellYears))
+                    // If property has a future purchase date, growth only starts from that date
+                    const purchaseDateStr = ep.purchase?.purchaseDate;
+                    const purchaseStart = purchaseDateStr ? new Date(purchaseDateStr) : null;
+                    const now = new Date();
+                    const purchaseDelayYears = purchaseStart && purchaseStart > now
+                      ? (purchaseStart.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+                      : 0;
+                    const effectiveSellGrowthYears = Math.max(0, sellYears - purchaseDelayYears);
+                    const currentValue = effectiveSellGrowthYears > 0
+                      ? Math.round(ep.estimatedValue * Math.pow(1 + growthRate / 100, effectiveSellGrowthYears))
                       : ep.estimatedValue;
                     const loanBal = ep.loanBalance;
                     const totalImprovements = sc.renovations + sc.structuralWork;
