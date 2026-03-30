@@ -305,6 +305,7 @@ const Index = () => {
         />
 
 
+        {activeProperties.length > 0 && (
           <div>
             <div className="gold-underline pb-2 mb-4">
               <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
@@ -314,10 +315,10 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-4 gap-3">
               {[
-                { icon: Building2, label: "Current portfolio value", value: `$${(ppor.estimatedValue + existingProperties.reduce((sum, p) => sum + p.estimatedValue, 0)).toLocaleString()}` },
-                { icon: Landmark, label: "Total Loan amounts", value: `$${(loanBalance + existingProperties.reduce((sum, p) => sum + p.loanBalance, 0)).toLocaleString()}` },
-                { icon: Wallet, label: "Portfolio Loan amount", value: `$${existingProperties.reduce((sum, p) => sum + p.loanBalance, 0).toLocaleString()}` },
-                { icon: TrendingUp, label: "Current Equity", value: `$${(Math.max(0, (ppor.estimatedValue * 0.8) - loanBalance) + existingProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)).toLocaleString()}` },
+                { icon: Building2, label: "Current portfolio value", value: `$${(ppor.estimatedValue + activeProperties.reduce((sum, p) => sum + p.estimatedValue, 0)).toLocaleString()}` },
+                { icon: Landmark, label: "Total Loan amounts", value: `$${(loanBalance + activeProperties.reduce((sum, p) => sum + p.loanBalance, 0)).toLocaleString()}` },
+                { icon: Wallet, label: "Portfolio Loan amount", value: `$${activeProperties.reduce((sum, p) => sum + p.loanBalance, 0).toLocaleString()}` },
+                { icon: TrendingUp, label: "Current Equity", value: `$${(Math.max(0, (ppor.estimatedValue * 0.8) - loanBalance) + activeProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)).toLocaleString()}` },
               ].map((stat) => (
                 <div key={stat.label} className="bg-card rounded-xl p-4 border border-border shadow-sm flex flex-col items-center gap-2">
                   <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
