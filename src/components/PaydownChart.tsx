@@ -291,7 +291,45 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
-            <XAxis dataKey="year" type="number" domain={['dataMin', 'dataMax']} tickCount={data.length} tickFormatter={(v: number) => v.toString()} interval={0} fontSize={12} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} angle={-35} textAnchor="end" height={45} />
+            <XAxis
+              dataKey="year"
+              type="number"
+              domain={['dataMin', 'dataMax']}
+              tickCount={data.length}
+              interval={0}
+              height={hasSellDowns ? 70 : 45}
+              tick={(props: any) => {
+                const { x, y, payload } = props;
+                const year = payload.value;
+                const sellGroup = groupedSellDowns.find((g) => g.year === year);
+                return (
+                  <g transform={`translate(${x},${y})`}>
+                    <text
+                      x={0} y={0} dy={12}
+                      textAnchor="end"
+                      fill={sellGroup ? 'hsl(142, 55%, 42%)' : 'hsl(0, 0%, 25%)'}
+                      fontSize={12}
+                      fontWeight={sellGroup ? 700 : 500}
+                      transform="rotate(-35)"
+                    >
+                      {year}
+                    </text>
+                    {sellGroup && sellGroup.names.map((name, i) => (
+                      <text
+                        key={i}
+                        x={0} y={28 + i * 12}
+                        textAnchor="middle"
+                        fill="hsl(142, 45%, 35%)"
+                        fontSize={9}
+                        fontWeight={600}
+                      >
+                        {name}
+                      </text>
+                    ))}
+                  </g>
+                );
+              }}
+            />
             <YAxis tickFormatter={formatDollar} fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} width={60} />
             <Tooltip
               formatter={(value: number, name: string) => [
@@ -306,7 +344,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               }}
             />
             <ReferenceLine x={targetYear + (targetMonth - 1) / 12} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
-            {/* Sell-down event dotted lines (labels rendered below chart to avoid axis clutter) */}
+            {/* Sell-down event dotted lines */}
             {groupedSellDowns.map((entry) => (
               <ReferenceLine
                 key={`sell-${entry.year}`}
@@ -340,21 +378,6 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           </AreaChart>
         </ResponsiveContainer>
       </div>
-
-      {hasSellDowns && groupedSellDowns.length > 0 && (
-        <div className="mt-3 mb-2 flex items-start justify-center gap-2.5 flex-wrap">
-          {groupedSellDowns.map((entry) => (
-            <div key={`sell-label-${entry.year}`} className="px-2.5 py-1.5 rounded-md border border-success/30 bg-success/10">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground text-center">{entry.year}</p>
-              <div className="mt-1 flex flex-col items-center gap-0.5">
-                {entry.names.map((name, idx) => (
-                  <span key={`${entry.year}-${idx}`} className="text-xs leading-tight font-medium text-foreground">{name}</span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
 
       <div className="flex gap-6 mt-2 text-sm text-muted-foreground justify-center">
         <div className="flex items-center gap-1.5">
