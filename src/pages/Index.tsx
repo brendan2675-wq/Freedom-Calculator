@@ -141,7 +141,7 @@ const Index = () => {
         const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, sellYears));
         const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
         const proceeds = projectedValue - p.loanBalance - totalSelling;
-        const autoStampDuty = p.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, p.state) : Math.round(purchasePrice * 0.05);
+        const autoStampDuty = p.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, p.state, p.purchase.purchaseDate || undefined) : Math.round(purchasePrice * 0.05);
         const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
         const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
         const totalImprovements = sc.renovations + sc.structuralWork;
