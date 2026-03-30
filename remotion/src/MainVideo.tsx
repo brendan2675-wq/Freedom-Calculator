@@ -28,8 +28,8 @@ export const MainVideo = () => {
     extrapolateRight: "clamp",
   });
 
-  // Simple fade in/out
-  const opacity = interpolate(frame, [0, 8, durationInFrames - 10, durationInFrames], [0, 1, 1, 0], {
+  // Simple fade in only
+  const opacity = interpolate(frame, [0, 8], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
