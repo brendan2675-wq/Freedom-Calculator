@@ -101,7 +101,7 @@ function TextInput({ value, onChange, placeholder, autoFocus }: { value: string;
   );
 }
 
-function DateInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+function DateInput({ value, onChange, placeholder, minDate }: { value: string; onChange: (v: string) => void; placeholder?: string; minDate?: Date }) {
   const date = value ? new Date(value) : undefined;
   const [textValue, setTextValue] = React.useState(date ? format(date, "dd/MM/yyyy") : "");
   const [calMonth, setCalMonth] = React.useState<Date>(date || new Date());
@@ -116,11 +116,10 @@ function DateInput({ value, onChange, placeholder }: { value: string; onChange: 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
     setTextValue(v);
-    // Auto-parse dd/MM/yyyy
     const match = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
     if (match) {
       const parsed = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
-      if (!isNaN(parsed.getTime())) {
+      if (!isNaN(parsed.getTime()) && (!minDate || parsed >= minDate)) {
         onChange(parsed.toISOString());
         setCalMonth(parsed);
       }
@@ -175,6 +174,7 @@ function DateInput({ value, onChange, placeholder }: { value: string; onChange: 
           month={calMonth}
           onMonthChange={setCalMonth}
           selected={date}
+          disabled={minDate ? (d) => d < minDate : undefined}
           onSelect={(d) => {
             onChange(d ? d.toISOString() : "");
             if (d) setTextValue(format(d, "dd/MM/yyyy"));
@@ -405,7 +405,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             )}
             {!isExisting && (
               <FieldGroup label="Purchase Date *">
-                <DateInput value={property.purchase.purchaseDate} onChange={(v) => updatePurchase({ purchaseDate: v })} placeholder="Select purchase date" />
+                <DateInput value={property.purchase.purchaseDate} onChange={(v) => updatePurchase({ purchaseDate: v })} placeholder="Select purchase date" minDate={new Date(new Date().setHours(0,0,0,0))} />
                 {!property.purchase.purchaseDate && (
                   <p className="text-[11px] text-destructive mt-1 font-medium">Purchase date is required for accurate projections</p>
                 )}
@@ -730,7 +730,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                         <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
                           <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Settlement</h4>
                           <FieldGroup label="Settlement Date">
-                            <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
+                            <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" minDate={property.purchase.purchaseDate ? new Date(property.purchase.purchaseDate) : undefined} />
                           </FieldGroup>
                           {property.purchase.settlementDate && new Date(property.purchase.settlementDate) <= new Date() && (
                             <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-accent/10 border border-accent/30 text-accent text-xs font-medium">
