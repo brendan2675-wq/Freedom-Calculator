@@ -335,13 +335,31 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   {!portfolioMode && (
                     <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                       {p.earmarked ? (
-                        <button
-                          onClick={() => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: false } : prop))}
-                          className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium hover:bg-destructive/20 transition-colors"
-                        >
-                          <X size={10} />
-                          Selling {p.sellInYears === 0 ? "Now" : `in ${p.sellInYears} ${p.sellInYears === 1 ? "yr" : "yrs"}`}
-                        </button>
+                        <div className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium">
+                          <span>Sell in</span>
+                          <select
+                            value={p.sellInYears ?? 0}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, sellInYears: Number(e.target.value) } : prop));
+                            }}
+                            className="py-0.5 px-1 rounded border border-destructive/30 bg-background text-foreground text-[11px] font-semibold focus:outline-none focus:ring-1 focus:ring-destructive cursor-pointer"
+                          >
+                            <option value={0}>Now</option>
+                            {Array.from({ length: 10 }, (_, i) => (
+                              <option key={i + 1} value={i + 1}>
+                                {i + 1} {i + 1 === 1 ? "yr" : "yrs"}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            onClick={() => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: false, sellInYears: 0 } : prop))}
+                            className="ml-0.5 hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
                       ) : (
                         <div className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
                           <BadgeDollarSign size={10} className="shrink-0" />
