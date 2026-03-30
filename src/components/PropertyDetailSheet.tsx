@@ -468,7 +468,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
               const purchasePrice = ep.purchase.purchasePrice || 0;
-              const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state) : 0;
+              const purchaseDate = ep.purchase.purchaseDate || undefined;
+              const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state, purchaseDate) : 0;
               const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty || Math.round(purchasePrice * 0.05);
               const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
 
@@ -499,7 +500,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                         value={ep.state || ""}
                         onChange={(e) => {
                           const newState = (e.target.value || undefined) as AustralianState | undefined;
-                          const newDuty = newState && purchasePrice > 0 ? calculateStampDuty(purchasePrice, newState) : 0;
+                          const newDuty = newState && purchasePrice > 0 ? calculateStampDuty(purchasePrice, newState, purchaseDate) : 0;
                           update({ state: newState, saleCosts: { ...sc, stampDutyOnPurchase: newDuty } } as Partial<ExistingProperty>);
                         }}
                         className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-accent"
