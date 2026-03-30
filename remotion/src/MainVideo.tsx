@@ -6,6 +6,7 @@ import {
   spring,
   staticFile,
   Img,
+  Sequence,
 } from "remotion";
 import { loadFont } from "@remotion/google-fonts/Inter";
 
@@ -14,202 +15,359 @@ const { fontFamily } = loadFont("normal", {
   subsets: ["latin"],
 });
 
+// --- Shared constants ---
 const BG = "#1A1A2E";
 const BG_LIGHT = "#F5F0EB";
 const ACCENT = "#C75B12";
-const DIVIDER_X = 660;
-const RIGHT_W = 1920 - DIVIDER_X;
+const DIVIDER_X = 720; // left panel width
 
-function useEntrance(frame: number, fps: number, delaySec: number, dir: "left" | "right" | "up" = "up", dist = 30) {
-  const f = frame - delaySec * fps;
-  const p = spring({ frame: Math.max(0, f), fps, config: { damping: 22, stiffness: 180 } });
-  const opacity = interpolate(p, [0, 1], [0, 1]);
-  const offset = interpolate(p, [0, 1], [dir === "left" ? -dist : dir === "right" ? dist : 0, 0]);
-  const offsetY = interpolate(p, [0, 1], [dir === "up" ? dist : 0, 0]);
-  return { opacity, transform: `translate(${offset}px, ${offsetY}px)` };
+// --- Helper: fade+slide in from direction ---
+function useEntrance(
+  frame: number,
+  fps: number,
+  delay: number,
+  direction: "left" | "right" | "up" | "down" = "up",
+  distance = 40
+) {
+  const f = frame - delay * fps;
+  const progress = spring({ frame: Math.max(0, f), fps, config: { damping: 20, stiffness: 180 } });
+  const opacity = interpolate(progress, [0, 1], [0, 1]);
+  const offsets = {
+    left: { x: -distance, y: 0 },
+    right: { x: distance, y: 0 },
+    up: { x: 0, y: distance },
+    down: { x: 0, y: -distance },
+  };
+  const tx = interpolate(progress, [0, 1], [offsets[direction].x, 0]);
+  const ty = interpolate(progress, [0, 1], [offsets[direction].y, 0]);
+  return { opacity, transform: `translate(${tx}px, ${ty}px)` };
 }
 
-// Each step: show ONE tile at a time, centered and fully visible
-interface Step {
-  src: string;
-  label: string;
-  time: number;      // start time in seconds
-  maxW: number;      // max width it can take on the right panel
-  maxH: number;      // max height
-  codeIdx: number;   // which code snippet to show
+// --- Glow pulse for active tile ---
+function useGlow(frame: number, fps: number, startSec: number, durSec: number) {
+  const f = frame - startSec * fps;
+  if (f < 0 || f > durSec * fps) return 0;
+  const t = f / fps;
+  return 0.6 + 0.4 * Math.sin(t * Math.PI * 3);
 }
 
-const steps: Step[] = [
-  { src: "images/tile-header.png", label: "Hero Banner", time: 0.0, maxW: 900, maxH: 160, codeIdx: 0 },
-  { src: "images/tile-loan_full.png", label: "Loan to Pay Down", time: 0.7, maxW: 700, maxH: 620, codeIdx: 0 },
-  { src: "images/tile-sidebar.png", label: "PPOR Details Sheet", time: 1.5, maxW: 380, maxH: 750, codeIdx: 0 },
-  { src: "images/tile-progress.png", label: "Progress Tracker", time: 2.1, maxW: 800, maxH: 200, codeIdx: 1 },
-  { src: "images/tile-target.png", label: "Target Paydown", time: 2.6, maxW: 800, maxH: 200, codeIdx: 1 },
-  { src: "images/tile-chart.png", label: "Paydown Projection", time: 3.0, maxW: 850, maxH: 500, codeIdx: 1 },
-  { src: "images/tile-marsden.png", label: "Marsden Park", time: 3.5, maxW: 500, maxH: 320, codeIdx: 2 },
-  { src: "images/tile-hoppers.png", label: "Hoppers Crossing", time: 3.9, maxW: 500, maxH: 320, codeIdx: 2 },
-  { src: "images/tile-portfolio.png", label: "Portfolio Summary", time: 4.3, maxW: 950, maxH: 200, codeIdx: 2 },
-];
-
-const codeSnippets = [
-  "images/code-types.png",
-  "images/code-paydown.png",
-  "images/code-stamp.png",
-];
-
+// --- Code Panel (left side) ---
 const CodePanel: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
-  // Determine which code snippet to show based on current step
-  let activeCodeIdx = 0;
-  for (const step of steps) {
-    if (frame >= step.time * fps) activeCodeIdx = step.codeIdx;
-  }
+  // Three code snippets cycle through
+  const snippets = [
+    { src: "images/code-types.png", label: "types/property.ts", start: 0 },
+    { src: "images/code-paydown.png", label: "PaydownChart.tsx", start: 1.5 },
+    { src: "images/code-stamp.png", label: "lib/stampDuty.ts", start: 3.2 },
+  ];
 
   return (
-    <div style={{ position: "absolute", left: 0, top: 0, width: DIVIDER_X, height: 1080, backgroundColor: BG, overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, ${BG} 0%, #16213E 100%)` }} />
+    <div
+      style={{
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: DIVIDER_X,
+        height: 1080,
+        backgroundColor: BG,
+        overflow: "hidden",
+      }}
+    >
+      {/* Subtle gradient overlay */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `linear-gradient(180deg, ${BG} 0%, #16213E 100%)`,
+        }}
+      />
 
-      <div style={{ ...useEntrance(frame, fps, 0.1, "left"), position: "absolute", top: 32, left: 28, fontFamily, fontSize: 12, fontWeight: 600, letterSpacing: 3, color: ACCENT, textTransform: "uppercase" as const }}>
+      {/* "CODE" label */}
+      <div
+        style={{
+          ...useEntrance(frame, fps, 0.1, "left"),
+          position: "absolute",
+          top: 36,
+          left: 32,
+          fontFamily,
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: 3,
+          color: ACCENT,
+          textTransform: "uppercase" as const,
+        }}
+      >
         Source Code
       </div>
 
-      {codeSnippets.map((src, i) => {
-        const entrance = useEntrance(frame, fps, steps.find(s => s.codeIdx === i)?.time ?? 0, "left", 50);
-        const isActive = activeCodeIdx === i;
-        const isFuture = activeCodeIdx < i;
-        const isPast = activeCodeIdx > i;
-
-        let finalOpacity = entrance.opacity;
-        if (isPast) finalOpacity = 0.12;
-        if (isFuture) finalOpacity = 0;
+      {/* Code snippets stacked, fading in sequentially */}
+      {snippets.map((snip, i) => {
+        const entrance = useEntrance(frame, fps, snip.start, "left", 60);
+        // Fade out when next snippet starts
+        const nextStart = snippets[i + 1]?.start ?? 99;
+        const fadeOutProgress =
+          frame > nextStart * fps
+            ? interpolate(frame, [nextStart * fps, (nextStart + 0.4) * fps], [1, 0.15], {
+                extrapolateRight: "clamp",
+                extrapolateLeft: "clamp",
+              })
+            : 1;
 
         return (
-          <div key={src} style={{
-            position: "absolute", left: 20, top: 60, width: DIVIDER_X - 40,
-            opacity: finalOpacity, transform: entrance.transform,
-          }}>
-            <Img src={staticFile(src)} style={{
-              width: "100%", borderRadius: 12,
-              boxShadow: isActive ? "0 8px 40px rgba(199,91,18,0.25)" : "0 4px 16px rgba(0,0,0,0.3)",
-            }} />
+          <div
+            key={snip.src}
+            style={{
+              position: "absolute",
+              left: 24,
+              top: 70,
+              width: DIVIDER_X - 48,
+              opacity: entrance.opacity * fadeOutProgress,
+              transform: entrance.transform,
+            }}
+          >
+            <Img
+              src={staticFile(snip.src)}
+              style={{
+                width: "100%",
+                borderRadius: 12,
+                boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+              }}
+            />
           </div>
         );
       })}
 
-      {/* Floating decorative bracket */}
-      <div style={{
-        position: "absolute", bottom: 30, right: 24, fontFamily: "monospace", fontSize: 100,
-        color: "rgba(199,91,18,0.06)", fontWeight: 700, transform: `translateY(${Math.sin(frame / 20) * 6}px)`,
-      }}>
+      {/* Decorative floating bracket */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 40,
+          right: 30,
+          fontFamily: "monospace",
+          fontSize: 120,
+          color: "rgba(199,91,18,0.08)",
+          fontWeight: 700,
+          transform: `translateY(${Math.sin(frame / 20) * 8}px)`,
+        }}
+      >
         {"{ }"}
       </div>
     </div>
   );
 };
 
+// --- UI Panel (right side) - tiles highlighting sequentially ---
 const UIPanel: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
-  // Find which step is currently active
-  let activeIdx = 0;
-  for (let i = 0; i < steps.length; i++) {
-    if (frame >= steps[i].time * fps) activeIdx = i;
-  }
+  // Journey steps - each tile highlights in sequence
+  const steps = [
+    { src: "images/tile-header.png", x: 40, y: 30, w: 460, h: 55, label: "Hero Banner", time: 0.2 },
+    { src: "images/tile-loan_simple.png", x: 40, y: 105, w: 360, h: 110, label: "Loan to Pay Down", time: 0.5 },
+    { src: "images/tile-progress.png", x: 40, y: 230, w: 360, h: 80, label: "Progress Tracker", time: 1.0 },
+    { src: "images/tile-ppor_value.png", x: 40, y: 325, w: 360, h: 90, label: "PPOR Value & Equity", time: 1.4 },
+    { src: "images/tile-target.png", x: 420, y: 105, w: 360, h: 80, label: "Target Paydown", time: 1.8 },
+    { src: "images/tile-chart.png", x: 420, y: 200, w: 360, h: 200, label: "Projection Chart", time: 2.2 },
+    { src: "images/tile-sidebar.png", x: 800, y: 105, w: 180, h: 450, label: "PPOR Details", time: 2.8 },
+    { src: "images/tile-marsden.png", x: 40, y: 440, w: 240, h: 120, label: "Marsden Park", time: 3.3 },
+    { src: "images/tile-hoppers.png", x: 300, y: 440, w: 240, h: 120, label: "Hoppers Crossing", time: 3.6 },
+    { src: "images/tile-portfolio.png", x: 40, y: 580, w: 540, h: 80, label: "Portfolio Summary", time: 4.0 },
+  ];
 
   return (
-    <div style={{ position: "absolute", left: DIVIDER_X, top: 0, width: RIGHT_W, height: 1080, backgroundColor: BG_LIGHT, overflow: "hidden" }}>
-      {/* Subtle dot grid */}
-      <svg style={{ position: "absolute", inset: 0, opacity: 0.12 }} width="100%" height="100%">
+    <div
+      style={{
+        position: "absolute",
+        left: DIVIDER_X,
+        top: 0,
+        width: 1920 - DIVIDER_X,
+        height: 1080,
+        backgroundColor: BG_LIGHT,
+        overflow: "hidden",
+      }}
+    >
+      {/* Subtle grid pattern */}
+      <svg
+        style={{ position: "absolute", inset: 0, opacity: 0.15 }}
+        width="100%"
+        height="100%"
+      >
         <defs>
-          <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
-            <circle cx="14" cy="14" r="1" fill="#999" />
+          <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+            <circle cx="15" cy="15" r="1" fill="#999" />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
       </svg>
 
-      <div style={{ ...useEntrance(frame, fps, 0.1, "right"), position: "absolute", top: 32, right: 28, fontFamily, fontSize: 12, fontWeight: 600, letterSpacing: 3, color: ACCENT, textTransform: "uppercase" as const }}>
+      {/* "UI" label */}
+      <div
+        style={{
+          ...useEntrance(frame, fps, 0.1, "right"),
+          position: "absolute",
+          top: 36,
+          right: 32,
+          fontFamily,
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: 3,
+          color: ACCENT,
+          textTransform: "uppercase" as const,
+        }}
+      >
         Customer Journey
       </div>
 
-      {/* Show ONE tile at a time, centered, fully visible */}
+      {/* Render each tile */}
       {steps.map((step, i) => {
-        const isActive = activeIdx === i;
-        const nextStepTime = steps[i + 1]?.time ?? 99;
-
-        // Only render the active tile and the one fading out
-        if (i < activeIdx - 1 || i > activeIdx) return null;
-
-        // Entrance spring
-        const entrance = useEntrance(frame, fps, step.time, "up", 40);
-
-        // If this is the previous tile, fade it out quickly
-        let finalOpacity = entrance.opacity;
-        if (i < activeIdx) {
-          finalOpacity = interpolate(frame, [nextStepTime * fps, (nextStepTime + 0.15) * fps], [1, 0], {
-            extrapolateLeft: "clamp", extrapolateRight: "clamp",
-          });
-        }
+        const entrance = useEntrance(frame, fps, step.time, "up", 30);
+        const isActive =
+          frame >= step.time * fps &&
+          (steps[i + 1] ? frame < steps[i + 1].time * fps + fps * 0.3 : true);
+        const glowIntensity = isActive ? useGlow(frame, fps, step.time, 0.8) : 0;
 
         return (
-          <div key={step.src} style={{
-            position: "absolute",
-            left: 0, top: 0, width: RIGHT_W, height: 1080,
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            opacity: finalOpacity, transform: entrance.transform,
-          }}>
-            {/* Label */}
-            <div style={{
-              fontFamily, fontSize: 16, fontWeight: 600, color: ACCENT,
-              marginBottom: 16, letterSpacing: 1,
-            }}>
+          <div
+            key={step.src}
+            style={{
+              position: "absolute",
+              left: step.x,
+              top: step.y + 50,
+              width: step.w,
+              height: step.h,
+              opacity: entrance.opacity,
+              transform: entrance.transform,
+            }}
+          >
+            {/* Glow border when active */}
+            <div
+              style={{
+                position: "absolute",
+                inset: -3,
+                borderRadius: 10,
+                border: `2px solid ${ACCENT}`,
+                opacity: glowIntensity,
+                boxShadow: `0 0 ${12 * glowIntensity}px ${ACCENT}40`,
+              }}
+            />
+            {/* Tile label */}
+            <div
+              style={{
+                position: "absolute",
+                top: -22,
+                left: 4,
+                fontFamily,
+                fontSize: 11,
+                fontWeight: 600,
+                color: isActive ? ACCENT : "#888",
+                opacity: entrance.opacity,
+              }}
+            >
               {step.label}
             </div>
-
-            {/* Tile container — objectFit contain so nothing is cut off */}
-            <div style={{
-              maxWidth: step.maxW, maxHeight: step.maxH,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              borderRadius: 12,
-              boxShadow: isActive ? `0 0 0 3px ${ACCENT}40, 0 8px 32px rgba(0,0,0,0.1)` : "0 4px 16px rgba(0,0,0,0.06)",
-              overflow: "hidden",
-              backgroundColor: "#fff",
-            }}>
-              <Img src={staticFile(step.src)} style={{
-                maxWidth: step.maxW, maxHeight: step.maxH,
-                objectFit: "contain",
-                borderRadius: 12,
-              }} />
-            </div>
-
-            {/* Step counter */}
-            <div style={{
-              marginTop: 20, fontFamily, fontSize: 13, fontWeight: 400,
-              color: "#999", letterSpacing: 1,
-            }}>
-              {i + 1} / {steps.length}
-            </div>
+            {/* Tile image */}
+            <Img
+              src={staticFile(step.src)}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: 8,
+                boxShadow: isActive
+                  ? "0 4px 20px rgba(199,91,18,0.2)"
+                  : "0 2px 8px rgba(0,0,0,0.08)",
+              }}
+            />
           </div>
         );
       })}
+
+      {/* Connector lines between related tiles */}
+      <svg
+        style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+        width="100%"
+        height="100%"
+      >
+        {/* Loan → Sidebar */}
+        <line
+          x1={400}
+          y1={210}
+          x2={800}
+          y2={210}
+          stroke={ACCENT}
+          strokeWidth={1.5}
+          strokeDasharray="6 4"
+          opacity={interpolate(frame, [2.8 * fps, 3.2 * fps], [0, 0.6], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          })}
+        />
+        {/* Marsden → Hoppers */}
+        <line
+          x1={280}
+          y1={560}
+          x2={300}
+          y2={560}
+          stroke={ACCENT}
+          strokeWidth={1.5}
+          strokeDasharray="6 4"
+          opacity={interpolate(frame, [3.6 * fps, 4 * fps], [0, 0.6], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          })}
+        />
+      </svg>
     </div>
   );
 };
 
+// --- Divider line ---
 const Divider: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
-  const h = interpolate(spring({ frame, fps, config: { damping: 30, stiffness: 100 } }), [0, 1], [0, 1080]);
-  return <div style={{ position: "absolute", left: DIVIDER_X - 1, top: 0, width: 2, height: h, background: `linear-gradient(180deg, ${ACCENT}00, ${ACCENT}, ${ACCENT}00)` }} />;
+  const height = interpolate(
+    spring({ frame, fps, config: { damping: 30, stiffness: 100 } }),
+    [0, 1],
+    [0, 1080]
+  );
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: DIVIDER_X - 1,
+        top: 0,
+        width: 2,
+        height,
+        background: `linear-gradient(180deg, ${ACCENT}00, ${ACCENT}, ${ACCENT}00)`,
+      }}
+    />
+  );
 };
 
+// --- Brand watermark ---
 const Brand: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
-  const e = useEntrance(frame, fps, 4.2, "up", 15);
+  const entrance = useEntrance(frame, fps, 4.2, "up", 20);
   return (
-    <div style={{ position: "absolute", bottom: 24, left: DIVIDER_X / 2, transform: `translateX(-50%) ${e.transform}`, opacity: e.opacity, fontFamily, fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.35)", letterSpacing: 2 }}>
+    <div
+      style={{
+        position: "absolute",
+        bottom: 30,
+        left: DIVIDER_X / 2,
+        transform: `translateX(-50%) ${entrance.transform}`,
+        opacity: entrance.opacity,
+        fontFamily,
+        fontSize: 14,
+        fontWeight: 600,
+        color: "rgba(255,255,255,0.4)",
+        letterSpacing: 2,
+      }}
+    >
       ATELIER WEALTH
     </div>
   );
 };
 
+// --- Main composition ---
 export const MainVideo = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
   return (
     <AbsoluteFill style={{ backgroundColor: BG }}>
       <UIPanel frame={frame} fps={fps} />
