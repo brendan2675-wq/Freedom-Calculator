@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { ArrowDownUp, Building2, Landmark, Wallet, TrendingUp } from "lucide-react";
 import { defaultSaleCosts } from "@/types/property";
+import { calculateStampDuty } from "@/lib/stampDuty";
 import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
 import ExistingProperties from "@/components/ExistingProperties";
@@ -140,7 +141,8 @@ const Index = () => {
         const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, sellYears));
         const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
         const proceeds = projectedValue - p.loanBalance - totalSelling;
-        const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+        const autoStampDuty = p.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, p.state) : Math.round(purchasePrice * 0.05);
+        const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
         const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
         const totalImprovements = sc.renovations + sc.structuralWork;
         const costBase = totalAcquisition + totalImprovements + sc.ownershipCostsTotal + totalSelling;
