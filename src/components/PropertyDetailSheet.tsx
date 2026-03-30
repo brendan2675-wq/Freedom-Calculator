@@ -7,6 +7,7 @@ import OwnershipToggle from "@/components/OwnershipToggle";
 import { InvestmentTypeIcon, investmentTypes, getInvestmentTypeLabel } from "@/components/InvestmentTypeIcon";
 import type { ExistingProperty, FutureProperty, LoanDetails, RentalDetails, PurchaseDetails, InvestmentType, LoanSplit, SaleCosts } from "@/types/property";
 import { defaultSaleCosts } from "@/types/property";
+import { calculateStampDuty, australianStates, type AustralianState } from "@/lib/stampDuty";
 import { format } from "date-fns";
 import { CalendarIcon, Plus, X, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
