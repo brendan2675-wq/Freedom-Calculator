@@ -46,7 +46,7 @@ const SoldProperties = ({ properties, onUpdate, growthRate }: Props) => {
           const autoStampDuty = p.state && purchasePrice > 0
             ? calculateStampDuty(purchasePrice, p.state, p.purchase.purchaseDate || undefined)
             : 0;
-          const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
+          const stampDutyAcq = sc.stampDutyOnPurchase != null && sc.stampDutyOnPurchase > 0 ? sc.stampDutyOnPurchase : autoStampDuty;
           const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
           const totalImprovements = sc.renovations + sc.structuralWork;
           const totalOwnership = sc.ownershipCostsTotal;

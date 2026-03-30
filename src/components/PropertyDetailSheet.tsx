@@ -226,7 +226,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
 
     const sc = ep.saleCosts || { ...defaultSaleCosts };
     const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state, ep.purchase.purchaseDate || undefined) : 0;
-    const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
+    const stampDutyAcq = sc.stampDutyOnPurchase != null && sc.stampDutyOnPurchase > 0 ? sc.stampDutyOnPurchase : autoStampDuty;
     const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
     const totalImprovements = sc.renovations + sc.structuralWork;
     const totalOwnership = sc.ownershipCostsTotal;
@@ -262,7 +262,16 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
   };
 
   const updatePurchase = (fields: Partial<PurchaseDetails>) => {
-    update({ purchase: { ...property.purchase, ...fields } });
+    const updated = { ...property.purchase, ...fields };
+    // If purchase date changed and settlement date is before it, clear settlement
+    if (fields.purchaseDate && updated.settlementDate) {
+      const pd = new Date(fields.purchaseDate);
+      const sd = new Date(updated.settlementDate);
+      if (sd < pd) {
+        updated.settlementDate = "";
+      }
+    }
+    update({ purchase: updated });
   };
 
   const title = isExisting
@@ -383,10 +392,15 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                   <CurrencyInput
                     value={(property as FutureProperty).purchasePrice}
                     onChange={(v) => {
+                      const fp = property as FutureProperty;
                       const weeklyRent = property.rental.weeklyRent;
                       const annualRent = weeklyRent * 52;
                       const yieldPct = v > 0 ? parseFloat(((annualRent / v) * 100).toFixed(2)) : 0;
-                      update({ purchasePrice: v, rentalYield: yieldPct } as Partial<FutureProperty>);
+                      // Recalculate stamp duty if state is selected
+                      const sc = fp.saleCosts || { ...defaultSaleCosts };
+                      const purchaseDate = fp.purchase?.purchaseDate || undefined;
+                      const newDuty = fp.state && v > 0 ? calculateStampDuty(v, fp.state, purchaseDate) : 0;
+                      update({ purchasePrice: v, rentalYield: yieldPct, saleCosts: { ...sc, stampDutyOnPurchase: newDuty } } as Partial<FutureProperty>);
                     }}
                   />
                 </FieldGroup>
@@ -432,7 +446,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               const purchasePrice = fp.purchasePrice || 0;
               const purchaseDate = fp.purchase?.purchaseDate || undefined;
               const autoStampDuty = fp.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, fp.state, purchaseDate) : 0;
-              const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
+              const stampDutyAcq = sc.stampDutyOnPurchase != null && sc.stampDutyOnPurchase > 0 ? sc.stampDutyOnPurchase : autoStampDuty;
               const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
 
               const updateFutureSaleCosts = (fields: Partial<SaleCosts>) => {
@@ -493,7 +507,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               const purchasePrice = ep.purchase.purchasePrice || 0;
               const purchaseDate = ep.purchase.purchaseDate || undefined;
               const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state, purchaseDate) : 0;
-              const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
+              const stampDutyAcq = sc.stampDutyOnPurchase != null && sc.stampDutyOnPurchase > 0 ? sc.stampDutyOnPurchase : autoStampDuty;
               const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
 
               const updateSaleCosts = (fields: Partial<SaleCosts>) => {
