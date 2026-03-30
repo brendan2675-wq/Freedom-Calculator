@@ -152,7 +152,15 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           }}
         >
           {properties.map((p) => {
-            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget));
+            const purchaseDelayYears = (p.purchaseTimelineMonths || 0) / 12;
+            const growthYears = Math.max(0, yearsToTarget - purchaseDelayYears);
+            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, growthYears));
+            const timelineMonths = p.purchaseTimelineMonths || 0;
+            const tlYears = Math.floor(timelineMonths / 12);
+            const tlMonths = timelineMonths % 12;
+            const timelineLabel = timelineMonths === 0
+              ? "Buying Now"
+              : `Buying in ${tlYears > 0 ? `${tlYears}yr${tlYears > 1 ? "s" : ""}` : ""}${tlYears > 0 && tlMonths > 0 ? " " : ""}${tlMonths > 0 ? `${tlMonths}mo` : ""}`;
             return (
               <div
                 key={p.id}
@@ -204,8 +212,11 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                   </div>
                 </div>
 
-                {/* Badges */}
+                {/* Timeline & Badges */}
                 <div className="mt-4 pt-2 border-t border-border/70 flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
+                    {timelineLabel}
+                  </span>
                   <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
                     {p.ownership === "trust" ? (p.trustName || "Trust") : "Personal"}
                   </span>

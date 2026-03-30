@@ -147,13 +147,20 @@ const Index = () => {
       .map((p) => {
         const sellYears = p.sellInYears || 0;
         const purchasePrice = p.purchase.purchasePrice || 0;
+        // Account for future purchase date - growth only starts from purchase date
+        const purchaseDateStr = p.purchase?.purchaseDate;
+        const purchaseStart = purchaseDateStr ? new Date(purchaseDateStr) : null;
+        const nowDate = new Date();
+        const purchaseDelayYears = purchaseStart && purchaseStart > nowDate
+          ? (purchaseStart.getTime() - nowDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+          : 0;
+        const effectiveGrowthYears = Math.max(0, sellYears - purchaseDelayYears);
         if (purchasePrice <= 0) {
-          // No purchase price — still include for chart labels but with simple proceeds
           const proceeds = Math.max(0, p.estimatedValue - p.loanBalance);
           return { year: new Date().getFullYear() + sellYears, proceeds, nickname: p.nickname };
         }
         const sc = p.saleCosts || { ...defaultSaleCosts };
-        const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, sellYears));
+        const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, effectiveGrowthYears));
         const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
         const proceeds = projectedValue - p.loanBalance - totalSelling;
         const autoStampDuty = p.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, p.state, p.purchase.purchaseDate || undefined) : Math.round(purchasePrice * 0.05);
@@ -259,6 +266,13 @@ const Index = () => {
           targetMonth={targetMonth}
           targetYear={targetYear}
           onMoveToPortfolio={(fp) => {
+            // Set purchase date from timeline if not already set
+            const purchaseDate = fp.purchase.purchaseDate || (() => {
+              const months = fp.purchaseTimelineMonths || 0;
+              const d = new Date();
+              d.setMonth(d.getMonth() + months);
+              return d.toISOString();
+            })();
             const existing: ExistingProperty = {
               id: fp.id,
               nickname: fp.suburb,
@@ -270,7 +284,7 @@ const Index = () => {
               investmentType: fp.investmentType,
               loan: { ...fp.loan },
               rental: { ...fp.rental },
-              purchase: { ...fp.purchase },
+              purchase: { ...fp.purchase, purchaseDate },
             };
             setExistingProperties([...existingProperties, existing]);
             setFutureProperties(futureProperties.filter((p) => p.id !== fp.id));

@@ -218,7 +218,11 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           {properties.map((p) => {
             const lvr = lvrRates[p.id] ?? 0.8;
             const equity = Math.max(0, (p.estimatedValue * lvr) - p.loanBalance);
-            const futureValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, yearsToTarget));
+            const purchaseDate = p.purchase?.purchaseDate;
+            const purchaseStartDate = purchaseDate ? new Date(purchaseDate) : new Date();
+            const growthStartDelay = Math.max(0, (purchaseStartDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+            const effectiveGrowthYears = Math.max(0, yearsToTarget - growthStartDelay);
+            const futureValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, effectiveGrowthYears));
             return (
               <div
                 key={p.id}
