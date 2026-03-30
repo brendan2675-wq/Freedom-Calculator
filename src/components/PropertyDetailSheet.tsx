@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
@@ -101,6 +102,34 @@ function TextInput({ value, onChange, placeholder, autoFocus }: { value: string;
 
 function DateInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
   const date = value ? new Date(value) : undefined;
+  const [textValue, setTextValue] = React.useState(date ? format(date, "dd/MM/yyyy") : "");
+  const [calMonth, setCalMonth] = React.useState<Date>(date || new Date());
+
+  React.useEffect(() => {
+    if (date) {
+      setTextValue(format(date, "dd/MM/yyyy"));
+      setCalMonth(date);
+    }
+  }, [value]);
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setTextValue(v);
+    // Auto-parse dd/MM/yyyy
+    const match = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (match) {
+      const parsed = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+      if (!isNaN(parsed.getTime())) {
+        onChange(parsed.toISOString());
+        setCalMonth(parsed);
+      }
+    }
+  };
+
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 40 }, (_, i) => currentYear - 20 + i);
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -116,12 +145,40 @@ function DateInput({ value, onChange, placeholder }: { value: string; onChange: 
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
+        <div className="p-3 space-y-2">
+          <Input
+            placeholder="dd/mm/yyyy"
+            value={textValue}
+            onChange={handleTextChange}
+            className="text-sm h-8"
+          />
+          <div className="flex gap-1">
+            <select
+              value={calMonth.getMonth()}
+              onChange={(e) => setCalMonth(new Date(calMonth.getFullYear(), Number(e.target.value), 1))}
+              className="flex-1 h-8 text-xs rounded-md border border-input bg-background px-2"
+            >
+              {months.map((m, i) => <option key={i} value={i}>{m}</option>)}
+            </select>
+            <select
+              value={calMonth.getFullYear()}
+              onChange={(e) => setCalMonth(new Date(Number(e.target.value), calMonth.getMonth(), 1))}
+              className="flex-1 h-8 text-xs rounded-md border border-input bg-background px-2"
+            >
+              {years.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        </div>
         <Calendar
           mode="single"
+          month={calMonth}
+          onMonthChange={setCalMonth}
           selected={date}
-          onSelect={(d) => onChange(d ? d.toISOString() : "")}
-          initialFocus
-          className={cn("p-3 pointer-events-auto")}
+          onSelect={(d) => {
+            onChange(d ? d.toISOString() : "");
+            if (d) setTextValue(format(d, "dd/MM/yyyy"));
+          }}
+          className={cn("p-3 pt-0 pointer-events-auto")}
         />
       </PopoverContent>
     </Popover>
