@@ -101,7 +101,7 @@ function TextInput({ value, onChange, placeholder, autoFocus }: { value: string;
   );
 }
 
-function DateInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+function DateInput({ value, onChange, placeholder, minDate }: { value: string; onChange: (v: string) => void; placeholder?: string; minDate?: Date }) {
   const date = value ? new Date(value) : undefined;
   const [textValue, setTextValue] = React.useState(date ? format(date, "dd/MM/yyyy") : "");
   const [calMonth, setCalMonth] = React.useState<Date>(date || new Date());
@@ -116,11 +116,10 @@ function DateInput({ value, onChange, placeholder }: { value: string; onChange: 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
     setTextValue(v);
-    // Auto-parse dd/MM/yyyy
     const match = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
     if (match) {
       const parsed = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
-      if (!isNaN(parsed.getTime())) {
+      if (!isNaN(parsed.getTime()) && (!minDate || parsed >= minDate)) {
         onChange(parsed.toISOString());
         setCalMonth(parsed);
       }
@@ -175,6 +174,7 @@ function DateInput({ value, onChange, placeholder }: { value: string; onChange: 
           month={calMonth}
           onMonthChange={setCalMonth}
           selected={date}
+          disabled={minDate ? (d) => d < minDate : undefined}
           onSelect={(d) => {
             onChange(d ? d.toISOString() : "");
             if (d) setTextValue(format(d, "dd/MM/yyyy"));
