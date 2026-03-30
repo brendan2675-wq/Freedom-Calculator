@@ -184,14 +184,15 @@ const KeyInputs = ({
                   <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
                   <ChevronRight size={16} className="text-muted-foreground group-hover:text-accent transition-colors" />
                 </div>
-                <span className="text-success font-bold text-lg">{paydownPercent.toFixed(1)}%</span>
+                <span className="font-bold text-lg" style={{ color: `hsl(${Math.round((Math.min(100, paydownPercent) / 100) * 80 + 25)}, 80%, 45%)` }}>{paydownPercent.toFixed(1)}%</span>
               </div>
               <div className="w-full h-8 rounded-full bg-secondary overflow-hidden relative shadow-inner">
                 <div
-                  className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden bg-accent"
+                  className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
                   style={{
                     width: `${Math.min(100, paydownPercent)}%`,
-                    boxShadow: `0 0 12px hsl(var(--accent) / 0.3)`,
+                    background: `linear-gradient(90deg, hsl(25, 80%, 50%) 0%, hsl(${Math.round((Math.min(100, paydownPercent) / 100) * 80 + 25)}, 80%, 45%) 100%)`,
+                    boxShadow: `0 0 12px hsl(${Math.round((Math.min(100, paydownPercent) / 100) * 80 + 25)}, 80%, 45%, 0.3)`,
                   }}
                 >
                   <div className="absolute inset-0 opacity-15" style={{ background: 'linear-gradient(180deg, white 0%, transparent 60%)' }} />
