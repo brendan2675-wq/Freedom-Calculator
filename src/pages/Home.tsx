@@ -54,14 +54,37 @@ const HomePage = () => {
               Your property wealth strategy at a glance
             </p>
           </div>
-          <div className="flex flex-col items-center gap-1 flex-shrink-0">
-            <UserCircle size={44} className="text-accent" />
-            <input
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              className="text-center text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-32 md:w-40"
-              placeholder="Client name"
-            />
+          <div className="flex items-center gap-4 flex-shrink-0">
+            <button
+              onClick={() => {
+                if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
+                  localStorage.clear();
+                  window.location.reload();
+                }
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-accent/70 border border-accent/20 hover:bg-accent/10 hover:text-accent transition-all"
+              aria-label="Reset data"
+            >
+              <RotateCcw size={14} />
+              Reset
+            </button>
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-accent text-sm tracking-wider mb-1">Atelier Wealth</p>
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="text-accent hover:text-accent/80 transition-colors"
+                aria-label="Profile"
+              >
+                <UserCircle size={44} />
+              </button>
+              <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={handleSetClientName} />
+              <input
+                value={clientName}
+                onChange={(e) => handleSetClientName(e.target.value)}
+                className="text-center text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-32 md:w-40"
+                placeholder="Client name"
+              />
+            </div>
           </div>
         </div>
       </header>

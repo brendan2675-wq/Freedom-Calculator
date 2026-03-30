@@ -89,7 +89,11 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem("portfolio-future-properties", JSON.stringify(futureProperties));
   }, [futureProperties]);
-  const [clientName, setClientName] = useState("Client Name");
+  const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
+  const handleSetClientName = (name: string) => {
+    setClientName(name);
+    localStorage.setItem("client-name", name);
+  };
 
   // Split existing properties into active and sold
   const now = new Date();
