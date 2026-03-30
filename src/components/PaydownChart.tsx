@@ -252,19 +252,27 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             </div>
             <div className="w-px h-10 bg-border mx-1" />
             <div className="flex flex-col items-center">
-              <div className="relative w-16 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
-                <select
-                  value={growthRate}
-                  onChange={(e) => setGrowthRate(Number(e.target.value))}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                >
-                  {Array.from({ length: 51 }, (_, i) => (4 + i * 0.1).toFixed(1)).map((v) => (
-                    <option key={v} value={Number(v)}>{v}%</option>
-                  ))}
-                </select>
-                <span className="text-lg font-bold text-accent">{growthRate}%</span>
+              <div className="relative w-20 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={growthRateRaw}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (/^\d*\.?\d{0,2}$/.test(val) || val === "") {
+                      setGrowthRateRaw(val);
+                      const parsed = parseFloat(val);
+                      if (!isNaN(parsed)) setGrowthRate(parsed);
+                    }
+                  }}
+                  onBlur={() => {
+                    setGrowthRateRaw(growthRate.toFixed(2));
+                  }}
+                  className="w-full h-full bg-transparent text-center text-lg font-bold text-accent outline-none"
+                />
+                <span className="absolute right-1.5 text-accent/60 text-sm font-semibold pointer-events-none">%</span>
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">growth</span>
+              <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">growth p.a.</span>
             </div>
           </div>
         </div>
