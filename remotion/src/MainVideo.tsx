@@ -131,18 +131,22 @@ const UIPanel: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
 
       {/* Show ONE tile at a time, centered, fully visible */}
       {steps.map((step, i) => {
-        const entrance = useEntrance(frame, fps, step.time, "up", 40);
         const isActive = activeIdx === i;
+        const nextStepTime = steps[i + 1]?.time ?? 99;
 
-        // Fade out previous tiles
+        // Only render the active tile and the one fading out
+        if (i < activeIdx - 1 || i > activeIdx) return null;
+
+        // Entrance spring
+        const entrance = useEntrance(frame, fps, step.time, "up", 40);
+
+        // If this is the previous tile, fade it out quickly
         let finalOpacity = entrance.opacity;
         if (i < activeIdx) {
-          const nextTime = steps[i + 1]?.time ?? step.time + 0.5;
-          finalOpacity = interpolate(frame, [nextTime * fps, (nextTime + 0.3) * fps], [1, 0], {
+          finalOpacity = interpolate(frame, [nextStepTime * fps, (nextStepTime + 0.15) * fps], [1, 0], {
             extrapolateLeft: "clamp", extrapolateRight: "clamp",
           });
         }
-        if (i > activeIdx) finalOpacity = 0;
 
         return (
           <div key={step.src} style={{
