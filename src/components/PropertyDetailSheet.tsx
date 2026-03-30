@@ -459,6 +459,9 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
 
               return (
                 <>
+                  <FieldGroup label="Purchase Date">
+                    <DateInput value={property.purchase.purchaseDate} onChange={(v) => updatePurchase({ purchaseDate: v })} placeholder="Select purchase date" />
+                  </FieldGroup>
                   {/* Original Acquisition Costs - always visible */}
                   <div className={cn("bg-muted/30 border rounded-lg p-4 space-y-3", hasEmptyAcquisition ? "border-accent/50" : "border-border")}>
                     <div className="flex items-center justify-between">
@@ -725,13 +728,17 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             </>
           )}
 
-          {/* Purchase Details */}
-          <SectionHeader title="Purchase Details" />
-          <div className="space-y-4">
-            <FieldGroup label="Purchase Date">
-              <DateInput value={property.purchase.purchaseDate} onChange={(v) => updatePurchase({ purchaseDate: v })} placeholder="Select purchase date" />
-            </FieldGroup>
-          </div>
+          {/* Purchase Date for non-existing properties */}
+          {!isExisting && (
+            <>
+              <SectionHeader title="Purchase Details" />
+              <div className="space-y-4">
+                <FieldGroup label="Purchase Date">
+                  <DateInput value={property.purchase.purchaseDate} onChange={(v) => updatePurchase({ purchaseDate: v })} placeholder="Select purchase date" />
+                </FieldGroup>
+              </div>
+            </>
+          )}
         </div>
       </SheetContent>
     </Sheet>
