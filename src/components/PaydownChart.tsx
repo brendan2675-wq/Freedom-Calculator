@@ -287,9 +287,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           <p className="text-foreground text-base font-medium">Your strategy pays off the loan before the target date!</p>
         </div>
       )}
-      <div className="h-64 md:h-72">
+      <div className={hasSellDowns && groupedSellDowns.length > 0 ? "h-72 md:h-80" : "h-64 md:h-72"}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
+          <AreaChart data={data} margin={{ top: hasSellDowns ? 45 : 20, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
             <XAxis
               dataKey="year"
@@ -297,38 +297,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               domain={['dataMin', 'dataMax']}
               tickCount={data.length}
               interval={0}
-              height={hasSellDowns ? 70 : 45}
-              tick={(props: any) => {
-                const { x, y, payload } = props;
-                const year = payload.value;
-                const sellGroup = groupedSellDowns.find((g) => g.year === year);
-                return (
-                  <g transform={`translate(${x},${y})`}>
-                    <text
-                      x={0} y={0} dy={12}
-                      textAnchor="end"
-                      fill={sellGroup ? 'hsl(142, 55%, 42%)' : 'hsl(0, 0%, 25%)'}
-                      fontSize={12}
-                      fontWeight={sellGroup ? 700 : 500}
-                      transform="rotate(-35)"
-                    >
-                      {year}
-                    </text>
-                    {sellGroup && sellGroup.names.map((name, i) => (
-                      <text
-                        key={i}
-                        x={0} y={28 + i * 12}
-                        textAnchor="middle"
-                        fill="hsl(142, 45%, 35%)"
-                        fontSize={9}
-                        fontWeight={600}
-                      >
-                        {name}
-                      </text>
-                    ))}
-                  </g>
-                );
-              }}
+              fontSize={12}
+              tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }}
+              angle={-35}
+              textAnchor="end"
+              height={45}
             />
             <YAxis tickFormatter={formatDollar} fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} width={60} />
             <Tooltip
@@ -344,7 +317,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               }}
             />
             <ReferenceLine x={targetYear + (targetMonth - 1) / 12} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
-            {/* Sell-down event dotted lines */}
+            {/* Sell-down event dotted lines with property names above chart */}
             {groupedSellDowns.map((entry) => (
               <ReferenceLine
                 key={`sell-${entry.year}`}
@@ -352,6 +325,30 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                 stroke="hsl(142, 55%, 42%)"
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
+                label={{
+                  position: "top",
+                  content: ({ viewBox }: any) => {
+                    const vx = viewBox?.x ?? 0;
+                    const maxNames = entry.names.length;
+                    return (
+                      <g>
+                        {entry.names.map((name, i) => (
+                          <text
+                            key={i}
+                            x={vx}
+                            y={-4 - (maxNames - 1 - i) * 13}
+                            textAnchor="middle"
+                            fill="hsl(142, 45%, 35%)"
+                            fontSize={10}
+                            fontWeight={600}
+                          >
+                            {name}
+                          </text>
+                        ))}
+                      </g>
+                    );
+                  },
+                }}
               />
             ))}
             <Area
