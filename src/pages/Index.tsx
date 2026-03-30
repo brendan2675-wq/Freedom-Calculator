@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertiesToBuy from "@/components/PropertiesToBuy";
+import SoldProperties from "@/components/SoldProperties";
 import PaydownSummary from "@/components/PaydownSummary";
 import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
@@ -89,6 +90,20 @@ const Index = () => {
     localStorage.setItem("portfolio-future-properties", JSON.stringify(futureProperties));
   }, [futureProperties]);
   const [clientName, setClientName] = useState("Client Name");
+
+  // Split existing properties into active and sold
+  const now = new Date();
+  const soldProperties = useMemo(() => {
+    return existingProperties.filter((p) => {
+      if (!p.earmarked || !p.purchase.settlementDate) return false;
+      return new Date(p.purchase.settlementDate) <= now;
+    });
+  }, [existingProperties]);
+
+  const activeProperties = useMemo(() => {
+    const soldIds = new Set(soldProperties.map((p) => p.id));
+    return existingProperties.filter((p) => !soldIds.has(p.id));
+  }, [existingProperties, soldProperties]);
 
   useEffect(() => {
     const hasSeenDragHint = localStorage.getItem("drag-hint-seen");
