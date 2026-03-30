@@ -226,7 +226,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
 
     const sc = ep.saleCosts || { ...defaultSaleCosts };
     const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state, ep.purchase.purchaseDate || undefined) : 0;
-    const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
+    const stampDutyAcq = sc.stampDutyOnPurchase != null && sc.stampDutyOnPurchase > 0 ? sc.stampDutyOnPurchase : autoStampDuty;
     const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
     const totalImprovements = sc.renovations + sc.structuralWork;
     const totalOwnership = sc.ownershipCostsTotal;
