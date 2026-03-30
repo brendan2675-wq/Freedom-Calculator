@@ -152,13 +152,21 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           }}
         >
           {properties.map((p) => {
-            const purchaseDelayYears = (p.purchaseTimelineMonths || 0) / 12;
+            const now = new Date();
+            const purchaseDate = p.purchase?.purchaseDate ? new Date(p.purchase.purchaseDate) : null;
+            const purchaseDelayYears = purchaseDate && purchaseDate > now
+              ? (purchaseDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+              : 0;
             const growthYears = Math.max(0, yearsToTarget - purchaseDelayYears);
             const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, growthYears));
-            const timelineMonths = p.purchaseTimelineMonths || 0;
-            const tlYears = Math.floor(timelineMonths / 12);
-            const tlMonths = timelineMonths % 12;
-            const timelineLabel = timelineMonths === 0
+            const totalMonthsAway = purchaseDate && purchaseDate > now
+              ? Math.round((purchaseDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30.44))
+              : 0;
+            const tlYears = Math.floor(totalMonthsAway / 12);
+            const tlMonths = totalMonthsAway % 12;
+            const timelineLabel = !purchaseDate
+              ? "No date set"
+              : totalMonthsAway <= 0
               ? "Buying Now"
               : `Buying in ${tlYears > 0 ? `${tlYears}yr${tlYears > 1 ? "s" : ""}` : ""}${tlYears > 0 && tlMonths > 0 ? " " : ""}${tlMonths > 0 ? `${tlMonths}mo` : ""}`;
             return (
