@@ -318,40 +318,43 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             />
             <ReferenceLine x={targetYear + (targetMonth - 1) / 12} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
             {/* Sell-down event dotted lines with property names above chart */}
-            {groupedSellDowns.map((entry) => (
-              <ReferenceLine
-                key={`sell-${entry.year}`}
-                x={entry.year}
-                stroke="hsl(142, 55%, 42%)"
-                strokeDasharray="4 4"
-                strokeWidth={1.5}
-                label={{
-                  position: "top",
-                  content: ({ viewBox }: any) => {
-                    const vx = viewBox?.x ?? 0;
-                    const vy = viewBox?.y ?? 20;
-                    const maxNames = entry.names.length;
-                    return (
-                      <g>
-                        {entry.names.map((name, i) => (
-                          <text
-                            key={i}
-                            x={vx}
-                            y={vy - 8 - (maxNames - 1 - i) * 13}
-                            textAnchor="middle"
-                            fill="hsl(142, 45%, 35%)"
-                            fontSize={10}
-                            fontWeight={600}
-                          >
-                            {name}
-                          </text>
-                        ))}
-                      </g>
-                    );
-                  },
-                }}
-              />
-            ))}
+            {(() => {
+              const maxStack = Math.max(...groupedSellDowns.map((g) => g.names.length));
+              const topMargin = 45; // matches AreaChart margin.top
+              const baselineY = topMargin - 6;
+              return groupedSellDowns.map((entry) => (
+                <ReferenceLine
+                  key={`sell-${entry.year}`}
+                  x={entry.year}
+                  stroke="hsl(142, 55%, 42%)"
+                  strokeDasharray="4 4"
+                  strokeWidth={1.5}
+                  label={{
+                    position: "top",
+                    content: ({ viewBox }: any) => {
+                      const vx = viewBox?.x ?? 0;
+                      return (
+                        <g>
+                          {entry.names.map((name, i) => (
+                            <text
+                              key={i}
+                              x={vx}
+                              y={baselineY - (entry.names.length - 1 - i) * 13}
+                              textAnchor="middle"
+                              fill="hsl(142, 45%, 35%)"
+                              fontSize={10}
+                              fontWeight={600}
+                            >
+                              {name}
+                            </text>
+                          ))}
+                        </g>
+                      );
+                    },
+                  }}
+                />
+              ));
+            })()}
             <Area
               type="monotone"
               dataKey="standard"
