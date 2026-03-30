@@ -54,10 +54,10 @@ const Header = ({ clientName, setClientName }: HeaderProps) => {
             >
               <UserCircle size={44} />
             </button>
-            <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={setClientName} />
+            <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={(name) => { setClientName(name); localStorage.setItem("client-name", name); }} />
             <input
               value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
+              onChange={(e) => { setClientName(e.target.value); localStorage.setItem("client-name", e.target.value); }}
               className="text-center text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-32 md:w-40"
               placeholder="Client name"
             />
