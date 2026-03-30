@@ -76,6 +76,7 @@ export interface ExistingProperty {
   earmarked: boolean;
   sellInYears: number; // 0 = now, 1-10 = future years
   ownership: "trust" | "personal";
+  trustName?: string;
   investmentType: InvestmentType;
   loan: LoanDetails;
   rental: RentalDetails;
@@ -92,6 +93,7 @@ export interface FutureProperty {
   projectedEquity5yr: number;
   lvr: number; // Loan-to-Value Ratio as percentage (e.g. 80)
   ownership: "trust" | "personal";
+  trustName?: string;
   investmentType: InvestmentType;
   loan: LoanDetails;
   rental: RentalDetails;

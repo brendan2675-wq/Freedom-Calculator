@@ -334,7 +334,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 <div className="mt-4 pt-2 border-t border-border/70 flex items-center justify-between flex-wrap gap-1.5">
                   <div className="flex items-center gap-1.5">
                     <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                      {p.ownership === "trust" ? "Trust" : "Personal"}
+                      {p.ownership === "trust" ? (p.trustName || "Trust") : "Personal"}
                     </span>
                   </div>
                   {!portfolioMode && (
