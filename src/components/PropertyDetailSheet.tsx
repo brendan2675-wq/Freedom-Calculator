@@ -442,7 +442,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                       ))}
                     </select>
                   </FieldGroup>
-                  <FieldGroup label={fp.state ? `Stamp Duty (${fp.state} auto-calculated)` : "Stamp Duty"}>
+                  <FieldGroup label={fp.state ? `Stamp Duty (${fp.state}${purchaseDate ? ` · ${new Date(purchaseDate).getFullYear()} rates` : ""})` : "Stamp Duty"}>
                     <CurrencyInput value={stampDutyAcq} onChange={(v) => updateFutureSaleCosts({ stampDutyOnPurchase: v })} />
                   </FieldGroup>
                   <FieldGroup label="Legal / Conveyancing Fees">
