@@ -374,7 +374,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             <span className="font-medium">With Sell-Down</span>
           </div>
         )}
-      })()}
+      </div>
     </div>
   );
 };
