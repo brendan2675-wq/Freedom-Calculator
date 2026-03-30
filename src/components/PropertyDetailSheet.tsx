@@ -203,13 +203,28 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
     manualTaxOverride.current = false;
   }, [property?.id]);
 
+  // Auto-suggest tax rate only when earmarked is toggled or purchase price changes, not on every property update
+  const prevEarmarkedRef = useRef<boolean | null>(null);
+  const prevPurchasePriceRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (!property || !isExisting || manualTaxOverride.current) return;
     const ep = property as ExistingProperty;
-    if (!ep.earmarked) return;
-    const sc = ep.saleCosts || { ...defaultSaleCosts };
+    if (!ep.earmarked) {
+      prevEarmarkedRef.current = false;
+      return;
+    }
     const purchasePrice = ep.purchase.purchasePrice || 0;
+    // Only auto-suggest when earmarked changes to true or purchase price changes
+    const earmarkedChanged = prevEarmarkedRef.current !== ep.earmarked;
+    const priceChanged = prevPurchasePriceRef.current !== null && prevPurchasePriceRef.current !== purchasePrice;
+    prevEarmarkedRef.current = ep.earmarked;
+    prevPurchasePriceRef.current = purchasePrice;
+
+    if (!earmarkedChanged && !priceChanged) return;
     if (!purchasePrice) return;
+
+    const sc = ep.saleCosts || { ...defaultSaleCosts };
     const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state, ep.purchase.purchaseDate || undefined) : 0;
     const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
     const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
