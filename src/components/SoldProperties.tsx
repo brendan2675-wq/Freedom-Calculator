@@ -115,6 +115,7 @@ const SoldProperties = ({ properties, onUpdate, growthRate }: Props) => {
           );
         })}
       </div>
+      )}
 
       <PropertyDetailSheet
         property={selectedProperty}
