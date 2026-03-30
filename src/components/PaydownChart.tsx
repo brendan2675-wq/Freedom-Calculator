@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useRef, useState } from "react";
-import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceDot } from "recharts";
 import { Target, Clock } from "lucide-react";
 import type { SellDownEvent } from "@/components/KeyInputs";
 import confetti from "canvas-confetti";
@@ -296,6 +296,17 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               }}
             />
             <ReferenceLine x={targetYear + (targetMonth - 1) / 12} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
+            {/* Sell-down event reference lines */}
+            {sellDownEvents.map((event, idx) => (
+              <ReferenceLine
+                key={`sell-${idx}`}
+                x={event.year}
+                stroke="hsl(142, 60%, 45%)"
+                strokeDasharray="4 3"
+                strokeWidth={1.5}
+                label={{ value: `📍 ${event.nickname}`, fill: "hsl(142, 50%, 35%)", fontSize: 10, fontWeight: 600, position: "insideTopRight" }}
+              />
+            ))}
             <Area
               type="monotone"
               dataKey="standard"
