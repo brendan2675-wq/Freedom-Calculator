@@ -398,7 +398,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             )}
             {!pporMode && (
               <FieldGroup label="Ownership Structure">
-                <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} />
+                <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} trustName={property.trustName || ""} onTrustNameChange={(name) => update({ trustName: name })} />
               </FieldGroup>
             )}
             {!isExisting && (() => {
