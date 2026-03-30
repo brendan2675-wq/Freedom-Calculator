@@ -424,18 +424,57 @@ const KeyInputs = ({
 
         {/* Sell-Down Bridge (improvement #4) */}
         {earmarkedCount > 0 && (
-          <div className="flex items-center justify-center gap-3 py-4">
-            <div className="h-px flex-1 bg-border" />
-            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/60 border border-border rounded-full px-4 py-2">
-              <ArrowDown size={14} className="text-accent" />
-              <span>
-                <span className="font-semibold text-foreground">{earmarkedCount}</span> {earmarkedCount === 1 ? 'property' : 'properties'} earmarked
-                <span className="mx-1.5">→</span>
-                <span className="font-semibold text-success">${totalSellDownProceeds.toLocaleString()}</span> net proceeds
-              </span>
-              <ArrowDown size={14} className="text-accent" />
+          <div className="py-4">
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <button
+                onClick={() => setSellDownOpen(!sellDownOpen)}
+                className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/60 border border-border rounded-full px-4 py-2 hover:bg-secondary transition-colors cursor-pointer"
+              >
+                <ArrowDown size={14} className="text-accent" />
+                <span>
+                  <span className="font-semibold text-foreground">{earmarkedCount}</span> {earmarkedCount === 1 ? 'property' : 'properties'} earmarked
+                  <span className="mx-1.5">→</span>
+                  <span className="font-semibold text-success">${totalSellDownProceeds.toLocaleString()}</span> net proceeds
+                </span>
+                <ChevronDown size={14} className={`text-accent transition-transform ${sellDownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              <div className="h-px flex-1 bg-border" />
             </div>
-            <div className="h-px flex-1 bg-border" />
+
+            {sellDownOpen && (
+              <div className="mt-3 mx-auto max-w-lg bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+                {sellDownEvents.map((event, i) => {
+                  const percentage = totalSellDownProceeds > 0 ? (event.proceeds / totalSellDownProceeds) * 100 : 0;
+                  return (
+                    <div
+                      key={`${event.nickname}-${i}`}
+                      className={`flex items-center justify-between px-4 py-3 text-sm ${i > 0 ? 'border-t border-border/60' : ''}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-accent" />
+                        <span className="font-medium text-foreground">{event.nickname}</span>
+                        <span className="text-muted-foreground text-xs">
+                          {event.year === new Date().getFullYear() ? 'Selling now' : `Selling ${event.year}`}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-20 h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(100, percentage)}%` }} />
+                        </div>
+                        <span className={`font-semibold tabular-nums ${event.proceeds >= 0 ? 'text-success' : 'text-destructive'}`}>
+                          ${event.proceeds.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/30 text-sm font-semibold">
+                  <span className="text-foreground">Total Net Proceeds</span>
+                  <span className="text-success">${totalSellDownProceeds.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
