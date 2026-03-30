@@ -382,15 +382,10 @@ const KeyInputs = ({
                         <p className="text-xs">(Current Value × LVR) − Loan Balance</p>
                       </TooltipContent>
                     </Tooltip>
-                    {equityAvailable > 150000 && (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-success/15 text-success border border-success/30 whitespace-nowrap ml-auto">
-                        Go again
-                      </span>
-                    )}
                   </div>
                   <p className="text-muted-foreground text-xs mb-2">Equity Available</p>
                   <div className="flex items-center justify-between">
-                    <p className="text-2xl font-bold text-accent">${equityAvailable.toLocaleString()}</p>
+                    <p className={`text-2xl font-bold ${equityAvailable > 50000 ? 'text-success' : 'text-accent'}`}>${equityAvailable.toLocaleString()}</p>
                     <select
                       value={lvrRate}
                       onChange={(e) => setLvrRate(Number(e.target.value))}
