@@ -266,13 +266,7 @@ const Index = () => {
           targetMonth={targetMonth}
           targetYear={targetYear}
           onMoveToPortfolio={(fp) => {
-            // Set purchase date from timeline if not already set
-            const purchaseDate = fp.purchase.purchaseDate || (() => {
-              const months = fp.purchaseTimelineMonths || 0;
-              const d = new Date();
-              d.setMonth(d.getMonth() + months);
-              return d.toISOString();
-            })();
+            const purchaseDate = fp.purchase.purchaseDate || new Date().toISOString();
             const existing: ExistingProperty = {
               id: fp.id,
               nickname: fp.suburb,
