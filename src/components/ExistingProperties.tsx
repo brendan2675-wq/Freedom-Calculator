@@ -41,7 +41,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
 
   useEffect(() => {
     updateScrollState();
-  }, [properties.length, updateScrollState]);
+    if (draggingId && !properties.find((p) => p.id === draggingId)) {
+      setDraggingId(null);
+    }
+  }, [properties, updateScrollState, draggingId]);
   const allEarmarked = properties.length > 0 && properties.every((p) => p.earmarked);
 
   const showSellDownReminder = () => {

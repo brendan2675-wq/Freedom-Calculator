@@ -37,7 +37,11 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
 
   useEffect(() => {
     updateScrollState();
-  }, [properties.length, updateScrollState]);
+    // Clear draggingId if the dragged property was removed (e.g. moved to portfolio)
+    if (draggingId && !properties.find((p) => p.id === draggingId)) {
+      setDraggingId(null);
+    }
+  }, [properties, updateScrollState, draggingId]);
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
