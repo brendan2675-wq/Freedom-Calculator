@@ -152,7 +152,15 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           }}
         >
           {properties.map((p) => {
-            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget));
+            const purchaseDelayYears = (p.purchaseTimelineMonths || 0) / 12;
+            const growthYears = Math.max(0, yearsToTarget - purchaseDelayYears);
+            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, growthYears));
+            const timelineMonths = p.purchaseTimelineMonths || 0;
+            const tlYears = Math.floor(timelineMonths / 12);
+            const tlMonths = timelineMonths % 12;
+            const timelineLabel = timelineMonths === 0
+              ? "Buying Now"
+              : `Buying in ${tlYears > 0 ? `${tlYears}yr${tlYears > 1 ? "s" : ""}` : ""}${tlYears > 0 && tlMonths > 0 ? " " : ""}${tlMonths > 0 ? `${tlMonths}mo` : ""}`;
             return (
               <div
                 key={p.id}

@@ -104,6 +104,7 @@ export interface FutureProperty {
   saleCosts?: SaleCosts;
   proposedLoanAmount?: number;
   state?: AustralianState;
+  purchaseTimelineMonths?: number; // 0 = now, months until proposed purchase
 }
 
 export const defaultLoanDetails: LoanDetails = {
