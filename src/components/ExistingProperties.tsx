@@ -138,10 +138,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 allEarmarked ? (
                   <button
                     onClick={handleMasterSellDown}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-medium transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-accent/30 bg-accent/10 text-accent hover:bg-accent/20 text-xs font-medium transition-colors"
                   >
-                    <X size={14} />
-                    Clear Sell Down
+                    <BadgeDollarSign size={14} />
+                    Selling in {masterSellYear === 0 ? "Now" : `${masterSellYear} ${masterSellYear === 1 ? "yr" : "yrs"}`}
                   </button>
                 ) : (
                   <div
@@ -337,10 +337,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                       {p.earmarked ? (
                         <button
                           onClick={() => setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: false } : prop))}
-                          className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium hover:bg-destructive/20 transition-colors"
+                          className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium hover:bg-accent/20 transition-colors"
                         >
-                          <X size={10} />
-                          Clear Sell Down
+                          <BadgeDollarSign size={10} />
+                          Selling {p.sellInYears === 0 ? "Now" : `in ${p.sellInYears} ${p.sellInYears === 1 ? "yr" : "yrs"}`}
                         </button>
                       ) : (
                         <div className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
