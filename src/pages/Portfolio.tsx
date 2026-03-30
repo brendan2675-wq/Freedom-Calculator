@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { LayoutDashboard, UserCircle, Building2, Landmark, TrendingUp, Home, Plus, RotateCcw } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
+import AuthFlow from "@/components/AuthFlow";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import type { ExistingProperty } from "@/types/property";
@@ -8,7 +9,12 @@ import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from
 
 const Portfolio = () => {
   const navigate = useNavigate();
-  const [clientName, setClientName] = useState("Client Name");
+  const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
+  const [authOpen, setAuthOpen] = useState(false);
+  const handleSetClientName = (name: string) => {
+    setClientName(name);
+    localStorage.setItem("client-name", name);
+  };
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
   const [ppor, setPpor] = useState<ExistingProperty | null>(null);
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
@@ -120,10 +126,17 @@ const Portfolio = () => {
             </button>
             <div className="flex flex-col items-center gap-1">
               <p className="text-accent text-sm tracking-wider mb-1">Atelier Wealth</p>
-              <UserCircle size={44} className="text-accent" />
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="text-accent hover:text-accent/80 transition-colors"
+                aria-label="Profile"
+              >
+                <UserCircle size={44} />
+              </button>
+              <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={handleSetClientName} />
               <input
                 value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
+                onChange={(e) => handleSetClientName(e.target.value)}
                 className="text-center text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-32 md:w-40"
                 placeholder="Client name"
               />
