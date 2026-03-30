@@ -287,7 +287,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           <p className="text-foreground text-base font-medium">Your strategy pays off the loan before the target date!</p>
         </div>
       )}
-      <div className={hasSellDowns && groupedSellDowns.length > 0 ? "h-72 md:h-80" : "h-64 md:h-72"}>
+      <div className={hasSellDowns && groupedSellDowns.length > 0 ? "h-72 md:h-80 relative" : "h-64 md:h-72 relative"}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: hasSellDowns ? 50 : 20, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
@@ -317,45 +317,16 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               }}
             />
             <ReferenceLine x={targetYear + (targetMonth - 1) / 12} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
-            {/* Sell-down event dotted lines with property names above chart */}
-            {(() => {
-              const maxStack = Math.max(1, ...groupedSellDowns.map((g) => g.names.length));
-              return groupedSellDowns.map((entry) => (
-                <ReferenceLine
-                  key={`sell-${entry.year}`}
-                  x={entry.year}
-                  stroke="hsl(142, 55%, 42%)"
-                  strokeDasharray="4 4"
-                  strokeWidth={1.5}
-                  label={{
-                    position: "top",
-                    content: ({ viewBox }: any) => {
-                      const vx = viewBox?.x ?? 0;
-                      const vy = viewBox?.y ?? 50;
-                      // All labels use the same baseline: top of the plot area minus padding
-                      // The last name in the array sits at the baseline, earlier names stack upward
-                      return (
-                        <g>
-                          {entry.names.map((name, i) => (
-                            <text
-                              key={i}
-                              x={vx}
-                              y={vy - 6 - (entry.names.length - 1 - i) * 13}
-                              textAnchor="middle"
-                              fill="hsl(142, 45%, 35%)"
-                              fontSize={10}
-                              fontWeight={600}
-                            >
-                              {name}
-                            </text>
-                          ))}
-                        </g>
-                      );
-                    },
-                  }}
-                />
-              ));
-            })()}
+            {/* Sell-down event dotted lines */}
+            {groupedSellDowns.map((entry) => (
+              <ReferenceLine
+                key={`sell-${entry.year}`}
+                x={entry.year}
+                stroke="hsl(142, 55%, 42%)"
+                strokeDasharray="4 4"
+                strokeWidth={1.5}
+              />
+            ))}
             <Area
               type="monotone"
               dataKey="standard"
@@ -379,6 +350,41 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             )}
           </AreaChart>
         </ResponsiveContainer>
+
+        {hasSellDowns && groupedSellDowns.length > 0 && (() => {
+          const minYear = data[0]?.year ?? new Date().getFullYear();
+          const maxYear = data[data.length - 1]?.year ?? minYear + 1;
+          const span = Math.max(1, maxYear - minYear);
+          const plotLeftPx = 70; // Y axis (60) + left chart margin (10)
+          const plotRightPx = 10; // right chart margin
+          const baselineY = 42; // fixed baseline for all bottom labels
+
+          return (
+            <div className="absolute inset-0 pointer-events-none z-10">
+              {groupedSellDowns.map((entry) => {
+                const pct = Math.min(1, Math.max(0, (entry.year - minYear) / span));
+                const left = `calc(${plotLeftPx}px + (100% - ${plotLeftPx + plotRightPx}px) * ${pct})`;
+                const nearLeft = pct < 0.1;
+                const nearRight = pct > 0.9;
+                const transform = nearLeft ? "translateX(0)" : nearRight ? "translateX(-100%)" : "translateX(-50%)";
+
+                return entry.names.map((name, i) => (
+                  <span
+                    key={`${entry.year}-${name}-${i}`}
+                    className="absolute text-[10px] font-semibold leading-none text-success whitespace-nowrap"
+                    style={{
+                      left,
+                      transform,
+                      top: baselineY - (entry.names.length - 1 - i) * 13,
+                    }}
+                  >
+                    {name}
+                  </span>
+                ));
+              })}
+            </div>
+          );
+        })()}
       </div>
 
       <div className="flex gap-6 mt-2 text-sm text-muted-foreground justify-center">
