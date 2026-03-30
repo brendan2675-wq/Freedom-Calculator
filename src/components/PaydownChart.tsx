@@ -96,11 +96,10 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         }
       }
 
-      // Apply lump-sum sell-down proceeds at end of year for accelerated line
-      // Keep the original payment amount so the loan pays off FASTER (not recast)
-      const nextYear = year + 1;
-      if (proceedsByYear[nextYear] && acceleratedBalance > 0) {
-        acceleratedBalance -= proceedsByYear[nextYear];
+      // Apply lump-sum sell-down proceeds in the selected sell year (end-of-year effect)
+      // This avoids a one-year lag in the displayed drop.
+      if (proceedsByYear[year] && acceleratedBalance > 0) {
+        acceleratedBalance -= proceedsByYear[year];
         if (acceleratedBalance < 0) acceleratedBalance = 0;
       }
     }
@@ -108,6 +107,17 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   }, [loanBalance, targetYear, interestRate, sellDownEvents, repaymentType, loanTermYears, loanTermMonths, ioPeriodYears]);
 
   const hasSellDowns = sellDownEvents.length > 0;
+
+  const groupedSellDowns = useMemo(() => {
+    const grouped: Record<number, string[]> = {};
+    sellDownEvents.forEach((event) => {
+      if (!grouped[event.year]) grouped[event.year] = [];
+      grouped[event.year].push(event.nickname);
+    });
+    return Object.entries(grouped)
+      .map(([year, names]) => ({ year: Number(year), names }))
+      .sort((a, b) => a.year - b.year);
+  }, [sellDownEvents]);
 
   // Compute payoff years for time-saved callout (improvement #2)
   const timeSaved = useMemo(() => {
@@ -296,49 +306,16 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               }}
             />
             <ReferenceLine x={targetYear + (targetMonth - 1) / 12} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
-            {/* Sell-down event dotted lines with stacked property names */}
-            {(() => {
-              const grouped: Record<number, string[]> = {};
-              sellDownEvents.forEach((e) => {
-                if (!grouped[e.year]) grouped[e.year] = [];
-                grouped[e.year].push(e.nickname);
-              });
-              return Object.entries(grouped).map(([yearStr, names]) => {
-                const year = Number(yearStr);
-                return (
-                  <ReferenceLine
-                    key={`sell-${year}`}
-                    x={year}
-                    stroke="hsl(142, 55%, 42%)"
-                    strokeDasharray="4 4"
-                    strokeWidth={1.5}
-                    label={{
-                      position: "top",
-                      content: ({ viewBox }: any) => {
-                        const x = viewBox?.x ?? 0;
-                        return (
-                          <g>
-                            {names.map((name, i) => (
-                              <text
-                                key={i}
-                                x={x}
-                                y={8 + i * 13}
-                                textAnchor="middle"
-                                fill="hsl(142, 45%, 35%)"
-                                fontSize={10}
-                                fontWeight={600}
-                              >
-                                {name}
-                              </text>
-                            ))}
-                          </g>
-                        );
-                      },
-                    }}
-                  />
-                );
-              });
-            })()}
+            {/* Sell-down event dotted lines (labels rendered below chart to avoid axis clutter) */}
+            {groupedSellDowns.map((entry) => (
+              <ReferenceLine
+                key={`sell-${entry.year}`}
+                x={entry.year}
+                stroke="hsl(142, 55%, 42%)"
+                strokeDasharray="4 4"
+                strokeWidth={1.5}
+              />
+            ))}
             <Area
               type="monotone"
               dataKey="standard"
@@ -363,7 +340,23 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex gap-6 mt-3 text-sm text-muted-foreground justify-center">
+
+      {hasSellDowns && groupedSellDowns.length > 0 && (
+        <div className="mt-3 mb-2 flex items-start justify-center gap-2.5 flex-wrap">
+          {groupedSellDowns.map((entry) => (
+            <div key={`sell-label-${entry.year}`} className="px-2.5 py-1.5 rounded-md border border-success/30 bg-success/10">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground text-center">{entry.year}</p>
+              <div className="mt-1 flex flex-col items-center gap-0.5">
+                {entry.names.map((name, idx) => (
+                  <span key={`${entry.year}-${idx}`} className="text-xs leading-tight font-medium text-foreground">{name}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex gap-6 mt-2 text-sm text-muted-foreground justify-center">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: hasSellDowns ? 'hsl(0, 0%, 65%)' : 'hsl(20, 60%, 52%)', opacity: 0.6 }} />
           <span className="font-medium">Loan Balance</span>
