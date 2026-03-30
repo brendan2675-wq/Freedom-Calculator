@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight } from "lucide-react";
+import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw } from "lucide-react";
 import { useState } from "react";
+import AuthFlow from "@/components/AuthFlow";
 
 const tiles = [
   {
