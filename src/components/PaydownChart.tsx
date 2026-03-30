@@ -296,6 +296,49 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               }}
             />
             <ReferenceLine x={targetYear + (targetMonth - 1) / 12} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
+            {/* Sell-down event dotted lines with stacked property names */}
+            {(() => {
+              const grouped: Record<number, string[]> = {};
+              sellDownEvents.forEach((e) => {
+                if (!grouped[e.year]) grouped[e.year] = [];
+                grouped[e.year].push(e.nickname);
+              });
+              return Object.entries(grouped).map(([yearStr, names]) => {
+                const year = Number(yearStr);
+                return (
+                  <ReferenceLine
+                    key={`sell-${year}`}
+                    x={year}
+                    stroke="hsl(142, 55%, 42%)"
+                    strokeDasharray="4 4"
+                    strokeWidth={1.5}
+                    label={{
+                      position: "top",
+                      content: ({ viewBox }: any) => {
+                        const x = viewBox?.x ?? 0;
+                        return (
+                          <g>
+                            {names.map((name, i) => (
+                              <text
+                                key={i}
+                                x={x}
+                                y={8 + i * 13}
+                                textAnchor="middle"
+                                fill="hsl(142, 45%, 35%)"
+                                fontSize={10}
+                                fontWeight={600}
+                              >
+                                {name}
+                              </text>
+                            ))}
+                          </g>
+                        );
+                      },
+                    }}
+                  />
+                );
+              });
+            })()}
             <Area
               type="monotone"
               dataKey="standard"
@@ -331,33 +374,6 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             <span className="font-medium">With Sell-Down</span>
           </div>
         )}
-      </div>
-      {/* Sell-down timeline strip */}
-      {hasSellDowns && (() => {
-        const grouped: Record<number, string[]> = {};
-        sellDownEvents.forEach((e) => {
-          if (!grouped[e.year]) grouped[e.year] = [];
-          grouped[e.year].push(e.nickname);
-        });
-        const entries = Object.entries(grouped).map(([y, names]) => ({ year: Number(y), names })).sort((a, b) => a.year - b.year);
-        return (
-          <div className="mt-4 pt-3 border-t border-border">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Sell-Down Timeline</p>
-            <div className="flex items-center gap-2 flex-wrap">
-              {entries.map((entry, idx) => (
-                <div key={entry.year} className="flex items-center gap-2">
-                  {idx > 0 && <div className="w-6 h-px bg-accent/30" />}
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-accent/8 border border-accent/20">
-                    <div className="w-2 h-2 rounded-full bg-accent" />
-                    <span className="text-xs font-semibold text-foreground">{entry.year}</span>
-                    <span className="text-xs text-muted-foreground">—</span>
-                    <span className="text-xs font-medium text-foreground">{entry.names.join(", ")}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
       })()}
     </div>
   );
