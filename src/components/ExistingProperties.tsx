@@ -284,17 +284,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     </div>
                   )}
                   <div>
-                    <div className="flex items-center gap-0.5">
-                      <label className="text-muted-foreground text-[11px]">Equity Avail.</label>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info size={10} className="text-muted-foreground hover:text-foreground cursor-help shrink-0" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-[200px]">
-                          <p className="text-xs">(Current Value × LVR) − Loan Balance</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
+                    <label className="text-muted-foreground text-[11px]">Equity Available</label>
                     <div className="flex items-center gap-1">
                       <span className={`font-bold ${equity > 50000 ? 'text-success' : 'text-accent'}`}>${equity.toLocaleString()}</span>
                       <select

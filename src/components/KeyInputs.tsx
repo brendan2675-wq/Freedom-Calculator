@@ -372,15 +372,7 @@ const KeyInputs = ({
                 <div className="rounded-xl border border-border bg-muted/30 p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <Wallet size={16} className="text-accent" />
-                    <span className="text-sm font-semibold text-foreground">Equity Avail</span>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info size={12} className="text-muted-foreground hover:text-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-[200px]">
-                        <p className="text-xs">(Current Value × LVR) − Loan Balance</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <span className="text-sm font-semibold text-foreground">Equity Available</span>
                   </div>
                   <p className="text-muted-foreground text-xs mb-2">Equity Available</p>
                   <div className="flex items-center justify-between">
