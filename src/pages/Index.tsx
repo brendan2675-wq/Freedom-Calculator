@@ -204,7 +204,7 @@ const Index = () => {
         />
 
         <ExistingProperties
-          properties={existingProperties}
+          properties={activeProperties}
           setProperties={setExistingProperties}
           targetMonth={targetMonth}
           targetYear={targetYear}
