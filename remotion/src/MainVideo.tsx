@@ -28,26 +28,18 @@ export const MainVideo = () => {
     extrapolateRight: "clamp",
   });
 
-  // Simple fade in only
-  const opacity = interpolate(frame, [0, 8], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-  });
-
   return (
     <AbsoluteFill style={{ backgroundColor: "#F5F5F5" }}>
-      <div style={{ opacity, width: "100%", height: "100%" }}>
-        <Img
-          src={staticFile("images/figma-canvas.png")}
-          style={{
-            position: "absolute",
-            width: scaledW,
-            height: scaledH,
-            left: x,
-            top: y,
-          }}
-        />
-      </div>
+      <Img
+        src={staticFile("images/figma-canvas.png")}
+        style={{
+          position: "absolute",
+          width: scaledW,
+          height: scaledH,
+          left: x,
+          top: y,
+        }}
+      />
     </AbsoluteFill>
   );
 };
