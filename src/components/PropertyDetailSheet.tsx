@@ -405,7 +405,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             )}
             {!isExisting && (
               <FieldGroup label="Purchase Date *">
-                <DateInput value={property.purchase.purchaseDate} onChange={(v) => updatePurchase({ purchaseDate: v })} placeholder="Select purchase date" />
+                <DateInput value={property.purchase.purchaseDate} onChange={(v) => updatePurchase({ purchaseDate: v })} placeholder="Select purchase date" minDate={new Date(new Date().setHours(0,0,0,0))} />
                 {!property.purchase.purchaseDate && (
                   <p className="text-[11px] text-destructive mt-1 font-medium">Purchase date is required for accurate projections</p>
                 )}
@@ -730,7 +730,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                         <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
                           <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Settlement</h4>
                           <FieldGroup label="Settlement Date">
-                            <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
+                            <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" minDate={property.purchase.purchaseDate ? new Date(property.purchase.purchaseDate) : undefined} />
                           </FieldGroup>
                           {property.purchase.settlementDate && new Date(property.purchase.settlementDate) <= new Date() && (
                             <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-accent/10 border border-accent/30 text-accent text-xs font-medium">
