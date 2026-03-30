@@ -403,6 +403,14 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                 <OwnershipToggle value={property.ownership} onChange={(v) => update({ ownership: v })} trustName={property.trustName || ""} onTrustNameChange={(name) => update({ trustName: name })} />
               </FieldGroup>
             )}
+            {!isExisting && (
+              <FieldGroup label="Purchase Date *">
+                <DateInput value={property.purchase.purchaseDate} onChange={(v) => updatePurchase({ purchaseDate: v })} placeholder="Select purchase date" />
+                {!property.purchase.purchaseDate && (
+                  <p className="text-[11px] text-destructive mt-1 font-medium">Purchase date is required for accurate projections</p>
+                )}
+              </FieldGroup>
+            )}
             {!isExisting && (() => {
               const fp = property as FutureProperty;
               const sc = fp.saleCosts || { ...defaultSaleCosts };
@@ -814,9 +822,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                       ))}
                     </select>
                   </div>
-                </FieldGroup>
-                <FieldGroup label="Purchase Date (optional)">
-                  <DateInput value={property.purchase.purchaseDate} onChange={(v) => updatePurchase({ purchaseDate: v })} placeholder="Select purchase date" />
                 </FieldGroup>
               </div>
             </>
