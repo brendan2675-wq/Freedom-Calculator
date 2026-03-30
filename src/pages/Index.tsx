@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertiesToBuy from "@/components/PropertiesToBuy";
+import SoldProperties from "@/components/SoldProperties";
 import PaydownSummary from "@/components/PaydownSummary";
 import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
@@ -89,6 +90,20 @@ const Index = () => {
     localStorage.setItem("portfolio-future-properties", JSON.stringify(futureProperties));
   }, [futureProperties]);
   const [clientName, setClientName] = useState("Client Name");
+
+  // Split existing properties into active and sold
+  const now = new Date();
+  const soldProperties = useMemo(() => {
+    return existingProperties.filter((p) => {
+      if (!p.earmarked || !p.purchase.settlementDate) return false;
+      return new Date(p.purchase.settlementDate) <= now;
+    });
+  }, [existingProperties]);
+
+  const activeProperties = useMemo(() => {
+    const soldIds = new Set(soldProperties.map((p) => p.id));
+    return existingProperties.filter((p) => !soldIds.has(p.id));
+  }, [existingProperties, soldProperties]);
 
   useEffect(() => {
     const hasSeenDragHint = localStorage.getItem("drag-hint-seen");
@@ -189,7 +204,7 @@ const Index = () => {
         />
 
         <ExistingProperties
-          properties={existingProperties}
+          properties={activeProperties}
           setProperties={setExistingProperties}
           targetMonth={targetMonth}
           targetYear={targetYear}
@@ -281,7 +296,16 @@ const Index = () => {
           }}
         />
 
-        {existingProperties.length > 0 && (
+        <SoldProperties
+          properties={soldProperties}
+          onUpdate={(updated) => {
+            setExistingProperties(existingProperties.map((p) => p.id === updated.id ? updated : p));
+          }}
+          growthRate={growthRate}
+        />
+
+
+        {activeProperties.length > 0 && (
           <div>
             <div className="gold-underline pb-2 mb-4">
               <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
@@ -291,10 +315,10 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-4 gap-3">
               {[
-                { icon: Building2, label: "Current portfolio value", value: `$${(ppor.estimatedValue + existingProperties.reduce((sum, p) => sum + p.estimatedValue, 0)).toLocaleString()}` },
-                { icon: Landmark, label: "Total Loan amounts", value: `$${(loanBalance + existingProperties.reduce((sum, p) => sum + p.loanBalance, 0)).toLocaleString()}` },
-                { icon: Wallet, label: "Portfolio Loan amount", value: `$${existingProperties.reduce((sum, p) => sum + p.loanBalance, 0).toLocaleString()}` },
-                { icon: TrendingUp, label: "Current Equity", value: `$${(Math.max(0, (ppor.estimatedValue * 0.8) - loanBalance) + existingProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)).toLocaleString()}` },
+                { icon: Building2, label: "Current portfolio value", value: `$${(ppor.estimatedValue + activeProperties.reduce((sum, p) => sum + p.estimatedValue, 0)).toLocaleString()}` },
+                { icon: Landmark, label: "Total Loan amounts", value: `$${(loanBalance + activeProperties.reduce((sum, p) => sum + p.loanBalance, 0)).toLocaleString()}` },
+                { icon: Wallet, label: "Portfolio Loan amount", value: `$${activeProperties.reduce((sum, p) => sum + p.loanBalance, 0).toLocaleString()}` },
+                { icon: TrendingUp, label: "Current Equity", value: `$${(Math.max(0, (ppor.estimatedValue * 0.8) - loanBalance) + activeProperties.reduce((sum, p) => Math.max(0, (p.estimatedValue * 0.8) - p.loanBalance) + sum, 0)).toLocaleString()}` },
               ].map((stat) => (
                 <div key={stat.label} className="bg-card rounded-xl p-4 border border-border shadow-sm flex flex-col items-center gap-2">
                   <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
