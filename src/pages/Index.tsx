@@ -259,6 +259,13 @@ const Index = () => {
           targetMonth={targetMonth}
           targetYear={targetYear}
           onMoveToPortfolio={(fp) => {
+            // Set purchase date from timeline if not already set
+            const purchaseDate = fp.purchase.purchaseDate || (() => {
+              const months = fp.purchaseTimelineMonths || 0;
+              const d = new Date();
+              d.setMonth(d.getMonth() + months);
+              return d.toISOString();
+            })();
             const existing: ExistingProperty = {
               id: fp.id,
               nickname: fp.suburb,
@@ -270,7 +277,7 @@ const Index = () => {
               investmentType: fp.investmentType,
               loan: { ...fp.loan },
               rental: { ...fp.rental },
-              purchase: { ...fp.purchase },
+              purchase: { ...fp.purchase, purchaseDate },
             };
             setExistingProperties([...existingProperties, existing]);
             setFutureProperties(futureProperties.filter((p) => p.id !== fp.id));
