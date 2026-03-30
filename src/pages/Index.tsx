@@ -296,7 +296,15 @@ const Index = () => {
           }}
         />
 
-        {existingProperties.length > 0 && (
+        <SoldProperties
+          properties={soldProperties}
+          onUpdate={(updated) => {
+            setExistingProperties(existingProperties.map((p) => p.id === updated.id ? updated : p));
+          }}
+          growthRate={growthRate}
+        />
+
+
           <div>
             <div className="gold-underline pb-2 mb-4">
               <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
