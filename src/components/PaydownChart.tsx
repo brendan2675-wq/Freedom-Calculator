@@ -255,7 +255,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             </div>
             <div className="w-px h-10 bg-border mx-1" />
             <div className="flex flex-col items-center">
-              <div className="relative w-20 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+              <div className="relative w-24 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
                 <input
                   type="text"
                   inputMode="decimal"
