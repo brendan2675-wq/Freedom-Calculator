@@ -375,18 +375,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                     }}
                   />
                 </FieldGroup>
-                <FieldGroup label="Purchase Timeline">
-                  <select
-                    value={(property as FutureProperty).purchaseInYears ?? 0}
-                    onChange={(e) => update({ purchaseInYears: Number(e.target.value) } as Partial<FutureProperty>)}
-                    className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-accent"
-                  >
-                    <option value={0}>Now</option>
-                    {Array.from({ length: 10 }, (_, i) => i + 1).map((y) => (
-                      <option key={y} value={y}>In {y} year{y > 1 ? "s" : ""} ({new Date().getFullYear() + y})</option>
-                    ))}
-                  </select>
-                </FieldGroup>
               </>
             )}
             {!pporMode && (
