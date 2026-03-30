@@ -4,32 +4,31 @@ export const MainVideo = () => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
 
-  const imgW = 4800;
-  const imgH = 2666;
+  const imgW = 5800;
+  const imgH = 2800;
   const videoW = 1920;
   const videoH = 1080;
 
   // Zoom to show content nicely
-  const zoom = 2.4;
+  const zoom = 2.2;
 
   const scaledW = (imgW / imgH) * videoH * zoom;
   const scaledH = videoH * zoom;
 
-  // Pan from left (hero/loan area) to right (property cards) — stop before empty space
-  // Content occupies roughly the left 75% of the image
-  const panStartX = -80;
-  const contentEndX = scaledW * 0.72;
+  // Pan from left to right across the full canvas
+  const panStartX = -40;
+  const contentEndX = scaledW * 0.78;
   const panEndX = -(contentEndX - videoW);
 
   const x = interpolate(frame, [0, durationInFrames], [panStartX, panEndX], {
     extrapolateRight: "clamp",
   });
 
-  // Fixed vertical position — centered on content area (top portion)
-  const y = -scaledH * 0.08;
+  // Fixed vertical position — centered on the main content row
+  const y = -scaledH * 0.06;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#F5F5F5" }}>
+    <AbsoluteFill style={{ backgroundColor: "#F5F5F0" }}>
       <Img
         src={staticFile("images/figma-canvas.png")}
         style={{
