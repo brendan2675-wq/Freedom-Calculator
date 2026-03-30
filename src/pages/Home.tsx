@@ -33,7 +33,12 @@ const tiles = [
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [clientName, setClientName] = useState("Client Name");
+  const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
+  const [authOpen, setAuthOpen] = useState(false);
+  const handleSetClientName = (name: string) => {
+    setClientName(name);
+    localStorage.setItem("client-name", name);
+  };
 
   return (
     <div className="min-h-screen bg-background">
