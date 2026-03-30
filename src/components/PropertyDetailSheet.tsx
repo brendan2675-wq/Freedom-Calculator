@@ -552,6 +552,12 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                       </select>
                     )}
                   </div>
+                  {ep.earmarked && !ep.purchase.purchaseDate && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs">
+                      <AlertTriangle size={14} className="shrink-0" />
+                      <span>Enter a <strong>purchase date</strong> and <strong>state</strong> above for accurate stamp duty &amp; CGT calculations</span>
+                    </div>
+                  )}
 
                   {/* Sell-down sections - only when earmarked */}
                   {ep.earmarked && (() => {
