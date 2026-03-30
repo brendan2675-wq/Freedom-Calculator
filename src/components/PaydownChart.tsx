@@ -260,6 +260,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                   type="text"
                   inputMode="decimal"
                   value={growthRateRaw}
+                  onFocus={() => setGrowthFocused(true)}
                   onChange={(e) => {
                     const val = e.target.value;
                     if (/^\d*\.?\d{0,2}$/.test(val) || val === "") {
@@ -269,7 +270,14 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                     }
                   }}
                   onBlur={() => {
-                    setGrowthRateRaw(growthRate.toFixed(2));
+                    setGrowthFocused(false);
+                    const parsed = parseFloat(growthRateRaw);
+                    if (!isNaN(parsed)) {
+                      setGrowthRate(parsed);
+                      setGrowthRateRaw(parsed.toFixed(2));
+                    } else {
+                      setGrowthRateRaw(growthRate.toFixed(2));
+                    }
                   }}
                   className="w-full h-full bg-transparent text-center text-lg font-bold text-accent outline-none"
                 />
