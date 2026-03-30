@@ -466,7 +466,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
               const purchasePrice = ep.purchase.purchasePrice || 0;
-              const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+              const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state) : 0;
+              const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty || Math.round(purchasePrice * 0.05);
               const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
 
               const updateSaleCosts = (fields: Partial<SaleCosts>) => {
@@ -491,7 +492,23 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                     <FieldGroup label="Purchase Price">
                       <CurrencyInput value={purchasePrice} onChange={(v) => updatePurchase({ purchasePrice: v })} />
                     </FieldGroup>
-                    <FieldGroup label="Stamp Duty">
+                    <FieldGroup label="State / Territory">
+                      <select
+                        value={ep.state || ""}
+                        onChange={(e) => {
+                          const newState = (e.target.value || undefined) as AustralianState | undefined;
+                          const newDuty = newState && purchasePrice > 0 ? calculateStampDuty(purchasePrice, newState) : 0;
+                          update({ state: newState, saleCosts: { ...sc, stampDutyOnPurchase: newDuty } } as Partial<ExistingProperty>);
+                        }}
+                        className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                      >
+                        <option value="">Select state...</option>
+                        {australianStates.map((s) => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
+                      </select>
+                    </FieldGroup>
+                    <FieldGroup label={ep.state ? `Stamp Duty (${ep.state} auto-calculated)` : "Stamp Duty"}>
                       <CurrencyInput value={stampDutyAcq} onChange={(v) => updateSaleCosts({ stampDutyOnPurchase: v })} />
                     </FieldGroup>
                     <FieldGroup label="Legal / Conveyancing Fees">
