@@ -803,44 +803,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
             </>
           )}
 
-          {/* Purchase Date for non-existing properties */}
-          {!isExisting && (
-            <>
-              <SectionHeader title="Purchase Timeline" />
-              <div className="space-y-4">
-                <FieldGroup label="When do you plan to purchase?">
-                  <div className="flex gap-2">
-                    <select
-                      value={Math.floor(((property as FutureProperty).purchaseTimelineMonths || 0) / 12)}
-                      onChange={(e) => {
-                        const fp = property as FutureProperty;
-                        const currentMonths = (fp.purchaseTimelineMonths || 0) % 12;
-                        update({ purchaseTimelineMonths: Number(e.target.value) * 12 + currentMonths } as Partial<FutureProperty>);
-                      }}
-                      className="flex-1 py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                    >
-                      {Array.from({ length: 11 }, (_, i) => (
-                        <option key={i} value={i}>{i === 0 ? "This year" : `In ${i} year${i > 1 ? "s" : ""}`}</option>
-                      ))}
-                    </select>
-                    <select
-                      value={(property as FutureProperty).purchaseTimelineMonths != null ? (property as FutureProperty).purchaseTimelineMonths! % 12 : 0}
-                      onChange={(e) => {
-                        const fp = property as FutureProperty;
-                        const currentYears = Math.floor((fp.purchaseTimelineMonths || 0) / 12);
-                        update({ purchaseTimelineMonths: currentYears * 12 + Number(e.target.value) } as Partial<FutureProperty>);
-                      }}
-                      className="w-24 py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                    >
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <option key={i} value={i}>{i} mo</option>
-                      ))}
-                    </select>
-                  </div>
-                </FieldGroup>
-              </div>
-            </>
-          )}
+
+
         </div>
       </SheetContent>
     </Sheet>
