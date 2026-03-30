@@ -164,7 +164,7 @@ const Index = () => {
         const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
         const proceeds = projectedValue - p.loanBalance - totalSelling;
         const autoStampDuty = p.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, p.state, p.purchase.purchaseDate || undefined) : 0;
-        const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
+        const stampDutyAcq = sc.stampDutyOnPurchase != null && sc.stampDutyOnPurchase > 0 ? sc.stampDutyOnPurchase : autoStampDuty;
         const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
         const totalImprovements = sc.renovations + sc.structuralWork;
         const costBase = totalAcquisition + totalImprovements + sc.ownershipCostsTotal + totalSelling;
