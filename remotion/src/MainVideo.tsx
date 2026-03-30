@@ -23,10 +23,8 @@ export const MainVideo = () => {
     extrapolateRight: "clamp",
   });
 
-  // Gentle vertical positioning to center on the content
-  const y = interpolate(frame, [0, durationInFrames], [-scaledH * 0.18, -scaledH * 0.22], {
-    extrapolateRight: "clamp",
-  });
+  // Fixed vertical position — centered on content
+  const y = -scaledH * 0.18;
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#F5F5F5" }}>
