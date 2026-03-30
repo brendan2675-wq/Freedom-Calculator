@@ -5,26 +5,28 @@ export const MainVideo = () => {
   const { durationInFrames } = useVideoConfig();
 
   const imgW = 4500;
-  const imgH = 2863;
+  const imgH = 2531;
   const videoW = 1920;
   const videoH = 1080;
 
-  // Fixed zoom level — no zoom out
-  const zoom = 2.8;
+  // Zoom to show content nicely
+  const zoom = 2.4;
 
   const scaledW = (imgW / imgH) * videoH * zoom;
   const scaledH = videoH * zoom;
 
-  // Pan from left to right across the journey frames
-  const panStartX = -150;
-  const panEndX = -(scaledW - videoW - 100);
+  // Pan from left (hero/loan area) to right (property cards) — stop before empty space
+  // Content occupies roughly the left 75% of the image
+  const panStartX = -80;
+  const contentEndX = scaledW * 0.72;
+  const panEndX = -(contentEndX - videoW);
 
   const x = interpolate(frame, [0, durationInFrames], [panStartX, panEndX], {
     extrapolateRight: "clamp",
   });
 
-  // Fixed vertical position — centered on content
-  const y = -scaledH * 0.18;
+  // Fixed vertical position — centered on content area (top portion)
+  const y = -scaledH * 0.08;
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#F5F5F5" }}>
