@@ -329,6 +329,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                   position: "top",
                   content: ({ viewBox }: any) => {
                     const vx = viewBox?.x ?? 0;
+                    const vy = viewBox?.y ?? 20;
                     const maxNames = entry.names.length;
                     return (
                       <g>
@@ -336,7 +337,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                           <text
                             key={i}
                             x={vx}
-                            y={-4 - (maxNames - 1 - i) * 13}
+                            y={vy - 8 - (maxNames - 1 - i) * 13}
                             textAnchor="middle"
                             fill="hsl(142, 45%, 35%)"
                             fontSize={10}
