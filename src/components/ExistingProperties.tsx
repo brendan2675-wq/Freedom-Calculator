@@ -336,7 +336,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                       {p.earmarked ? (
                         <div className="flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive font-medium">
-                          <span>Sell in</span>
+                          <span>Selling in</span>
                           <select
                             value={p.sellInYears ?? 0}
                             onClick={(e) => e.stopPropagation()}
