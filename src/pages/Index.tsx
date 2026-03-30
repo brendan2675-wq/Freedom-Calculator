@@ -128,14 +128,18 @@ const Index = () => {
   const sellDownEvents = useMemo(() => {
     return existingProperties
       .filter((p) => p.earmarked)
-      .filter((p) => (p.purchase.purchasePrice || 0) > 0) // Exclude properties without purchase price
       .map((p) => {
-        const sc = p.saleCosts || { ...defaultSaleCosts };
         const sellYears = p.sellInYears || 0;
+        const purchasePrice = p.purchase.purchasePrice || 0;
+        if (purchasePrice <= 0) {
+          // No purchase price — still include for chart labels but with simple proceeds
+          const proceeds = Math.max(0, p.estimatedValue - p.loanBalance);
+          return { year: new Date().getFullYear() + sellYears, proceeds, nickname: p.nickname };
+        }
+        const sc = p.saleCosts || { ...defaultSaleCosts };
         const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, sellYears));
         const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
         const proceeds = projectedValue - p.loanBalance - totalSelling;
-        const purchasePrice = p.purchase.purchasePrice;
         const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
         const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
         const totalImprovements = sc.renovations + sc.structuralWork;
