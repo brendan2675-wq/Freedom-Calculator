@@ -103,8 +103,7 @@ const KeyInputs = ({
   // Sell-down bridge summary (improvement #4)
   const earmarkedCount = sellDownEvents.length;
   const totalSellDownProceeds = useMemo(() => sellDownEvents.reduce((sum, e) => sum + e.proceeds, 0), [sellDownEvents]);
-
-
+  const [sellDownOpen, setSellDownOpen] = useState(false);
 
   return (
     <TooltipProvider>
