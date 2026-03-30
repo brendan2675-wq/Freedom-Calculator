@@ -281,7 +281,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                   }}
                   className="w-full h-full bg-transparent text-center text-lg font-bold text-accent outline-none"
                 />
-                <span className="absolute right-1.5 text-accent/60 text-sm font-semibold pointer-events-none">%</span>
+                <span className="absolute right-2.5 text-accent/60 text-sm font-semibold pointer-events-none">%</span>
               </div>
               <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">growth p.a.</span>
             </div>
