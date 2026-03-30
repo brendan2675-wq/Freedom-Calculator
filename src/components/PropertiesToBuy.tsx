@@ -152,7 +152,9 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           }}
         >
           {properties.map((p) => {
-            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, yearsToTarget));
+            const purchaseDelay = p.purchaseInYears || 0;
+            const growthYears = Math.max(0, yearsToTarget - purchaseDelay);
+            const futureValue = Math.round(p.purchasePrice * Math.pow(1 + growthRate / 100, growthYears));
             return (
               <div
                 key={p.id}
@@ -209,6 +211,11 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                   <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
                     {p.ownership === "trust" ? (p.trustName || "Trust") : "Personal"}
                   </span>
+                  {purchaseDelay > 0 && (
+                    <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
+                      Buy in {purchaseDelay}yr{purchaseDelay > 1 ? "s" : ""}
+                    </span>
+                  )}
                 </div>
 
               </div>
