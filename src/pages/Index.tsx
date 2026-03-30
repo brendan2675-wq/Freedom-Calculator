@@ -189,7 +189,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header clientName={clientName} setClientName={setClientName} />
+      <Header clientName={clientName} setClientName={handleSetClientName} />
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         <KeyInputs
