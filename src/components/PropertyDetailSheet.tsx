@@ -546,13 +546,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                         </div>
 
                         <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
-                          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Ownership Costs</h4>
-                          <FieldGroup label="Ownership Costs Total">
-                            <CurrencyInput value={sc.ownershipCostsTotal} onChange={(v) => updateSaleCosts({ ownershipCostsTotal: v })} />
-                          </FieldGroup>
-                        </div>
-
-                        <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
                           <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Selling Costs</h4>
                           <FieldGroup label="Real Estate Agent Commission">
                             <CurrencyInput value={sc.agentCommission} onChange={(v) => updateSaleCosts({ agentCommission: v })} />
