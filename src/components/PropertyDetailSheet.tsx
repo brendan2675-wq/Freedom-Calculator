@@ -711,13 +711,20 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                             </div>
                           );
                         })()}
+                        <div className="bg-muted/30 border border-border rounded-lg p-4 space-y-3">
+                          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider">Settlement</h4>
+                          <FieldGroup label="Settlement Date">
+                            <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
+                          </FieldGroup>
+                          {property.purchase.settlementDate && new Date(property.purchase.settlementDate) <= new Date() && (
+                            <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-accent/10 border border-accent/30 text-accent text-xs font-medium">
+                              ✓ This property has settled and will appear in the Sold Properties section
+                            </div>
+                          )}
+                        </div>
                       </div>
                     );
                   })()}
-
-                  <FieldGroup label="Settlement Date">
-                    <DateInput value={property.purchase.settlementDate} onChange={(v) => updatePurchase({ settlementDate: v })} placeholder="Select settlement date" />
-                  </FieldGroup>
                 </>
               );
             })()}
