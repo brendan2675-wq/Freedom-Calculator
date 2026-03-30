@@ -1,3 +1,5 @@
+import type { AustralianState } from "@/lib/stampDuty";
+
 export type InvestmentType = "house" | "townhouse" | "unit" | "commercial";
 
 export interface LoanDetails {
@@ -83,6 +85,7 @@ export interface ExistingProperty {
   purchase: PurchaseDetails;
   loanSplits?: LoanSplit[];
   saleCosts?: SaleCosts;
+  state?: AustralianState;
 }
 
 export interface FutureProperty {
@@ -100,6 +103,7 @@ export interface FutureProperty {
   purchase: PurchaseDetails;
   saleCosts?: SaleCosts;
   proposedLoanAmount?: number;
+  state?: AustralianState;
 }
 
 export const defaultLoanDetails: LoanDetails = {

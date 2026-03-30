@@ -7,6 +7,7 @@ import OwnershipToggle from "@/components/OwnershipToggle";
 import { InvestmentTypeIcon, investmentTypes, getInvestmentTypeLabel } from "@/components/InvestmentTypeIcon";
 import type { ExistingProperty, FutureProperty, LoanDetails, RentalDetails, PurchaseDetails, InvestmentType, LoanSplit, SaleCosts } from "@/types/property";
 import { defaultSaleCosts } from "@/types/property";
+import { calculateStampDuty, australianStates, type AustralianState } from "@/lib/stampDuty";
 import { format } from "date-fns";
 import { CalendarIcon, Plus, X, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -209,7 +210,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
     const sc = ep.saleCosts || { ...defaultSaleCosts };
     const purchasePrice = ep.purchase.purchasePrice || 0;
     if (!purchasePrice) return;
-    const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+    const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state) : Math.round(purchasePrice * 0.05);
+    const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty;
     const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
     const totalImprovements = sc.renovations + sc.structuralWork;
     const totalOwnership = sc.ownershipCostsTotal;
@@ -405,7 +407,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               const fp = property as FutureProperty;
               const sc = fp.saleCosts || { ...defaultSaleCosts };
               const purchasePrice = fp.purchasePrice || 0;
-              const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+              const autoStampDuty = fp.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, fp.state) : 0;
+              const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty || Math.round(purchasePrice * 0.05);
               const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
 
               const updateFutureSaleCosts = (fields: Partial<SaleCosts>) => {
@@ -422,7 +425,23 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                       <span className="text-[10px] font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">Please complete</span>
                     )}
                   </div>
-                  <FieldGroup label="Stamp Duty">
+                  <FieldGroup label="State / Territory">
+                    <select
+                      value={fp.state || ""}
+                      onChange={(e) => {
+                        const newState = (e.target.value || undefined) as AustralianState | undefined;
+                        const newDuty = newState && purchasePrice > 0 ? calculateStampDuty(purchasePrice, newState) : 0;
+                        update({ state: newState, saleCosts: { ...sc, stampDutyOnPurchase: newDuty } } as Partial<FutureProperty>);
+                      }}
+                      className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                    >
+                      <option value="">Select state...</option>
+                      {australianStates.map((s) => (
+                        <option key={s.value} value={s.value}>{s.label}</option>
+                      ))}
+                    </select>
+                  </FieldGroup>
+                  <FieldGroup label={fp.state ? `Stamp Duty (${fp.state} auto-calculated)` : "Stamp Duty"}>
                     <CurrencyInput value={stampDutyAcq} onChange={(v) => updateFutureSaleCosts({ stampDutyOnPurchase: v })} />
                   </FieldGroup>
                   <FieldGroup label="Legal / Conveyancing Fees">
@@ -448,7 +467,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
               const purchasePrice = ep.purchase.purchasePrice || 0;
-              const stampDutyAcq = sc.stampDutyOnPurchase || Math.round(purchasePrice * 0.05);
+              const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state) : 0;
+              const stampDutyAcq = sc.stampDutyOnPurchase || autoStampDuty || Math.round(purchasePrice * 0.05);
               const totalAcquisition = purchasePrice + stampDutyAcq + sc.legalFeesBuy + sc.buyersAgentFees + sc.buildingPestFees + sc.mortgageEstablishmentFees;
 
               const updateSaleCosts = (fields: Partial<SaleCosts>) => {
@@ -473,7 +493,23 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                     <FieldGroup label="Purchase Price">
                       <CurrencyInput value={purchasePrice} onChange={(v) => updatePurchase({ purchasePrice: v })} />
                     </FieldGroup>
-                    <FieldGroup label="Stamp Duty">
+                    <FieldGroup label="State / Territory">
+                      <select
+                        value={ep.state || ""}
+                        onChange={(e) => {
+                          const newState = (e.target.value || undefined) as AustralianState | undefined;
+                          const newDuty = newState && purchasePrice > 0 ? calculateStampDuty(purchasePrice, newState) : 0;
+                          update({ state: newState, saleCosts: { ...sc, stampDutyOnPurchase: newDuty } } as Partial<ExistingProperty>);
+                        }}
+                        className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-accent"
+                      >
+                        <option value="">Select state...</option>
+                        {australianStates.map((s) => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
+                      </select>
+                    </FieldGroup>
+                    <FieldGroup label={ep.state ? `Stamp Duty (${ep.state} auto-calculated)` : "Stamp Duty"}>
                       <CurrencyInput value={stampDutyAcq} onChange={(v) => updateSaleCosts({ stampDutyOnPurchase: v })} />
                     </FieldGroup>
                     <FieldGroup label="Legal / Conveyancing Fees">
