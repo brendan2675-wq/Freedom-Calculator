@@ -289,7 +289,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       )}
       <div className={hasSellDowns && groupedSellDowns.length > 0 ? "h-72 md:h-80" : "h-64 md:h-72"}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: hasSellDowns ? 45 : 20, right: 10, left: 10, bottom: 5 }}>
+          <AreaChart data={data} margin={{ top: hasSellDowns ? 50 : 20, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
             <XAxis
               dataKey="year"
@@ -319,9 +319,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             <ReferenceLine x={targetYear + (targetMonth - 1) / 12} stroke="hsl(20, 60%, 52%)" strokeDasharray="5 5" strokeWidth={2} label={{ value: "Target", fill: "hsl(20, 60%, 42%)", fontSize: 13, fontWeight: 600, position: "top" }} />
             {/* Sell-down event dotted lines with property names above chart */}
             {(() => {
-              const maxStack = Math.max(...groupedSellDowns.map((g) => g.names.length));
-              const topMargin = 45; // matches AreaChart margin.top
-              const baselineY = topMargin - 6;
+              const maxStack = Math.max(1, ...groupedSellDowns.map((g) => g.names.length));
               return groupedSellDowns.map((entry) => (
                 <ReferenceLine
                   key={`sell-${entry.year}`}
@@ -333,13 +331,16 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                     position: "top",
                     content: ({ viewBox }: any) => {
                       const vx = viewBox?.x ?? 0;
+                      const vy = viewBox?.y ?? 50;
+                      // All labels use the same baseline: top of the plot area minus padding
+                      // The last name in the array sits at the baseline, earlier names stack upward
                       return (
                         <g>
                           {entry.names.map((name, i) => (
                             <text
                               key={i}
                               x={vx}
-                              y={baselineY - (entry.names.length - 1 - i) * 13}
+                              y={vy - 6 - (entry.names.length - 1 - i) * 13}
                               textAnchor="middle"
                               fill="hsl(142, 45%, 35%)"
                               fontSize={10}
