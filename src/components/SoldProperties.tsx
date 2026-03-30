@@ -16,8 +16,6 @@ interface Props {
 const SoldProperties = ({ properties, onUpdate, growthRate }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  if (properties.length === 0) return null;
-
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
 
   return (
@@ -26,12 +24,21 @@ const SoldProperties = ({ properties, onUpdate, growthRate }: Props) => {
         <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
           <PackageCheck size={26} strokeWidth={2.25} className="text-accent" />
           Sold Properties
-          <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-            {properties.length} {properties.length === 1 ? "property" : "properties"}
-          </span>
+          {properties.length > 0 && (
+            <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+              {properties.length} {properties.length === 1 ? "property" : "properties"}
+            </span>
+          )}
         </h2>
       </div>
 
+      {properties.length === 0 ? (
+        <div className="mt-3 rounded-xl border border-dashed border-border/60 bg-card/30 p-8 flex flex-col items-center justify-center text-center">
+          <PackageCheck size={32} className="text-muted-foreground/40 mb-2" />
+          <p className="text-sm text-muted-foreground">No properties sold yet</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">Earmark a property and set a past settlement date to move it here</p>
+        </div>
+      ) : (
       <div className="grid grid-cols-4 gap-3 mt-3">
         {properties.map((p) => {
           const sc = p.saleCosts || { ...defaultSaleCosts };
@@ -108,6 +115,7 @@ const SoldProperties = ({ properties, onUpdate, growthRate }: Props) => {
           );
         })}
       </div>
+      )}
 
       <PropertyDetailSheet
         property={selectedProperty}
