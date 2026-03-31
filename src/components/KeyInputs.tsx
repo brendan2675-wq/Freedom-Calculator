@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info, AlertTriangle, Home, ChevronRight, ArrowDown, ChevronDown } from "lucide-react";
+import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info, Home, ChevronRight, ArrowDown, ChevronDown } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import HouseProgress from "@/components/HouseProgress";
@@ -83,22 +83,6 @@ const KeyInputs = ({
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const years = Array.from({ length: 20 }, (_, i) => 2025 + i);
 
-  // Track last-updated timestamp for Update badge (improvement #3)
-  useEffect(() => {
-    localStorage.setItem("ppor-loan-last-updated", Date.now().toString());
-  }, [loanBalance, interestRate]);
-
-  const { showUpdateBadge, updateBadgeLabel } = useMemo(() => {
-    const stored = localStorage.getItem("ppor-loan-last-updated");
-    if (!stored) return { showUpdateBadge: true, updateBadgeLabel: "Not yet updated" };
-    const daysSince = Math.floor((Date.now() - parseInt(stored, 10)) / (1000 * 60 * 60 * 24));
-    if (daysSince < 90) return { showUpdateBadge: false, updateBadgeLabel: "" };
-    const monthsSince = Math.floor(daysSince / 30);
-    return {
-      showUpdateBadge: true,
-      updateBadgeLabel: monthsSince > 0 ? `Updated ${monthsSince}mo ago` : `Updated ${daysSince}d ago`,
-    };
-  }, [loanBalance, interestRate]);
 
   // Sell-down bridge summary (improvement #4)
   const earmarkedCount = sellDownEvents.length;
@@ -126,18 +110,7 @@ const KeyInputs = ({
                 <DollarSign size={18} className="text-accent" />
                 <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
               </div>
-              {showUpdateBadge && (
-                <div className="flex items-center gap-2 mb-3">
-                  <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
-                  <span className="inline-flex items-center gap-1 text-[10px] text-destructive font-medium bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">
-                    <AlertTriangle size={10} className="text-destructive" />
-                    {updateBadgeLabel}
-                  </span>
-                </div>
-              )}
-              {!showUpdateBadge && (
-                <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
-              )}
+              <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
               <div
                 className="flex gap-3 cursor-pointer group/loan"
                 onClick={() => setPporDetailOpen(true)}
