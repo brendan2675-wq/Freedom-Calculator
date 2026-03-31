@@ -164,7 +164,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       };
       fire();
 
-      const timer = setTimeout(() => setShowCelebration(false), 4000);
+      const timer = setTimeout(() => setShowCelebration(false), 5000);
       return () => clearTimeout(timer);
     }
     prevGoalAchieved.current = goalAchieved;
@@ -301,7 +301,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         </div>
       )}
       {showCelebration && (
-        <div className="animate-fade-in mb-4 rounded-2xl bg-accent/15 border-2 border-accent px-6 py-5 text-center shadow-lg relative z-20">
+        <div className={`mb-4 rounded-2xl bg-accent/15 border-2 border-accent px-6 py-5 text-center shadow-lg relative z-20 transition-opacity duration-700 ${showCelebration ? 'animate-fade-in' : ''}`}>
           <p className="text-accent font-extrabold text-2xl mb-1">🎉 Goal Achieved!</p>
           <p className="text-foreground text-base font-medium">Your strategy pays off the loan before the target date!</p>
         </div>
