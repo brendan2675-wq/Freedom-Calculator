@@ -374,32 +374,64 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           const minYear = data[0]?.year ?? new Date().getFullYear();
           const maxYear = data[data.length - 1]?.year ?? minYear + 1;
           const span = Math.max(1, maxYear - minYear);
-          const plotLeftPx = 70; // Y axis (60) + left chart margin (10)
-          const plotRightPx = 10; // right chart margin
-          const baselineY = 42; // fixed baseline for all bottom labels
+          const plotLeftPx = 70;
+          const plotRightPx = 10;
+          const baselineY = 42;
+          const labelHeight = 13;
+          const minPctGap = 0.08; // minimum horizontal gap before staggering
+
+          // Build flat list of all labels with their year group info
+          type LabelInfo = { year: number; name: string; pct: number; };
+          const allLabels: LabelInfo[] = [];
+          groupedSellDowns.forEach((entry) => {
+            const pct = Math.min(1, Math.max(0, (entry.year - minYear) / span));
+            entry.names.forEach((name) => {
+              allLabels.push({ year: entry.year, name, pct });
+            });
+          });
+
+          // Assign vertical offsets: walk labels sorted by pct, stack when too close
+          const offsets: number[] = [];
+          let currentStackTop = baselineY;
+          for (let idx = 0; idx < allLabels.length; idx++) {
+            if (idx === 0) {
+              offsets.push(baselineY);
+              currentStackTop = baselineY - labelHeight;
+            } else {
+              const gap = Math.abs(allLabels[idx].pct - allLabels[idx - 1].pct);
+              if (gap < minPctGap) {
+                // Too close — stack above previous
+                offsets.push(currentStackTop);
+                currentStackTop -= labelHeight;
+              } else {
+                // Enough space — reset to baseline
+                offsets.push(baselineY);
+                currentStackTop = baselineY - labelHeight;
+              }
+            }
+          }
 
           return (
             <div className="absolute inset-0 pointer-events-none z-10">
-              {groupedSellDowns.map((entry) => {
-                const pct = Math.min(1, Math.max(0, (entry.year - minYear) / span));
-                const left = `calc(${plotLeftPx}px + (100% - ${plotLeftPx + plotRightPx}px) * ${pct})`;
-                const nearLeft = pct < 0.1;
-                const nearRight = pct > 0.9;
+              {allLabels.map((label, idx) => {
+                const left = `calc(${plotLeftPx}px + (100% - ${plotLeftPx + plotRightPx}px) * ${label.pct})`;
+                const nearLeft = label.pct < 0.1;
+                const nearRight = label.pct > 0.9;
                 const transform = nearLeft ? "translateX(0)" : nearRight ? "translateX(-100%)" : "translateX(-50%)";
 
-                return entry.names.map((name, i) => (
+                return (
                   <span
-                    key={`${entry.year}-${name}-${i}`}
+                    key={`${label.year}-${label.name}-${idx}`}
                     className="absolute text-[10px] font-semibold leading-none text-success whitespace-nowrap"
                     style={{
                       left,
                       transform,
-                      top: baselineY - (entry.names.length - 1 - i) * 13,
+                      top: offsets[idx],
                     }}
                   >
-                    {name}
+                    {label.name}
                   </span>
-                ));
+                );
               })}
             </div>
           );
