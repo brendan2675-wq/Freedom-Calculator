@@ -58,6 +58,13 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
     for (let i = 0; i <= years; i++) {
       const year = startYear + i;
 
+      // Apply lump-sum sell-down proceeds BEFORE recording the data point
+      // so the balance drop is immediate in the sell year.
+      if (proceedsByYear[year] && acceleratedBalance > 0) {
+        acceleratedBalance -= proceedsByYear[year];
+        if (acceleratedBalance < 0) acceleratedBalance = 0;
+      }
+
       points.push({
         year,
         standard: Math.round(Math.max(0, standardBalance)),
@@ -97,13 +104,6 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           }
           acceleratedMonthElapsed++;
         }
-      }
-
-      // Apply lump-sum sell-down proceeds in the selected sell year (end-of-year effect)
-      // This avoids a one-year lag in the displayed drop.
-      if (proceedsByYear[year] && acceleratedBalance > 0) {
-        acceleratedBalance -= proceedsByYear[year];
-        if (acceleratedBalance < 0) acceleratedBalance = 0;
       }
     }
     return points;
