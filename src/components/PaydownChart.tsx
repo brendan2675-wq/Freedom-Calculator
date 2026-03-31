@@ -164,7 +164,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       };
       fire();
 
-      const timer = setTimeout(() => setShowCelebration(false), 4000);
+      const timer = setTimeout(() => setShowCelebration(false), 5000);
       return () => clearTimeout(timer);
     }
     prevGoalAchieved.current = goalAchieved;
