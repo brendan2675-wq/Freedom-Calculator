@@ -110,18 +110,7 @@ const KeyInputs = ({
                 <DollarSign size={18} className="text-accent" />
                 <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
               </div>
-              {showUpdateBadge && (
-                <div className="flex items-center gap-2 mb-3">
-                  <p className="text-muted-foreground text-sm">Current PPOR loan balance & rate</p>
-                  <span className="inline-flex items-center gap-1 text-[10px] text-destructive font-medium bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">
-                    <AlertTriangle size={10} className="text-destructive" />
-                    {updateBadgeLabel}
-                  </span>
-                </div>
-              )}
-              {!showUpdateBadge && (
-                <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
-              )}
+              <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
               <div
                 className="flex gap-3 cursor-pointer group/loan"
                 onClick={() => setPporDetailOpen(true)}

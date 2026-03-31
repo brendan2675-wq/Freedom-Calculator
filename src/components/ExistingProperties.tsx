@@ -259,15 +259,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
                   </div>
                   <div>
-                    <div className="flex items-center gap-1">
-                      <label className="text-muted-foreground text-[11px]">Current Loan</label>
-                      {p.loan.interestOnlyPeriodYears === 0 && (
-                        <div className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-destructive/10 border border-destructive/20">
-                          <AlertTriangle size={8} className="text-destructive shrink-0" />
-                          <span className="text-[8px] text-destructive font-medium leading-none">Update</span>
-                        </div>
-                      )}
-                    </div>
+                    <label className="text-muted-foreground text-[11px]">Current Loan</label>
                     <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
                   </div>
                   {!portfolioMode && (
