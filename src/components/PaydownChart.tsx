@@ -232,15 +232,15 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
     return targetPoint ? targetPoint.accelerated <= 0 : false;
   }, [data, targetYear, hasSellDowns]);
 
+  const prevGoalAchieved = useRef(false);
   const celebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const confettiAnimationRef = useRef<number | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
+    const wasGoalAchieved = prevGoalAchieved.current;
     prevGoalAchieved.current = goalAchieved;
-  }, [goalAchieved]);
 
-  useEffect(() => {
     if (!goalAchieved) {
       setShowCelebration(false);
       if (celebrationTimerRef.current) {
@@ -254,7 +254,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       return;
     }
 
-    if (prevGoalAchieved.current) return;
+    if (wasGoalAchieved) return;
 
     setShowCelebration(true);
 
