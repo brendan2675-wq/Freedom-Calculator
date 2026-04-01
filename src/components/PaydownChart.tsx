@@ -233,30 +233,66 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   }, [data, targetYear, hasSellDowns]);
 
   const prevGoalAchieved = useRef(false);
+  const celebrationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const confettiAnimationRef = useRef<number | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
-    if (goalAchieved && !prevGoalAchieved.current) {
-      setShowCelebration(true);
-
-      const end = Date.now() + 2500;
-      const fire = () => {
-        confetti({
-          particleCount: 25,
-          spread: 60,
-          origin: { y: 0.5, x: 0.5 },
-          colors: ['#E8914F', '#D4782F', '#F5C28A', '#FFD700', '#FF6B35'],
-          scalar: 0.6,
-          gravity: 1.2,
-        });
-        if (Date.now() < end) requestAnimationFrame(fire);
-      };
-      fire();
-
-      const timer = setTimeout(() => setShowCelebration(false), 5000);
-      return () => clearTimeout(timer);
-    }
+    const wasGoalAchieved = prevGoalAchieved.current;
     prevGoalAchieved.current = goalAchieved;
+
+    if (!goalAchieved) {
+      setShowCelebration(false);
+      if (celebrationTimerRef.current) {
+        clearTimeout(celebrationTimerRef.current);
+        celebrationTimerRef.current = null;
+      }
+      if (confettiAnimationRef.current) {
+        cancelAnimationFrame(confettiAnimationRef.current);
+        confettiAnimationRef.current = null;
+      }
+      return;
+    }
+
+    if (wasGoalAchieved) return;
+
+    setShowCelebration(true);
+
+    const end = Date.now() + 2500;
+    const fire = () => {
+      confetti({
+        particleCount: 25,
+        spread: 60,
+        origin: { y: 0.5, x: 0.5 },
+        colors: ['#E8914F', '#D4782F', '#F5C28A', '#FFD700', '#FF6B35'],
+        scalar: 0.6,
+        gravity: 1.2,
+      });
+
+      if (Date.now() < end) {
+        confettiAnimationRef.current = requestAnimationFrame(fire);
+      } else {
+        confettiAnimationRef.current = null;
+      }
+    };
+
+    fire();
+
+    celebrationTimerRef.current = setTimeout(() => {
+      setShowCelebration(false);
+      celebrationTimerRef.current = null;
+    }, 5000);
+
+    return () => {
+      if (celebrationTimerRef.current) {
+        clearTimeout(celebrationTimerRef.current);
+        celebrationTimerRef.current = null;
+      }
+      if (confettiAnimationRef.current) {
+        cancelAnimationFrame(confettiAnimationRef.current);
+        confettiAnimationRef.current = null;
+      }
+    };
   }, [goalAchieved]);
 
   // Compute years/months duration from now to target
