@@ -24,6 +24,27 @@ interface Props {
 const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTargetMonth, setTargetYear, growthRate, setGrowthRate, interestRate, sellDownEvents, repaymentType, loanTermYears, loanTermMonths, ioPeriodYears }: Props) => {
   const [growthRateRaw, setGrowthRateRaw] = useState(growthRate.toFixed(2));
   const [growthFocused, setGrowthFocused] = useState(false);
+  const chartWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [chartWidth, setChartWidth] = useState(0);
+
+  useEffect(() => {
+    const element = chartWrapperRef.current;
+    if (!element) return;
+
+    const updateWidth = () => setChartWidth(element.clientWidth);
+    updateWidth();
+
+    if (typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setChartWidth(entry.contentRect.width);
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => { if (!growthFocused) setGrowthRateRaw(growthRate.toFixed(2)); }, [growthRate, growthFocused]);
   const data = useMemo(() => {
     const startYear = new Date().getFullYear();
@@ -121,6 +142,74 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       .map(([year, names]) => ({ year: Number(year), names }))
       .sort((a, b) => a.year - b.year);
   }, [sellDownEvents]);
+
+  const sellLabelLayout = useMemo(() => {
+    if (!hasSellDowns || groupedSellDowns.length === 0) {
+      return { chartTopMargin: 50, labels: [] as Array<{ key: string; left: number; top: number; name: string }> };
+    }
+
+    const minYear = data[0]?.year ?? new Date().getFullYear();
+    const maxYear = data[data.length - 1]?.year ?? minYear + 1;
+    const span = Math.max(1, maxYear - minYear);
+    const plotLeftPx = 70;
+    const plotRightPx = 10;
+    const plotWidthPx = Math.max(280, chartWidth - plotLeftPx - plotRightPx);
+    const labelRowHeight = 16;
+    const topPadding = 8;
+    const minGapPx = 12;
+    const adjacentYearGapPx = 110;
+
+    const flattenedLabels = groupedSellDowns.flatMap((entry) =>
+      entry.names.map((name, nameIndex) => ({
+        key: `${entry.year}-${name}-${nameIndex}`,
+        year: entry.year,
+        name,
+        pct: Math.min(1, Math.max(0, (entry.year - minYear) / span)),
+      }))
+    );
+
+    const levelState: Array<{ right: number; year: number; x: number }> = [];
+
+    const placedLabels = flattenedLabels.map((label) => {
+      const width = Math.max(56, label.name.length * 6.5 + 10);
+      const x = plotLeftPx + plotWidthPx * label.pct;
+      const unclampedLeft = x - width / 2;
+      const left = Math.max(plotLeftPx, Math.min(plotLeftPx + plotWidthPx - width, unclampedLeft));
+
+      let level = 0;
+      while (true) {
+        const currentLevel = levelState[level];
+        if (!currentLevel) break;
+
+        const overlapsHorizontally = left < currentLevel.right + minGapPx;
+        const adjacentYearTooClose = Math.abs(label.year - currentLevel.year) <= 1 && Math.abs(x - currentLevel.x) < adjacentYearGapPx;
+
+        if (!overlapsHorizontally && !adjacentYearTooClose) break;
+        level += 1;
+      }
+
+      levelState[level] = { right: left + width, year: label.year, x };
+
+      return {
+        ...label,
+        left,
+        level,
+      };
+    });
+
+    const maxLevel = placedLabels.reduce((max, label) => Math.max(max, label.level), 0);
+    const baselineY = topPadding + maxLevel * labelRowHeight;
+
+    return {
+      chartTopMargin: baselineY + labelRowHeight + 10,
+      labels: placedLabels.map((label) => ({
+        key: label.key,
+        left: label.left,
+        top: baselineY - label.level * labelRowHeight,
+        name: label.name,
+      })),
+    };
+  }, [chartWidth, data, groupedSellDowns, hasSellDowns]);
 
   // Compute payoff years for time-saved callout (improvement #2)
   const timeSaved = useMemo(() => {
@@ -306,9 +395,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           <p className="text-foreground text-base font-medium">Your strategy pays off the loan before the target date!</p>
         </div>
       )}
-      <div className={hasSellDowns && groupedSellDowns.length > 0 ? "h-72 md:h-80 relative" : "h-64 md:h-72 relative"}>
+      <div ref={chartWrapperRef} className={hasSellDowns && groupedSellDowns.length > 0 ? "h-72 md:h-80 relative" : "h-64 md:h-72 relative"}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: hasSellDowns ? 50 : 20, right: 10, left: 10, bottom: 5 }}>
+          <AreaChart data={data} margin={{ top: hasSellDowns ? sellLabelLayout.chartTopMargin : 20, right: 10, left: 10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
             <XAxis
               dataKey="year"
@@ -370,72 +459,22 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           </AreaChart>
         </ResponsiveContainer>
 
-        {hasSellDowns && groupedSellDowns.length > 0 && (() => {
-          const minYear = data[0]?.year ?? new Date().getFullYear();
-          const maxYear = data[data.length - 1]?.year ?? minYear + 1;
-          const span = Math.max(1, maxYear - minYear);
-          const plotLeftPx = 70;
-          const plotRightPx = 10;
-          const baselineY = 42;
-          const labelHeight = 13;
-          const minPctGap = 0.08; // minimum horizontal gap before staggering
-
-          // Build flat list of all labels with their year group info
-          type LabelInfo = { year: number; name: string; pct: number; };
-          const allLabels: LabelInfo[] = [];
-          groupedSellDowns.forEach((entry) => {
-            const pct = Math.min(1, Math.max(0, (entry.year - minYear) / span));
-            entry.names.forEach((name) => {
-              allLabels.push({ year: entry.year, name, pct });
-            });
-          });
-
-          // Assign vertical offsets: walk labels sorted by pct, stack when too close
-          const offsets: number[] = [];
-          let currentStackTop = baselineY;
-          for (let idx = 0; idx < allLabels.length; idx++) {
-            if (idx === 0) {
-              offsets.push(baselineY);
-              currentStackTop = baselineY - labelHeight;
-            } else {
-              const gap = Math.abs(allLabels[idx].pct - allLabels[idx - 1].pct);
-              if (gap < minPctGap) {
-                // Too close — stack above previous
-                offsets.push(currentStackTop);
-                currentStackTop -= labelHeight;
-              } else {
-                // Enough space — reset to baseline
-                offsets.push(baselineY);
-                currentStackTop = baselineY - labelHeight;
-              }
-            }
-          }
-
-          return (
-            <div className="absolute inset-0 pointer-events-none z-10">
-              {allLabels.map((label, idx) => {
-                const left = `calc(${plotLeftPx}px + (100% - ${plotLeftPx + plotRightPx}px) * ${label.pct})`;
-                const nearLeft = label.pct < 0.1;
-                const nearRight = label.pct > 0.9;
-                const transform = nearLeft ? "translateX(0)" : nearRight ? "translateX(-100%)" : "translateX(-50%)";
-
-                return (
-                  <span
-                    key={`${label.year}-${label.name}-${idx}`}
-                    className="absolute text-[10px] font-semibold leading-none text-success whitespace-nowrap"
-                    style={{
-                      left,
-                      transform,
-                      top: offsets[idx],
-                    }}
-                  >
-                    {label.name}
-                  </span>
-                );
-              })}
-            </div>
-          );
-        })()}
+        {hasSellDowns && sellLabelLayout.labels.length > 0 && (
+          <div className="absolute inset-0 pointer-events-none z-10">
+            {sellLabelLayout.labels.map((label) => (
+              <span
+                key={label.key}
+                className="absolute text-[10px] font-semibold leading-none text-success whitespace-nowrap"
+                style={{
+                  left: `${label.left}px`,
+                  top: label.top,
+                }}
+              >
+                {label.name}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex gap-6 mt-2 text-sm text-muted-foreground justify-center">
