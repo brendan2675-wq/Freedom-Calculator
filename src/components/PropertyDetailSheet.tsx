@@ -288,7 +288,22 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
 
         <div className="space-y-6 mt-6 pb-8">
           {/* Basic Info */}
-          <SectionHeader title="Basic Info" />
+          <div className="flex items-center justify-between">
+            <SectionHeader title="Basic Info" />
+            {onDuplicate && !pporMode && (
+              <button
+                onClick={() => {
+                  onDuplicate(property);
+                  onOpenChange(false);
+                }}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors"
+                title="Duplicate property"
+              >
+                <Copy size={14} />
+                <span>Duplicate</span>
+              </button>
+            )}
+          </div>
           <div className="space-y-4">
             {isExisting ? (
               <>
