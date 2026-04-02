@@ -22,6 +22,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdate: (updated: PropertyType) => void;
+  onDuplicate?: (property: PropertyType) => void;
   variant: "existing" | "future";
   growthRate?: number;
   portfolioMode?: boolean;
