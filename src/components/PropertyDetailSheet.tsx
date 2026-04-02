@@ -530,7 +530,10 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
                       )}
                     </div>
                     <FieldGroup label="Purchase Price">
-                      <CurrencyInput value={purchasePrice} onChange={(v) => updatePurchase({ purchasePrice: v })} />
+                      <CurrencyInput value={purchasePrice} onChange={(v) => {
+                        const newDuty = ep.state && v > 0 ? calculateStampDuty(v, ep.state, purchaseDate) : 0;
+                        update({ purchase: { ...property.purchase, purchasePrice: v }, saleCosts: { ...sc, stampDutyOnPurchase: newDuty } } as Partial<ExistingProperty>);
+                      }} />
                     </FieldGroup>
                     <FieldGroup label="State / Territory">
                       <select
