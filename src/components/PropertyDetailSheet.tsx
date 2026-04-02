@@ -9,7 +9,7 @@ import type { ExistingProperty, FutureProperty, LoanDetails, RentalDetails, Purc
 import { defaultSaleCosts } from "@/types/property";
 import { calculateStampDuty, australianStates, type AustralianState } from "@/lib/stampDuty";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, X, AlertTriangle } from "lucide-react";
+import { CalendarIcon, Plus, X, AlertTriangle, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -22,6 +22,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdate: (updated: PropertyType) => void;
+  onDuplicate?: (property: PropertyType) => void;
   variant: "existing" | "future";
   growthRate?: number;
   portfolioMode?: boolean;
@@ -195,7 +196,7 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, growthRate = 6, portfolioMode = false, pporMode = false }: Props) => {
+const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplicate, variant, growthRate = 6, portfolioMode = false, pporMode = false }: Props) => {
   const isExisting = variant === "existing";
   const manualTaxOverride = useRef(false);
 
@@ -287,7 +288,22 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, variant, 
 
         <div className="space-y-6 mt-6 pb-8">
           {/* Basic Info */}
-          <SectionHeader title="Basic Info" />
+          <div className="flex items-center justify-between">
+            <SectionHeader title="Basic Info" />
+            {onDuplicate && !pporMode && (
+              <button
+                onClick={() => {
+                  onDuplicate(property);
+                  onOpenChange(false);
+                }}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors"
+                title="Duplicate property"
+              >
+                <Copy size={14} />
+                <span>Duplicate</span>
+              </button>
+            )}
+          </div>
           <div className="space-y-4">
             {isExisting ? (
               <>

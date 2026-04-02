@@ -273,6 +273,11 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           onUpdate={(updated) => {
             setProperties(properties.map((p) => p.id === updated.id ? updated as FutureProperty : p));
           }}
+          onDuplicate={(prop) => {
+            const dup = { ...prop, id: crypto.randomUUID(), suburb: `${(prop as FutureProperty).suburb || "Property"} (copy)` } as FutureProperty;
+            setProperties([...properties, dup]);
+            setSelectedId(dup.id);
+          }}
           variant="future"
         />
       </section>
