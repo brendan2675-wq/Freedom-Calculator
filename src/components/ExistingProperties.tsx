@@ -423,6 +423,11 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           onUpdate={(updated) => {
             setProperties(properties.map((p) => p.id === updated.id ? updated as ExistingProperty : p));
           }}
+          onDuplicate={(prop) => {
+            const dup = { ...prop, id: crypto.randomUUID(), nickname: `${(prop as ExistingProperty).nickname || "Property"} (copy)` } as ExistingProperty;
+            setProperties([...properties, dup]);
+            setSelectedId(dup.id);
+          }}
           variant="existing"
           growthRate={growthRate}
           portfolioMode={portfolioMode}
