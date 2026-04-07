@@ -726,7 +726,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                             );
                           }
                           const discountedGain = capitalGain * (1 - sc.cgtDiscount);
-                          const effectiveRate = sc.incomeTaxRate + 0.02;
+                          const mlRate = (sc.includeMedicareLevy ?? true) ? 0.02 : 0;
+                          const effectiveRate = sc.incomeTaxRate + mlRate;
                           const cgtPayable = Math.round(discountedGain * effectiveRate);
                           const netAfterCGT = saleProceeds - cgtPayable;
                           return (
