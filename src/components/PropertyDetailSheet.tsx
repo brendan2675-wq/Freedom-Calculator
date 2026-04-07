@@ -702,7 +702,15 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                               <option value={0.45}>45% – $190,001+</option>
                             </select>
                           </FieldGroup>
-                          <p className="text-[10px] text-muted-foreground">+ 2% Medicare levy applied automatically</p>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={sc.includeMedicareLevy ?? true}
+                              onChange={(e) => updateSaleCosts({ includeMedicareLevy: e.target.checked })}
+                              className="rounded border-border text-accent focus:ring-accent h-4 w-4"
+                            />
+                            <span className="text-xs text-muted-foreground">+ 2% Medicare levy</span>
+                          </label>
                         </div>
 
                         {(() => {
@@ -718,7 +726,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                             );
                           }
                           const discountedGain = capitalGain * (1 - sc.cgtDiscount);
-                          const effectiveRate = sc.incomeTaxRate + 0.02;
+                          const mlRate = (sc.includeMedicareLevy ?? true) ? 0.02 : 0;
+                          const effectiveRate = sc.incomeTaxRate + mlRate;
                           const cgtPayable = Math.round(discountedGain * effectiveRate);
                           const netAfterCGT = saleProceeds - cgtPayable;
                           return (
@@ -760,7 +769,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                                 <span className="text-foreground font-medium">${discountedGain.toLocaleString()}</span>
                               </div>
                               <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}% + 2% ML)</span>
+                                <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}%{(sc.includeMedicareLevy ?? true) ? " + 2% ML" : ""})</span>
                                 <span className="text-foreground font-medium">{(effectiveRate * 100).toFixed(0)}%</span>
                               </div>
                               <div className="flex justify-between text-sm">
