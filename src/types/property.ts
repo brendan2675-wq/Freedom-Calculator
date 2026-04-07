@@ -50,6 +50,7 @@ export interface SaleCosts {
   // CGT
   cgtDiscount: number; // 0.5 or 0
   incomeTaxRate: number; // e.g. 0.325
+  includeMedicareLevy: boolean;
 }
 
 export const defaultSaleCosts: SaleCosts = {
