@@ -705,7 +705,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
                               type="checkbox"
-                              checked={sc.includeMedicareLevy ?? true}
+                              checked={sc.includeMedicareLevy ?? false}
                               onChange={(e) => updateSaleCosts({ includeMedicareLevy: e.target.checked })}
                               className="rounded border-border text-accent focus:ring-accent h-4 w-4"
                             />
