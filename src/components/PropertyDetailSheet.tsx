@@ -769,7 +769,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                                 <span className="text-foreground font-medium">${discountedGain.toLocaleString()}</span>
                               </div>
                               <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}%{(sc.includeMedicareLevy ?? true) ? " + 2% ML" : ""})</span>
+                                <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}%{(sc.includeMedicareLevy ?? false) ? " + 2% ML" : ""})</span>
                                 <span className="text-foreground font-medium">{(effectiveRate * 100).toFixed(0)}%</span>
                               </div>
                               <div className="flex justify-between text-sm">
