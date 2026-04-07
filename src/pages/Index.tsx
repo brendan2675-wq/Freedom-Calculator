@@ -174,7 +174,7 @@ const Index = () => {
         const costBase = totalAcquisition + totalImprovements + sc.ownershipCostsTotal + totalSelling;
         const capitalGain = Math.max(0, projectedValue - costBase);
         const discountedGain = capitalGain * (1 - sc.cgtDiscount);
-        const effectiveRate = sc.incomeTaxRate + 0.02;
+        const effectiveRate = sc.incomeTaxRate + ((sc.includeMedicareLevy ?? true) ? 0.02 : 0);
         const cgtPayable = Math.round(discountedGain * effectiveRate);
         const netProceeds = Math.max(0, proceeds - cgtPayable);
         return { year: new Date().getFullYear() + sellYears, proceeds: netProceeds, nickname: p.nickname };
