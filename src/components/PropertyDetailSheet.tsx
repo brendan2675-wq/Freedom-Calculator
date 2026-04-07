@@ -705,7 +705,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
                               type="checkbox"
-                              checked={sc.includeMedicareLevy ?? true}
+                              checked={sc.includeMedicareLevy ?? false}
                               onChange={(e) => updateSaleCosts({ includeMedicareLevy: e.target.checked })}
                               className="rounded border-border text-accent focus:ring-accent h-4 w-4"
                             />
@@ -726,7 +726,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                             );
                           }
                           const discountedGain = capitalGain * (1 - sc.cgtDiscount);
-                          const mlRate = (sc.includeMedicareLevy ?? true) ? 0.02 : 0;
+                          const mlRate = (sc.includeMedicareLevy ?? false) ? 0.02 : 0;
                           const effectiveRate = sc.incomeTaxRate + mlRate;
                           const cgtPayable = Math.round(discountedGain * effectiveRate);
                           const netAfterCGT = saleProceeds - cgtPayable;
@@ -769,7 +769,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                                 <span className="text-foreground font-medium">${discountedGain.toLocaleString()}</span>
                               </div>
                               <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}%{(sc.includeMedicareLevy ?? true) ? " + 2% ML" : ""})</span>
+                                <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}%{(sc.includeMedicareLevy ?? false) ? " + 2% ML" : ""})</span>
                                 <span className="text-foreground font-medium">{(effectiveRate * 100).toFixed(0)}%</span>
                               </div>
                               <div className="flex justify-between text-sm">

@@ -69,7 +69,7 @@ export const defaultSaleCosts: SaleCosts = {
   sellerAdvisoryFees: 0,
   cgtDiscount: 0.5,
   incomeTaxRate: 0.45,
-  includeMedicareLevy: true,
+  includeMedicareLevy: false,
 };
 
 export interface ExistingProperty {
