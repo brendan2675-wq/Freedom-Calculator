@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, UserCircle, Building2, Landmark, TrendingUp, Home, Plus, RotateCcw } from "lucide-react";
+import { LayoutDashboard, UserCircle, Building2, Landmark, TrendingUp, Home, Plus, RotateCcw, ArrowUpRight, ArrowDownRight, DollarSign, Activity } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import AuthFlow from "@/components/AuthFlow";
 import ExistingProperties from "@/components/ExistingProperties";
