@@ -278,48 +278,37 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     <X size={14} />
                   </button>
                 </div>
-                <div className="flex items-center gap-1.5 mb-2">
+                {/* Header: icon + name + growth badge */}
+                <div className="flex items-center gap-1.5 mb-3">
                   <InvestmentTypeIcon type={p.investmentType} size={16} className="text-accent shrink-0" />
                   <p className="font-semibold text-sm text-foreground truncate">{p.nickname || "Untitled"}</p>
+                  {p.purchase?.purchasePrice > 0 && (
+                    <span className={`ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${
+                      p.estimatedValue >= p.purchase.purchasePrice
+                        ? "bg-success/15 text-success"
+                        : "bg-destructive/15 text-destructive"
+                    }`}>
+                      {p.estimatedValue >= p.purchase.purchasePrice ? "↑" : "↓"}
+                      {Math.abs(((p.estimatedValue - p.purchase.purchasePrice) / p.purchase.purchasePrice) * 100).toFixed(1)}%
+                    </span>
+                  )}
                 </div>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
+
+                {/* Hero: Current Value */}
+                <div className="mb-3">
+                  <label className="text-muted-foreground text-[11px]">Current Value</label>
+                  <p className="text-foreground text-lg font-bold">${p.estimatedValue.toLocaleString()}</p>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-border mb-3" />
+
+                {/* Secondary metrics row */}
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                   <div>
-                    <label className="text-muted-foreground text-[11px]">Current Value</label>
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
-                      {p.purchase?.purchasePrice > 0 && (
-                        <span className={`text-[10px] font-semibold px-1 py-0.5 rounded ${
-                          p.estimatedValue >= p.purchase.purchasePrice
-                            ? "bg-success/15 text-success"
-                            : "bg-destructive/15 text-destructive"
-                        }`}>
-                          {p.estimatedValue >= p.purchase.purchasePrice ? "↑" : "↓"}
-                          {Math.abs(((p.estimatedValue - p.purchase.purchasePrice) / p.purchase.purchasePrice) * 100).toFixed(1)}%
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-muted-foreground text-[11px]">Current Loan</label>
+                    <label className="text-muted-foreground text-[11px]">Loan Balance</label>
                     <p className="text-foreground font-medium">${p.loanBalance.toLocaleString()}</p>
                   </div>
-                  {!portfolioMode && (
-                    <div>
-                      <label className="text-muted-foreground text-[11px]">{"Future Value (" + growthRate + "%)"}</label>
-                      <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
-                    </div>
-                  )}
-                  {portfolioMode && p.rental.weeklyRent > 0 && p.estimatedValue > 0 && (
-                    <div>
-                      <label className="text-muted-foreground text-[11px]">Rental Yield</label>
-                      <p className="text-accent font-medium">
-                        {((p.rental.weeklyRent * 52) / p.estimatedValue * 100).toFixed(1)}%
-                        <span className="text-muted-foreground text-[10px] ml-1">
-                          (${(p.rental.weeklyRent * 52).toLocaleString()} p.a.)
-                        </span>
-                      </p>
-                    </div>
-                  )}
                   <div>
                     <label className="text-muted-foreground text-[11px]">Equity Available</label>
                     <div className="flex items-center gap-1">
@@ -339,6 +328,23 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                       </select>
                     </div>
                   </div>
+                  {!portfolioMode && (
+                    <div>
+                      <label className="text-muted-foreground text-[11px]">{"Future Value (" + growthRate + "%)"}</label>
+                      <p className="text-accent font-medium">${futureValue.toLocaleString()}</p>
+                    </div>
+                  )}
+                  {portfolioMode && p.rental.weeklyRent > 0 && p.estimatedValue > 0 && (
+                    <div>
+                      <label className="text-muted-foreground text-[11px]">Rental Yield</label>
+                      <p className="text-accent font-medium">
+                        {((p.rental.weeklyRent * 52) / p.estimatedValue * 100).toFixed(1)}%
+                        <span className="text-muted-foreground text-[10px] ml-1">
+                          (${(p.rental.weeklyRent * 52).toLocaleString()} p.a.)
+                        </span>
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Missing purchase price warning */}
