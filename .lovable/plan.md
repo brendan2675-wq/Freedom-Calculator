@@ -1,56 +1,32 @@
 
 
-## UX Improvements 1-4 for PPOR Goal Page
+# Mobile Optimization Fixes
 
-### 1. Consolidate PPOR Entry Points (Make Main Card Display-Only)
+## Issues Found
 
-**Current problem**: Loan balance and interest rate are editable directly on the main card AND in the PPOR Detail Sheet -- two places to edit the same data.
+1. **Portfolio page header overlap**: On mobile (390px), the page title ("Your Portfolio"), the Reset button, and the "Atelier Wealth" + client name section all sit in a single row, causing text to clip ("Atelier W...", "Client N...") and overlap.
 
-**Changes in `src/components/KeyInputs.tsx`**:
-- Replace the loan balance `<input>` (line 119-128) and interest rate `<input>` (line 131-148) with display-only formatted text
-- Style them as read-only values with a subtle "edit in sheet" affordance
-- Make the entire "Loan to Pay Down" section clickable to open the PPOR Detail Sheet (similar to how Progress Tracker opens its sheet)
-- Add a ChevronRight icon and hover state to signal it's tappable
-- Keep the sell-down proceeds breakdown as display-only (it already is)
+2. **Property card badge text clipping**: On narrow property cards, the "Personal" badge gets cut off to "Persona" because the card width constrains the badge area.
 
-### 2. Show Time Saved on Paydown Chart
+3. **"No date set" badge on PropertiesToBuy cards**: Similarly clips on narrow mobile viewports.
 
-**Current problem**: The chart shows two lines but never explicitly states the payoff difference.
+## Plan
 
-**Changes in `src/components/PaydownChart.tsx`**:
-- Add a `useMemo` that finds the year each line (standard vs accelerated) hits zero balance
-- Compute the difference in years
-- Display a callout banner below the chart title when sell-downs exist, e.g.: "Without sell-down: 28 years. With sell-down: 9 years. **You save 19 years.**"
-- Style with accent colors and a Clock icon for visual emphasis
-- Only show when `hasSellDowns` is true
+### 1. Fix Portfolio page header for mobile
+**File: `src/pages/Portfolio.tsx` (lines 132-181)**
+- Stack the header vertically on mobile: title/subtitle on top, branding/client on a second row
+- Use `flex-col sm:flex-row` for the main header container
+- Reduce title font size slightly on very small screens
+- Move the Reset button inline with the branding row on mobile
 
-### 3. Fix Static "Update" Warning Badge
+### 2. Fix badge clipping on property cards
+**File: `src/components/ExistingProperties.tsx` (lines 362-368)**
+- Add `truncate` or `whitespace-nowrap` and ensure the badge container doesn't force text to clip
+- Reduce badge font size to `text-[10px]` on very narrow cards, or allow the flex container to wrap properly
 
-**Current problem**: The "Update" badge on "Loan to Pay Down" (line 111-114) is always visible regardless of user activity.
+### 3. Fix "No date set" badge clipping on future property cards
+**File: `src/components/PropertiesToBuy.tsx`**
+- Apply the same truncation/sizing fix to timeline badges
 
-**Changes in `src/components/KeyInputs.tsx`**:
-- Track last-updated timestamp in localStorage when loan balance or interest rate changes (key: `ppor-loan-last-updated`)
-- Show the "Update" badge only when the last update was more than 90 days ago (or never set)
-- Display relative time: "Updated 3 months ago" or "Not yet updated"
-- Remove the badge entirely if updated recently
-
-### 4. Bridge Between Sell-Down Properties and Chart
-
-**Current problem**: No visual connection between the properties listed below and the paydown chart above.
-
-**Changes in `src/components/KeyInputs.tsx`**:
-- Add a summary line between the chart card and the Existing Properties section
-- Use `sellDownEvents` data to show: "{N} properties earmarked -> ${X} net proceeds"
-- Include a downward arrow icon to visually bridge chart and property list
-- Only display when there are sell-down events
-- Style as a compact, centered connector element
-
----
-
-### Files Modified
-
-| File | Changes |
-|------|---------|
-| `src/components/KeyInputs.tsx` | Make loan inputs display-only, fix Update badge with time-based logic, add sell-down bridge summary |
-| `src/components/PaydownChart.tsx` | Add "time saved" callout comparing standard vs accelerated payoff years |
+These are targeted CSS/layout adjustments — no logic changes needed.
 
