@@ -130,23 +130,24 @@ const Portfolio = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-header text-primary-foreground">
-        <div className="container mx-auto px-4 py-8 md:py-12 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+        <div className="container mx-auto px-4 py-6 md:py-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 md:gap-6">
             <button
               onClick={() => navigate("/")}
-              className="w-14 h-14 rounded-xl bg-accent/15 border-2 border-accent/30 flex items-center justify-center text-accent hover:bg-accent/25 hover:border-accent/50 transition-all"
+              className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-accent/15 border-2 border-accent/30 flex items-center justify-center text-accent hover:bg-accent/25 hover:border-accent/50 transition-all shrink-0"
               aria-label="Back to Dashboard"
             >
-              <LayoutDashboard size={32} />
+              <LayoutDashboard size={24} className="sm:hidden" />
+              <LayoutDashboard size={32} className="hidden sm:block" />
             </button>
             <div>
-              <h1 className="text-3xl md:text-5xl font-bold mb-3">Your Portfolio</h1>
-              <p className="text-accent text-lg md:text-xl font-light">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-1 sm:mb-3">Your Portfolio</h1>
+              <p className="text-accent text-sm sm:text-lg md:text-xl font-light">
                 View and manage your full property portfolio
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 self-end sm:self-auto">
             <button
               onClick={() => {
                 if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
@@ -154,26 +155,27 @@ const Portfolio = () => {
                   window.location.reload();
                 }
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-accent/70 border border-accent/20 hover:bg-accent/10 hover:text-accent transition-all"
+              className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-xs font-medium text-accent/70 border border-accent/20 hover:bg-accent/10 hover:text-accent transition-all"
               aria-label="Reset data"
             >
               <RotateCcw size={14} />
-              Reset
+              <span className="hidden sm:inline">Reset</span>
             </button>
             <div className="flex flex-col items-center gap-1">
-              <p className="text-accent text-sm tracking-wider mb-1">Atelier Wealth</p>
+              <p className="text-accent text-xs sm:text-sm tracking-wider mb-1">Atelier Wealth</p>
               <button
                 onClick={() => setAuthOpen(true)}
                 className="text-accent hover:text-accent/80 transition-colors"
                 aria-label="Profile"
               >
-                <UserCircle size={44} />
+                <UserCircle size={36} className="sm:hidden" />
+                <UserCircle size={44} className="hidden sm:block" />
               </button>
               <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={handleSetClientName} />
               <input
                 value={clientName}
                 onChange={(e) => handleSetClientName(e.target.value)}
-                className="text-center text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-32 md:w-40"
+                className="text-center text-xs sm:text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-24 sm:w-32 md:w-40"
                 placeholder="Client name"
               />
             </div>
