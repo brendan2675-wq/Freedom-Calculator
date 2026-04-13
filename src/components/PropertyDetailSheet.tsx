@@ -349,7 +349,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       onClick={() => {
                         const ep = property as ExistingProperty;
                         const splits = ep.loanSplits || [];
-                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: `Split ${splits.length + 1}`, amount: 0, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: 0 };
+                        const defaultLabel = splits.length === 0 ? (ep.nickname || `Split 1`) : `Split ${splits.length + 1}`;
+                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: defaultLabel, amount: 0, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: 0 };
                         update({ loanSplits: [...splits, newSplit] } as Partial<ExistingProperty>);
                       }}
                       className="text-accent hover:text-accent/80 transition-colors p-0.5"
