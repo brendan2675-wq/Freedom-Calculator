@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
-import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info, Home, ChevronRight, ArrowDown, ChevronDown } from "lucide-react";
+import { DollarSign, CalendarClock, TrendingUp, Target, Wallet, Clock, Info, Home, ChevronRight, ArrowDown, ChevronDown, Plus, X } from "lucide-react";
+import type { ExistingProperty, LoanSplit } from "@/types/property";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import HouseProgress from "@/components/HouseProgress";
