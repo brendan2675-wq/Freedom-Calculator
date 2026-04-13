@@ -276,63 +276,8 @@ const Portfolio = () => {
                 </div>
               </div>
 
-              {/* Right Side: Loan Breakdown + Mini Progress */}
-              <div className="flex flex-col gap-4">
-                {/* Loan & Net Balance Card */}
-                <div className="bg-card rounded-xl p-4 border border-border shadow-sm flex-1">
-                  <div className="flex items-center gap-1.5 mb-3">
-                    <DollarSign size={14} className="text-accent" />
-                    <span className="text-xs font-semibold text-foreground">Loan & Net Position</span>
-                  </div>
-                  <div className="space-y-1.5 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Current Loan</span>
-                      <span className="font-medium text-foreground">${ppor.loanBalance.toLocaleString()}</span>
-                    </div>
-                    {sellDownProceeds > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-accent text-xs">Sell-Down Proceeds</span>
-                        <span className="text-accent font-medium">− ${sellDownProceeds.toLocaleString()}</span>
-                      </div>
-                    )}
-                    <div className="border-t border-border pt-1.5 flex justify-between">
-                      <span className="font-semibold text-foreground">Net Balance</span>
-                      <span className="font-bold text-foreground">
-                        ${Math.max(0, ppor.loanBalance - sellDownProceeds).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Mini Progress Tracker */}
-                <div className="bg-card rounded-xl p-4 border border-border shadow-sm flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1.5">
-                      <Activity size={14} className="text-accent" />
-                      <span className="text-xs font-semibold text-foreground">Paydown Progress</span>
-                    </div>
-                    <span className={`text-sm font-bold ${pporPaydownPct >= 100 ? 'text-green-600' : pporPaydownPct >= 50 ? 'text-accent' : 'text-foreground'}`}>
-                      {pporPaydownPct.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="w-full h-3 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${Math.min(100, pporPaydownPct)}%`,
-                        background: `linear-gradient(90deg, hsl(30, 80%, 55%) 0%, hsl(120, 50%, 45%) 100%)`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between mt-1.5 text-[10px] text-muted-foreground">
-                    <span>${ppor.loanBalance.toLocaleString()} loan</span>
-                    {sellDownProceeds > 0 && (
-                      <span className="text-accent">−${sellDownProceeds.toLocaleString()} sell down</span>
-                    )}
-                    <span>$0 target</span>
-                  </div>
-                </div>
-              </div>
+
             </div>
           </section>
         ) : (
