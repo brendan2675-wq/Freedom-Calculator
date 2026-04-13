@@ -344,41 +344,108 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                     </button>
                   </div>
                   {((property as ExistingProperty).loanSplits || []).map((split, idx) => (
-                    <div key={split.id} className="flex items-center gap-2">
-                      <input
-                        value={split.label}
-                        onChange={(e) => {
-                          const ep = property as ExistingProperty;
-                          const splits = [...(ep.loanSplits || [])];
-                          splits[idx] = { ...splits[idx], label: e.target.value };
-                          update({ loanSplits: splits } as Partial<ExistingProperty>);
-                        }}
-                        className="w-24 py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-accent"
-                        placeholder="Label"
-                      />
-                      <div className="flex-1">
-                        <CurrencyInput
-                          value={split.amount}
-                          onChange={(v) => {
+                    <div key={split.id} className="space-y-2 bg-muted/30 rounded-lg p-2.5 border border-border/50">
+                      <div className="flex items-center gap-2">
+                        <input
+                          value={split.label}
+                          onChange={(e) => {
                             const ep = property as ExistingProperty;
                             const splits = [...(ep.loanSplits || [])];
-                            splits[idx] = { ...splits[idx], amount: v };
+                            splits[idx] = { ...splits[idx], label: e.target.value };
+                            update({ loanSplits: splits } as Partial<ExistingProperty>);
+                          }}
+                          className="flex-1 py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-1 focus:ring-accent"
+                          placeholder="Label"
+                        />
+                        <button
+                          onClick={() => {
+                            const ep = property as ExistingProperty;
+                            const splits = (ep.loanSplits || []).filter((_, i) => i !== idx);
                             const total = splits.reduce((s, sp) => s + sp.amount, 0);
                             update({ loanSplits: splits, loanBalance: total } as Partial<ExistingProperty>);
                           }}
-                        />
+                          className="text-muted-foreground hover:text-destructive transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => {
-                          const ep = property as ExistingProperty;
-                          const splits = (ep.loanSplits || []).filter((_, i) => i !== idx);
-                          const total = splits.reduce((s, sp) => s + sp.amount, 0);
-                          update({ loanSplits: splits, loanBalance: total } as Partial<ExistingProperty>);
-                        }}
-                        className="text-muted-foreground hover:text-destructive transition-colors"
-                      >
-                        <X size={14} />
-                      </button>
+                      <div className="grid grid-cols-2 gap-2">
+                        <FieldGroup label="Loan Amount" compact>
+                          <CurrencyInput
+                            value={split.amount}
+                            onChange={(v) => {
+                              const ep = property as ExistingProperty;
+                              const splits = [...(ep.loanSplits || [])];
+                              splits[idx] = { ...splits[idx], amount: v };
+                              const total = splits.reduce((s, sp) => s + sp.amount, 0);
+                              update({ loanSplits: splits, loanBalance: total } as Partial<ExistingProperty>);
+                            }}
+                          />
+                        </FieldGroup>
+                        <FieldGroup label="Interest Rate" compact>
+                          <NumberInputWithSuffix
+                            value={split.interestRate ?? property.loan.interestRate}
+                            onChange={(v) => {
+                              const ep = property as ExistingProperty;
+                              const splits = [...(ep.loanSplits || [])];
+                              splits[idx] = { ...splits[idx], interestRate: v };
+                              update({ loanSplits: splits } as Partial<ExistingProperty>);
+                            }}
+                            suffix="%"
+                            step={0.05}
+                          />
+                        </FieldGroup>
+                        <FieldGroup label="IO Period" compact>
+                          <NumberInputWithSuffix
+                            value={split.interestOnlyPeriodYears ?? property.loan.interestOnlyPeriodYears}
+                            onChange={(v) => {
+                              const ep = property as ExistingProperty;
+                              const splits = [...(ep.loanSplits || [])];
+                              splits[idx] = { ...splits[idx], interestOnlyPeriodYears: v };
+                              update({ loanSplits: splits } as Partial<ExistingProperty>);
+                            }}
+                            suffix="years"
+                            step={1}
+                          />
+                        </FieldGroup>
+                        <FieldGroup label="Loan Term" compact>
+                          <NumberInputWithSuffix
+                            value={split.loanTermYears ?? property.loan.loanTermYears}
+                            onChange={(v) => {
+                              const ep = property as ExistingProperty;
+                              const splits = [...(ep.loanSplits || [])];
+                              splits[idx] = { ...splits[idx], loanTermYears: v };
+                              update({ loanSplits: splits } as Partial<ExistingProperty>);
+                            }}
+                            suffix="years"
+                            step={1}
+                          />
+                        </FieldGroup>
+                        <FieldGroup label="Lender" compact>
+                          <input
+                            value={split.lenderName ?? property.loan.lenderName}
+                            onChange={(e) => {
+                              const ep = property as ExistingProperty;
+                              const splits = [...(ep.loanSplits || [])];
+                              splits[idx] = { ...splits[idx], lenderName: e.target.value };
+                              update({ loanSplits: splits } as Partial<ExistingProperty>);
+                            }}
+                            className="w-full py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-accent"
+                            placeholder="e.g. CBA"
+                          />
+                        </FieldGroup>
+                        <FieldGroup label="Offset Balance" compact>
+                          <CurrencyInput
+                            value={split.offsetBalance ?? property.loan.offsetBalance}
+                            onChange={(v) => {
+                              const ep = property as ExistingProperty;
+                              const splits = [...(ep.loanSplits || [])];
+                              splits[idx] = { ...splits[idx], offsetBalance: v };
+                              update({ loanSplits: splits } as Partial<ExistingProperty>);
+                            }}
+                          />
+                        </FieldGroup>
+                      </div>
                     </div>
                   ))}
                   {((property as ExistingProperty).loanSplits || []).length > 0 && (
