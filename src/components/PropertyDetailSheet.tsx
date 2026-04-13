@@ -328,7 +328,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                 </FieldGroup>
 
                 {/* Loan Splits */}
-                <div className="pl-2 border-l-2 border-accent/20 space-y-3">
+                <div className="pl-2 border-l-2 border-accent/20 space-y-2 [&_input]:py-1 [&_input]:px-1 [&_input]:text-[10px] [&_input]:rounded [&_input]:rounded-lg-none">
                   <div className="flex items-center justify-between">
                     <label className="text-xs text-muted-foreground font-medium">Loan Splits</label>
                     <button
@@ -344,13 +344,14 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                     </button>
                   </div>
                   {((property as ExistingProperty).loanSplits || []).length > 0 && (
-                    <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-medium">
-                      <span className="w-20">Label</span>
-                      <span className="w-20">Amount ($)</span>
-                      <span className="w-14">Rate (%)</span>
-                      <span className="w-14">IO</span>
-                      <span className="w-14">Term (yr)</span>
-                      <span className="w-20">Offset ($)</span>
+                    <div className="flex items-center gap-1 text-[8px] text-muted-foreground font-medium">
+                      <span className="flex-[2] min-w-0">Label</span>
+                      <span className="flex-[2] min-w-0">Amt ($)</span>
+                      <span className="flex-[1.2] min-w-0">Rate (%)</span>
+                      <span className="flex-[1] min-w-0">IO</span>
+                      <span className="flex-[1.2] min-w-0">Term (yr)</span>
+                      <span className="flex-[2] min-w-0">Offset ($)</span>
+                      <span className="w-4" />
                     </div>
                   )}
                   {((property as ExistingProperty).loanSplits || []).map((split, idx) => {
@@ -363,26 +364,26 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       update(extra as Partial<ExistingProperty>);
                     };
                     return (
-                      <div key={split.id} className="flex items-center gap-1.5 flex-wrap">
+                      <div key={split.id} className="flex items-center gap-1">
                         <input
                           value={split.label}
                           onChange={(e) => updateSplit({ label: e.target.value })}
-                          className="w-20 py-1 px-1.5 rounded border border-border bg-background text-foreground text-[11px] font-medium focus:outline-none focus:ring-1 focus:ring-accent"
+                          className="flex-[2] min-w-0 py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] font-medium focus:outline-none focus:ring-1 focus:ring-accent"
                           placeholder="Label"
                         />
-                        <div className="w-20">
+                        <div className="flex-[2] min-w-0">
                           <NumberInput value={split.amount} onChange={(v) => updateSplit({ amount: v }, true)} />
                         </div>
-                        <div className="w-14">
+                        <div className="flex-[1.2] min-w-0">
                           <NumberInput value={split.interestRate ?? property.loan.interestRate} onChange={(v) => updateSplit({ interestRate: v })} />
                         </div>
-                        <div className="w-14">
+                        <div className="flex-[1] min-w-0">
                           <NumberInput value={split.interestOnlyPeriodYears ?? property.loan.interestOnlyPeriodYears} onChange={(v) => updateSplit({ interestOnlyPeriodYears: v })} />
                         </div>
-                        <div className="w-14">
+                        <div className="flex-[1.2] min-w-0">
                           <NumberInput value={split.loanTermYears ?? property.loan.loanTermYears} onChange={(v) => updateSplit({ loanTermYears: v })} />
                         </div>
-                        <div className="w-20">
+                        <div className="flex-[2] min-w-0">
                           <NumberInput value={split.offsetBalance ?? property.loan.offsetBalance} onChange={(v) => updateSplit({ offsetBalance: v })} />
                         </div>
                         <button
@@ -392,9 +393,9 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                             const total = splits.reduce((s, sp) => s + sp.amount, 0);
                             update({ loanSplits: splits, loanBalance: total } as Partial<ExistingProperty>);
                           }}
-                          className="text-muted-foreground hover:text-destructive transition-colors"
+                          className="w-4 shrink-0 text-muted-foreground hover:text-destructive transition-colors"
                         >
-                          <X size={12} />
+                          <X size={10} />
                         </button>
                       </div>
                     );
