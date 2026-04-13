@@ -245,8 +245,8 @@ const Portfolio = () => {
                 </div>
 
                 {/* Current Value + Interest Rate & Loan Term row */}
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="flex-1">
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Current Value</label>
                     <div className="flex items-baseline gap-2">
                       <span className="text-2xl font-bold text-foreground">${ppor.estimatedValue.toLocaleString()}</span>
