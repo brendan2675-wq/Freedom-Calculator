@@ -113,7 +113,7 @@ const KeyInputs = ({
               <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
               <div
                 className="flex gap-3 cursor-pointer group/loan"
-                onClick={() => setPporDetailOpen(true)}
+                onClick={() => setPporSheetOpen(true)}
               >
                 <div className="relative flex-1 py-3 px-4 rounded-lg border border-border bg-muted/30 group-hover/loan:border-accent/40 transition-colors">
                   <span className="text-muted-foreground text-xs">Balance</span>
