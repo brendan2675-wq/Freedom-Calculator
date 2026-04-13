@@ -634,6 +634,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                     </div>
                   </div>
 
+                  {!portfolioMode && (<>
                   {/* Sell down toggle */}
                   <div className="flex items-center gap-3 flex-wrap">
                     <Switch
