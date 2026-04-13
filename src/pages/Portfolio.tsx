@@ -323,8 +323,7 @@ const Portfolio = () => {
 
         {/* PPOR Detail Sheet */}
         {ppor && (
-          <PropertyDetailSheet
-            property={ppor}
+          <PporDetailSheet
             open={pporSheetOpen}
             onOpenChange={(o) => {
               if (!o && ppor && !ppor.nickname && ppor.estimatedValue === 0) {
@@ -332,10 +331,15 @@ const Portfolio = () => {
               }
               setPporSheetOpen(o);
             }}
-            onUpdate={(updated) => handleUpdatePpor(updated as ExistingProperty)}
-            variant="existing"
-            portfolioMode
-            pporMode
+            ppor={ppor}
+            setPpor={(p) => handleUpdatePpor(p)}
+            suburb={pporSuburb}
+            setSuburb={handleSetPporSuburb}
+            loanBalance={ppor.loanBalance}
+            setLoanBalance={(v) => handleUpdatePpor({ ...ppor, loanBalance: v })}
+            interestRate={interestRate}
+            pporValue={ppor.estimatedValue}
+            setPporValue={(v) => handleUpdatePpor({ ...ppor, estimatedValue: v })}
           />
         )}
       </main>
