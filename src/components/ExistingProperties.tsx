@@ -28,7 +28,8 @@ interface Props {
 
 const VISIBLE_SLOTS = 4;
 
-const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, onDropFromProposals, portfolioMode = false }: Props) => {
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, onDropFromProposals, portfolioMode = false, ppor, onAddPpor, onUpdatePpor, onRemovePpor, pporLvr = 0.8, onPporLvrChange }: Props) => {
+  const [pporSheetOpen, setPporSheetOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
