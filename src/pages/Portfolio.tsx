@@ -183,11 +183,21 @@ const Portfolio = () => {
 
       <main className="container mx-auto px-4 py-12 space-y-10">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
             <Building2 size={24} className="text-accent" />
             <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
             <span className="text-2xl font-bold text-foreground">${totals.totalValue.toLocaleString()}</span>
+          </div>
+          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
+            <TrendingUp size={24} className="text-accent" />
+            <span className="text-sm text-muted-foreground">Total Growth</span>
+            <span className={`text-2xl font-bold ${totals.totalGrowthPct >= 0 ? 'text-accent' : 'text-destructive'}`}>
+              {totals.totalGrowthPct >= 0 ? '↑' : '↓'}{Math.abs(totals.totalGrowthPct).toFixed(0)}%
+            </span>
+            {totals.totalPurchase > 0 && (
+              <span className="text-[10px] text-muted-foreground">from ${totals.totalPurchase.toLocaleString()}</span>
+            )}
           </div>
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
             <Landmark size={24} className="text-accent" />
