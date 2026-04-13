@@ -383,7 +383,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                           />
                         </FieldGroup>
                         <FieldGroup label="Interest Rate" compact>
-                          <NumberInputWithSuffix
+                          <NumberInput
                             value={split.interestRate ?? property.loan.interestRate}
                             onChange={(v) => {
                               const ep = property as ExistingProperty;
@@ -392,11 +392,10 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                               update({ loanSplits: splits } as Partial<ExistingProperty>);
                             }}
                             suffix="%"
-                            step={0.05}
                           />
                         </FieldGroup>
                         <FieldGroup label="IO Period" compact>
-                          <NumberInputWithSuffix
+                          <NumberInput
                             value={split.interestOnlyPeriodYears ?? property.loan.interestOnlyPeriodYears}
                             onChange={(v) => {
                               const ep = property as ExistingProperty;
@@ -405,11 +404,10 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                               update({ loanSplits: splits } as Partial<ExistingProperty>);
                             }}
                             suffix="years"
-                            step={1}
                           />
                         </FieldGroup>
                         <FieldGroup label="Loan Term" compact>
-                          <NumberInputWithSuffix
+                          <NumberInput
                             value={split.loanTermYears ?? property.loan.loanTermYears}
                             onChange={(v) => {
                               const ep = property as ExistingProperty;
@@ -418,7 +416,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                               update({ loanSplits: splits } as Partial<ExistingProperty>);
                             }}
                             suffix="years"
-                            step={1}
                           />
                         </FieldGroup>
                         <FieldGroup label="Lender" compact>
