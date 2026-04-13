@@ -114,14 +114,18 @@ const Portfolio = () => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
     const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * masterLvr) - p.loanBalance), 0);
+    const investmentPurchase = properties.reduce((s, p) => s + (p.purchase?.purchasePrice ?? 0), 0);
     const pporValue = ppor?.estimatedValue ?? 0;
     const pporLoan = ppor?.loanBalance ?? 0;
+    const pporPurchase = ppor?.purchase?.purchasePrice ?? 0;
     const totalValue = pporValue + investmentValue;
     const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
     const avgLvr = totalValue > 0 ? (totalLoan / totalValue) * 100 : 0;
-    return { totalValue, totalLoan, totalEquity, avgLvr };
-  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity, masterLvr]);
+    const totalPurchase = pporPurchase + investmentPurchase;
+    const totalGrowthPct = totalPurchase > 0 ? ((totalValue - totalPurchase) / totalPurchase) * 100 : 0;
+    return { totalValue, totalLoan, totalEquity, avgLvr, totalPurchase, totalGrowthPct };
+  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, ppor?.purchase?.purchasePrice, pporEquity, masterLvr]);
 
   return (
     <div className="min-h-screen bg-background">
