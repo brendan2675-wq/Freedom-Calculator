@@ -114,14 +114,18 @@ const Portfolio = () => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
     const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * masterLvr) - p.loanBalance), 0);
+    const investmentPurchase = properties.reduce((s, p) => s + (p.purchase?.purchasePrice ?? 0), 0);
     const pporValue = ppor?.estimatedValue ?? 0;
     const pporLoan = ppor?.loanBalance ?? 0;
+    const pporPurchase = ppor?.purchase?.purchasePrice ?? 0;
     const totalValue = pporValue + investmentValue;
     const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
     const avgLvr = totalValue > 0 ? (totalLoan / totalValue) * 100 : 0;
-    return { totalValue, totalLoan, totalEquity, avgLvr };
-  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity, masterLvr]);
+    const totalPurchase = pporPurchase + investmentPurchase;
+    const totalGrowthPct = totalPurchase > 0 ? ((totalValue - totalPurchase) / totalPurchase) * 100 : 0;
+    return { totalValue, totalLoan, totalEquity, avgLvr, totalPurchase, totalGrowthPct };
+  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, ppor?.purchase?.purchasePrice, pporEquity, masterLvr]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -179,11 +183,21 @@ const Portfolio = () => {
 
       <main className="container mx-auto px-4 py-12 space-y-10">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
             <Building2 size={24} className="text-accent" />
             <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
             <span className="text-2xl font-bold text-foreground">${totals.totalValue.toLocaleString()}</span>
+          </div>
+          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
+            <TrendingUp size={24} className="text-accent" />
+            <span className="text-sm text-muted-foreground">Total Growth</span>
+            <span className={`text-2xl font-bold ${totals.totalGrowthPct >= 0 ? 'text-accent' : 'text-destructive'}`}>
+              {totals.totalGrowthPct >= 0 ? '↑' : '↓'}{Math.abs(totals.totalGrowthPct).toFixed(0)}%
+            </span>
+            {totals.totalPurchase > 0 && (
+              <span className="text-[10px] text-muted-foreground">from ${totals.totalPurchase.toLocaleString()}</span>
+            )}
           </div>
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
             <Landmark size={24} className="text-accent" />
