@@ -362,7 +362,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 {/* Badges & Sell Down */}
                 <div className="mt-4 pt-2 border-t border-border/70 flex items-center justify-between flex-wrap gap-1.5">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                    <span className="text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium whitespace-nowrap">
                       {p.ownership === "trust" ? (p.trustName || "Trust") : "Personal"}
                     </span>
                   </div>
