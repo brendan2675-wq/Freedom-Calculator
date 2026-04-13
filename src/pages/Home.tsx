@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw } from "lucide-react";
+import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw, Target } from "lucide-react";
 import { useState } from "react";
 import AuthFlow from "@/components/AuthFlow";
 
@@ -27,6 +27,18 @@ const tiles = [
     title: "Portfolio Value",
     description: "See your total portfolio growth over time",
     icon: TrendingUp,
+    route: null,
+  },
+  {
+    title: "SMSF Strategy",
+    description: "Manage your self-managed super fund property",
+    icon: Landmark,
+    route: null,
+  },
+  {
+    title: "Specific $ Goal",
+    description: "Set and track a custom dollar target",
+    icon: Target,
     route: null,
   },
 ];
