@@ -845,6 +845,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       </div>
                     );
                   })()}
+                  </>)}
                 </>
               );
             })()}
