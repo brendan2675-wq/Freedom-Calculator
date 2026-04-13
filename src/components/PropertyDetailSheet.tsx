@@ -9,11 +9,12 @@ import type { ExistingProperty, FutureProperty, LoanDetails, RentalDetails, Purc
 import { defaultSaleCosts } from "@/types/property";
 import { calculateStampDuty, australianStates, type AustralianState } from "@/lib/stampDuty";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, X, AlertTriangle, Copy } from "lucide-react";
+import { CalendarIcon, Plus, X, AlertTriangle, Copy, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type PropertyType = ExistingProperty | FutureProperty;
 
