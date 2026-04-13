@@ -123,9 +123,6 @@ const KeyInputs = ({
                   <span className="text-muted-foreground text-xs">Rate</span>
                   <p className="text-lg font-bold text-foreground">{interestRate}%</p>
                 </div>
-                <div className="flex items-center">
-                  <ChevronRight size={16} className="text-muted-foreground group-hover/loan:text-accent transition-colors" />
-                </div>
               </div>
               {sellDownProceeds > 0 && (
                 <div className="mt-3 rounded-lg bg-success/5 border border-success/20 px-4 py-3">
