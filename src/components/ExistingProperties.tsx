@@ -18,6 +18,12 @@ interface Props {
   onMoveToProposals?: (p: ExistingProperty) => void;
   onDropFromProposals?: (id: string) => void;
   portfolioMode?: boolean;
+  ppor?: ExistingProperty | null;
+  onAddPpor?: () => void;
+  onUpdatePpor?: (p: ExistingProperty) => void;
+  onRemovePpor?: () => void;
+  pporLvr?: number;
+  onPporLvrChange?: (lvr: number) => void;
 }
 
 const VISIBLE_SLOTS = 4;
