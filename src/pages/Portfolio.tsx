@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import AuthFlow from "@/components/AuthFlow";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
+import PporDetailSheet from "@/components/PporDetailSheet";
 import type { ExistingProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 
@@ -20,6 +21,12 @@ const Portfolio = () => {
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
   const [pporLvr, setPporLvr] = useState(0.8);
   const [masterLvr, setMasterLvr] = useState(0.8);
+  const [pporSuburb, setPporSuburb] = useState(() => localStorage.getItem("ppor-suburb") || "Bella Vista");
+  const [interestRate] = useState(6.2);
+  const handleSetPporSuburb = (v: string) => {
+    setPporSuburb(v);
+    localStorage.setItem("ppor-suburb", v);
+  };
 
   // Load from localStorage
   useEffect(() => {
@@ -316,8 +323,7 @@ const Portfolio = () => {
 
         {/* PPOR Detail Sheet */}
         {ppor && (
-          <PropertyDetailSheet
-            property={ppor}
+          <PporDetailSheet
             open={pporSheetOpen}
             onOpenChange={(o) => {
               if (!o && ppor && !ppor.nickname && ppor.estimatedValue === 0) {
@@ -325,10 +331,15 @@ const Portfolio = () => {
               }
               setPporSheetOpen(o);
             }}
-            onUpdate={(updated) => handleUpdatePpor(updated as ExistingProperty)}
-            variant="existing"
-            portfolioMode
-            pporMode
+            ppor={ppor}
+            setPpor={(p) => handleUpdatePpor(p)}
+            suburb={pporSuburb}
+            setSuburb={handleSetPporSuburb}
+            loanBalance={ppor.loanBalance}
+            setLoanBalance={(v) => handleUpdatePpor({ ...ppor, loanBalance: v })}
+            interestRate={interestRate}
+            pporValue={ppor.estimatedValue}
+            setPporValue={(v) => handleUpdatePpor({ ...ppor, estimatedValue: v })}
           />
         )}
       </main>
