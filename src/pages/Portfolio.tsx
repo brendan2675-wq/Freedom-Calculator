@@ -284,21 +284,33 @@ const Portfolio = () => {
                     {(() => {
                       const splits = ppor.loanSplits || [];
                       const totalAmt = splits.reduce((s, sp) => s + sp.amount, 0);
-                      const weightedRate = totalAmt > 0
-                        ? splits.reduce((s, sp) => s + sp.interestRate * sp.amount, 0) / totalAmt
-                        : 0;
-                      const maxTermMonths = splits.length > 0
-                        ? Math.max(...splits.map(sp => (sp.loanTermYears ?? 30) * 12))
-                        : 0;
-                      const termYears = Math.floor(maxTermMonths / 12);
-                      const termMonths = maxTermMonths % 12;
-                      if (splits.length === 0) return null;
+                      let displayRate = 0;
+                      let termYears = 0;
+                      let termMonths = 0;
+                      let hasSplits = splits.length > 0;
+
+                      if (hasSplits) {
+                        displayRate = totalAmt > 0
+                          ? splits.reduce((s, sp) => s + sp.interestRate * sp.amount, 0) / totalAmt
+                          : 0;
+                        const maxTermMonths = Math.max(...splits.map(sp => (sp.loanTermYears ?? 30) * 12));
+                        termYears = Math.floor(maxTermMonths / 12);
+                        termMonths = maxTermMonths % 12;
+                      } else {
+                        displayRate = ppor.loan?.interestRate ?? interestRate;
+                        const baseTerm = ppor.loan?.loanTermYears ?? 30;
+                        termYears = baseTerm;
+                        termMonths = 0;
+                      }
+
+                      if (displayRate === 0 && termYears === 0) return null;
+
                       return (
                         <div className="flex gap-4">
                           <div>
                             <label className="text-muted-foreground text-[11px] block mb-0.5">Interest Rate</label>
-                            <p className="text-foreground font-bold text-sm">{weightedRate.toFixed(2)}%</p>
-                            {splits.length > 1 && <p className="text-[9px] text-muted-foreground">weighted avg</p>}
+                            <p className="text-foreground font-bold text-sm">{displayRate.toFixed(2)}%</p>
+                            {hasSplits && splits.length > 1 && <p className="text-[9px] text-muted-foreground">weighted avg</p>}
                           </div>
                           <div>
                             <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Term</label>
