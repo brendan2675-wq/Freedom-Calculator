@@ -333,19 +333,19 @@ const Portfolio = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Fund Balance</label>
-                    <p className="text-foreground font-bold text-lg">$0</p>
+                    <p className="text-foreground font-bold text-lg">$385,000</p>
                   </div>
                   <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Property Value</label>
-                    <p className="text-foreground font-bold text-lg">$0</p>
+                    <p className="text-foreground font-bold text-lg">$620,000</p>
                   </div>
                   <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Balance</label>
-                    <p className="text-foreground font-bold text-lg">$0</p>
+                    <p className="text-foreground font-bold text-lg">$415,000</p>
                   </div>
                   <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Annual Contributions</label>
-                    <p className="text-foreground font-bold text-lg">$0</p>
+                    <p className="text-foreground font-bold text-lg">$27,500</p>
                   </div>
                 </div>
               </div>
@@ -386,19 +386,19 @@ const Portfolio = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Fund Balance</label>
-                    <p className="text-foreground font-bold text-lg">$0</p>
+                    <p className="text-foreground font-bold text-lg">$385,000</p>
                   </div>
                   <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Property Value</label>
-                    <p className="text-foreground font-bold text-lg">$0</p>
+                    <p className="text-foreground font-bold text-lg">$620,000</p>
                   </div>
                   <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Balance</label>
-                    <p className="text-foreground font-bold text-lg">$0</p>
+                    <p className="text-foreground font-bold text-lg">$415,000</p>
                   </div>
                   <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Annual Contributions</label>
-                    <p className="text-foreground font-bold text-lg">$0</p>
+                    <p className="text-foreground font-bold text-lg">$27,500</p>
                   </div>
                 </div>
               </div>
