@@ -68,13 +68,13 @@ export const defaultSaleCosts: SaleCosts = {
   structuralWork: 0,
   ownershipCostsTotal: 0,
   agentCommission: 0,
-  legalFeesSell: 0,
+  legalFeesSell: 2000,
   advertisingCosts: 0,
   stylingCosts: 0,
   sellerAdvisoryFees: 0,
   cgtDiscount: 0.5,
   incomeTaxRate: 0.45,
-  includeMedicareLevy: false,
+  includeMedicareLevy: true,
 };
 
 export interface ExistingProperty {
