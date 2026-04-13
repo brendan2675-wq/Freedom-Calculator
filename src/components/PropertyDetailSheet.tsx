@@ -32,11 +32,11 @@ interface Props {
 const currencyFormat = (v: number) => v.toLocaleString();
 const parseCurrency = (v: string) => parseInt(v.replace(/[^0-9]/g, "")) || 0;
 
-function FieldGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function FieldGroup({ label, children, compact }: { label: string; children: React.ReactNode; compact?: boolean }) {
   return (
     <div>
-      <label className="text-xs text-muted-foreground font-medium">{label}</label>
-      <div className="mt-1">{children}</div>
+      <label className={cn("text-muted-foreground font-medium", compact ? "text-[10px]" : "text-xs")}>{label}</label>
+      <div className={compact ? "mt-0.5" : "mt-1"}>{children}</div>
     </div>
   );
 }
