@@ -353,11 +353,22 @@ const KeyInputs = ({
                   {/* Loan Splits */}
                   <div className="pl-2 border-l-2 border-accent/20 space-y-2 [&_input]:py-1 [&_input]:px-1 [&_input]:text-[10px] [&_input]:rounded [&_input]:rounded-lg-none">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs text-muted-foreground font-medium">Loan Splits</label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <label className="text-xs text-muted-foreground font-medium flex items-center gap-1 cursor-help">
+                            Loan Details
+                            <Info size={10} className="text-muted-foreground" />
+                          </label>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-xs">
+                          Enter loan splits by using the "+" symbol
+                        </TooltipContent>
+                      </Tooltip>
                       <button
                         onClick={() => {
                           const splits = ppor.loanSplits || [];
-                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: `Split ${splits.length + 1}`, amount: 0, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
+                          const defaultLabel = splits.length === 0 ? (suburb || `Split 1`) : `Split ${splits.length + 1}`;
+                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: defaultLabel, amount: 0, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
                           setPpor({ ...ppor, loanSplits: [...splits, newSplit] });
                         }}
                         className="text-accent hover:text-accent/80 transition-colors p-0.5"
@@ -368,7 +379,7 @@ const KeyInputs = ({
                     {(ppor.loanSplits || []).length === 0 && (
                       <button
                         onClick={() => {
-                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: "Primary Loan", amount: loanBalance, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
+                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: suburb || "Primary Loan", amount: loanBalance, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
                           setPpor({ ...ppor, loanSplits: [newSplit] });
                         }}
                         className="w-full py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-accent hover:text-accent transition-all"

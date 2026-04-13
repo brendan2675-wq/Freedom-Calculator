@@ -9,11 +9,12 @@ import type { ExistingProperty, FutureProperty, LoanDetails, RentalDetails, Purc
 import { defaultSaleCosts } from "@/types/property";
 import { calculateStampDuty, australianStates, type AustralianState } from "@/lib/stampDuty";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, X, AlertTriangle, Copy } from "lucide-react";
+import { CalendarIcon, Plus, X, AlertTriangle, Copy, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type PropertyType = ExistingProperty | FutureProperty;
 
@@ -333,12 +334,23 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                 {/* Loan Splits */}
                 <div className="pl-2 border-l-2 border-accent/20 space-y-2 [&_input]:py-1 [&_input]:px-1 [&_input]:text-[10px] [&_input]:rounded [&_input]:rounded-lg-none">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs text-muted-foreground font-medium">Loan Splits</label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <label className="text-xs text-muted-foreground font-medium flex items-center gap-1 cursor-help">
+                          Loan Details
+                          <Info size={10} className="text-muted-foreground" />
+                        </label>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        Enter loan splits by using the "+" symbol
+                      </TooltipContent>
+                    </Tooltip>
                     <button
                       onClick={() => {
                         const ep = property as ExistingProperty;
                         const splits = ep.loanSplits || [];
-                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: `Split ${splits.length + 1}`, amount: 0, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: 0 };
+                        const defaultLabel = splits.length === 0 ? (ep.nickname || `Split 1`) : `Split ${splits.length + 1}`;
+                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: defaultLabel, amount: 0, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: 0 };
                         update({ loanSplits: [...splits, newSplit] } as Partial<ExistingProperty>);
                       }}
                       className="text-accent hover:text-accent/80 transition-colors p-0.5"
@@ -350,7 +362,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                     <button
                       onClick={() => {
                         const ep = property as ExistingProperty;
-                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: "Primary Loan", amount: ep.loanBalance, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: property.loan.offsetBalance };
+                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: ep.nickname || "Primary Loan", amount: ep.loanBalance, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: property.loan.offsetBalance };
                         update({ loanSplits: [newSplit] } as Partial<ExistingProperty>);
                       }}
                       className="w-full py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-accent hover:text-accent transition-all"
