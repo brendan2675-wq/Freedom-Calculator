@@ -337,38 +337,6 @@ const KeyInputs = ({
                       className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
                     />
                   </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground font-medium block mb-1">Purchase Price</label>
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground text-sm">$</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={purchasePrice ? purchasePrice.toLocaleString() : ""}
-                        onChange={(e) => setPurchasePrice(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
-                        placeholder="Enter purchase price"
-                        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground font-medium block mb-1">Current Value</label>
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground text-sm">$</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={currentValue ? currentValue.toLocaleString() : ""}
-                        onChange={(e) => setPporValue(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
-                        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-                      />
-                    </div>
-                    {purchasePrice > 0 && (
-                      <p className={`text-xs font-medium mt-1 ${growthPercent >= 0 ? "text-success" : "text-destructive"}`}>
-                        {growthPercent >= 0 ? "↑" : "↓"} {Math.abs(growthPercent).toFixed(1)}% since purchase (${(currentValue - purchasePrice).toLocaleString()})
-                      </p>
-                    )}
-                  </div>
                 </div>
               </div>
 
@@ -526,6 +494,47 @@ const KeyInputs = ({
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+
+              <div className="border-t border-border" />
+
+              {/* Section 4: Valuation */}
+              <div>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Valuation</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium block mb-1">Purchase Price</label>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground text-sm">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={purchasePrice ? purchasePrice.toLocaleString() : ""}
+                        onChange={(e) => setPurchasePrice(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
+                        placeholder="Enter purchase price"
+                        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium block mb-1">Current Value</label>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground text-sm">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={currentValue ? currentValue.toLocaleString() : ""}
+                        onChange={(e) => setPporValue(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
+                        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                      />
+                    </div>
+                    {purchasePrice > 0 && (
+                      <p className={`text-xs font-medium mt-1 ${growthPercent >= 0 ? "text-success" : "text-destructive"}`}>
+                        {growthPercent >= 0 ? "↑" : "↓"} {Math.abs(growthPercent).toFixed(1)}% since purchase (${(currentValue - purchasePrice).toLocaleString()})
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
