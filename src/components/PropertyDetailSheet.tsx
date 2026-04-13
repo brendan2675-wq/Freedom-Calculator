@@ -328,7 +328,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                 </FieldGroup>
 
                 {/* Loan Splits */}
-                <div className="pl-2 border-l-2 border-accent/20 space-y-3">
+                <div className="pl-2 border-l-2 border-accent/20 space-y-2 [&_input]:py-1 [&_input]:px-1 [&_input]:text-[10px] [&_input]:rounded [&_input]:rounded-lg-none">
                   <div className="flex items-center justify-between">
                     <label className="text-xs text-muted-foreground font-medium">Loan Splits</label>
                     <button
