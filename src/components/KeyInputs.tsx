@@ -307,7 +307,7 @@ const KeyInputs = ({
 
         {/* Comprehensive PPOR Sheet */}
         <Sheet open={pporDetailOpen || pporSheetOpen} onOpenChange={(o) => { setPporDetailOpen(o); setPporSheetOpen(o); }}>
-          <SheetContent className="overflow-y-auto">
+          <SheetContent className="w-full sm:max-w-lg overflow-y-auto bg-card">
             <SheetHeader className="pb-4 border-b border-border">
               <div className="flex items-center gap-2">
                 <Home size={20} className="text-accent" />
