@@ -563,7 +563,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                 </div>
               );
             })()}
-            {isExisting && !portfolioMode && (() => {
+            {isExisting && (() => {
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
               const purchasePrice = ep.purchase.purchasePrice || 0;
