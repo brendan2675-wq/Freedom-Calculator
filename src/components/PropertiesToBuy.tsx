@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Plus, X, ChevronRight, ChevronLeft, Info, Gavel } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
@@ -81,7 +82,10 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
   const totalItems = properties.length + 1 + emptySlots;
   const showArrows = totalItems > VISIBLE_SLOTS || properties.length >= VISIBLE_SLOTS;
   const hasOverflow = properties.length >= VISIBLE_SLOTS;
-  const cardWidth = hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
+  const isMobile = useIsMobile();
+  const cardWidth = isMobile
+    ? "calc(100% - 16px)"
+    : hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -116,7 +120,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           {showArrows && canScrollLeft && (
               <button
                 onClick={() => scroll("left")}
-                className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
+                className="hidden sm:flex absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -124,7 +128,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           {showArrows && canScrollRight && (
               <button
                 onClick={() => scroll("right")}
-                className="absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
+                className="hidden sm:flex absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
               >
                 <ChevronRight size={18} />
               </button>
@@ -185,14 +189,14 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                     ? "border-dashed border-accent/30 bg-accent/5 opacity-40"
                     : "bg-card border-border cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent hover:shadow-accent/10"
                 }`}
-                style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
+                style={{ width: cardWidth, minWidth: isMobile ? "280px" : "200px", scrollSnapAlign: "start" }}
               >
-                <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
+                <div className="absolute top-1 right-1 flex items-center gap-1 z-10">
                   <button
                     onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground min-w-[44px] min-h-[44px] flex items-center justify-center"
                   >
-                    <X size={14} />
+                    <X size={16} />
                   </button>
                 </div>
                 <div className="flex items-center gap-1.5 mb-2">
@@ -238,7 +242,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           <button
             onClick={addProperty}
             className="rounded-xl border-2 border-dashed border-accent/40 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent shrink-0 min-h-[180px]"
-            style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
+            style={{ width: cardWidth, minWidth: isMobile ? "280px" : "200px", scrollSnapAlign: "start" }}
           >
             <Plus size={24} />
             <span className="text-sm">Add Property</span>
@@ -250,7 +254,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
               key={`empty-${i}`}
               onClick={addProperty}
               className="rounded-xl border-2 border-dashed border-border/30 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent/40 hover:bg-accent/5 transition-all font-medium text-muted-foreground/40 shrink-0 min-h-[180px]"
-              style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
+              style={{ width: cardWidth, minWidth: isMobile ? "280px" : "200px", scrollSnapAlign: "start" }}
             >
               <Plus size={20} />
             </button>

@@ -256,15 +256,15 @@ const KeyInputs = ({
               <div className="h-px flex-1 bg-border" />
               <button
                 onClick={() => setSellDownOpen(!sellDownOpen)}
-                className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/60 border border-border rounded-full px-4 py-2 hover:bg-secondary transition-colors cursor-pointer"
+                className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground bg-secondary/60 border border-border rounded-full px-3 sm:px-4 py-2 hover:bg-secondary transition-colors cursor-pointer max-w-full"
               >
-                <ArrowDown size={14} className="text-accent" />
-                <span>
-                  <span className="font-semibold text-foreground">{earmarkedCount}</span> {earmarkedCount === 1 ? 'property' : 'properties'} earmarked
-                  <span className="mx-1.5">→</span>
-                  <span className="font-semibold text-success">${totalSellDownProceeds.toLocaleString()}</span> net proceeds
+                <ArrowDown size={14} className="text-accent shrink-0" />
+                <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                  <span><span className="font-semibold text-foreground">{earmarkedCount}</span> {earmarkedCount === 1 ? 'property' : 'properties'} earmarked</span>
+                  <span className="hidden sm:inline mx-0.5">→</span>
+                  <span className="font-semibold text-success">${totalSellDownProceeds.toLocaleString()}</span> <span className="hidden sm:inline">net proceeds</span>
                 </span>
-                <ChevronDown size={14} className={`text-accent transition-transform ${sellDownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={14} className={`text-accent transition-transform shrink-0 ${sellDownOpen ? 'rotate-180' : ''}`} />
               </button>
               <div className="h-px flex-1 bg-border" />
             </div>
@@ -276,17 +276,17 @@ const KeyInputs = ({
                   return (
                     <div
                       key={`${event.nickname}-${i}`}
-                      className={`flex items-center justify-between px-4 py-3 text-sm ${i > 0 ? 'border-t border-border/60' : ''}`}
+                      className={`flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 text-sm gap-1 sm:gap-0 ${i > 0 ? 'border-t border-border/60' : ''}`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-accent" />
-                        <span className="font-medium text-foreground">{event.nickname}</span>
-                        <span className="text-muted-foreground text-xs">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <div className="w-2 h-2 rounded-full bg-accent shrink-0" />
+                        <span className="font-medium text-foreground truncate">{event.nickname}</span>
+                        <span className="text-muted-foreground text-xs whitespace-nowrap">
                           {event.year === new Date().getFullYear() ? 'Selling now' : `Selling ${event.year}`}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-20 h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className="flex items-center gap-3 pl-4 sm:pl-0">
+                        <div className="w-16 sm:w-20 h-1.5 rounded-full bg-muted overflow-hidden hidden sm:block">
                           <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(100, percentage)}%` }} />
                         </div>
                         <span className={`font-semibold tabular-nums ${event.proceeds >= 0 ? 'text-success' : 'text-destructive'}`}>
