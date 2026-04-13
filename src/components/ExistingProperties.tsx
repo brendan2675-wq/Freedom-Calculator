@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { toast } from "sonner";
-import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, Briefcase, BadgeDollarSign, Home } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, Briefcase, BadgeDollarSign } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -18,18 +18,11 @@ interface Props {
   onMoveToProposals?: (p: ExistingProperty) => void;
   onDropFromProposals?: (id: string) => void;
   portfolioMode?: boolean;
-  ppor?: ExistingProperty | null;
-  onAddPpor?: () => void;
-  onUpdatePpor?: (p: ExistingProperty) => void;
-  onRemovePpor?: () => void;
-  pporLvr?: number;
-  onPporLvrChange?: (lvr: number) => void;
 }
 
 const VISIBLE_SLOTS = 4;
 
-const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, onDropFromProposals, portfolioMode = false, ppor, onAddPpor, onUpdatePpor, onRemovePpor, pporLvr = 0.8, onPporLvrChange }: Props) => {
-  const [pporSheetOpen, setPporSheetOpen] = useState(false);
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, onDropFromProposals, portfolioMode = false }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -108,13 +101,14 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
     if (selectedId === id) setSelectedId(null);
   };
 
-  // Number of empty "Add Property" slots to fill up to visible slots
-  const pporSlots = portfolioMode ? (ppor ? 1 : 1) : 0; // PPOR card or Add PPOR button
-  const emptySlots = Math.max(0, VISIBLE_SLOTS - properties.length - 1 - pporSlots);
-  const totalItems = properties.length + 1 + pporSlots + emptySlots;
+  // Number of empty "Add Property" slots to fill up to 5
+  const emptySlots = Math.max(0, VISIBLE_SLOTS - properties.length - 1);
+  const totalItems = properties.length + 1 + emptySlots;
   const showArrows = totalItems > VISIBLE_SLOTS || properties.length >= VISIBLE_SLOTS;
-  const hasOverflow = (properties.length + pporSlots) >= VISIBLE_SLOTS;
+  const hasOverflow = properties.length >= VISIBLE_SLOTS;
   const cardWidth = hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
+  const [reorderDragId, setReorderDragId] = useState<string | null>(null);
+  const [reorderOverId, setReorderOverId] = useState<string | null>(null);
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
