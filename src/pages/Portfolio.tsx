@@ -79,6 +79,30 @@ const Portfolio = () => {
 
   const pporEquity = ppor ? Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance) : 0;
 
+  // Growth since purchase
+  const pporGrowth = useMemo(() => {
+    if (!ppor || !ppor.purchase?.purchasePrice || ppor.purchase.purchasePrice === 0) return null;
+    const diff = ppor.estimatedValue - ppor.purchase.purchasePrice;
+    const pct = (diff / ppor.purchase.purchasePrice) * 100;
+    return { diff, pct };
+  }, [ppor]);
+
+  // Sell-down proceeds for progress tracker
+  const sellDownProceeds = useMemo(() => {
+    return properties
+      .filter(p => p.earmarked && p.sellInYears === 0)
+      .reduce((sum, p) => sum + Math.max(0, p.estimatedValue - p.loanBalance), 0);
+  }, [properties]);
+
+  const pporPaydownPct = useMemo(() => {
+    if (!ppor || ppor.loanBalance === 0) return 0;
+    const originalLoan = ppor.purchase?.purchasePrice
+      ? ppor.purchase.purchasePrice * 0.8
+      : ppor.loanBalance;
+    if (originalLoan === 0) return 0;
+    const netBalance = Math.max(0, ppor.loanBalance - sellDownProceeds);
+    return Math.min(100, ((originalLoan - netBalance) / originalLoan) * 100);
+  }, [ppor, sellDownProceeds]);
   const totals = useMemo(() => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
