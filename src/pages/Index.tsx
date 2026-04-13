@@ -316,7 +316,8 @@ const Index = () => {
 
         <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm -my-4">
           <ArrowDownUp size={14} className="text-accent" />
-          <span>Drag cards between sections to move them</span>
+          <span className="hidden sm:inline">Drag cards between sections to move them</span>
+          <span className="sm:hidden">Tap a card to move between sections</span>
         </div>
 
         <PropertiesToBuy
@@ -381,7 +382,7 @@ const Index = () => {
                 Portfolio Summary
               </h2>
             </div>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 { icon: Building2, label: "Current portfolio value", value: `$${(ppor.estimatedValue + activeProperties.reduce((sum, p) => sum + p.estimatedValue, 0)).toLocaleString()}` },
                 { icon: Landmark, label: "Total Loan amounts", value: `$${(loanBalance + activeProperties.reduce((sum, p) => sum + p.loanBalance, 0)).toLocaleString()}` },
