@@ -112,7 +112,8 @@ const Portfolio = () => {
     const totalValue = pporValue + investmentValue;
     const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
-    return { totalValue, totalLoan, totalEquity };
+    const avgLvr = totalValue > 0 ? (totalLoan / totalValue) * 100 : 0;
+    return { totalValue, totalLoan, totalEquity, avgLvr };
   }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity, masterLvr]);
 
   return (
@@ -201,6 +202,7 @@ const Portfolio = () => {
               </select>
             </div>
             <span className="text-2xl font-bold text-accent">${totals.totalEquity.toLocaleString()}</span>
+            <span className="text-xs text-muted-foreground">Avg LVR: <span className="font-semibold text-foreground">{totals.avgLvr.toFixed(1)}%</span></span>
           </div>
         </div>
 
