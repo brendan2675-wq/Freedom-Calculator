@@ -343,14 +343,11 @@ const KeyInputs = ({
                     <label className="text-xs text-muted-foreground font-medium block mb-1">Current Loan Balance</label>
                     <div className="flex items-center gap-1">
                       <span className="text-muted-foreground text-sm">$</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={loanBalance ? loanBalance.toLocaleString() : ""}
-                        onChange={(e) => setLoanBalance(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
-                        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-                      />
+                      <p className="w-full py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium">
+                        {loanBalance.toLocaleString()}
+                      </p>
                     </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Calculated from loan splits below</p>
                   </div>
 
                   {/* Loan Splits */}
@@ -360,7 +357,7 @@ const KeyInputs = ({
                       <button
                         onClick={() => {
                           const splits = ppor.loanSplits || [];
-                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: `Split ${splits.length + 1}`, amount: 0 };
+                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: `Split ${splits.length + 1}`, amount: 0, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
                           setPpor({ ...ppor, loanSplits: [...splits, newSplit] });
                         }}
                         className="text-accent hover:text-accent/80 transition-colors p-0.5"
@@ -368,6 +365,17 @@ const KeyInputs = ({
                         <Plus size={16} />
                       </button>
                     </div>
+                    {(ppor.loanSplits || []).length === 0 && (
+                      <button
+                        onClick={() => {
+                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: "Primary Loan", amount: loanBalance, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
+                          setPpor({ ...ppor, loanSplits: [newSplit] });
+                        }}
+                        className="w-full py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-accent hover:text-accent transition-all"
+                      >
+                        + Create first loan split from current balance
+                      </button>
+                    )}
                     {(ppor.loanSplits || []).length > 0 && (
                       <div className="flex items-center gap-1 text-[8px] text-muted-foreground font-medium">
                         <span className="flex-[2] min-w-0">Label</span>
@@ -464,24 +472,6 @@ const KeyInputs = ({
                         Total: <span className="font-semibold text-foreground">${(ppor.loanSplits || []).reduce((s, sp) => s + sp.amount, 0).toLocaleString()}</span>
                       </p>
                     )}
-                  </div>
-
-                  <div>
-                    <label className="text-xs text-muted-foreground font-medium block mb-1">Interest Rate</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={interestRate}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          if (raw === '' || /^\d*\.?\d*$/.test(raw)) setInterestRate(raw as any);
-                        }}
-                        onBlur={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
-                        className="w-full py-2 px-3 pr-8 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm text-center"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
-                    </div>
                   </div>
                 </div>
               </div>

@@ -321,10 +321,13 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                   />
                 </FieldGroup>
                 <FieldGroup label="Current Loan Balance">
-                  <CurrencyInput
-                    value={(property as ExistingProperty).loanBalance}
-                    onChange={(v) => update({ loanBalance: v } as Partial<ExistingProperty>)}
-                  />
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground text-sm">$</span>
+                    <p className="w-full py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium">
+                      {(property as ExistingProperty).loanBalance.toLocaleString()}
+                    </p>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Calculated from loan splits below</p>
                 </FieldGroup>
 
                 {/* Loan Splits */}
@@ -335,7 +338,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       onClick={() => {
                         const ep = property as ExistingProperty;
                         const splits = ep.loanSplits || [];
-                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: `Split ${splits.length + 1}`, amount: 0 };
+                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: `Split ${splits.length + 1}`, amount: 0, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: 0 };
                         update({ loanSplits: [...splits, newSplit] } as Partial<ExistingProperty>);
                       }}
                       className="text-accent hover:text-accent/80 transition-colors p-0.5"
@@ -343,6 +346,18 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       <Plus size={16} />
                     </button>
                   </div>
+                  {((property as ExistingProperty).loanSplits || []).length === 0 && (
+                    <button
+                      onClick={() => {
+                        const ep = property as ExistingProperty;
+                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: "Primary Loan", amount: ep.loanBalance, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: property.loan.offsetBalance };
+                        update({ loanSplits: [newSplit] } as Partial<ExistingProperty>);
+                      }}
+                      className="w-full py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-accent hover:text-accent transition-all"
+                    >
+                      + Create first loan split from current balance
+                    </button>
+                  )}
                   {((property as ExistingProperty).loanSplits || []).length > 0 && (
                     <div className="flex items-center gap-1 text-[8px] text-muted-foreground font-medium">
                       <span className="flex-[2] min-w-0">Label</span>
