@@ -2,13 +2,17 @@ import { useState } from "react";
 import { UserCircle, LayoutDashboard, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthFlow from "@/components/AuthFlow";
+import ScenarioManager from "@/components/ScenarioManager";
+import type { ScenarioState } from "@/lib/scenarioManager";
 
 interface HeaderProps {
   clientName: string;
   setClientName: (v: string) => void;
+  getCurrentState?: () => ScenarioState;
+  loadState?: (state: ScenarioState) => void;
 }
 
-const Header = ({ clientName, setClientName }: HeaderProps) => {
+const Header = ({ clientName, setClientName, getCurrentState, loadState }: HeaderProps) => {
   const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
   return (
@@ -32,6 +36,9 @@ const Header = ({ clientName, setClientName }: HeaderProps) => {
           </div>
         </div>
         <div className="flex items-center gap-4 flex-shrink-0">
+          {getCurrentState && loadState && (
+            <ScenarioManager getCurrentState={getCurrentState} loadState={loadState} />
+          )}
           <button
             onClick={() => {
               if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
