@@ -66,7 +66,6 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
         ...(!allEarmarked ? { saleCosts: { ...(p.saleCosts || defaultSaleCosts), agentCommission: Math.round(p.estimatedValue * 0.02) } } : {}),
       }))
     );
-    );
   };
 
   const selectedProperty = properties.find((p) => p.id === selectedId) || null;
