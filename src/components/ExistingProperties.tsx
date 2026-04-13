@@ -18,11 +18,12 @@ interface Props {
   onMoveToProposals?: (p: ExistingProperty) => void;
   onDropFromProposals?: (id: string) => void;
   portfolioMode?: boolean;
+  hideHeader?: boolean;
 }
 
 const VISIBLE_SLOTS = 4;
 
-const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, onDropFromProposals, portfolioMode = false }: Props) => {
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, onDropFromProposals, portfolioMode = false, hideHeader = false }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -123,60 +124,64 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
   return (
     <TooltipProvider>
       <section>
-        <div className="gold-underline pb-2 mb-1">
-          <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
-            <Briefcase size={26} strokeWidth={2.25} className="text-accent" />
-            Your Investment Portfolio
-            {properties.length > VISIBLE_SLOTS && (
-              <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                {properties.length} properties
-              </span>
-            )}
-          </h2>
-          {!portfolioMode && (
-            <div className="flex items-center gap-2">
-              {properties.length > 0 && (
-                allEarmarked ? (
-                  <button
-                    onClick={handleMasterSellDown}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-medium transition-colors"
-                  >
-                    <X size={14} />
-                    Selling {masterSellYear === 0 ? "Now" : `in ${masterSellYear} ${masterSellYear === 1 ? "yr" : "yrs"}`}
-                  </button>
-                ) : (
-                  <div
-                    className="flex items-center gap-1.5 pl-3 pr-1 py-1 rounded-md border border-accent/30 bg-accent/10 text-accent text-xs font-medium whitespace-nowrap"
-                  >
-                    <BadgeDollarSign size={14} className="shrink-0 cursor-pointer" onClick={handleMasterSellDown} />
-                    <span className="cursor-pointer" onClick={handleMasterSellDown}>Sell All in</span>
-                    <select
-                      value={masterSellYear}
-                      onChange={(e) => setMasterSellYear(Number(e.target.value))}
-                      className="py-1 px-1.5 rounded border border-accent/30 bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
-                    >
-                      <option value={0}>Now</option>
-                      {Array.from({ length: 10 }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {i + 1} {i + 1 === 1 ? "yr" : "yrs"}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={handleMasterSellDown}
-                      className="ml-0.5 px-2 py-1 rounded bg-accent text-accent-foreground text-xs font-semibold hover:bg-accent/90 transition-colors"
-                    >
-                      Go
-                    </button>
-                  </div>
-                )
+        {!hideHeader && (
+          <>
+            <div className="gold-underline pb-2 mb-1">
+              <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                <Briefcase size={26} strokeWidth={2.25} className="text-accent" />
+                Your Investment Portfolio
+                {properties.length > VISIBLE_SLOTS && (
+                  <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                    {properties.length} properties
+                  </span>
+                )}
+              </h2>
+              {!portfolioMode && (
+                <div className="flex items-center gap-2">
+                  {properties.length > 0 && (
+                    allEarmarked ? (
+                      <button
+                        onClick={handleMasterSellDown}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-medium transition-colors"
+                      >
+                        <X size={14} />
+                        Selling {masterSellYear === 0 ? "Now" : `in ${masterSellYear} ${masterSellYear === 1 ? "yr" : "yrs"}`}
+                      </button>
+                    ) : (
+                      <div
+                        className="flex items-center gap-1.5 pl-3 pr-1 py-1 rounded-md border border-accent/30 bg-accent/10 text-accent text-xs font-medium whitespace-nowrap"
+                      >
+                        <BadgeDollarSign size={14} className="shrink-0 cursor-pointer" onClick={handleMasterSellDown} />
+                        <span className="cursor-pointer" onClick={handleMasterSellDown}>Sell All in</span>
+                        <select
+                          value={masterSellYear}
+                          onChange={(e) => setMasterSellYear(Number(e.target.value))}
+                          className="py-1 px-1.5 rounded border border-accent/30 bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                        >
+                          <option value={0}>Now</option>
+                          {Array.from({ length: 10 }, (_, i) => (
+                            <option key={i + 1} value={i + 1}>
+                              {i + 1} {i + 1 === 1 ? "yr" : "yrs"}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={handleMasterSellDown}
+                          className="ml-0.5 px-2 py-1 rounded bg-accent text-accent-foreground text-xs font-semibold hover:bg-accent/90 transition-colors"
+                        >
+                          Go
+                        </button>
+                      </div>
+                    )
+                  )}
+                </div>
               )}
+              </div>
             </div>
-          )}
-          </div>
-        </div>
-        <div className="h-4" />
+            <div className="h-4" />
+          </>
+        )}
 
         <div className="relative">
           {showArrows && canScrollLeft && (
