@@ -29,6 +29,18 @@ const tiles = [
     icon: TrendingUp,
     route: null,
   },
+  {
+    title: "SMSF Strategy",
+    description: "Manage your self-managed super fund property",
+    icon: Landmark,
+    route: null,
+  },
+  {
+    title: "Specific $ Goal",
+    description: "Set and track a custom dollar target",
+    icon: Target,
+    route: null,
+  },
 ];
 
 const HomePage = () => {
