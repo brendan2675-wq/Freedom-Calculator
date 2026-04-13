@@ -177,22 +177,22 @@ const KeyInputs = ({
             <div className="pt-5 mt-5 border-t border-border">
               <div className="grid grid-cols-2 gap-4">
                 {/* Property Value Card */}
-                <div className="rounded-xl border border-border bg-muted/30 p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Home size={16} className="text-accent" />
-                    <span className="text-sm font-semibold text-foreground">{suburb}</span>
+                <div className="rounded-xl border border-border bg-muted/30 p-3 md:p-4">
+                  <div className="flex items-center gap-1.5 md:gap-2 mb-1 flex-wrap">
+                    <Home size={16} className="text-accent shrink-0" />
+                    <span className="text-xs md:text-sm font-semibold text-foreground">{suburb}</span>
                     <button
-                      className="text-[10px] text-accent font-medium bg-accent/10 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors whitespace-nowrap ml-auto"
+                      className="text-[9px] md:text-[10px] text-accent font-medium bg-accent/10 px-1.5 md:px-2 py-0.5 rounded hover:bg-accent/20 transition-colors whitespace-nowrap ml-auto"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      Request property report
+                      Property report
                     </button>
                   </div>
-                  <p className="text-muted-foreground text-xs mb-2">Current Value</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-2xl font-bold text-foreground">${currentValue.toLocaleString()}</p>
+                  <p className="text-muted-foreground text-[10px] md:text-xs mb-2">Current Value</p>
+                  <div className="flex items-center justify-between gap-1">
+                    <p className="text-lg md:text-2xl font-bold text-foreground">${currentValue.toLocaleString()}</p>
                     {purchasePrice > 0 && (
-                      <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
+                      <span className={`text-[10px] md:text-xs font-semibold px-1 md:px-1.5 py-0.5 rounded shrink-0 ${
                         growthPercent >= 0
                           ? "bg-success/15 text-success"
                           : "bg-destructive/15 text-destructive"
@@ -204,23 +204,23 @@ const KeyInputs = ({
                 </div>
 
                 {/* Equity Available Card */}
-                <div className="rounded-xl border border-border bg-muted/30 p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Wallet size={16} className="text-accent" />
-                    <span className="text-sm font-semibold text-foreground">Equity Available</span>
+                <div className="rounded-xl border border-border bg-muted/30 p-3 md:p-4">
+                  <div className="flex items-center gap-1.5 md:gap-2 mb-1">
+                    <Wallet size={16} className="text-accent shrink-0" />
+                    <span className="text-xs md:text-sm font-semibold text-foreground">Equity Available</span>
                   </div>
-                  <p className="text-muted-foreground text-xs mb-2">Equity Available</p>
-                  <div className="flex items-center justify-between">
-                    <p className={`text-2xl font-bold ${equityAvailable > 50000 ? 'text-success' : 'text-accent'}`}>${equityAvailable.toLocaleString()}</p>
+                  <p className="text-muted-foreground text-[10px] md:text-xs mb-2">Equity Available</p>
+                  <div className="flex items-center justify-between gap-1">
+                    <p className={`text-lg md:text-2xl font-bold ${equityAvailable > 50000 ? 'text-success' : 'text-accent'}`}>${equityAvailable.toLocaleString()}</p>
                     <select
                       value={lvrRate}
                       onChange={(e) => { e.stopPropagation(); setLvrRate(Number(e.target.value)); }}
                       onClick={(e) => e.stopPropagation()}
-                      className="py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent"
+                      className="py-1 md:py-1.5 px-1 md:px-2 rounded-lg border border-border bg-background text-foreground text-[10px] md:text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent shrink-0"
                     >
-                      <option value={0.8}>80% LVR</option>
-                      <option value={0.88}>88% LVR</option>
-                      <option value={0.9}>90% LVR</option>
+                      <option value={0.8}>80%</option>
+                      <option value={0.88}>88%</option>
+                      <option value={0.9}>90%</option>
                     </select>
                   </div>
                 </div>

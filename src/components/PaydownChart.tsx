@@ -440,21 +440,27 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       )}
       <div ref={chartWrapperRef} className={hasSellDowns && groupedSellDowns.length > 0 ? "h-72 md:h-80 relative" : "h-64 md:h-72 relative"}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: hasSellDowns ? sellLabelLayout.chartTopMargin : 20, right: 10, left: 10, bottom: 5 }}>
+          <AreaChart data={data} margin={{ top: hasSellDowns ? sellLabelLayout.chartTopMargin : 20, right: 5, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(36, 20%, 88%)" />
             <XAxis
               dataKey="year"
               type="number"
               domain={['dataMin', 'dataMax']}
-              tickCount={data.length}
-              interval={0}
-              fontSize={12}
+              tickCount={chartWidth < 400 ? Math.min(data.length, 6) : data.length}
+              interval={chartWidth < 400 ? "preserveStartEnd" : 0}
+              fontSize={chartWidth < 400 ? 10 : 12}
               tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }}
-              angle={-35}
+              angle={chartWidth < 400 ? -45 : -35}
               textAnchor="end"
-              height={45}
+              height={chartWidth < 400 ? 35 : 45}
             />
-            <YAxis tickFormatter={formatDollar} fontSize={13} tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }} width={60} />
+            <YAxis
+              tickFormatter={formatDollar}
+              fontSize={chartWidth < 400 ? 10 : 13}
+              tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }}
+              width={chartWidth < 400 ? 45 : 60}
+              tickCount={chartWidth < 400 ? 5 : undefined}
+            />
             <Tooltip
               formatter={(value: number, name: string) => [
                 `$${value.toLocaleString()}`,
