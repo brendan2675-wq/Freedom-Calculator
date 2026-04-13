@@ -364,6 +364,11 @@ const KeyInputs = ({
                           Enter loan splits by using the "+" symbol
                         </TooltipContent>
                       </Tooltip>
+                      <button
+                        onClick={() => {
+                          const splits = ppor.loanSplits || [];
+                          const defaultLabel = splits.length === 0 ? (suburb || `Split 1`) : `Split ${splits.length + 1}`;
+                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: defaultLabel, amount: 0, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
                           setPpor({ ...ppor, loanSplits: [...splits, newSplit] });
                         }}
                         className="text-accent hover:text-accent/80 transition-colors p-0.5"
@@ -374,7 +379,7 @@ const KeyInputs = ({
                     {(ppor.loanSplits || []).length === 0 && (
                       <button
                         onClick={() => {
-                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: "Primary Loan", amount: loanBalance, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
+                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: suburb || "Primary Loan", amount: loanBalance, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
                           setPpor({ ...ppor, loanSplits: [newSplit] });
                         }}
                         className="w-full py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-accent hover:text-accent transition-all"
