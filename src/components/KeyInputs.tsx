@@ -312,105 +312,220 @@ const KeyInputs = ({
           </div>
         )}
 
-        {/* PPOR Detail Sheet */}
-        <Sheet open={pporDetailOpen} onOpenChange={setPporDetailOpen}>
+        {/* Comprehensive PPOR Sheet */}
+        <Sheet open={pporDetailOpen || pporSheetOpen} onOpenChange={(o) => { setPporDetailOpen(o); setPporSheetOpen(o); }}>
           <SheetContent className="overflow-y-auto">
             <SheetHeader className="pb-4 border-b border-border">
               <div className="flex items-center gap-2">
                 <Home size={20} className="text-accent" />
-                <SheetTitle className="text-xl">PPOR Details</SheetTitle>
+                <SheetTitle className="text-xl">Your Home (PPOR)</SheetTitle>
               </div>
             </SheetHeader>
 
-            <div className="space-y-6 pt-6">
-              {/* Suburb */}
+            <div className="space-y-8 pt-6">
+              {/* Section 1: Property Details */}
               <div>
-                <label className="text-xs text-muted-foreground font-medium block mb-1">Suburb</label>
-                <input
-                  type="text"
-                  value={suburb}
-                  onChange={(e) => setSuburb(e.target.value)}
-                  placeholder="e.g. Paddington"
-                  className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-                />
-              </div>
-
-              {/* Purchase Price */}
-              <div>
-                <label className="text-xs text-muted-foreground font-medium block mb-1">Purchase Price</label>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground text-sm">$</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={purchasePrice ? purchasePrice.toLocaleString() : ""}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-                      setPurchasePrice(v);
-                    }}
-                    placeholder="Enter purchase price"
-                    className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-                  />
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Property Details</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium block mb-1">Suburb</label>
+                    <input
+                      type="text"
+                      value={suburb}
+                      onChange={(e) => setSuburb(e.target.value)}
+                      placeholder="e.g. Paddington"
+                      className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium block mb-1">Purchase Price</label>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground text-sm">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={purchasePrice ? purchasePrice.toLocaleString() : ""}
+                        onChange={(e) => setPurchasePrice(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
+                        placeholder="Enter purchase price"
+                        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium block mb-1">Current Value</label>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground text-sm">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={currentValue ? currentValue.toLocaleString() : ""}
+                        onChange={(e) => setPporValue(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
+                        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                      />
+                    </div>
+                    {purchasePrice > 0 && (
+                      <p className={`text-xs font-medium mt-1 ${growthPercent >= 0 ? "text-success" : "text-destructive"}`}>
+                        {growthPercent >= 0 ? "↑" : "↓"} {Math.abs(growthPercent).toFixed(1)}% since purchase (${(currentValue - purchasePrice).toLocaleString()})
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Current Value */}
-              <div>
-                <label className="text-xs text-muted-foreground font-medium block mb-1">Current Value</label>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground text-sm">$</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={currentValue ? currentValue.toLocaleString() : ""}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-                      setPporValue(v);
-                    }}
-                    className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-                  />
-                </div>
-                {purchasePrice > 0 && (
-                  <p className={`text-xs font-medium mt-1 ${growthPercent >= 0 ? "text-success" : "text-destructive"}`}>
-                    {growthPercent >= 0 ? "↑" : "↓"} {Math.abs(growthPercent).toFixed(1)}% since purchase (${(currentValue - purchasePrice).toLocaleString()})
-                  </p>
-                )}
-              </div>
+              <div className="border-t border-border" />
 
-              {/* Loan Balance */}
+              {/* Section 2: Loan Details */}
               <div>
-                <label className="text-xs text-muted-foreground font-medium block mb-1">Current Loan Balance</label>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground text-sm">$</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={loanBalance ? loanBalance.toLocaleString() : ""}
-                    onChange={(e) => {
-                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
-                      setLoanBalance(v);
-                    }}
-                    className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
-                  />
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Loan Details</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium block mb-1">Current Loan Balance</label>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground text-sm">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={loanBalance ? loanBalance.toLocaleString() : ""}
+                        onChange={(e) => setLoanBalance(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
+                        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground font-medium block mb-1">Interest Rate</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={interestRate}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === '' || /^\d*\.?\d*$/.test(raw)) setInterestRate(raw as any);
+                        }}
+                        onBlur={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
+                        className="w-full py-2 px-3 pr-8 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm text-center"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Interest Rate */}
+              <div className="border-t border-border" />
+
+              {/* Section 3: Progress Tracker Settings */}
               <div>
-                <label className="text-xs text-muted-foreground font-medium block mb-1">Interest Rate</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={interestRate}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw === '' || /^\d*\.?\d*$/.test(raw)) setInterestRate(raw as any);
-                    }}
-                    onBlur={(e) => setInterestRate(parseFloat(e.target.value) || 0)}
-                    className="w-full py-2 px-3 pr-8 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm text-center"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Progress Tracker</h3>
+
+                {/* Paydown visual */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-muted-foreground">Paydown Progress</span>
+                    <span className="text-success font-bold text-2xl">{paydownPercent.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full h-6 rounded-full bg-secondary overflow-hidden relative shadow-inner">
+                    <div
+                      className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden bg-accent"
+                      style={{
+                        width: `${Math.min(100, paydownPercent)}%`,
+                        boxShadow: `0 0 12px hsl(var(--accent) / 0.3)`,
+                      }}
+                    >
+                      <div className="absolute inset-0 opacity-15" style={{ background: 'linear-gradient(180deg, white 0%, transparent 60%)' }} />
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>${startingBalance.toLocaleString()}</span>
+                    <span>${adjustedRemaining.toLocaleString()} remaining</span>
+                    <span>$0</span>
+                  </div>
+                  {sellDownProceeds > 0 && (
+                    <p className="text-xs text-success mt-1">Sell-down proceeds: −${sellDownProceeds.toLocaleString()} → ${adjustedRemaining.toLocaleString()} remaining</p>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Original Loan Amount</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={startingBalance.toLocaleString()}
+                        onChange={(e) => setStartingBalance(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
+                        className="w-full pl-8 pr-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Repayment Type</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setRepaymentType("pi")}
+                        className={`py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
+                          repaymentType === "pi"
+                            ? "border-accent bg-accent/10 text-accent"
+                            : "border-border bg-background text-muted-foreground hover:border-accent/50"
+                        }`}
+                      >
+                        Principal & Interest
+                      </button>
+                      <button
+                        onClick={() => setRepaymentType("io")}
+                        className={`py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
+                          repaymentType === "io"
+                            ? "border-accent bg-accent/10 text-accent"
+                            : "border-border bg-background text-muted-foreground hover:border-accent/50"
+                        }`}
+                      >
+                        Interest Only
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Loan Term</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Years</label>
+                        <input
+                          type="number"
+                          min={1} max={40}
+                          value={loanTermYears}
+                          onChange={(e) => setLoanTermYears(parseInt(e.target.value) || 0)}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Months</label>
+                        <input
+                          type="number"
+                          min={0} max={11}
+                          value={loanTermMonths}
+                          onChange={(e) => setLoanTermMonths(parseInt(e.target.value) || 0)}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {repaymentType === "io" && (
+                    <div>
+                      <label className="text-sm font-medium text-foreground mb-1.5 block">Interest-Only Period</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min={0} max={15}
+                          value={ioPeriodYears}
+                          onChange={(e) => setIoPeriodYears(parseInt(e.target.value) || 0)}
+                          className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground text-lg font-medium focus:outline-none focus:ring-2 focus:ring-accent text-center"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">years</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
