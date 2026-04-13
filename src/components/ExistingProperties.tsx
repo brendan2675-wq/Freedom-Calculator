@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { toast } from "sonner";
-import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, Briefcase, BadgeDollarSign, Home } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, Briefcase, BadgeDollarSign } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -18,18 +18,11 @@ interface Props {
   onMoveToProposals?: (p: ExistingProperty) => void;
   onDropFromProposals?: (id: string) => void;
   portfolioMode?: boolean;
-  ppor?: ExistingProperty | null;
-  onAddPpor?: () => void;
-  onUpdatePpor?: (p: ExistingProperty) => void;
-  onRemovePpor?: () => void;
-  pporLvr?: number;
-  onPporLvrChange?: (lvr: number) => void;
 }
 
 const VISIBLE_SLOTS = 4;
 
-const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, onDropFromProposals, portfolioMode = false, ppor, onAddPpor, onUpdatePpor, onRemovePpor, pporLvr = 0.8, onPporLvrChange }: Props) => {
-  const [pporSheetOpen, setPporSheetOpen] = useState(false);
+const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear, growthRate, onMoveToProposals, onDropFromProposals, portfolioMode = false }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lvrRates, setLvrRates] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -108,13 +101,14 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
     if (selectedId === id) setSelectedId(null);
   };
 
-  // Number of empty "Add Property" slots to fill up to visible slots
-  const pporSlots = portfolioMode ? (ppor ? 1 : 1) : 0; // PPOR card or Add PPOR button
-  const emptySlots = Math.max(0, VISIBLE_SLOTS - properties.length - 1 - pporSlots);
-  const totalItems = properties.length + 1 + pporSlots + emptySlots;
+  // Number of empty "Add Property" slots to fill up to 5
+  const emptySlots = Math.max(0, VISIBLE_SLOTS - properties.length - 1);
+  const totalItems = properties.length + 1 + emptySlots;
   const showArrows = totalItems > VISIBLE_SLOTS || properties.length >= VISIBLE_SLOTS;
-  const hasOverflow = (properties.length + pporSlots) >= VISIBLE_SLOTS;
+  const hasOverflow = properties.length >= VISIBLE_SLOTS;
   const cardWidth = hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
+  const [reorderDragId, setReorderDragId] = useState<string | null>(null);
+  const [reorderOverId, setReorderOverId] = useState<string | null>(null);
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -133,7 +127,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
             <Briefcase size={26} strokeWidth={2.25} className="text-accent" />
-            {portfolioMode ? "Your Properties" : "Your Investment Portfolio"}
+            Your Investment Portfolio
             {properties.length > VISIBLE_SLOTS && (
               <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                 {properties.length} properties
@@ -223,7 +217,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
             }
           }}
         >
-          {properties.map((p) => {
+           {properties.map((p, index) => {
             const lvr = lvrRates[p.id] ?? 0.8;
             const equity = Math.max(0, (p.estimatedValue * lvr) - p.loanBalance);
             const purchaseDate = p.purchase?.purchaseDate;
@@ -238,13 +232,40 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 onDragStart={(e) => {
                   e.dataTransfer.setData("application/x-existing-property", p.id);
                   e.dataTransfer.effectAllowed = "move";
+                  setReorderDragId(p.id);
                   setTimeout(() => setDraggingId(p.id), 0);
                 }}
-                onDragEnd={() => setDraggingId(null)}
+                onDragEnd={() => { setDraggingId(null); setReorderDragId(null); setReorderOverId(null); }}
+                onDragOver={(e) => {
+                  if (reorderDragId && reorderDragId !== p.id) {
+                    e.preventDefault();
+                    setReorderOverId(p.id);
+                  }
+                }}
+                onDragLeave={() => { if (reorderOverId === p.id) setReorderOverId(null); }}
+                onDrop={(e) => {
+                  if (reorderDragId && reorderDragId !== p.id) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const fromIdx = properties.findIndex(pr => pr.id === reorderDragId);
+                    const toIdx = properties.findIndex(pr => pr.id === p.id);
+                    if (fromIdx !== -1 && toIdx !== -1) {
+                      const reordered = [...properties];
+                      const [moved] = reordered.splice(fromIdx, 1);
+                      reordered.splice(toIdx, 0, moved);
+                      setProperties(reordered);
+                    }
+                    setReorderDragId(null);
+                    setReorderOverId(null);
+                    setDraggingId(null);
+                  }
+                }}
                 onClick={() => { if (!draggingId) setSelectedId(p.id); }}
                 className={`group rounded-xl shadow-md p-4 border-2 transition-all relative flex flex-col shrink-0 ${
                   draggingId === p.id
                     ? "border-dashed border-accent/30 bg-accent/5 opacity-40"
+                    : reorderOverId === p.id
+                    ? "bg-card border-accent border-solid cursor-grab shadow-lg shadow-accent/20"
                     : "bg-card border-border cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent hover:shadow-accent/10"
                 }`}
                 style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
@@ -393,72 +414,6 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
             );
           })}
 
-          {/* PPOR Card (portfolio mode only) */}
-          {portfolioMode && ppor && (
-            <div
-              onClick={() => setPporSheetOpen(true)}
-              className="group rounded-xl shadow-md p-4 border-2 border-accent/30 bg-card transition-all relative flex flex-col shrink-0 cursor-pointer hover:shadow-xl hover:border-accent hover:shadow-accent/10"
-              style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
-            >
-              <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
-                <button
-                  onClick={(e) => { e.stopPropagation(); onRemovePpor?.(); }}
-                  className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-              <div className="flex items-center gap-1.5 mb-2">
-                <Home size={16} className="text-accent shrink-0" />
-                <p className="font-semibold text-sm text-foreground truncate">{ppor.nickname || "Owner Occupied"}</p>
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent font-semibold ml-auto shrink-0">PPOR</span>
-              </div>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
-                <div>
-                  <label className="text-muted-foreground text-[11px]">Current Value</label>
-                  <p className="text-foreground font-medium">${ppor.estimatedValue.toLocaleString()}</p>
-                </div>
-                <div>
-                  <label className="text-muted-foreground text-[11px]">Current Loan</label>
-                  <p className="text-foreground font-medium">${ppor.loanBalance.toLocaleString()}</p>
-                </div>
-                <div>
-                  <label className="text-muted-foreground text-[11px]">Equity Available</label>
-                  <div className="flex items-center gap-1">
-                    <span className="text-accent font-bold">${Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance).toLocaleString()}</span>
-                    <select
-                      value={pporLvr}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => { e.stopPropagation(); onPporLvrChange?.(Number(e.target.value)); }}
-                      className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
-                    >
-                      <option value={0.8}>80%</option>
-                      <option value={0.88}>88%</option>
-                      <option value={0.9}>90%</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 pt-2 border-t border-border/70 flex items-center gap-1.5">
-                <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                  {ppor.ownership === "trust" ? (ppor.trustName || "Trust") : "Personal"}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Add PPOR button (portfolio mode, no PPOR yet) */}
-          {portfolioMode && !ppor && onAddPpor && (
-            <button
-              onClick={onAddPpor}
-              className="rounded-xl border-2 border-dashed border-accent/30 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent/70 hover:text-accent shrink-0"
-              style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
-            >
-              <Home size={20} />
-              <span className="text-xs">Add PPOR</span>
-            </button>
-          )}
-
           {/* Primary Add Property button */}
           <button
             onClick={addProperty}
@@ -506,24 +461,6 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           growthRate={growthRate}
           portfolioMode={portfolioMode}
         />
-
-        {/* PPOR Detail Sheet */}
-        {portfolioMode && ppor && onUpdatePpor && (
-          <PropertyDetailSheet
-            property={ppor}
-            open={pporSheetOpen}
-            onOpenChange={(o) => {
-              if (!o && ppor && !ppor.nickname && ppor.estimatedValue === 0) {
-                onRemovePpor?.();
-              }
-              setPporSheetOpen(o);
-            }}
-            onUpdate={(updated) => onUpdatePpor(updated as ExistingProperty)}
-            variant="existing"
-            portfolioMode
-            pporMode
-          />
-        )}
       </section>
     </TooltipProvider>
   );
