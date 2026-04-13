@@ -16,7 +16,7 @@ const Portfolio = () => {
   };
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
   const [ppor, setPpor] = useState<ExistingProperty | null>(null);
-  const [pporSheetOpen, setPporSheetOpen] = useState(false);
+  
   const [pporLvr, setPporLvr] = useState(0.8);
   const [masterLvr, setMasterLvr] = useState(0.8);
 
