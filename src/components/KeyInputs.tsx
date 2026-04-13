@@ -103,7 +103,10 @@ const KeyInputs = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Card 1: Loan, Target Date & Progress */}
-          <div className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col justify-between">
+          <div
+            className="bg-card rounded-xl shadow-md p-6 border border-border flex flex-col justify-between cursor-pointer hover:shadow-lg hover:border-accent/30 transition-all"
+            onClick={() => setPporSheetOpen(true)}
+          >
             {/* Loan to Pay Down */}
             <div>
               <div className="flex items-center gap-2 mb-1">
@@ -111,15 +114,12 @@ const KeyInputs = ({
                 <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
               </div>
               <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
-              <div
-                className="flex gap-3 cursor-pointer group/loan"
-                onClick={() => setPporSheetOpen(true)}
-              >
-                <div className="relative flex-1 py-3 px-4 rounded-lg border border-border bg-muted/30 group-hover/loan:border-accent/40 transition-colors">
+              <div className="flex gap-3">
+                <div className="relative flex-1 py-3 px-4 rounded-lg border border-border bg-muted/30">
                   <span className="text-muted-foreground text-xs">Balance</span>
                   <p className="text-lg font-bold text-foreground">${loanBalance.toLocaleString()}</p>
                 </div>
-                <div className="relative w-28 py-3 px-4 rounded-lg border border-border bg-muted/30 group-hover/loan:border-accent/40 transition-colors text-center">
+                <div className="relative w-28 py-3 px-4 rounded-lg border border-border bg-muted/30 text-center">
                   <span className="text-muted-foreground text-xs">Rate</span>
                   <p className="text-lg font-bold text-foreground">{interestRate}%</p>
                 </div>
@@ -142,16 +142,12 @@ const KeyInputs = ({
               )}
             </div>
 
-            {/* Progress Tracker - clickable to open sheet */}
-            <div
-              className="pt-5 mt-5 border-t border-border cursor-pointer group"
-              onClick={() => setPporSheetOpen(true)}
-            >
+            {/* Progress Tracker */}
+            <div className="pt-5 mt-5 border-t border-border">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <TrendingUp size={18} className="text-accent" />
                   <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
-                  <ChevronRight size={16} className="text-muted-foreground group-hover:text-accent transition-colors" />
                 </div>
                 <span className="font-bold text-lg" style={{ color: `hsl(${Math.round((Math.min(100, paydownPercent) / 100) * 80 + 25)}, 80%, 45%)` }}>{paydownPercent.toFixed(1)}%</span>
               </div>
@@ -178,10 +174,7 @@ const KeyInputs = ({
             <div className="pt-5 mt-5 border-t border-border">
               <div className="grid grid-cols-2 gap-4">
                 {/* Property Value Card */}
-                <div
-                  className="rounded-xl border border-border bg-muted/30 p-4 cursor-pointer group hover:border-accent/40 transition-colors"
-                  onClick={() => setPporSheetOpen(true)}
-                >
+                <div className="rounded-xl border border-border bg-muted/30 p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <Home size={16} className="text-accent" />
                     <span className="text-sm font-semibold text-foreground">{suburb}</span>
@@ -191,7 +184,6 @@ const KeyInputs = ({
                     >
                       Request property report
                     </button>
-                    <ChevronRight size={14} className="text-muted-foreground group-hover:text-accent transition-colors" />
                   </div>
                   <p className="text-muted-foreground text-xs mb-2">Current Value</p>
                   <div className="flex items-center justify-between">
@@ -219,7 +211,8 @@ const KeyInputs = ({
                     <p className={`text-2xl font-bold ${equityAvailable > 50000 ? 'text-success' : 'text-accent'}`}>${equityAvailable.toLocaleString()}</p>
                     <select
                       value={lvrRate}
-                      onChange={(e) => setLvrRate(Number(e.target.value))}
+                      onChange={(e) => { e.stopPropagation(); setLvrRate(Number(e.target.value)); }}
+                      onClick={(e) => e.stopPropagation()}
                       className="py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-xs font-medium focus:outline-none focus:ring-2 focus:ring-accent"
                     >
                       <option value={0.8}>80% LVR</option>
