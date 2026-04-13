@@ -221,7 +221,6 @@ const Portfolio = () => {
               <option value={0.88}>88% LVR</option>
               <option value={0.9}>90% LVR</option>
             </select>
-            <span className="text-2xl font-bold text-accent">${totals.totalEquity.toLocaleString()}</span>
           </div>
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
             <Activity size={24} className="text-accent" />
