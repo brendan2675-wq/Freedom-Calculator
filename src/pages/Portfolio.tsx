@@ -112,7 +112,8 @@ const Portfolio = () => {
     const totalValue = pporValue + investmentValue;
     const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
-    return { totalValue, totalLoan, totalEquity };
+    const avgLvr = totalValue > 0 ? (totalLoan / totalValue) * 100 : 0;
+    return { totalValue, totalLoan, totalEquity, avgLvr };
   }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity, masterLvr]);
 
   return (
