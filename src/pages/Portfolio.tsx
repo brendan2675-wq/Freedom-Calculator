@@ -172,7 +172,7 @@ const Portfolio = () => {
 
       <main className="container mx-auto px-4 py-12 space-y-10">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
             <Building2 size={24} className="text-accent" />
             <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
@@ -202,7 +202,11 @@ const Portfolio = () => {
               </select>
             </div>
             <span className="text-2xl font-bold text-accent">${totals.totalEquity.toLocaleString()}</span>
-            <span className="text-xs text-muted-foreground">Avg LVR: <span className="font-semibold text-foreground">{totals.avgLvr.toFixed(1)}%</span></span>
+          </div>
+          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
+            <Activity size={24} className="text-accent" />
+            <span className="text-sm text-muted-foreground">Average LVR</span>
+            <span className={`text-2xl font-bold ${totals.avgLvr > 80 ? 'text-destructive' : totals.avgLvr > 60 ? 'text-accent' : 'text-foreground'}`}>{totals.avgLvr.toFixed(1)}%</span>
           </div>
         </div>
 
