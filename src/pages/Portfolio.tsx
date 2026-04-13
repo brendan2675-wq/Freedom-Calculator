@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, UserCircle, Building2, Landmark, TrendingUp, Home, Plus, RotateCcw } from "lucide-react";
+import { LayoutDashboard, UserCircle, Building2, Landmark, TrendingUp, Home, Plus, RotateCcw, ArrowUpRight, ArrowDownRight, DollarSign, Activity } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import AuthFlow from "@/components/AuthFlow";
 import ExistingProperties from "@/components/ExistingProperties";
@@ -79,6 +79,30 @@ const Portfolio = () => {
 
   const pporEquity = ppor ? Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance) : 0;
 
+  // Growth since purchase
+  const pporGrowth = useMemo(() => {
+    if (!ppor || !ppor.purchase?.purchasePrice || ppor.purchase.purchasePrice === 0) return null;
+    const diff = ppor.estimatedValue - ppor.purchase.purchasePrice;
+    const pct = (diff / ppor.purchase.purchasePrice) * 100;
+    return { diff, pct };
+  }, [ppor]);
+
+  // Sell-down proceeds for progress tracker
+  const sellDownProceeds = useMemo(() => {
+    return properties
+      .filter(p => p.earmarked && p.sellInYears === 0)
+      .reduce((sum, p) => sum + Math.max(0, p.estimatedValue - p.loanBalance), 0);
+  }, [properties]);
+
+  const pporPaydownPct = useMemo(() => {
+    if (!ppor || ppor.loanBalance === 0) return 0;
+    const originalLoan = ppor.purchase?.purchasePrice
+      ? ppor.purchase.purchasePrice * 0.8
+      : ppor.loanBalance;
+    if (originalLoan === 0) return 0;
+    const netBalance = Math.max(0, ppor.loanBalance - sellDownProceeds);
+    return Math.min(100, ((originalLoan - netBalance) / originalLoan) * 100);
+  }, [ppor, sellDownProceeds]);
   const totals = useMemo(() => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
@@ -189,45 +213,123 @@ const Portfolio = () => {
                 Owner Occupied Property
               </h2>
             </div>
-            <div
-              onClick={() => setPporSheetOpen(true)}
-              className="bg-card rounded-xl p-5 border-2 border-accent/30 shadow-sm max-w-md cursor-pointer hover:shadow-xl hover:border-accent hover:shadow-accent/10 transition-all relative group"
-            >
-              <button
-                onClick={(e) => { e.stopPropagation(); removePpor(); }}
-                className="absolute top-3 right-3 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-label="Remove PPOR"
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+              {/* Main PPOR Card */}
+              <div
+                onClick={() => setPporSheetOpen(true)}
+                className="bg-card rounded-xl p-5 border-2 border-accent/30 shadow-sm cursor-pointer hover:shadow-xl hover:border-accent hover:shadow-accent/10 transition-all relative group"
               >
-                <span className="text-xs">✕</span>
-              </button>
-              <div className="flex items-center gap-1.5 mb-2">
-                <Home size={16} className="text-accent shrink-0" />
-                <p className="font-semibold text-sm text-foreground">{ppor.nickname || "Owner Occupied"}</p>
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent font-semibold ml-auto">PPOR</span>
-              </div>
-              <div className="grid grid-cols-3 gap-3 text-sm">
-                <div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); removePpor(); }}
+                  className="absolute top-3 right-3 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Remove PPOR"
+                >
+                  <span className="text-xs">✕</span>
+                </button>
+                <div className="flex items-center gap-1.5 mb-3">
+                  <Home size={16} className="text-accent shrink-0" />
+                  <p className="font-semibold text-sm text-foreground">{ppor.nickname || "Owner Occupied"}</p>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent font-semibold ml-auto">PPOR</span>
+                </div>
+
+                {/* Current Value with Growth */}
+                <div className="mb-4">
                   <label className="text-muted-foreground text-[11px] block mb-0.5">Current Value</label>
-                  <p className="text-foreground font-medium">${ppor.estimatedValue.toLocaleString()}</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-foreground">${ppor.estimatedValue.toLocaleString()}</span>
+                    {pporGrowth && (
+                      <span className={`text-xs font-semibold flex items-center gap-0.5 ${pporGrowth.pct >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                        {pporGrowth.pct >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                        {pporGrowth.pct >= 0 ? '↑' : '↓'}{Math.abs(pporGrowth.pct).toFixed(1)}%
+                      </span>
+                    )}
+                  </div>
+                  {ppor.purchase?.purchasePrice > 0 && (
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      Purchased at ${ppor.purchase.purchasePrice.toLocaleString()}
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <label className="text-muted-foreground text-[11px] block mb-0.5">Current Loan</label>
-                  <p className="text-foreground font-medium">${ppor.loanBalance.toLocaleString()}</p>
+
+                {/* Loan & Equity Row */}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Current Loan</label>
+                    <p className="text-foreground font-bold text-lg">${ppor.loanBalance.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Equity Available</label>
+                    <div className="flex items-center gap-1">
+                      <span className={`font-bold text-lg ${pporEquity >= 50000 ? 'text-green-600' : 'text-accent'}`}>${pporEquity.toLocaleString()}</span>
+                      <select
+                        value={pporLvr}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => { e.stopPropagation(); setPporLvr(Number(e.target.value)); }}
+                        className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-[10px] font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                      >
+                        <option value={0.8}>80%</option>
+                        <option value={0.88}>88%</option>
+                        <option value={0.9}>90%</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-muted-foreground text-[11px] block mb-0.5">Equity Avail.</label>
-                  <div className="flex items-center gap-1">
-                    <span className="text-accent font-bold">${pporEquity.toLocaleString()}</span>
-                    <select
-                      value={pporLvr}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => { e.stopPropagation(); setPporLvr(Number(e.target.value)); }}
-                      className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
-                    >
-                      <option value={0.8}>80%</option>
-                      <option value={0.88}>88%</option>
-                      <option value={0.9}>90%</option>
-                    </select>
+              </div>
+
+              {/* Right Side: Loan Breakdown + Mini Progress */}
+              <div className="flex flex-col gap-4">
+                {/* Loan & Net Balance Card */}
+                <div className="bg-card rounded-xl p-4 border border-border shadow-sm flex-1">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <DollarSign size={14} className="text-accent" />
+                    <span className="text-xs font-semibold text-foreground">Loan & Net Position</span>
+                  </div>
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Current Loan</span>
+                      <span className="font-medium text-foreground">${ppor.loanBalance.toLocaleString()}</span>
+                    </div>
+                    {sellDownProceeds > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-accent text-xs">Sell-Down Proceeds</span>
+                        <span className="text-accent font-medium">− ${sellDownProceeds.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="border-t border-border pt-1.5 flex justify-between">
+                      <span className="font-semibold text-foreground">Net Balance</span>
+                      <span className="font-bold text-foreground">
+                        ${Math.max(0, ppor.loanBalance - sellDownProceeds).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mini Progress Tracker */}
+                <div className="bg-card rounded-xl p-4 border border-border shadow-sm flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5">
+                      <Activity size={14} className="text-accent" />
+                      <span className="text-xs font-semibold text-foreground">Paydown Progress</span>
+                    </div>
+                    <span className={`text-sm font-bold ${pporPaydownPct >= 100 ? 'text-green-600' : pporPaydownPct >= 50 ? 'text-accent' : 'text-foreground'}`}>
+                      {pporPaydownPct.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="w-full h-3 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.min(100, pporPaydownPct)}%`,
+                        background: `linear-gradient(90deg, hsl(30, 80%, 55%) 0%, hsl(120, 50%, 45%) 100%)`,
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between mt-1.5 text-[10px] text-muted-foreground">
+                    <span>${ppor.loanBalance.toLocaleString()} loan</span>
+                    {sellDownProceeds > 0 && (
+                      <span className="text-accent">−${sellDownProceeds.toLocaleString()} sell down</span>
+                    )}
+                    <span>$0 target</span>
                   </div>
                 </div>
               </div>
