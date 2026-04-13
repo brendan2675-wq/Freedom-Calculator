@@ -352,6 +352,120 @@ const KeyInputs = ({
                       />
                     </div>
                   </div>
+
+                  {/* Loan Splits */}
+                  <div className="pl-2 border-l-2 border-accent/20 space-y-2 [&_input]:py-1 [&_input]:px-1 [&_input]:text-[10px] [&_input]:rounded [&_input]:rounded-lg-none">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-muted-foreground font-medium">Loan Splits</label>
+                      <button
+                        onClick={() => {
+                          const splits = ppor.loanSplits || [];
+                          const newSplit: LoanSplit = { id: crypto.randomUUID(), label: `Split ${splits.length + 1}`, amount: 0 };
+                          setPpor({ ...ppor, loanSplits: [...splits, newSplit] });
+                        }}
+                        className="text-accent hover:text-accent/80 transition-colors p-0.5"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                    {(ppor.loanSplits || []).length > 0 && (
+                      <div className="flex items-center gap-1 text-[8px] text-muted-foreground font-medium">
+                        <span className="flex-[2] min-w-0">Label</span>
+                        <span className="flex-[2] min-w-0">Amt ($)</span>
+                        <span className="flex-[1.2] min-w-0">Rate (%)</span>
+                        <span className="flex-[1] min-w-0">IO</span>
+                        <span className="flex-[1.2] min-w-0">Term (yr)</span>
+                        <span className="flex-[2] min-w-0">Offset ($)</span>
+                        <span className="w-4" />
+                      </div>
+                    )}
+                    {(ppor.loanSplits || []).map((split, idx) => {
+                      const updateSplit = (patch: Partial<LoanSplit>, recalcTotal = false) => {
+                        const splits = [...(ppor.loanSplits || [])];
+                        splits[idx] = { ...splits[idx], ...patch };
+                        const updated: Partial<ExistingProperty> = { loanSplits: splits };
+                        if (recalcTotal) {
+                          const total = splits.reduce((s, sp) => s + sp.amount, 0);
+                          updated.loanBalance = total;
+                          setLoanBalance(total);
+                        }
+                        setPpor({ ...ppor, ...updated });
+                      };
+                      return (
+                        <div key={split.id} className="flex items-center gap-1">
+                          <input
+                            value={split.label}
+                            onChange={(e) => updateSplit({ label: e.target.value })}
+                            className="flex-[2] min-w-0 py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] font-medium focus:outline-none focus:ring-1 focus:ring-accent"
+                            placeholder="Label"
+                          />
+                          <div className="flex-[2] min-w-0">
+                            <input
+                              inputMode="numeric"
+                              value={split.amount || ""}
+                              onChange={(e) => updateSplit({ amount: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 }, true)}
+                              className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div className="flex-[1.2] min-w-0">
+                            <input
+                              inputMode="decimal"
+                              value={split.interestRate ?? interestRate}
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                if (raw === '' || /^\d*\.?\d*$/.test(raw)) updateSplit({ interestRate: parseFloat(raw) || 0 });
+                              }}
+                              className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
+                            />
+                          </div>
+                          <div className="flex-[1] min-w-0">
+                            <input
+                              type="number"
+                              min={0}
+                              value={split.interestOnlyPeriodYears ?? 0}
+                              onChange={(e) => updateSplit({ interestOnlyPeriodYears: parseInt(e.target.value) || 0 })}
+                              className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
+                            />
+                          </div>
+                          <div className="flex-[1.2] min-w-0">
+                            <input
+                              type="number"
+                              min={1}
+                              value={split.loanTermYears ?? 30}
+                              onChange={(e) => updateSplit({ loanTermYears: parseInt(e.target.value) || 0 })}
+                              className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
+                            />
+                          </div>
+                          <div className="flex-[2] min-w-0">
+                            <input
+                              inputMode="numeric"
+                              value={split.offsetBalance ?? 0}
+                              onChange={(e) => updateSplit({ offsetBalance: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 })}
+                              className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
+                            />
+                          </div>
+                          <button
+                            onClick={() => {
+                              const splits = (ppor.loanSplits || []).filter((_, i) => i !== idx);
+                              const total = splits.reduce((s, sp) => s + sp.amount, 0);
+                              setLoanBalance(total);
+                              setPpor({ ...ppor, loanSplits: splits, loanBalance: total });
+                            }}
+                            className="w-4 shrink-0 text-muted-foreground hover:text-destructive transition-colors"
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                    {(ppor.loanSplits || []).length > 0 && (
+                      <p className="text-[10px] text-muted-foreground">
+                        Total: <span className="font-semibold text-foreground">${(ppor.loanSplits || []).reduce((s, sp) => s + sp.amount, 0).toLocaleString()}</span>
+                      </p>
+                    )}
+                  </div>
+
                   <div>
                     <label className="text-xs text-muted-foreground font-medium block mb-1">Interest Rate</label>
                     <div className="relative">
