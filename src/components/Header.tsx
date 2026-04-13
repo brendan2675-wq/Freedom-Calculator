@@ -12,7 +12,7 @@ interface HeaderProps {
   loadState?: (state: ScenarioState) => void;
 }
 
-const Header = ({ clientName, setClientName }: HeaderProps) => {
+const Header = ({ clientName, setClientName, getCurrentState, loadState }: HeaderProps) => {
   const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
   return (
