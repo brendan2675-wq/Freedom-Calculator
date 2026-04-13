@@ -263,7 +263,7 @@ const Portfolio = () => {
                         {pporGrowth && (
                           <span className={`text-xs font-semibold flex items-center gap-0.5 ${pporGrowth.pct >= 0 ? 'text-green-600' : 'text-destructive'}`}>
                             {pporGrowth.pct >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                            {pporGrowth.pct >= 0 ? '↑' : '↓'}{Math.abs(pporGrowth.pct).toFixed(1)}%
+                            {pporGrowth.pct >= 0 ? '↑' : '↓'}{Math.abs(pporGrowth.pct).toFixed(0)}%
                           </span>
                         )}
                       </div>
