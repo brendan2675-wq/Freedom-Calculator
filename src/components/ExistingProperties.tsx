@@ -294,7 +294,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                             : "bg-destructive/15 text-destructive"
                         }`}>
                           {p.estimatedValue >= p.purchase.purchasePrice ? "↑" : "↓"}
-                          {Math.abs(((p.estimatedValue - p.purchase.purchasePrice) / p.purchase.purchasePrice) * 100).toFixed(1)}%
+                          {Math.abs(((p.estimatedValue - p.purchase.purchasePrice) / p.purchase.purchasePrice) * 100).toFixed(0)}%
                         </span>
                       )}
                     </div>
