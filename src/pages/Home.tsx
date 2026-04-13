@@ -103,66 +103,66 @@ const HomePage = () => {
       </header>
 
       {/* Tiles */}
-      <main className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-6 max-w-5xl mx-auto items-stretch">
-          {/* Left — Your Portfolio */}
+      <main className="container mx-auto px-4 py-6 md:py-12">
+        {/* Portfolio button - compact on mobile */}
+        <div className="max-w-5xl mx-auto mb-4 md:mb-6">
           <button
             onClick={() => navigate("/portfolio")}
-            className="group relative bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer text-left transition-all flex flex-col items-center justify-center overflow-hidden"
+            className="group w-full bg-card rounded-2xl shadow-md border-2 border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer text-left transition-all flex items-center md:flex-col md:items-center md:justify-center gap-4 md:gap-5 p-4 md:py-8 overflow-hidden"
           >
-            <div className="flex flex-col items-center gap-5 py-8">
-              <div className="w-20 h-20 rounded-2xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/15 transition-colors">
-                <PieChart size={40} className="text-accent" />
-              </div>
-              <div className="text-center">
-                <h2 className="text-xl font-bold text-foreground mb-1">Your Portfolio</h2>
-                <p className="text-sm text-muted-foreground">View and manage your full property portfolio</p>
-              </div>
-              <div className="flex items-center gap-1 text-accent text-xs font-medium opacity-50 group-hover:opacity-100 transition-opacity mt-2">
-                Open <ChevronRight size={14} />
-              </div>
+            <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/15 transition-colors shrink-0">
+              <PieChart size={28} className="md:hidden text-accent" />
+              <PieChart size={40} className="hidden md:block text-accent" />
+            </div>
+            <div className="md:text-center flex-1 min-w-0">
+              <h2 className="text-lg md:text-xl font-bold text-foreground mb-0.5 md:mb-1">Your Portfolio</h2>
+              <p className="text-xs md:text-sm text-muted-foreground">View and manage your full property portfolio</p>
+            </div>
+            <div className="flex items-center gap-1 text-accent text-xs font-medium opacity-50 group-hover:opacity-100 transition-opacity shrink-0">
+              Open <ChevronRight size={14} />
             </div>
           </button>
+        </div>
 
-          {/* Right — Goal tiles */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
-            {tiles.map((tile) => {
-              const Icon = tile.icon;
-              const isActive = !!tile.route;
-              return (
-                <button
-                  key={tile.title}
-                  onClick={() => tile.route && navigate(tile.route)}
-                  disabled={!isActive}
-                  className={`group relative bg-card rounded-2xl shadow-md border-2 p-6 text-left transition-all flex flex-col gap-3 min-h-[150px] ${
-                    isActive
-                      ? "border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer"
-                      : "border-border/50 opacity-60 cursor-not-allowed"
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    isActive ? "bg-accent/10" : "bg-muted"
-                  }`}>
-                    <Icon size={24} className={isActive ? "text-accent" : "text-muted-foreground"} />
+        {/* Goal tiles — 2-col grid on all sizes */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 max-w-5xl mx-auto">
+          {tiles.map((tile) => {
+            const Icon = tile.icon;
+            const isActive = !!tile.route;
+            return (
+              <button
+                key={tile.title}
+                onClick={() => tile.route && navigate(tile.route)}
+                disabled={!isActive}
+                className={`group relative bg-card rounded-2xl shadow-md border-2 p-4 md:p-6 text-left transition-all flex flex-col gap-2 md:gap-3 min-h-[120px] md:min-h-[150px] ${
+                  isActive
+                    ? "border-border hover:border-accent hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+                    : "border-border/50 opacity-60 cursor-not-allowed"
+                }`}
+              >
+                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center ${
+                  isActive ? "bg-accent/10" : "bg-muted"
+                }`}>
+                  <Icon size={20} className={`md:hidden ${isActive ? "text-accent" : "text-muted-foreground"}`} />
+                  <Icon size={24} className={`hidden md:block ${isActive ? "text-accent" : "text-muted-foreground"}`} />
+                </div>
+                <div>
+                  <h2 className="text-sm md:text-lg font-bold text-foreground mb-0.5 md:mb-1">{tile.title}</h2>
+                  <p className="text-[10px] md:text-xs text-muted-foreground leading-tight">{tile.description}</p>
+                </div>
+                {!isActive && (
+                  <span className="absolute top-2 right-2 md:top-3 md:right-3 text-[9px] md:text-[10px] font-semibold px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-muted text-muted-foreground">
+                    Soon
+                  </span>
+                )}
+                {isActive && (
+                  <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                    Open →
                   </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-foreground mb-1">{tile.title}</h2>
-                    <p className="text-xs text-muted-foreground">{tile.description}</p>
-                  </div>
-                  {!isActive && (
-                    <span className="absolute top-3 right-3 text-[10px] font-semibold px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                      Coming soon
-                    </span>
-                  )}
-                  {isActive && (
-                    <div className="absolute bottom-3 right-3 text-xs text-accent font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                      Open →
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </main>
     </div>
