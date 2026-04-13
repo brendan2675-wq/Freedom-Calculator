@@ -27,6 +27,11 @@ export interface LoanSplit {
   id: string;
   label: string;
   amount: number;
+  interestRate?: number;
+  interestOnlyPeriodYears?: number;
+  loanTermYears?: number;
+  lenderName?: string;
+  offsetBalance?: number;
 }
 
 export interface SaleCosts {
