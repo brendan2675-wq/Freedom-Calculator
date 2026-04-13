@@ -114,14 +114,18 @@ const Portfolio = () => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
     const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * masterLvr) - p.loanBalance), 0);
+    const investmentPurchase = properties.reduce((s, p) => s + (p.purchase?.purchasePrice || 0), 0);
     const pporValue = ppor?.estimatedValue ?? 0;
     const pporLoan = ppor?.loanBalance ?? 0;
+    const pporPurchase = ppor?.purchase?.purchasePrice ?? 0;
     const totalValue = pporValue + investmentValue;
     const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
     const avgLvr = totalValue > 0 ? (totalLoan / totalValue) * 100 : 0;
-    return { totalValue, totalLoan, totalEquity, avgLvr };
-  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, pporEquity, masterLvr]);
+    const totalPurchase = pporPurchase + investmentPurchase;
+    const totalGrowthPct = totalPurchase > 0 ? ((totalValue - totalPurchase) / totalPurchase) * 100 : 0;
+    return { totalValue, totalLoan, totalEquity, avgLvr, totalGrowthPct, totalPurchase };
+  }, [properties, ppor?.estimatedValue, ppor?.loanBalance, ppor?.purchase?.purchasePrice, pporEquity, masterLvr]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -184,6 +188,11 @@ const Portfolio = () => {
             <Building2 size={24} className="text-accent" />
             <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
             <span className="text-2xl font-bold text-foreground">${totals.totalValue.toLocaleString()}</span>
+            {totals.totalPurchase > 0 && (
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded ${totals.totalGrowthPct >= 0 ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive'}`}>
+                {totals.totalGrowthPct >= 0 ? '↑' : '↓'}{Math.abs(totals.totalGrowthPct).toFixed(0)}% growth
+              </span>
+            )}
           </div>
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
             <Landmark size={24} className="text-accent" />
