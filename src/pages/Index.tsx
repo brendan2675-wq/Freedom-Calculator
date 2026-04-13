@@ -1,8 +1,10 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { ArrowDownUp, Building2, Landmark, Wallet, TrendingUp } from "lucide-react";
 import { defaultSaleCosts } from "@/types/property";
 import { calculateStampDuty } from "@/lib/stampDuty";
+import { decodeStateFromUrl } from "@/lib/scenarioManager";
+import type { ScenarioState } from "@/lib/scenarioManager";
 import Header from "@/components/Header";
 import KeyInputs from "@/components/KeyInputs";
 import ExistingProperties from "@/components/ExistingProperties";
