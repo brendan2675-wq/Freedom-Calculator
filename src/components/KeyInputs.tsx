@@ -145,34 +145,6 @@ const KeyInputs = ({
               )}
             </div>
 
-            {/* Progress Tracker */}
-            <div className="pt-5 mt-5 border-t border-border">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <TrendingUp size={18} className="text-accent" />
-                  <h3 className="text-lg font-semibold text-foreground">Progress Tracker</h3>
-                </div>
-                <span className="font-bold text-lg" style={{ color: `hsl(${Math.round((Math.min(100, paydownPercent) / 100) * 80 + 25)}, 80%, 45%)` }}>{paydownPercent.toFixed(1)}%</span>
-              </div>
-              <div className="w-full h-8 rounded-full bg-secondary overflow-hidden relative shadow-inner">
-                <div
-                  className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
-                  style={{
-                    width: `${Math.min(100, paydownPercent)}%`,
-                    background: `linear-gradient(90deg, hsl(25, 80%, 50%) 0%, hsl(${Math.round((Math.min(100, paydownPercent) / 100) * 80 + 25)}, 80%, 45%) 100%)`,
-                    boxShadow: `0 0 12px hsl(${Math.round((Math.min(100, paydownPercent) / 100) * 80 + 25)}, 80%, 45%, 0.3)`,
-                  }}
-                >
-                  <div className="absolute inset-0 opacity-15" style={{ background: 'linear-gradient(180deg, white 0%, transparent 60%)' }} />
-                </div>
-              </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground mt-1.5">
-                <span>${startingBalance.toLocaleString()}</span>
-                <span className="font-semibold text-foreground">${adjustedRemaining.toLocaleString()} remaining{sellDownProceeds > 0 && <span className="text-success"> (−${sellDownProceeds.toLocaleString()} sell down)</span>}</span>
-                <span>$0</span>
-              </div>
-            </div>
-
             {/* PPOR & Equity */}
             <div className="pt-5 mt-5 border-t border-border">
               <div className="grid grid-cols-2 gap-4">
