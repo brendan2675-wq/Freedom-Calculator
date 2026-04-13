@@ -563,7 +563,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                 </div>
               );
             })()}
-            {isExisting && !portfolioMode && (() => {
+            {isExisting && (() => {
               const ep = property as ExistingProperty;
               const sc = ep.saleCosts || { ...defaultSaleCosts };
               const purchasePrice = ep.purchase.purchasePrice || 0;
@@ -634,6 +634,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                     </div>
                   </div>
 
+                  {!portfolioMode && (<>
                   {/* Sell down toggle */}
                   <div className="flex items-center gap-3 flex-wrap">
                     <Switch
@@ -844,6 +845,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       </div>
                     );
                   })()}
+                  </>)}
                 </>
               );
             })()}
