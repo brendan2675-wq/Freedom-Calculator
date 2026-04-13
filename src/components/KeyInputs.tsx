@@ -117,14 +117,14 @@ const KeyInputs = ({
                 <h3 className="text-lg font-semibold text-foreground">Loan to Pay Down</h3>
               </div>
               <p className="text-muted-foreground text-sm mb-3">Current PPOR loan balance & rate</p>
-              <div className="flex gap-3">
-                <div className="relative flex-1 py-3 px-4 rounded-lg border border-border bg-muted/30">
-                  <span className="text-muted-foreground text-xs">Balance</span>
-                  <p className="text-lg font-bold text-foreground">${loanBalance.toLocaleString()}</p>
+              <div className="flex gap-2 md:gap-3">
+                <div className="relative flex-1 py-2 md:py-3 px-3 md:px-4 rounded-lg border border-border bg-muted/30">
+                  <span className="text-muted-foreground text-[10px] md:text-xs">Balance</span>
+                  <p className="text-base md:text-lg font-bold text-foreground">${loanBalance.toLocaleString()}</p>
                 </div>
-                <div className="relative w-28 py-3 px-4 rounded-lg border border-border bg-muted/30 text-center">
-                  <span className="text-muted-foreground text-xs">Rate</span>
-                  <p className="text-lg font-bold text-foreground">{interestRate}%</p>
+                <div className="relative w-20 md:w-28 py-2 md:py-3 px-3 md:px-4 rounded-lg border border-border bg-muted/30 text-center">
+                  <span className="text-muted-foreground text-[10px] md:text-xs">Rate</span>
+                  <p className="text-base md:text-lg font-bold text-foreground">{interestRate}%</p>
                 </div>
               </div>
               {sellDownProceeds > 0 && (
