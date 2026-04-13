@@ -362,7 +362,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                     <button
                       onClick={() => {
                         const ep = property as ExistingProperty;
-                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: "Primary Loan", amount: ep.loanBalance, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: property.loan.offsetBalance };
+                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: ep.nickname || "Primary Loan", amount: ep.loanBalance, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: property.loan.offsetBalance };
                         update({ loanSplits: [newSplit] } as Partial<ExistingProperty>);
                       }}
                       className="w-full py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-accent hover:text-accent transition-all"
