@@ -334,7 +334,17 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                 {/* Loan Splits */}
                 <div className="pl-2 border-l-2 border-accent/20 space-y-2 [&_input]:py-1 [&_input]:px-1 [&_input]:text-[10px] [&_input]:rounded [&_input]:rounded-lg-none">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs text-muted-foreground font-medium">Loan Splits</label>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <label className="text-xs text-muted-foreground font-medium flex items-center gap-1 cursor-help">
+                          Loan Details
+                          <Info size={10} className="text-muted-foreground" />
+                        </label>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-xs">
+                        Enter loan splits by using the "+" symbol
+                      </TooltipContent>
+                    </Tooltip>
                     <button
                       onClick={() => {
                         const ep = property as ExistingProperty;
