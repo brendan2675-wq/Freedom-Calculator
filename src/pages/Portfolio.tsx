@@ -368,7 +368,10 @@ const Portfolio = () => {
                   SMSF Property
                 </h2>
               </div>
-            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+              <button
+                onClick={addPpor}
+                className="rounded-xl border-2 border-dashed border-border/40 p-4 flex items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-muted-foreground hover:text-accent"
               >
                 <Plus size={18} />
                 <span className="text-sm">Add Owner Occupied Property</span>
