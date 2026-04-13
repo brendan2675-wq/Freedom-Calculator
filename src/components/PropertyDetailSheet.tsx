@@ -350,7 +350,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       <span className="w-14">Rate</span>
                       <span className="w-14">IO</span>
                       <span className="w-14">Term</span>
-                      <span className="w-16">Lender</span>
+                      
                       <span className="w-20">Offset</span>
                     </div>
                   )}
@@ -383,12 +383,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                         <div className="w-14">
                           <NumberInput value={split.loanTermYears ?? property.loan.loanTermYears} onChange={(v) => updateSplit({ loanTermYears: v })} suffix="yr" />
                         </div>
-                        <input
-                          value={split.lenderName ?? property.loan.lenderName}
-                          onChange={(e) => updateSplit({ lenderName: e.target.value })}
-                          className="w-16 py-1 px-1.5 rounded border border-border bg-background text-foreground text-[11px] focus:outline-none focus:ring-1 focus:ring-accent"
-                          placeholder="Lender"
-                        />
                         <div className="w-20">
                           <CurrencyInput value={split.offsetBalance ?? property.loan.offsetBalance} onChange={(v) => updateSplit({ offsetBalance: v })} placeholder="Offset" />
                         </div>
