@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
 import type { ExistingProperty } from "@/types/property";
-import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
+import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails, defaultSaleCosts } from "@/types/property";
 
 export type { ExistingProperty } from "@/types/property";
 
