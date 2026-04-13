@@ -83,6 +83,55 @@ const Index = () => {
   });
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
+  // Load scenario from URL on mount
+  useEffect(() => {
+    const imported = decodeStateFromUrl();
+    if (imported) {
+      setClientName(imported.clientName || "Client Name");
+      setInterestRate(imported.interestRate);
+      setTargetMonth(imported.targetMonth);
+      setTargetYear(imported.targetYear);
+      setGrowthRate(imported.growthRate);
+      setPporSuburb(imported.pporSuburb);
+      setPpor(imported.ppor);
+      setExistingProperties(imported.existingProperties);
+      setFutureProperties(imported.futureProperties);
+      // Clean URL
+      window.history.replaceState({}, "", window.location.pathname);
+      toast.success("Scenario loaded from shared link");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getCurrentState = useCallback((): ScenarioState => ({
+    clientName,
+    interestRate,
+    targetMonth,
+    targetYear,
+    growthRate,
+    pporSuburb,
+    ppor,
+    existingProperties,
+    futureProperties,
+  }), [clientName, interestRate, targetMonth, targetYear, growthRate, pporSuburb, ppor, existingProperties, futureProperties]);
+
+  const loadScenarioState = useCallback((state: ScenarioState) => {
+    setClientName(state.clientName || "Client Name");
+    setInterestRate(state.interestRate);
+    setTargetMonth(state.targetMonth);
+    setTargetYear(state.targetYear);
+    setGrowthRate(state.growthRate);
+    setPporSuburb(state.pporSuburb);
+    setPpor(state.ppor);
+    setExistingProperties(state.existingProperties);
+    setFutureProperties(state.futureProperties);
+    localStorage.setItem("portfolio-ppor", JSON.stringify(state.ppor));
+    localStorage.setItem("portfolio-properties", JSON.stringify(state.existingProperties));
+    localStorage.setItem("portfolio-future-properties", JSON.stringify(state.futureProperties));
+    localStorage.setItem("client-name", state.clientName || "Client Name");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Sync properties to localStorage for cross-page access
   useEffect(() => {
     localStorage.setItem("portfolio-properties", JSON.stringify(existingProperties));
