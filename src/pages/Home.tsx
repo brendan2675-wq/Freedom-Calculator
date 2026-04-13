@@ -56,48 +56,49 @@ const HomePage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-header text-primary-foreground">
-        <div className="container mx-auto px-4 py-8 md:py-14 flex items-center justify-between">
-          <div>
-            <p className="text-accent text-lg tracking-wider mb-4">Atelier Wealth</p>
-            <h1 className="text-3xl md:text-5xl font-bold mb-3">
-              Your Dashboard
-            </h1>
-            <p className="text-accent text-lg md:text-xl font-light">
-              Your property wealth strategy at a glance
-            </p>
-          </div>
-          <div className="flex items-center gap-4 flex-shrink-0">
-            <button
-              onClick={() => {
-                if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
-                  localStorage.clear();
-                  window.location.reload();
-                }
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-accent/70 border border-accent/20 hover:bg-accent/10 hover:text-accent transition-all"
-              aria-label="Reset data"
-            >
-              <RotateCcw size={14} />
-              Reset
-            </button>
-            <div className="flex flex-col items-center gap-1">
-              <p className="text-accent text-sm tracking-wider mb-1">Atelier Wealth</p>
+        <div className="container mx-auto px-4 py-6 md:py-14">
+          {/* Top bar: brand + actions */}
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <p className="text-accent text-lg tracking-wider">Atelier Wealth</p>
+            <div className="flex items-center gap-2 md:gap-4">
               <button
-                onClick={() => setAuthOpen(true)}
-                className="text-accent hover:text-accent/80 transition-colors"
-                aria-label="Profile"
+                onClick={() => {
+                  if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
+                    localStorage.clear();
+                    window.location.reload();
+                  }
+                }}
+                className="flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg text-xs font-medium text-accent/70 border border-accent/20 hover:bg-accent/10 hover:text-accent transition-all"
+                aria-label="Reset data"
               >
-                <UserCircle size={44} />
+                <RotateCcw size={14} />
+                <span className="hidden sm:inline">Reset</span>
               </button>
-              <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={handleSetClientName} />
-              <input
-                value={clientName}
-                onChange={(e) => handleSetClientName(e.target.value)}
-                className="text-center text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-32 md:w-40"
-                placeholder="Client name"
-              />
+              <div className="flex flex-col items-center gap-0.5">
+                <button
+                  onClick={() => setAuthOpen(true)}
+                  className="text-accent hover:text-accent/80 transition-colors"
+                  aria-label="Profile"
+                >
+                  <UserCircle size={36} className="md:w-11 md:h-11" />
+                </button>
+                <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={handleSetClientName} />
+                <input
+                  value={clientName}
+                  onChange={(e) => handleSetClientName(e.target.value)}
+                  className="text-center text-xs md:text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-24 md:w-40"
+                  placeholder="Client name"
+                />
+              </div>
             </div>
           </div>
+          {/* Title */}
+          <h1 className="text-2xl md:text-5xl font-bold mb-1 md:mb-3">
+            Your Dashboard
+          </h1>
+          <p className="text-accent text-base md:text-xl font-light">
+            Your property wealth strategy at a glance
+          </p>
         </div>
       </header>
 
