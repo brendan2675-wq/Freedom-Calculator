@@ -267,7 +267,11 @@ const PporDetailSheet = ({
                     type="text"
                     inputMode="numeric"
                     value={purchasePrice ? purchasePrice.toLocaleString() : ""}
-                    onChange={(e) => setPurchasePrice(parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0)}
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0;
+                      setPurchasePrice(v);
+                      setPpor({ ...ppor, purchase: { ...ppor.purchase, purchasePrice: v } });
+                    }}
                     placeholder="Enter purchase price"
                     className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
                   />
