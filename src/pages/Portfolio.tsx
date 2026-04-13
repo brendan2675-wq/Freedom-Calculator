@@ -244,26 +244,54 @@ const Portfolio = () => {
                   <p className="font-semibold text-sm text-foreground">{ppor.nickname || "Owner Occupied"}</p>
                 </div>
 
-                {/* Current Value with Growth */}
-                <div className="mb-4">
-                  <label className="text-muted-foreground text-[11px] block mb-0.5">Current Value</label>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-foreground">${ppor.estimatedValue.toLocaleString()}</span>
-                    {pporGrowth && (
-                      <span className={`text-xs font-semibold flex items-center gap-0.5 ${pporGrowth.pct >= 0 ? 'text-green-600' : 'text-destructive'}`}>
-                        {pporGrowth.pct >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                        {pporGrowth.pct >= 0 ? '↑' : '↓'}{Math.abs(pporGrowth.pct).toFixed(1)}%
-                      </span>
+                {/* Current Value + Interest Rate & Loan Term row */}
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="flex-1">
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Current Value</label>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-foreground">${ppor.estimatedValue.toLocaleString()}</span>
+                      {pporGrowth && (
+                        <span className={`text-xs font-semibold flex items-center gap-0.5 ${pporGrowth.pct >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                          {pporGrowth.pct >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                          {pporGrowth.pct >= 0 ? '↑' : '↓'}{Math.abs(pporGrowth.pct).toFixed(1)}%
+                        </span>
+                      )}
+                    </div>
+                    {ppor.purchase?.purchasePrice > 0 && (
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        Purchased at ${ppor.purchase.purchasePrice.toLocaleString()}
+                      </p>
                     )}
                   </div>
-                  {ppor.purchase?.purchasePrice > 0 && (
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      Purchased at ${ppor.purchase.purchasePrice.toLocaleString()}
-                    </p>
-                  )}
+                  {(() => {
+                    const splits = ppor.loanSplits || [];
+                    const totalAmt = splits.reduce((s, sp) => s + sp.amount, 0);
+                    const weightedRate = totalAmt > 0
+                      ? splits.reduce((s, sp) => s + sp.interestRate * sp.amount, 0) / totalAmt
+                      : 0;
+                    const maxTermMonths = splits.length > 0
+                      ? Math.max(...splits.map(sp => (sp.loanTermYears ?? 30) * 12))
+                      : 0;
+                    const termYears = Math.floor(maxTermMonths / 12);
+                    const termMonths = maxTermMonths % 12;
+                    if (splits.length === 0) return null;
+                    return (
+                      <div className="flex gap-4">
+                        <div>
+                          <label className="text-muted-foreground text-[11px] block mb-0.5">Interest Rate</label>
+                          <p className="text-foreground font-bold text-sm">{weightedRate.toFixed(2)}%</p>
+                          {splits.length > 1 && <p className="text-[9px] text-muted-foreground">weighted avg</p>}
+                        </div>
+                        <div>
+                          <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Term</label>
+                          <p className="text-foreground font-bold text-sm">{termYears}y{termMonths > 0 ? ` ${termMonths}m` : ''}</p>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
-                {/* Loan, Equity, Rate, Term Grid */}
+                {/* Current Loan & Equity Row */}
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <label className="text-muted-foreground text-[11px] block mb-0.5">Current Loan</label>
@@ -285,32 +313,6 @@ const Portfolio = () => {
                       </select>
                     </div>
                   </div>
-                  {(() => {
-                    const splits = ppor.loanSplits || [];
-                    const totalAmt = splits.reduce((s, sp) => s + sp.amount, 0);
-                    const weightedRate = totalAmt > 0
-                      ? splits.reduce((s, sp) => s + sp.interestRate * sp.amount, 0) / totalAmt
-                      : 0;
-                    const maxTermMonths = splits.length > 0
-                      ? Math.max(...splits.map(sp => (sp.loanTermYears ?? 30) * 12))
-                      : 0;
-                    const termYears = Math.floor(maxTermMonths / 12);
-                    const termMonths = maxTermMonths % 12;
-                    if (splits.length === 0) return null;
-                    return (
-                      <>
-                        <div>
-                          <label className="text-muted-foreground text-[11px] block mb-0.5">Interest Rate</label>
-                          <p className="text-foreground font-bold">{weightedRate.toFixed(2)}%</p>
-                          {splits.length > 1 && <p className="text-[9px] text-muted-foreground">weighted avg</p>}
-                        </div>
-                        <div>
-                          <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Term</label>
-                          <p className="text-foreground font-bold">{termYears}y{termMonths > 0 ? ` ${termMonths}m` : ''}</p>
-                        </div>
-                      </>
-                    );
-                  })()}
                 </div>
               </div>
 
