@@ -505,6 +505,24 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           growthRate={growthRate}
           portfolioMode={portfolioMode}
         />
+
+        {/* PPOR Detail Sheet */}
+        {portfolioMode && ppor && onUpdatePpor && (
+          <PropertyDetailSheet
+            property={ppor}
+            open={pporSheetOpen}
+            onOpenChange={(o) => {
+              if (!o && ppor && !ppor.nickname && ppor.estimatedValue === 0) {
+                onRemovePpor?.();
+              }
+              setPporSheetOpen(o);
+            }}
+            onUpdate={(updated) => onUpdatePpor(updated as ExistingProperty)}
+            variant="existing"
+            portfolioMode
+            pporMode
+          />
+        )}
       </section>
     </TooltipProvider>
   );
