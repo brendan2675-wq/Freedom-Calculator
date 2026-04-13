@@ -17,6 +17,11 @@ import type { ExistingProperty, FutureProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 
 const Index = () => {
+  const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
+  const handleSetClientName = (name: string) => {
+    setClientName(name);
+    localStorage.setItem("client-name", name);
+  };
   const [interestRate, setInterestRate] = useState(6.2);
   const [targetMonth, setTargetMonth] = useState(2);
   const [targetYear, setTargetYear] = useState(2036);
