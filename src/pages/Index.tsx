@@ -317,7 +317,7 @@ const Index = () => {
         <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm -my-4">
           <ArrowDownUp size={14} className="text-accent" />
           <span className="hidden sm:inline">Drag cards between sections to move them</span>
-          <span className="sm:hidden">Tap a card to move between sections</span>
+          <span className="sm:hidden">Hold & drag cards to move them</span>
         </div>
 
         <PropertiesToBuy
