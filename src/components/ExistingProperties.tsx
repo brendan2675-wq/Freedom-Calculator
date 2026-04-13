@@ -127,7 +127,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
             <Briefcase size={26} strokeWidth={2.25} className="text-accent" />
-            {portfolioMode ? "Your Properties" : "Your Investment Portfolio"}
+            Your Investment Portfolio
             {properties.length > VISIBLE_SLOTS && (
               <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                 {properties.length} properties
