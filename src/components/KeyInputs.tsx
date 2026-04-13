@@ -148,7 +148,7 @@ const KeyInputs = ({
             {/* Progress Tracker - clickable to open sheet */}
             <div
               className="pt-5 mt-5 border-t border-border cursor-pointer group"
-              onClick={() => setTrackerOpen(true)}
+              onClick={() => setPporSheetOpen(true)}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
