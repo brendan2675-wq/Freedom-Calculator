@@ -242,7 +242,6 @@ const Portfolio = () => {
                 <div className="flex items-center gap-1.5 mb-3">
                   <Home size={16} className="text-accent shrink-0" />
                   <p className="font-semibold text-sm text-foreground">{ppor.nickname || "Owner Occupied"}</p>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent font-semibold ml-auto">PPOR</span>
                 </div>
 
                 {/* Current Value with Growth */}
@@ -287,6 +286,34 @@ const Portfolio = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Interest Rate & Loan Term */}
+                {(() => {
+                  const splits = ppor.loanSplits || [];
+                  const totalAmt = splits.reduce((s, sp) => s + sp.amount, 0);
+                  const weightedRate = totalAmt > 0
+                    ? splits.reduce((s, sp) => s + sp.interestRate * sp.amount, 0) / totalAmt
+                    : 0;
+                  const maxTermMonths = splits.length > 0
+                    ? Math.max(...splits.map(sp => (sp.loanTermYears ?? 30) * 12))
+                    : 0;
+                  const termYears = Math.floor(maxTermMonths / 12);
+                  const termMonths = maxTermMonths % 12;
+                  if (splits.length === 0) return null;
+                  return (
+                    <div className="grid grid-cols-2 gap-3 text-sm mt-3">
+                      <div>
+                        <label className="text-muted-foreground text-[11px] block mb-0.5">Interest Rate</label>
+                        <p className="text-foreground font-bold">{weightedRate.toFixed(2)}%</p>
+                        {splits.length > 1 && <p className="text-[9px] text-muted-foreground">weighted avg</p>}
+                      </div>
+                      <div>
+                        <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Term</label>
+                        <p className="text-foreground font-bold">{termYears}y {termMonths > 0 ? `${termMonths}m` : ''}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
 
