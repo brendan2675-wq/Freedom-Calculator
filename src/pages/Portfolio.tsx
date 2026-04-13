@@ -220,11 +220,19 @@ const Portfolio = () => {
         {/* Owner Occupied Property */}
         {ppor ? (
           <section>
-            <div className="gold-underline pb-2 mb-4">
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
-                <Home size={26} strokeWidth={2.25} className="text-accent" />
-                Owner Occupied Property
-              </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 mb-4">
+              <div className="gold-underline pb-2">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                  <Home size={26} strokeWidth={2.25} className="text-accent" />
+                  Owner Occupied Property
+                </h2>
+              </div>
+              <div className="gold-underline pb-2">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                  <Landmark size={26} strokeWidth={2.25} className="text-accent" />
+                  SMSF Property
+                </h2>
+              </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
               {/* Main PPOR Card */}
@@ -241,7 +249,7 @@ const Portfolio = () => {
                 </button>
                 <div className="flex items-center gap-1.5 mb-3">
                   <Home size={16} className="text-accent shrink-0" />
-                  <p className="font-semibold text-sm text-foreground">{ppor.nickname || "Owner Occupied"}</p>
+                  <p className="font-semibold text-sm text-foreground">{pporSuburb || ppor.nickname || "Owner Occupied"}</p>
                 </div>
 
                 {/* Current Value + Interest Rate & Loan Term row */}
@@ -346,11 +354,19 @@ const Portfolio = () => {
           </section>
         ) : (
           <section>
-            <div className="gold-underline pb-2 mb-4">
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
-                <Home size={26} strokeWidth={2.25} className="text-accent" />
-                Owner Occupied Property
-              </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 mb-4">
+              <div className="gold-underline pb-2">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                  <Home size={26} strokeWidth={2.25} className="text-accent" />
+                  Owner Occupied Property
+                </h2>
+              </div>
+              <div className="gold-underline pb-2">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                  <Landmark size={26} strokeWidth={2.25} className="text-accent" />
+                  SMSF Property
+                </h2>
+              </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
               <button
