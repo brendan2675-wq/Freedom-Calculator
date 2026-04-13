@@ -822,35 +822,35 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
             })()}
           </div>
 
-          {/* Loan Details */}
-          <SectionHeader title="Loan Details" />
-          <div className="space-y-4">
-            {!isExisting && (
-              <FieldGroup label="Proposed Loan Amount">
-                <CurrencyInput
-                  value={(property as FutureProperty).proposedLoanAmount ?? Math.round((property as FutureProperty).purchasePrice * (property as FutureProperty).lvr / 100)}
-                  onChange={(v) => update({ proposedLoanAmount: v } as Partial<FutureProperty>)}
-                />
-              </FieldGroup>
-            )}
-            <FieldGroup label="Interest Rate">
-              <NumberInput value={property.loan.interestRate} onChange={(v) => updateLoan({ interestRate: v })} suffix="%" placeholder="6.2" />
-            </FieldGroup>
-            {!pporMode && (
-              <FieldGroup label="Interest-Only Period">
-                <NumberInput value={property.loan.interestOnlyPeriodYears} onChange={(v) => updateLoan({ interestOnlyPeriodYears: v })} suffix="years" placeholder="0" />
-              </FieldGroup>
-            )}
-            <FieldGroup label="Loan Term">
-              <NumberInput value={property.loan.loanTermYears} onChange={(v) => updateLoan({ loanTermYears: v })} suffix="years" placeholder="30" />
-            </FieldGroup>
-            <FieldGroup label="Lender">
-              <TextInput value={property.loan.lenderName} onChange={(v) => updateLoan({ lenderName: v })} placeholder="e.g. Commonwealth Bank" />
-            </FieldGroup>
-            <FieldGroup label="Offset Balance">
-              <CurrencyInput value={property.loan.offsetBalance} onChange={(v) => updateLoan({ offsetBalance: v })} />
-            </FieldGroup>
-          </div>
+          {/* Loan Details - only show for future/proposed properties */}
+          {!isExisting && (
+            <>
+              <SectionHeader title="Loan Details" />
+              <div className="space-y-4">
+                <FieldGroup label="Proposed Loan Amount">
+                  <CurrencyInput
+                    value={(property as FutureProperty).proposedLoanAmount ?? Math.round((property as FutureProperty).purchasePrice * (property as FutureProperty).lvr / 100)}
+                    onChange={(v) => update({ proposedLoanAmount: v } as Partial<FutureProperty>)}
+                  />
+                </FieldGroup>
+                <FieldGroup label="Interest Rate">
+                  <NumberInput value={property.loan.interestRate} onChange={(v) => updateLoan({ interestRate: v })} suffix="%" placeholder="6.2" />
+                </FieldGroup>
+                <FieldGroup label="Interest-Only Period">
+                  <NumberInput value={property.loan.interestOnlyPeriodYears} onChange={(v) => updateLoan({ interestOnlyPeriodYears: v })} suffix="years" placeholder="0" />
+                </FieldGroup>
+                <FieldGroup label="Loan Term">
+                  <NumberInput value={property.loan.loanTermYears} onChange={(v) => updateLoan({ loanTermYears: v })} suffix="years" placeholder="30" />
+                </FieldGroup>
+                <FieldGroup label="Lender">
+                  <TextInput value={property.loan.lenderName} onChange={(v) => updateLoan({ lenderName: v })} placeholder="e.g. Commonwealth Bank" />
+                </FieldGroup>
+                <FieldGroup label="Offset Balance">
+                  <CurrencyInput value={property.loan.offsetBalance} onChange={(v) => updateLoan({ offsetBalance: v })} />
+                </FieldGroup>
+              </div>
+            </>
+          )}
 
           {/* Rental Income - hide for PPOR and future/proposed */}
           {!pporMode && isExisting && (
