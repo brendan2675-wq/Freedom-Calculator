@@ -331,24 +331,25 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   return (
     <div className="p-5">
       <div className="mb-5 pb-5 border-b border-border">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           {/* Left: Icon + Title + Target date */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-              <Target size={24} className="text-accent" strokeWidth={2.5} />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+              <Target size={20} className="text-accent md:hidden" strokeWidth={2.5} />
+              <Target size={24} className="text-accent hidden md:block" strokeWidth={2.5} />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-foreground">Target Paydown</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <h3 className="text-lg md:text-xl font-bold text-foreground">Target Paydown</h3>
+              <p className="text-[11px] md:text-xs text-muted-foreground mt-0.5">
                 Target: <span className="font-semibold text-foreground">{targetDateLabel}</span>
               </p>
             </div>
           </div>
 
           {/* Right: Countdown boxes */}
-          <div className="flex gap-3 items-center bg-secondary/60 border border-border rounded-2xl px-4 py-3 shadow-sm">
+          <div className="flex gap-2 md:gap-3 items-center bg-secondary/60 border border-border rounded-2xl px-2.5 md:px-4 py-2.5 md:py-3 shadow-sm self-stretch sm:self-auto overflow-x-auto">
             <div className="flex flex-col items-center">
-              <div className="relative w-16 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+              <div className="relative w-12 h-12 md:w-16 md:h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
                 <select
                   value={duration.years}
                   onChange={(e) => setDuration(Number(e.target.value), duration.months)}
@@ -358,13 +359,13 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                     <option key={y} value={y}>{y}</option>
                   ))}
                 </select>
-                <span className="text-2xl font-bold text-accent">{duration.years}</span>
+                <span className="text-xl md:text-2xl font-bold text-accent">{duration.years}</span>
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">years</span>
+              <span className="text-[9px] md:text-[10px] font-medium text-muted-foreground mt-1 md:mt-1.5 uppercase tracking-wide">years</span>
             </div>
-            <span className="text-sm font-medium text-muted-foreground/50 mt-[-1rem]">:</span>
+            <span className="text-sm font-medium text-muted-foreground/50 mt-[-0.75rem]">:</span>
             <div className="flex flex-col items-center">
-              <div className="relative w-16 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+              <div className="relative w-12 h-12 md:w-16 md:h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
                 <select
                   value={duration.months}
                   onChange={(e) => setDuration(duration.years, Number(e.target.value))}
@@ -374,13 +375,13 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                     <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
-                <span className="text-2xl font-bold text-accent">{duration.months}</span>
+                <span className="text-xl md:text-2xl font-bold text-accent">{duration.months}</span>
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">months</span>
+              <span className="text-[9px] md:text-[10px] font-medium text-muted-foreground mt-1 md:mt-1.5 uppercase tracking-wide">months</span>
             </div>
-            <div className="w-px h-10 bg-border mx-1" />
+            <div className="w-px h-8 md:h-10 bg-border mx-0.5 md:mx-1" />
             <div className="flex flex-col items-center">
-              <div className="relative w-24 h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
+              <div className="relative w-16 md:w-24 h-12 md:h-16 rounded-xl bg-accent/5 border-2 border-accent/20 flex items-center justify-center shadow-sm">
                 <input
                   type="text"
                   inputMode="decimal"
@@ -404,11 +405,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
                       setGrowthRateRaw(growthRate.toFixed(2));
                     }
                   }}
-                  className="w-full h-full bg-transparent text-center text-lg font-bold text-accent outline-none"
+                  className="w-full h-full bg-transparent text-center text-base md:text-lg font-bold text-accent outline-none"
                 />
-                <span className="absolute right-1.5 text-accent/60 text-sm font-semibold pointer-events-none">%</span>
+                <span className="absolute right-1 md:right-1.5 text-accent/60 text-xs md:text-sm font-semibold pointer-events-none">%</span>
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground mt-1.5 uppercase tracking-wide">growth p.a.</span>
+              <span className="text-[9px] md:text-[10px] font-medium text-muted-foreground mt-1 md:mt-1.5 uppercase tracking-wide">growth</span>
             </div>
           </div>
         </div>
@@ -446,20 +447,21 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               dataKey="year"
               type="number"
               domain={['dataMin', 'dataMax']}
-              tickCount={chartWidth < 400 ? Math.min(data.length, 6) : data.length}
-              interval={chartWidth < 400 ? "preserveStartEnd" : 0}
-              fontSize={chartWidth < 400 ? 10 : 12}
+              tickCount={chartWidth < 500 ? Math.min(data.length, 5) : data.length}
+              interval={chartWidth < 500 ? "preserveStartEnd" : 0}
+              fontSize={chartWidth < 500 ? 9 : 12}
               tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }}
-              angle={chartWidth < 400 ? -45 : -35}
+              angle={chartWidth < 500 ? -45 : -35}
               textAnchor="end"
-              height={chartWidth < 400 ? 35 : 45}
+              height={chartWidth < 500 ? 30 : 45}
+              tickFormatter={(val: number) => chartWidth < 400 ? `'${String(val).slice(2)}` : String(val)}
             />
             <YAxis
               tickFormatter={formatDollar}
-              fontSize={chartWidth < 400 ? 10 : 13}
+              fontSize={chartWidth < 500 ? 9 : 13}
               tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }}
-              width={chartWidth < 400 ? 45 : 60}
-              tickCount={chartWidth < 400 ? 5 : undefined}
+              width={chartWidth < 500 ? 40 : 60}
+              tickCount={chartWidth < 500 ? 4 : undefined}
             />
             <Tooltip
               formatter={(value: number, name: string) => [
