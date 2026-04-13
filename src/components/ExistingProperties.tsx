@@ -287,7 +287,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     <label className="text-muted-foreground text-[11px]">Current Value</label>
                     <div className="flex items-baseline gap-1.5">
                       <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
-                      {p.purchase?.purchasePrice > 0 && (
+                      {p.purchase?.purchasePrice > 0 ? (
                         <span className={`text-[10px] font-semibold px-1 py-0.5 rounded shrink-0 ${
                           p.estimatedValue >= p.purchase.purchasePrice
                             ? "bg-success/15 text-success"
@@ -296,6 +296,8 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                           {p.estimatedValue >= p.purchase.purchasePrice ? "↑" : "↓"}
                           {Math.abs(((p.estimatedValue - p.purchase.purchasePrice) / p.purchase.purchasePrice) * 100).toFixed(0)}%
                         </span>
+                      ) : (
+                        <span className="text-muted-foreground/60 text-[10px] italic">Add purchase price →</span>
                       )}
                     </div>
                   </div>
