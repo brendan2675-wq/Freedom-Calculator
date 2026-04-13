@@ -21,6 +21,12 @@ const Portfolio = () => {
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
   const [pporLvr, setPporLvr] = useState(0.8);
   const [masterLvr, setMasterLvr] = useState(0.8);
+  const [pporSuburb, setPporSuburb] = useState(() => localStorage.getItem("ppor-suburb") || "Bella Vista");
+  const [interestRate] = useState(6.2);
+  const handleSetPporSuburb = (v: string) => {
+    setPporSuburb(v);
+    localStorage.setItem("ppor-suburb", v);
+  };
 
   // Load from localStorage
   useEffect(() => {
