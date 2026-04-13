@@ -316,7 +316,31 @@ const Portfolio = () => {
                 </div>
               </div>
 
-
+              {/* SMSF Tile */}
+              <div className="bg-card rounded-xl p-5 border-2 border-border shadow-sm">
+                <div className="flex items-center gap-1.5 mb-3">
+                  <Landmark size={16} className="text-accent shrink-0" />
+                  <p className="font-semibold text-sm text-foreground">SMSF Property</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Fund Balance</label>
+                    <p className="text-foreground font-bold text-lg">$0</p>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Property Value</label>
+                    <p className="text-foreground font-bold text-lg">$0</p>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Balance</label>
+                    <p className="text-foreground font-bold text-lg">$0</p>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Annual Contributions</label>
+                    <p className="text-foreground font-bold text-lg">$0</p>
+                  </div>
+                </div>
+              </div>
 
             </div>
           </section>
@@ -328,13 +352,41 @@ const Portfolio = () => {
                 Owner Occupied Property
               </h2>
             </div>
-            <button
-              onClick={addPpor}
-              className="rounded-xl border-2 border-dashed border-border/40 p-4 flex items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-muted-foreground hover:text-accent max-w-sm"
-            >
-              <Plus size={18} />
-              <span className="text-sm">Add Owner Occupied Property</span>
-            </button>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+              <button
+                onClick={addPpor}
+                className="rounded-xl border-2 border-dashed border-border/40 p-4 flex items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-muted-foreground hover:text-accent"
+              >
+                <Plus size={18} />
+                <span className="text-sm">Add Owner Occupied Property</span>
+              </button>
+
+              {/* SMSF Tile */}
+              <div className="bg-card rounded-xl p-5 border-2 border-border shadow-sm">
+                <div className="flex items-center gap-1.5 mb-3">
+                  <Landmark size={16} className="text-accent shrink-0" />
+                  <p className="font-semibold text-sm text-foreground">SMSF Property</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Fund Balance</label>
+                    <p className="text-foreground font-bold text-lg">$0</p>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Property Value</label>
+                    <p className="text-foreground font-bold text-lg">$0</p>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Balance</label>
+                    <p className="text-foreground font-bold text-lg">$0</p>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground text-[11px] block mb-0.5">Annual Contributions</label>
+                    <p className="text-foreground font-bold text-lg">$0</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
         )}
 
