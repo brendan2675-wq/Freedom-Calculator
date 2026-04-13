@@ -343,6 +343,17 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       <Plus size={16} />
                     </button>
                   </div>
+                  {((property as ExistingProperty).loanSplits || []).length > 0 && (
+                    <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-medium">
+                      <span className="w-20">Label</span>
+                      <span className="w-20">Amount</span>
+                      <span className="w-14">Rate</span>
+                      <span className="w-14">IO</span>
+                      <span className="w-14">Term</span>
+                      <span className="w-16">Lender</span>
+                      <span className="w-20">Offset</span>
+                    </div>
+                  )}
                   {((property as ExistingProperty).loanSplits || []).map((split, idx) => {
                     const updateSplit = (patch: Partial<LoanSplit>, recalcTotal = false) => {
                       const ep = property as ExistingProperty;
