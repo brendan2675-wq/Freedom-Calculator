@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
 import type { ExistingProperty } from "@/types/property";
-import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
+import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails, defaultSaleCosts } from "@/types/property";
 
 export type { ExistingProperty } from "@/types/property";
 
@@ -63,6 +63,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
         ...p,
         earmarked: !allEarmarked,
         sellInYears: !allEarmarked ? masterSellYear : p.sellInYears,
+        ...(!allEarmarked ? { saleCosts: { ...(p.saleCosts || defaultSaleCosts), agentCommission: Math.round(p.estimatedValue * 0.02) } } : {}),
       }))
     );
   };
@@ -422,7 +423,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                           <button
                             onClick={() => {
                               showSellDownReminder();
-                              setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true } : prop));
+                              setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true, saleCosts: { ...(prop.saleCosts || defaultSaleCosts), agentCommission: Math.round(prop.estimatedValue * 0.02) } } : prop));
                             }}
                             className="px-2.5 py-1 rounded bg-accent text-accent-foreground text-[11px] font-semibold hover:bg-accent/90 transition-colors min-h-[32px]"
                           >
