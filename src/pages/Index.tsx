@@ -263,6 +263,11 @@ const Index = () => {
            sellDownEvents={sellDownEvents}
            pporValue={ppor.estimatedValue}
            setPporValue={setPporValue}
+           ppor={ppor}
+           setPpor={(p) => {
+             setPpor(p);
+             localStorage.setItem("portfolio-ppor", JSON.stringify(p));
+           }}
         />
 
         <ExistingProperties
