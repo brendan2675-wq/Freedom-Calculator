@@ -251,7 +251,6 @@ const Portfolio = () => {
                   <Home size={16} className="text-accent shrink-0" />
                   <p className="font-semibold text-sm text-foreground">{pporSuburb || ppor.nickname || "Owner Occupied"}</p>
                 </div>
-                </div>
 
                 {/* Current Value + Interest Rate & Loan Term row */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
