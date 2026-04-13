@@ -190,7 +190,7 @@ const KeyInputs = ({
                   </div>
                   <p className="text-muted-foreground text-[10px] md:text-xs mb-2">Current Value</p>
                   <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-1">
-                    <p className="text-[clamp(1.75rem,7vw,2.25rem)] font-bold leading-none text-foreground break-all sm:break-normal">${currentValue.toLocaleString()}</p>
+                    <p className="text-lg md:text-2xl font-bold text-foreground">${currentValue.toLocaleString()}</p>
                     {purchasePrice > 0 && (
                       <span className={`text-[10px] md:text-xs font-semibold px-1.5 md:px-1.5 py-0.5 rounded shrink-0 ${
                         growthPercent >= 0
@@ -211,7 +211,7 @@ const KeyInputs = ({
                   </div>
                   <p className="text-muted-foreground text-[10px] md:text-xs mb-2">Equity Available</p>
                   <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-1">
-                    <p className={`text-[clamp(1.75rem,7vw,2.25rem)] font-bold leading-none break-all sm:break-normal ${equityAvailable > 50000 ? 'text-success' : 'text-accent'}`}>${equityAvailable.toLocaleString()}</p>
+                    <p className={`text-lg md:text-2xl font-bold ${equityAvailable > 50000 ? 'text-success' : 'text-accent'}`}>${equityAvailable.toLocaleString()}</p>
                     <select
                       value={lvrRate}
                       onChange={(e) => { e.stopPropagation(); setLvrRate(Number(e.target.value)); }}
