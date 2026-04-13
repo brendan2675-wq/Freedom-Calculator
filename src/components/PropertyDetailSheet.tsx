@@ -346,12 +346,11 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                   {((property as ExistingProperty).loanSplits || []).length > 0 && (
                     <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-medium">
                       <span className="w-20">Label</span>
-                      <span className="w-20">Amount</span>
-                      <span className="w-14">Rate</span>
+                      <span className="w-20">Amount ($)</span>
+                      <span className="w-14">Rate (%)</span>
                       <span className="w-14">IO</span>
-                      <span className="w-14">Term</span>
-                      
-                      <span className="w-20">Offset</span>
+                      <span className="w-14">Term (yr)</span>
+                      <span className="w-20">Offset ($)</span>
                     </div>
                   )}
                   {((property as ExistingProperty).loanSplits || []).map((split, idx) => {
@@ -372,19 +371,19 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                           placeholder="Label"
                         />
                         <div className="w-20">
-                          <CurrencyInput value={split.amount} onChange={(v) => updateSplit({ amount: v }, true)} />
+                          <NumberInput value={split.amount} onChange={(v) => updateSplit({ amount: v }, true)} />
                         </div>
                         <div className="w-14">
-                          <NumberInput value={split.interestRate ?? property.loan.interestRate} onChange={(v) => updateSplit({ interestRate: v })} suffix="%" />
+                          <NumberInput value={split.interestRate ?? property.loan.interestRate} onChange={(v) => updateSplit({ interestRate: v })} />
                         </div>
                         <div className="w-14">
-                          <NumberInput value={split.interestOnlyPeriodYears ?? property.loan.interestOnlyPeriodYears} onChange={(v) => updateSplit({ interestOnlyPeriodYears: v })} suffix="IO" />
+                          <NumberInput value={split.interestOnlyPeriodYears ?? property.loan.interestOnlyPeriodYears} onChange={(v) => updateSplit({ interestOnlyPeriodYears: v })} />
                         </div>
                         <div className="w-14">
-                          <NumberInput value={split.loanTermYears ?? property.loan.loanTermYears} onChange={(v) => updateSplit({ loanTermYears: v })} suffix="yr" />
+                          <NumberInput value={split.loanTermYears ?? property.loan.loanTermYears} onChange={(v) => updateSplit({ loanTermYears: v })} />
                         </div>
                         <div className="w-20">
-                          <CurrencyInput value={split.offsetBalance ?? property.loan.offsetBalance} onChange={(v) => updateSplit({ offsetBalance: v })} placeholder="Offset" />
+                          <NumberInput value={split.offsetBalance ?? property.loan.offsetBalance} onChange={(v) => updateSplit({ offsetBalance: v })} />
                         </div>
                         <button
                           onClick={() => {
