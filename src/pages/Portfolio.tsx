@@ -206,22 +206,21 @@ const Portfolio = () => {
           </div>
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
             <TrendingUp size={24} className="text-accent" />
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm text-muted-foreground">Available Equity</span>
-              <select
-                value={masterLvr}
-                onChange={(e) => {
-                  const newLvr = Number(e.target.value);
-                  setMasterLvr(newLvr);
-                  setPporLvr(newLvr);
-                }}
-                className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
-              >
-                <option value={0.8}>80%</option>
-                <option value={0.88}>88%</option>
-                <option value={0.9}>90%</option>
-              </select>
-            </div>
+            <span className="text-sm text-muted-foreground">Available Equity</span>
+            <span className="text-2xl font-bold text-accent">${totals.totalEquity.toLocaleString()}</span>
+            <select
+              value={masterLvr}
+              onChange={(e) => {
+                const newLvr = Number(e.target.value);
+                setMasterLvr(newLvr);
+                setPporLvr(newLvr);
+              }}
+              className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+            >
+              <option value={0.8}>80% LVR</option>
+              <option value={0.88}>88% LVR</option>
+              <option value={0.9}>90% LVR</option>
+            </select>
             <span className="text-2xl font-bold text-accent">${totals.totalEquity.toLocaleString()}</span>
           </div>
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
