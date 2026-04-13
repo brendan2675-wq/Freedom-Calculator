@@ -63,7 +63,7 @@ const Portfolio = () => {
     };
     setPpor(newPpor);
     localStorage.setItem("portfolio-ppor", JSON.stringify(newPpor));
-    setPporSheetOpen(true);
+    
   };
 
   const handleUpdatePpor = (updated: ExistingProperty) => {
