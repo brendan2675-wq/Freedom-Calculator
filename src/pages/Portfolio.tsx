@@ -202,6 +202,7 @@ const Portfolio = () => {
               </select>
             </div>
             <span className="text-2xl font-bold text-accent">${totals.totalEquity.toLocaleString()}</span>
+            <span className="text-xs text-muted-foreground">Avg LVR: <span className="font-semibold text-foreground">{totals.avgLvr.toFixed(1)}%</span></span>
           </div>
         </div>
 
