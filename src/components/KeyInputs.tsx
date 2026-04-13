@@ -489,36 +489,8 @@ const KeyInputs = ({
 
               <div className="border-t border-border" />
 
-              {/* Section 3: Progress Tracker Settings */}
+              {/* Section 3: Original Loan Amount */}
               <div>
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Progress Tracker</h3>
-
-                {/* Paydown visual */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-muted-foreground">Paydown Progress</span>
-                    <span className="text-success font-bold text-2xl">{paydownPercent.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full h-6 rounded-full bg-secondary overflow-hidden relative shadow-inner">
-                    <div
-                      className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden bg-accent"
-                      style={{
-                        width: `${Math.min(100, paydownPercent)}%`,
-                        boxShadow: `0 0 12px hsl(var(--accent) / 0.3)`,
-                      }}
-                    >
-                      <div className="absolute inset-0 opacity-15" style={{ background: 'linear-gradient(180deg, white 0%, transparent 60%)' }} />
-                    </div>
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>${startingBalance.toLocaleString()}</span>
-                    <span>${adjustedRemaining.toLocaleString()} remaining</span>
-                    <span>$0</span>
-                  </div>
-                  {sellDownProceeds > 0 && (
-                    <p className="text-xs text-success mt-1">Sell-down proceeds: −${sellDownProceeds.toLocaleString()} → ${adjustedRemaining.toLocaleString()} remaining</p>
-                  )}
-                </div>
 
                 <div className="space-y-4">
                   <div>
