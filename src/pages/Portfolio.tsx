@@ -185,31 +185,35 @@ const Portfolio = () => {
 
       <main className="container mx-auto px-4 py-12 space-y-10">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
-            <Building2 size={24} className="text-accent" />
-            <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
-            <span className="text-2xl font-bold text-foreground">${totals.totalValue.toLocaleString()}</span>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+          <div className="bg-card rounded-xl p-4 md:p-6 border border-border shadow-sm flex flex-col items-center gap-1.5 md:gap-2">
+            <Building2 size={20} className="md:hidden text-accent" />
+            <Building2 size={24} className="hidden md:block text-accent" />
+            <span className="text-xs md:text-sm text-muted-foreground text-center">Total Portfolio Value</span>
+            <span className="text-lg md:text-2xl font-bold text-foreground">${totals.totalValue.toLocaleString()}</span>
           </div>
-          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
-            <TrendingUp size={24} className="text-accent" />
-            <span className="text-sm text-muted-foreground">Total Growth</span>
-            <span className={`text-2xl font-bold ${totals.totalGrowthPct >= 0 ? 'text-accent' : 'text-destructive'}`}>
+          <div className="bg-card rounded-xl p-4 md:p-6 border border-border shadow-sm flex flex-col items-center gap-1.5 md:gap-2">
+            <TrendingUp size={20} className="md:hidden text-accent" />
+            <TrendingUp size={24} className="hidden md:block text-accent" />
+            <span className="text-xs md:text-sm text-muted-foreground text-center">Total Growth</span>
+            <span className={`text-lg md:text-2xl font-bold ${totals.totalGrowthPct >= 0 ? 'text-accent' : 'text-destructive'}`}>
               {totals.totalGrowthPct >= 0 ? '↑' : '↓'}{Math.abs(totals.totalGrowthPct).toFixed(0)}%
             </span>
             {totals.totalPurchase > 0 && (
               <span className="text-[10px] text-muted-foreground">from ${totals.totalPurchase.toLocaleString()}</span>
             )}
           </div>
-          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
-            <Landmark size={24} className="text-accent" />
-            <span className="text-sm text-muted-foreground">Total Loans</span>
-            <span className="text-2xl font-bold text-destructive">${totals.totalLoan.toLocaleString()}</span>
+          <div className="bg-card rounded-xl p-4 md:p-6 border border-border shadow-sm flex flex-col items-center gap-1.5 md:gap-2">
+            <Landmark size={20} className="md:hidden text-accent" />
+            <Landmark size={24} className="hidden md:block text-accent" />
+            <span className="text-xs md:text-sm text-muted-foreground text-center">Total Loans</span>
+            <span className="text-lg md:text-2xl font-bold text-destructive">${totals.totalLoan.toLocaleString()}</span>
           </div>
-          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
-            <TrendingUp size={24} className="text-accent" />
-            <span className="text-sm text-muted-foreground">Available Equity</span>
-            <span className="text-2xl font-bold text-accent">${totals.totalEquity.toLocaleString()}</span>
+          <div className="bg-card rounded-xl p-4 md:p-6 border border-border shadow-sm flex flex-col items-center gap-1.5 md:gap-2">
+            <TrendingUp size={20} className="md:hidden text-accent" />
+            <TrendingUp size={24} className="hidden md:block text-accent" />
+            <span className="text-xs md:text-sm text-muted-foreground text-center">Available Equity</span>
+            <span className="text-lg md:text-2xl font-bold text-accent">${totals.totalEquity.toLocaleString()}</span>
             <select
               value={masterLvr}
               onChange={(e) => {
@@ -217,17 +221,18 @@ const Portfolio = () => {
                 setMasterLvr(newLvr);
                 setPporLvr(newLvr);
               }}
-              className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+              className="py-1 px-2 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer min-h-[32px]"
             >
               <option value={0.8}>80% LVR</option>
               <option value={0.88}>88% LVR</option>
               <option value={0.9}>90% LVR</option>
             </select>
           </div>
-          <div className="bg-card rounded-xl p-6 border border-border shadow-sm flex flex-col items-center gap-2">
-            <Activity size={24} className="text-accent" />
-            <span className="text-sm text-muted-foreground">Average LVR</span>
-            <span className={`text-2xl font-bold ${totals.avgLvr > 80 ? 'text-destructive' : totals.avgLvr > 60 ? 'text-accent' : 'text-foreground'}`}>{totals.avgLvr.toFixed(1)}%</span>
+          <div className="bg-card rounded-xl p-4 md:p-6 border border-border shadow-sm flex flex-col items-center gap-1.5 md:gap-2 col-span-2 md:col-span-1">
+            <Activity size={20} className="md:hidden text-accent" />
+            <Activity size={24} className="hidden md:block text-accent" />
+            <span className="text-xs md:text-sm text-muted-foreground text-center">Average LVR</span>
+            <span className={`text-lg md:text-2xl font-bold ${totals.avgLvr > 80 ? 'text-destructive' : totals.avgLvr > 60 ? 'text-accent' : 'text-foreground'}`}>{totals.avgLvr.toFixed(1)}%</span>
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, Briefcase, BadgeDollarSign } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -106,7 +107,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
   const totalItems = properties.length + 1 + emptySlots;
   const showArrows = totalItems > VISIBLE_SLOTS || properties.length >= VISIBLE_SLOTS;
   const hasOverflow = properties.length >= VISIBLE_SLOTS;
-  const cardWidth = hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
+  const isMobile = useIsMobile();
+  const cardWidth = isMobile
+    ? "calc(100% - 16px)"
+    : hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
   const [reorderDragId, setReorderDragId] = useState<string | null>(null);
   const [reorderOverId, setReorderOverId] = useState<string | null>(null);
 
@@ -124,9 +128,10 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
     <TooltipProvider>
       <section>
         <div className="gold-underline pb-2 mb-1">
-          <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
-            <Briefcase size={26} strokeWidth={2.25} className="text-accent" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2.5">
+            <Briefcase size={22} className="sm:hidden text-accent" />
+            <Briefcase size={26} strokeWidth={2.25} className="hidden sm:block text-accent" />
             Your Investment Portfolio
             {properties.length > VISIBLE_SLOTS && (
               <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
@@ -182,7 +187,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           {showArrows && canScrollLeft && (
               <button
                 onClick={() => scroll("left")}
-                className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
+                className="hidden sm:flex absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
               >
                 <ChevronLeft size={18} />
               </button>
@@ -190,7 +195,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           {showArrows && canScrollRight && (
               <button
                 onClick={() => scroll("right")}
-                className="absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
+                className="hidden sm:flex absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-accent hover:shadow-md transition-all shadow-sm"
               >
                 <ChevronRight size={18} />
               </button>
@@ -268,14 +273,14 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                     ? "bg-card border-accent border-solid cursor-grab shadow-lg shadow-accent/20"
                     : "bg-card border-border cursor-grab active:cursor-grabbing hover:shadow-xl hover:border-accent hover:shadow-accent/10"
                 }`}
-                style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
+                style={{ width: cardWidth, minWidth: isMobile ? "280px" : "200px", scrollSnapAlign: "start" }}
               >
-                <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
+                <div className="absolute top-1 right-1 flex items-center gap-1 z-10">
                   <button
                     onClick={(e) => { e.stopPropagation(); removeProperty(p.id); }}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground min-w-[44px] min-h-[44px] flex items-center justify-center"
                   >
-                    <X size={14} />
+                    <X size={16} />
                   </button>
                 </div>
                 <div className="flex items-center gap-1.5 mb-2">
@@ -419,7 +424,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                               showSellDownReminder();
                               setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true } : prop));
                             }}
-                            className="px-1.5 py-0.5 rounded bg-accent text-accent-foreground text-[10px] font-semibold hover:bg-accent/90 transition-colors"
+                            className="px-2.5 py-1 rounded bg-accent text-accent-foreground text-[11px] font-semibold hover:bg-accent/90 transition-colors min-h-[32px]"
                           >
                             Go
                           </button>
@@ -437,7 +442,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           <button
             onClick={addProperty}
             className="rounded-xl border-2 border-dashed border-accent/40 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent shrink-0"
-            style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
+            style={{ width: cardWidth, minWidth: isMobile ? "280px" : "200px", scrollSnapAlign: "start" }}
           >
             <Plus size={24} />
             <span className="text-sm">Add Property</span>
@@ -449,7 +454,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
               key={`empty-${i}`}
               onClick={addProperty}
               className="rounded-xl border-2 border-dashed border-border/30 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent/40 hover:bg-accent/5 transition-all font-medium text-muted-foreground/40 shrink-0"
-              style={{ width: cardWidth, minWidth: "200px", scrollSnapAlign: "start" }}
+              style={{ width: cardWidth, minWidth: isMobile ? "280px" : "200px", scrollSnapAlign: "start" }}
             >
               <Plus size={20} />
             </button>
