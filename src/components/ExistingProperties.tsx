@@ -108,11 +108,12 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
     if (selectedId === id) setSelectedId(null);
   };
 
-  // Number of empty "Add Property" slots to fill up to 5
-  const emptySlots = Math.max(0, VISIBLE_SLOTS - properties.length - 1);
-  const totalItems = properties.length + 1 + emptySlots;
+  // Number of empty "Add Property" slots to fill up to visible slots
+  const pporSlots = portfolioMode ? (ppor ? 1 : 1) : 0; // PPOR card or Add PPOR button
+  const emptySlots = Math.max(0, VISIBLE_SLOTS - properties.length - 1 - pporSlots);
+  const totalItems = properties.length + 1 + pporSlots + emptySlots;
   const showArrows = totalItems > VISIBLE_SLOTS || properties.length >= VISIBLE_SLOTS;
-  const hasOverflow = properties.length >= VISIBLE_SLOTS;
+  const hasOverflow = (properties.length + pporSlots) >= VISIBLE_SLOTS;
   const cardWidth = hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
 
   const scroll = (direction: "left" | "right") => {
