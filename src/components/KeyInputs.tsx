@@ -183,7 +183,7 @@ const KeyInputs = ({
                 {/* Property Value Card */}
                 <div
                   className="rounded-xl border border-border bg-muted/30 p-4 cursor-pointer group hover:border-accent/40 transition-colors"
-                  onClick={() => setPporDetailOpen(true)}
+                  onClick={() => setPporSheetOpen(true)}
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <Home size={16} className="text-accent" />
