@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { toast } from "sonner";
-import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, Briefcase, BadgeDollarSign } from "lucide-react";
+import { Plus, X, ChevronRight, ChevronLeft, Info, AlertTriangle, Briefcase, BadgeDollarSign, Home } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import { InvestmentTypeIcon } from "@/components/InvestmentTypeIcon";
@@ -132,7 +132,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
             <Briefcase size={26} strokeWidth={2.25} className="text-accent" />
-            Your Investment Portfolio
+            {portfolioMode ? "Your Properties" : "Your Investment Portfolio"}
             {properties.length > VISIBLE_SLOTS && (
               <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                 {properties.length} properties
