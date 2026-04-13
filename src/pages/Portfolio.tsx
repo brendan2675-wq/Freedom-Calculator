@@ -367,6 +367,7 @@ const Portfolio = () => {
                   <Landmark size={26} strokeWidth={2.25} className="text-accent" />
                   SMSF Property
                 </h2>
+              </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
               <button
