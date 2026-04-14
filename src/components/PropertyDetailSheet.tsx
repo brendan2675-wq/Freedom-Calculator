@@ -57,7 +57,7 @@ function CurrencyInput({ value, onChange, placeholder }: { value: number; onChan
   );
 }
 
-function NumberInput({ value, onChange, suffix, placeholder }: { value: number; onChange: (v: number) => void; suffix?: string; placeholder?: string }) {
+function NumberInput({ value, onChange, suffix, placeholder, inputRef, inputClassName }: { value: number; onChange: (v: number) => void; suffix?: string; placeholder?: string; inputRef?: React.Ref<HTMLInputElement>; inputClassName?: string }) {
   const [raw, setRaw] = useState<string>(value ? String(value) : "");
   const rawRef = useRef(raw);
   rawRef.current = raw;
@@ -72,6 +72,7 @@ function NumberInput({ value, onChange, suffix, placeholder }: { value: number; 
   return (
     <div className="flex items-center gap-1">
       <input
+        ref={inputRef}
         inputMode="decimal"
         value={raw}
         onChange={(e) => {
@@ -84,7 +85,7 @@ function NumberInput({ value, onChange, suffix, placeholder }: { value: number; 
           }
         }}
         placeholder={placeholder}
-        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+        className={inputClassName || "w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"}
       />
       {suffix && <span className="text-muted-foreground text-sm shrink-0">{suffix}</span>}
     </div>
@@ -200,6 +201,17 @@ function SectionHeader({ title }: { title: string }) {
 const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplicate, variant, growthRate = 6, portfolioMode = false, pporMode = false }: Props) => {
   const isExisting = variant === "existing";
   const manualTaxOverride = useRef(false);
+  const [highlightFirstSplit, setHighlightFirstSplit] = useState(false);
+  const firstAmtRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (highlightFirstSplit && firstAmtRef.current) {
+      firstAmtRef.current.focus();
+      firstAmtRef.current.select();
+      const timer = setTimeout(() => setHighlightFirstSplit(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightFirstSplit, (property as ExistingProperty)?.loanSplits]);
 
   useEffect(() => {
     manualTaxOverride.current = false;
@@ -336,12 +348,14 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       <span className="ml-auto text-[10px] text-accent font-normal group-hover:underline">Click to set up loan details →</span>
                     </button>
                   ) : (
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground text-sm">$</span>
-                      <p className="w-full py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium">
-                        {(property as ExistingProperty).loanBalance.toLocaleString()}
-                      </p>
-                    </div>
+                    <button
+                      onClick={() => setHighlightFirstSplit(true)}
+                      className="w-full flex items-center gap-1 py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium cursor-pointer hover:border-accent/50 transition-all group"
+                    >
+                      <span className="text-muted-foreground">$</span>
+                      <span>{(property as ExistingProperty).loanBalance.toLocaleString()}</span>
+                      <span className="ml-auto text-[10px] text-muted-foreground group-hover:text-accent transition-colors">Edit in splits below ↓</span>
+                    </button>
                   )}
                   {((property as ExistingProperty).loanSplits || []).length > 0 && (
                     <p className="text-[10px] text-muted-foreground mt-0.5">Auto-calculated from loan splits below</p>
@@ -404,7 +418,12 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                           placeholder="Label"
                         />
                         <div className="flex-[2] min-w-0">
-                          <NumberInput value={split.amount} onChange={(v) => updateSplit({ amount: v }, true)} />
+                          <NumberInput
+                            value={split.amount}
+                            onChange={(v) => updateSplit({ amount: v }, true)}
+                            inputRef={idx === 0 ? firstAmtRef : undefined}
+                            inputClassName={`w-full py-2 px-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm transition-all ${idx === 0 && highlightFirstSplit ? "border-destructive ring-2 ring-destructive/30" : "border-border"}`}
+                          />
                         </div>
                         <div className="flex-[1.2] min-w-0">
                           <NumberInput value={split.interestRate ?? property.loan.interestRate} onChange={(v) => updateSplit({ interestRate: v })} />

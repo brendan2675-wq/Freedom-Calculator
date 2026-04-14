@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { Home, Info, Plus, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -31,6 +31,17 @@ const PporDetailSheet = ({
   pporValue,
   setPporValue,
 }: PporDetailSheetProps) => {
+  const [highlightFirstSplit, setHighlightFirstSplit] = useState(false);
+  const firstAmtRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (highlightFirstSplit && firstAmtRef.current) {
+      firstAmtRef.current.focus();
+      firstAmtRef.current.select();
+      const timer = setTimeout(() => setHighlightFirstSplit(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightFirstSplit, ppor.loanSplits]);
   const [startingBalance, setStartingBalanceState] = useState(() => {
     const stored = localStorage.getItem("ppor-starting-balance");
     return stored ? parseInt(stored, 10) : 1842105;
@@ -99,12 +110,14 @@ const PporDetailSheet = ({
                     <span className="ml-auto text-[10px] text-accent font-normal group-hover:underline">Click to set up loan details →</span>
                   </button>
                 ) : (
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground text-sm">$</span>
-                    <p className="w-full py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium">
-                      {loanBalance.toLocaleString()}
-                    </p>
-                  </div>
+                  <button
+                    onClick={() => setHighlightFirstSplit(true)}
+                    className="w-full flex items-center gap-1 py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium cursor-pointer hover:border-accent/50 transition-all group"
+                  >
+                    <span className="text-muted-foreground">$</span>
+                    <span>{loanBalance.toLocaleString()}</span>
+                    <span className="ml-auto text-[10px] text-muted-foreground group-hover:text-accent transition-colors">Edit in splits below ↓</span>
+                  </button>
                 )}
                 {(ppor.loanSplits || []).length > 0 && (
                   <p className="text-[10px] text-muted-foreground mt-0.5">Auto-calculated from loan splits below</p>
@@ -171,10 +184,11 @@ const PporDetailSheet = ({
                       />
                       <div className="flex-[2] min-w-0">
                         <input
+                          ref={idx === 0 ? firstAmtRef : undefined}
                           inputMode="numeric"
                           value={split.amount || ""}
                           onChange={(e) => updateSplit({ amount: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 }, true)}
-                          className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
+                          className={`w-full py-1 px-1 rounded border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent transition-all ${idx === 0 && highlightFirstSplit ? "border-destructive ring-2 ring-destructive/30" : "border-border"}`}
                           placeholder="0"
                         />
                       </div>
