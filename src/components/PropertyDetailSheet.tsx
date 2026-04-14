@@ -207,7 +207,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
   useEffect(() => {
     if (highlightFirstSplit && firstAmtRef.current) {
       firstAmtRef.current.focus();
-      firstAmtRef.current.select();
+      const valueLength = firstAmtRef.current.value.length;
+      firstAmtRef.current.setSelectionRange(valueLength, valueLength);
       const timer = setTimeout(() => setHighlightFirstSplit(false), 2000);
       return () => clearTimeout(timer);
     }
