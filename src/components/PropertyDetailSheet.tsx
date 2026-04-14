@@ -347,12 +347,14 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       <span className="ml-auto text-[10px] text-accent font-normal group-hover:underline">Click to set up loan details →</span>
                     </button>
                   ) : (
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground text-sm">$</span>
-                      <p className="w-full py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium">
-                        {(property as ExistingProperty).loanBalance.toLocaleString()}
-                      </p>
-                    </div>
+                    <button
+                      onClick={() => setHighlightFirstSplit(true)}
+                      className="w-full flex items-center gap-1 py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium cursor-pointer hover:border-accent/50 transition-all group"
+                    >
+                      <span className="text-muted-foreground">$</span>
+                      <span>{(property as ExistingProperty).loanBalance.toLocaleString()}</span>
+                      <span className="ml-auto text-[10px] text-muted-foreground group-hover:text-accent transition-colors">Edit in splits below ↓</span>
+                    </button>
                   )}
                   {((property as ExistingProperty).loanSplits || []).length > 0 && (
                     <p className="text-[10px] text-muted-foreground mt-0.5">Auto-calculated from loan splits below</p>
