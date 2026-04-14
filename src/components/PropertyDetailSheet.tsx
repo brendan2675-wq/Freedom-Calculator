@@ -200,6 +200,17 @@ function SectionHeader({ title }: { title: string }) {
 const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplicate, variant, growthRate = 6, portfolioMode = false, pporMode = false }: Props) => {
   const isExisting = variant === "existing";
   const manualTaxOverride = useRef(false);
+  const [highlightFirstSplit, setHighlightFirstSplit] = useState(false);
+  const firstAmtRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (highlightFirstSplit && firstAmtRef.current) {
+      firstAmtRef.current.focus();
+      firstAmtRef.current.select();
+      const timer = setTimeout(() => setHighlightFirstSplit(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightFirstSplit, (property as ExistingProperty)?.loanSplits]);
 
   useEffect(() => {
     manualTaxOverride.current = false;
