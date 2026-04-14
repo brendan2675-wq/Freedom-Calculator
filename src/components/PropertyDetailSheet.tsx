@@ -322,13 +322,30 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                   />
                 </FieldGroup>
                 <FieldGroup label="Current Loan Balance">
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground text-sm">$</span>
-                    <p className="w-full py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium">
-                      {(property as ExistingProperty).loanBalance.toLocaleString()}
-                    </p>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Calculated from loan splits below</p>
+                  {((property as ExistingProperty).loanSplits || []).length === 0 ? (
+                    <button
+                      onClick={() => {
+                        const ep = property as ExistingProperty;
+                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: ep.nickname || "Primary Loan", amount: ep.loanBalance, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: property.loan.offsetBalance };
+                        update({ loanSplits: [newSplit] } as Partial<ExistingProperty>);
+                      }}
+                      className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg border border-dashed border-accent/50 bg-accent/5 text-foreground text-sm font-medium hover:border-accent hover:bg-accent/10 transition-all cursor-pointer group"
+                    >
+                      <span className="text-muted-foreground">$</span>
+                      <span>{(property as ExistingProperty).loanBalance.toLocaleString()}</span>
+                      <span className="ml-auto text-[10px] text-accent font-normal group-hover:underline">Click to set up loan details →</span>
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground text-sm">$</span>
+                      <p className="w-full py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium">
+                        {(property as ExistingProperty).loanBalance.toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                  {((property as ExistingProperty).loanSplits || []).length > 0 && (
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Auto-calculated from loan splits below</p>
+                  )}
                 </FieldGroup>
 
                 {/* Loan Splits */}
@@ -358,18 +375,6 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                       <Plus size={16} />
                     </button>
                   </div>
-                  {((property as ExistingProperty).loanSplits || []).length === 0 && (
-                    <button
-                      onClick={() => {
-                        const ep = property as ExistingProperty;
-                        const newSplit: LoanSplit = { id: crypto.randomUUID(), label: ep.nickname || "Primary Loan", amount: ep.loanBalance, interestRate: property.loan.interestRate, loanTermYears: property.loan.loanTermYears, interestOnlyPeriodYears: property.loan.interestOnlyPeriodYears, offsetBalance: property.loan.offsetBalance };
-                        update({ loanSplits: [newSplit] } as Partial<ExistingProperty>);
-                      }}
-                      className="w-full py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-accent hover:text-accent transition-all"
-                    >
-                      + Create first loan split from current balance
-                    </button>
-                  )}
                   {((property as ExistingProperty).loanSplits || []).length > 0 && (
                     <div className="flex items-center gap-1 text-[8px] text-muted-foreground font-medium">
                       <span className="flex-[2] min-w-0">Label</span>
