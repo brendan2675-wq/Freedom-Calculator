@@ -44,7 +44,8 @@ const KeyInputs = ({
   const [lvrRate, setLvrRate] = useState(0.8);
   const [startingBalance, setStartingBalanceState] = useState(() => {
     const stored = localStorage.getItem("ppor-starting-balance");
-    return stored ? parseInt(stored, 10) : loanBalance;
+    const parsed = stored ? parseInt(stored, 10) : 0;
+    return parsed > 0 ? parsed : loanBalance;
   });
   const setStartingBalance = (v: number) => {
     setStartingBalanceState(v);
@@ -55,7 +56,8 @@ const KeyInputs = ({
   // Sync startingBalance when PporDetailSheet updates localStorage
   useEffect(() => {
     const stored = localStorage.getItem("ppor-starting-balance");
-    if (stored) setStartingBalanceState(parseInt(stored, 10));
+    const parsed = stored ? parseInt(stored, 10) : 0;
+    if (parsed > 0) setStartingBalanceState(parsed);
   }, [ppor]);
   
   const [repaymentType, setRepaymentType] = useState<"pi" | "io">("pi");
@@ -314,7 +316,16 @@ const KeyInputs = ({
 
         <PporDetailSheet
           open={pporDetailOpen || pporSheetOpen}
-          onOpenChange={(o) => { setPporDetailOpen(o); setPporSheetOpen(o); }}
+          onOpenChange={(o) => {
+            setPporDetailOpen(o);
+            setPporSheetOpen(o);
+            if (!o) {
+              // Re-sync starting balance from localStorage when sheet closes
+              const stored = localStorage.getItem("ppor-starting-balance");
+              const parsed = stored ? parseInt(stored, 10) : 0;
+              if (parsed > 0) setStartingBalanceState(parsed);
+            }
+          }}
           ppor={ppor}
           setPpor={setPpor}
           suburb={suburb}

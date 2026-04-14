@@ -46,7 +46,8 @@ const PporDetailSheet = ({
   const totalLoanBalance = ppor.loanSplits?.reduce((sum, s) => sum + (s.amount || 0), 0) || 0;
   const [startingBalance, setStartingBalanceState] = useState(() => {
     const stored = localStorage.getItem("ppor-starting-balance");
-    return stored ? parseInt(stored, 10) : totalLoanBalance;
+    const parsed = stored ? parseInt(stored, 10) : 0;
+    return parsed > 0 ? parsed : (totalLoanBalance || loanBalance);
   });
   const setStartingBalance = (v: number) => {
     setStartingBalanceState(v);
