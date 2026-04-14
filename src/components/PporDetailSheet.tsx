@@ -184,10 +184,11 @@ const PporDetailSheet = ({
                       />
                       <div className="flex-[2] min-w-0">
                         <input
+                          ref={idx === 0 ? firstAmtRef : undefined}
                           inputMode="numeric"
                           value={split.amount || ""}
                           onChange={(e) => updateSplit({ amount: parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0 }, true)}
-                          className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
+                          className={`w-full py-1 px-1 rounded border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent transition-all ${idx === 0 && highlightFirstSplit ? "border-destructive ring-2 ring-destructive/30" : "border-border"}`}
                           placeholder="0"
                         />
                       </div>
