@@ -590,7 +590,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
             })()}
             {isExisting && (() => {
               const ep = property as ExistingProperty;
-              const sc = ep.saleCosts || { ...defaultSaleCosts };
+              const rawSc = ep.saleCosts || { ...defaultSaleCosts };
+              const sc = { ...rawSc, agentCommission: rawSc.agentCommission || Math.round(ep.estimatedValue * 0.02) };
               const purchasePrice = ep.purchase.purchasePrice || 0;
               const purchaseDate = ep.purchase.purchaseDate || undefined;
               const autoStampDuty = ep.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, ep.state, purchaseDate) : 0;
