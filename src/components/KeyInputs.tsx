@@ -63,7 +63,7 @@ const KeyInputs = ({
   const [loanTermMonths, setLoanTermMonths] = useState(0);
   const [ioPeriodYears, setIoPeriodYears] = useState(5);
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
-  const [purchasePrice, setPurchasePrice] = useState(2200000);
+  const purchasePrice = ppor.purchase?.purchasePrice || 0;
   const [pporDetailOpen, setPporDetailOpen] = useState(false);
 
   const currentValue = pporValue || 2750000;
