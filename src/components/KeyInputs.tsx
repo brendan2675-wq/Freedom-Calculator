@@ -133,7 +133,17 @@ const KeyInputs = ({
                 </div>
                 <div className="relative w-20 md:w-28 py-2 md:py-3 px-3 md:px-4 rounded-lg border border-border bg-muted/30 text-center">
                   <span className="text-muted-foreground text-[10px] md:text-xs">Rate</span>
-                  <p className="text-base md:text-lg font-bold text-foreground">{interestRate}%</p>
+                  <p className="text-base md:text-lg font-bold text-foreground">{(() => {
+                    const splits = ppor.loanSplits || [];
+                    if (splits.length > 0) {
+                      const totalAmt = splits.reduce((s, sp) => s + (sp.amount || 0), 0);
+                      if (totalAmt > 0) {
+                        const weightedRate = splits.reduce((s, sp) => s + (sp.amount || 0) * (sp.interestRate ?? interestRate), 0) / totalAmt;
+                        return weightedRate.toFixed(2);
+                      }
+                    }
+                    return interestRate.toFixed(2);
+                  })()}%</p>
                 </div>
               </div>
               {sellDownProceeds > 0 && (
