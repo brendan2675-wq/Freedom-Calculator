@@ -316,7 +316,16 @@ const KeyInputs = ({
 
         <PporDetailSheet
           open={pporDetailOpen || pporSheetOpen}
-          onOpenChange={(o) => { setPporDetailOpen(o); setPporSheetOpen(o); }}
+          onOpenChange={(o) => {
+            setPporDetailOpen(o);
+            setPporSheetOpen(o);
+            if (!o) {
+              // Re-sync starting balance from localStorage when sheet closes
+              const stored = localStorage.getItem("ppor-starting-balance");
+              const parsed = stored ? parseInt(stored, 10) : 0;
+              if (parsed > 0) setStartingBalanceState(parsed);
+            }
+          }}
           ppor={ppor}
           setPpor={setPpor}
           suburb={suburb}
