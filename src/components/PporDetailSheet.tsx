@@ -86,13 +86,29 @@ const PporDetailSheet = ({
             <div className="space-y-4">
               <div>
                 <label className="text-xs text-muted-foreground font-medium block mb-1">Current Loan Balance</label>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground text-sm">$</span>
-                  <p className="w-full py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium">
-                    {loanBalance.toLocaleString()}
-                  </p>
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Calculated from loan splits below</p>
+                {(ppor.loanSplits || []).length === 0 ? (
+                  <button
+                    onClick={() => {
+                      const newSplit: LoanSplit = { id: crypto.randomUUID(), label: suburb || "Primary Loan", amount: loanBalance, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
+                      setPpor({ ...ppor, loanSplits: [newSplit] });
+                    }}
+                    className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg border border-dashed border-accent/50 bg-accent/5 text-foreground text-sm font-medium hover:border-accent hover:bg-accent/10 transition-all cursor-pointer group"
+                  >
+                    <span className="text-muted-foreground">$</span>
+                    <span>{loanBalance.toLocaleString()}</span>
+                    <span className="ml-auto text-[10px] text-accent font-normal group-hover:underline">Click to set up loan details →</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground text-sm">$</span>
+                    <p className="w-full py-2 px-3 rounded-lg border border-border bg-muted/30 text-foreground text-sm font-medium">
+                      {loanBalance.toLocaleString()}
+                    </p>
+                  </div>
+                )}
+                {(ppor.loanSplits || []).length > 0 && (
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Auto-calculated from loan splits below</p>
+                )}
               </div>
 
               {/* Loan Splits */}
@@ -121,17 +137,7 @@ const PporDetailSheet = ({
                     <Plus size={16} />
                   </button>
                 </div>
-                {(ppor.loanSplits || []).length === 0 && (
-                  <button
-                    onClick={() => {
-                      const newSplit: LoanSplit = { id: crypto.randomUUID(), label: suburb || "Primary Loan", amount: loanBalance, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
-                      setPpor({ ...ppor, loanSplits: [newSplit] });
-                    }}
-                    className="w-full py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-accent hover:text-accent transition-all"
-                  >
-                    + Create first loan split from current balance
-                  </button>
-                )}
+{/* Empty state CTA is now in the Current Loan Balance field above */}
                 {(ppor.loanSplits || []).length > 0 && (
                   <div className="flex items-center gap-1 text-[8px] text-muted-foreground font-medium">
                     <span className="flex-[2] min-w-0">Label</span>
