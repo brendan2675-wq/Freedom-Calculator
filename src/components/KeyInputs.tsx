@@ -44,7 +44,8 @@ const KeyInputs = ({
   const [lvrRate, setLvrRate] = useState(0.8);
   const [startingBalance, setStartingBalanceState] = useState(() => {
     const stored = localStorage.getItem("ppor-starting-balance");
-    return stored ? parseInt(stored, 10) : loanBalance;
+    const parsed = stored ? parseInt(stored, 10) : 0;
+    return parsed > 0 ? parsed : loanBalance;
   });
   const setStartingBalance = (v: number) => {
     setStartingBalanceState(v);
