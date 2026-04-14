@@ -44,12 +44,24 @@ const KeyInputs = ({
   const [lvrRate, setLvrRate] = useState(0.8);
   const [startingBalance, setStartingBalanceState] = useState(() => {
     const stored = localStorage.getItem("ppor-starting-balance");
-    return stored ? parseInt(stored, 10) : 1842105;
+    return stored ? parseInt(stored, 10) : loanBalance;
   });
   const setStartingBalance = (v: number) => {
     setStartingBalanceState(v);
     localStorage.setItem("ppor-starting-balance", String(v));
   };
+
+  // Sync startingBalance when PporDetailSheet updates localStorage
+  useEffect(() => {
+    const sync = () => {
+      const stored = localStorage.getItem("ppor-starting-balance");
+      if (stored) setStartingBalanceState(parseInt(stored, 10));
+    };
+    window.addEventListener("storage", sync);
+    // Also re-read on every render cycle to catch same-tab updates
+    sync();
+    return () => window.removeEventListener("storage", sync);
+  }, [pporSheetOpen]);
   
   const [repaymentType, setRepaymentType] = useState<"pi" | "io">("pi");
   const [loanTermYears, setLoanTermYears] = useState(30);
