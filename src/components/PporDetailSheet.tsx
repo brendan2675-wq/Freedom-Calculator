@@ -137,17 +137,7 @@ const PporDetailSheet = ({
                     <Plus size={16} />
                   </button>
                 </div>
-                {(ppor.loanSplits || []).length === 0 && (
-                  <button
-                    onClick={() => {
-                      const newSplit: LoanSplit = { id: crypto.randomUUID(), label: suburb || "Primary Loan", amount: loanBalance, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 };
-                      setPpor({ ...ppor, loanSplits: [newSplit] });
-                    }}
-                    className="w-full py-2 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:border-accent hover:text-accent transition-all"
-                  >
-                    + Create first loan split from current balance
-                  </button>
-                )}
+{/* Empty state CTA is now in the Current Loan Balance field above */}
                 {(ppor.loanSplits || []).length > 0 && (
                   <div className="flex items-center gap-1 text-[8px] text-muted-foreground font-medium">
                     <span className="flex-[2] min-w-0">Label</span>
