@@ -52,16 +52,11 @@ const KeyInputs = ({
   };
 
   // Sync startingBalance when PporDetailSheet updates localStorage
+  // Sync startingBalance when PporDetailSheet updates localStorage
   useEffect(() => {
-    const sync = () => {
-      const stored = localStorage.getItem("ppor-starting-balance");
-      if (stored) setStartingBalanceState(parseInt(stored, 10));
-    };
-    window.addEventListener("storage", sync);
-    // Also re-read on every render cycle to catch same-tab updates
-    sync();
-    return () => window.removeEventListener("storage", sync);
-  }, []);
+    const stored = localStorage.getItem("ppor-starting-balance");
+    if (stored) setStartingBalanceState(parseInt(stored, 10));
+  }, [ppor]);
   
   const [repaymentType, setRepaymentType] = useState<"pi" | "io">("pi");
   const [loanTermYears, setLoanTermYears] = useState(30);
