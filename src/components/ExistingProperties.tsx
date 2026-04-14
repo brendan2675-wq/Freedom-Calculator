@@ -63,7 +63,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
         ...p,
         earmarked: !allEarmarked,
         sellInYears: !allEarmarked ? masterSellYear : p.sellInYears,
-        ...(!allEarmarked ? { saleCosts: { ...(p.saleCosts || defaultSaleCosts), agentCommission: Math.round(p.estimatedValue * 0.02) } } : {}),
+        ...(!allEarmarked ? { saleCosts: { ...(p.saleCosts || defaultSaleCosts), agentCommission: Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, masterSellYear) * 0.02) } } : {}),
       }))
     );
   };
@@ -382,7 +382,9 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => {
                               e.stopPropagation();
-                              setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, sellInYears: Number(e.target.value) } : prop));
+                              const newSellYears = Number(e.target.value);
+                              const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, newSellYears));
+                              setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, sellInYears: newSellYears, saleCosts: { ...(prop.saleCosts || defaultSaleCosts), agentCommission: Math.round(projectedValue * 0.02) } } : prop));
                             }}
                             className="py-0.5 px-1 rounded border border-destructive/30 bg-background text-foreground text-[11px] font-semibold focus:outline-none focus:ring-1 focus:ring-destructive cursor-pointer"
                           >
@@ -423,7 +425,9 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                           <button
                             onClick={() => {
                               showSellDownReminder();
-                              setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true, saleCosts: { ...(prop.saleCosts || defaultSaleCosts), agentCommission: Math.round(prop.estimatedValue * 0.02) } } : prop));
+                              const sellYrs = p.sellInYears || 0;
+                              const projVal = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, sellYrs));
+                              setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, earmarked: true, saleCosts: { ...(prop.saleCosts || defaultSaleCosts), agentCommission: Math.round(projVal * 0.02) } } : prop));
                             }}
                             className="px-2.5 py-1 rounded bg-accent text-accent-foreground text-[11px] font-semibold hover:bg-accent/90 transition-colors min-h-[32px]"
                           >
