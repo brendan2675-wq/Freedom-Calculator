@@ -203,16 +203,24 @@ const PporDetailSheet = ({
                             const raw = e.target.value;
                             if (raw === '' || /^\d*\.?\d*$/.test(raw)) updateSplit({ interestRate: parseFloat(raw) || 0 });
                           }}
+                          onBlur={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            updateSplit({ interestRate: parseFloat(val.toFixed(2)) });
+                          }}
                           className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
                         />
                       </div>
                       <div className="flex-[1] min-w-0">
                         <input
                           type="number"
-                          min={0}
+                          min={1}
+                          max={99}
                           value={split.interestOnlyPeriodYears ?? 0}
-                          onChange={(e) => updateSplit({ interestOnlyPeriodYears: parseInt(e.target.value) || 0 })}
-                          className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value) || 0;
+                            updateSplit({ interestOnlyPeriodYears: Math.min(99, Math.max(0, val)) });
+                          }}
+                          className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
                       <div className="flex-[1.2] min-w-0">
