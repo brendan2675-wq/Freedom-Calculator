@@ -418,7 +418,12 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                           placeholder="Label"
                         />
                         <div className="flex-[2] min-w-0">
-                          <NumberInput value={split.amount} onChange={(v) => updateSplit({ amount: v }, true)} />
+                          <NumberInput
+                            value={split.amount}
+                            onChange={(v) => updateSplit({ amount: v }, true)}
+                            inputRef={idx === 0 ? firstAmtRef : undefined}
+                            inputClassName={`w-full py-2 px-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm transition-all ${idx === 0 && highlightFirstSplit ? "border-destructive ring-2 ring-destructive/30" : "border-border"}`}
+                          />
                         </div>
                         <div className="flex-[1.2] min-w-0">
                           <NumberInput value={split.interestRate ?? property.loan.interestRate} onChange={(v) => updateSplit({ interestRate: v })} />
