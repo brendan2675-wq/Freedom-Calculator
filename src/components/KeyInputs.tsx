@@ -61,7 +61,7 @@ const KeyInputs = ({
     // Also re-read on every render cycle to catch same-tab updates
     sync();
     return () => window.removeEventListener("storage", sync);
-  }, [pporSheetOpen]);
+  }, []);
   
   const [repaymentType, setRepaymentType] = useState<"pi" | "io">("pi");
   const [loanTermYears, setLoanTermYears] = useState(30);
