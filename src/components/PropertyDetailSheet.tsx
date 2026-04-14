@@ -57,7 +57,7 @@ function CurrencyInput({ value, onChange, placeholder }: { value: number; onChan
   );
 }
 
-function NumberInput({ value, onChange, suffix, placeholder }: { value: number; onChange: (v: number) => void; suffix?: string; placeholder?: string }) {
+function NumberInput({ value, onChange, suffix, placeholder, inputRef, inputClassName }: { value: number; onChange: (v: number) => void; suffix?: string; placeholder?: string; inputRef?: React.Ref<HTMLInputElement>; inputClassName?: string }) {
   const [raw, setRaw] = useState<string>(value ? String(value) : "");
   const rawRef = useRef(raw);
   rawRef.current = raw;
@@ -72,6 +72,7 @@ function NumberInput({ value, onChange, suffix, placeholder }: { value: number; 
   return (
     <div className="flex items-center gap-1">
       <input
+        ref={inputRef}
         inputMode="decimal"
         value={raw}
         onChange={(e) => {
@@ -84,7 +85,7 @@ function NumberInput({ value, onChange, suffix, placeholder }: { value: number; 
           }
         }}
         placeholder={placeholder}
-        className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+        className={inputClassName || "w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"}
       />
       {suffix && <span className="text-muted-foreground text-sm shrink-0">{suffix}</span>}
     </div>
