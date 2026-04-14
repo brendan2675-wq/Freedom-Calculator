@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { Home, Info, Plus, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -31,6 +31,17 @@ const PporDetailSheet = ({
   pporValue,
   setPporValue,
 }: PporDetailSheetProps) => {
+  const [highlightFirstSplit, setHighlightFirstSplit] = useState(false);
+  const firstAmtRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (highlightFirstSplit && firstAmtRef.current) {
+      firstAmtRef.current.focus();
+      firstAmtRef.current.select();
+      const timer = setTimeout(() => setHighlightFirstSplit(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightFirstSplit, ppor.loanSplits]);
   const [startingBalance, setStartingBalanceState] = useState(() => {
     const stored = localStorage.getItem("ppor-starting-balance");
     return stored ? parseInt(stored, 10) : 1842105;
