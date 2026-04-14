@@ -34,8 +34,10 @@ const Header = ({ clientName, setClientName, getCurrentState, loadState }: Heade
             )}
             <button
               onClick={() => {
-                if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
+                if (window.confirm("Reset all data to defaults? This cannot be undone.\n\nSaved scenarios will be preserved.")) {
+                  const savedScenarios = localStorage.getItem("saved-scenarios");
                   localStorage.clear();
+                  if (savedScenarios) localStorage.setItem("saved-scenarios", savedScenarios);
                   window.location.reload();
                 }
               }}
