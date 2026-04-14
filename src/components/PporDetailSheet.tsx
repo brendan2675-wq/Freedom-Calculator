@@ -198,10 +198,14 @@ const PporDetailSheet = ({
                       <div className="flex-[1.2] min-w-0">
                         <input
                           inputMode="decimal"
-                          value={split.interestRate != null ? Number(split.interestRate).toFixed(2) : Number(interestRate).toFixed(2)}
+                          value={split.interestRate ?? interestRate}
                           onChange={(e) => {
                             const raw = e.target.value;
                             if (raw === '' || /^\d*\.?\d*$/.test(raw)) updateSplit({ interestRate: parseFloat(raw) || 0 });
+                          }}
+                          onBlur={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            updateSplit({ interestRate: parseFloat(val.toFixed(2)) });
                           }}
                           className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
                         />
