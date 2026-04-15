@@ -4,6 +4,42 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ExistingProperty, LoanSplit } from "@/types/property";
 
+function DecimalInput({ value, onChange, className }: { value: number; onChange: (v: number) => void; className?: string }) {
+  const [raw, setRaw] = useState(value ? String(value) : "");
+  const rawRef = useRef(raw);
+  rawRef.current = raw;
+  useEffect(() => {
+    const parsed = parseFloat(rawRef.current);
+    if (isNaN(parsed) || parsed !== value) {
+      setRaw(value ? String(value) : "");
+    }
+  }, [value]);
+  return (
+    <input
+      inputMode="decimal"
+      value={raw}
+      onChange={(e) => {
+        const v = e.target.value;
+        if (v === "" || /^[0-9]*\.?[0-9]{0,2}$/.test(v)) {
+          setRaw(v);
+          const parsed = parseFloat(v);
+          if (!isNaN(parsed)) onChange(parsed);
+          else if (v === "") onChange(0);
+        }
+      }}
+      onBlur={() => {
+        const parsed = parseFloat(raw);
+        if (!isNaN(parsed)) {
+          const rounded = parseFloat(parsed.toFixed(2));
+          onChange(rounded);
+          setRaw(String(rounded));
+        }
+      }}
+      className={className || "w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"}
+    />
+  );
+}
+
 interface PporDetailSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
