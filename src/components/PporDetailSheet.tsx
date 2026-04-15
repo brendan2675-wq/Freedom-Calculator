@@ -232,18 +232,9 @@ const PporDetailSheet = ({
                         />
                       </div>
                       <div className="flex-[1.2] min-w-0">
-                        <input
-                          inputMode="decimal"
+                        <DecimalInput
                           value={split.interestRate ?? interestRate}
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            if (raw === '' || /^\d*\.?\d*$/.test(raw)) updateSplit({ interestRate: parseFloat(raw) || 0 });
-                          }}
-                          onBlur={(e) => {
-                            const val = parseFloat(e.target.value) || 0;
-                            updateSplit({ interestRate: parseFloat(val.toFixed(2)) });
-                          }}
-                          className="w-full py-1 px-1 rounded border border-border bg-background text-foreground text-[10px] focus:outline-none focus:ring-1 focus:ring-accent"
+                          onChange={(v) => updateSplit({ interestRate: v })}
                         />
                       </div>
                       <div className="flex-[1] min-w-0">
