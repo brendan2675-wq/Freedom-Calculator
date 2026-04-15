@@ -70,7 +70,14 @@ const Index = () => {
   const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>(() => {
     const stored = localStorage.getItem("portfolio-properties");
     if (stored) {
-      try { return JSON.parse(stored); } catch {}
+      try {
+        const parsed = JSON.parse(stored);
+        const { properties: normalized, changed } = normalizeExistingProperties(parsed);
+        if (changed) {
+          localStorage.setItem("portfolio-properties", JSON.stringify(normalized));
+        }
+        return normalized;
+      } catch {}
     }
     localStorage.setItem("portfolio-properties", JSON.stringify(defaultExisting));
     return defaultExisting;
@@ -140,7 +147,12 @@ const Index = () => {
 
   // Sync properties to localStorage for cross-page access
   useEffect(() => {
-    localStorage.setItem("portfolio-properties", JSON.stringify(existingProperties));
+    const { properties: normalized, changed } = normalizeExistingProperties(existingProperties);
+    if (changed) {
+      setExistingProperties(normalized);
+      return;
+    }
+    localStorage.setItem("portfolio-properties", JSON.stringify(normalized));
   }, [existingProperties]);
 
   useEffect(() => {
