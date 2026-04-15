@@ -122,11 +122,14 @@ const Portfolio = () => {
     const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
     const avgLvr = totalValue > 0 ? (totalLoan / totalValue) * 100 : 0;
-    // Only include properties with a purchase price in the growth calculation
-    const growthValue = properties.reduce((s, p) => s + ((p.purchase?.purchasePrice ?? 0) > 0 ? p.estimatedValue : 0), 0)
-      + (pporPurchase > 0 ? pporValue : 0);
+    // For growth calc, only include properties that have a purchase price set
+    const growthInvestmentValue = properties.reduce((s, p) => s + ((p.purchase?.purchasePrice ?? 0) > 0 ? p.estimatedValue : 0), 0);
+    const growthInvestmentPurchase = properties.reduce((s, p) => s + ((p.purchase?.purchasePrice ?? 0) > 0 ? p.purchase!.purchasePrice : 0), 0);
+    const growthPporValue = pporPurchase > 0 ? pporValue : 0;
     const totalPurchase = pporPurchase + investmentPurchase;
-    const totalGrowthPct = totalPurchase > 0 ? ((growthValue - totalPurchase) / totalPurchase) * 100 : 0;
+    const growthTotalPurchase = pporPurchase + growthInvestmentPurchase;
+    const growthTotalValue = growthPporValue + growthInvestmentValue;
+    const totalGrowthPct = growthTotalPurchase > 0 ? ((growthTotalValue - growthTotalPurchase) / growthTotalPurchase) * 100 : 0;
     return { totalValue, totalLoan, totalEquity, avgLvr, totalPurchase, totalGrowthPct };
   }, [properties, ppor?.estimatedValue, ppor?.loanBalance, ppor?.purchase?.purchasePrice, pporEquity, masterLvr]);
 
