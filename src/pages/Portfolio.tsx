@@ -17,7 +17,26 @@ const Portfolio = () => {
     localStorage.setItem("client-name", name);
   };
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
-  const [ppor, setPpor] = useState<ExistingProperty | null>(null);
+  const defaultPpor: ExistingProperty = {
+    id: "ppor",
+    nickname: "Owner Occupied",
+    estimatedValue: 2750000,
+    loanBalance: 1750000,
+    earmarked: false,
+    sellInYears: 0,
+    ownership: "personal",
+    investmentType: "house",
+    loan: { ...defaultLoanDetails },
+    rental: { ...defaultRentalDetails },
+    purchase: { ...defaultPurchaseDetails, purchasePrice: 2200000 },
+  };
+  const [ppor, setPpor] = useState<ExistingProperty | null>(() => {
+    const stored = localStorage.getItem("portfolio-ppor");
+    if (stored) {
+      try { return JSON.parse(stored); } catch {}
+    }
+    return null;
+  });
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
   const [pporLvr, setPporLvr] = useState(0.8);
   const [masterLvr, setMasterLvr] = useState(0.8);
@@ -34,16 +53,16 @@ const Portfolio = () => {
     if (stored) {
       try { setProperties(JSON.parse(stored)); } catch {}
     }
-    const storedPpor = localStorage.getItem("portfolio-ppor");
-    if (storedPpor) {
-      try { setPpor(JSON.parse(storedPpor)); } catch {}
-    }
     const handleStorage = (e: StorageEvent) => {
       if (e.key === "portfolio-properties" && e.newValue) {
         try { setProperties(JSON.parse(e.newValue)); } catch {}
       }
-      if (e.key === "portfolio-ppor" && e.newValue) {
-        try { setPpor(JSON.parse(e.newValue)); } catch {}
+      if (e.key === "portfolio-ppor") {
+        if (e.newValue) {
+          try { setPpor(JSON.parse(e.newValue)); } catch {}
+        } else {
+          setPpor(null);
+        }
       }
     };
     window.addEventListener("storage", handleStorage);
@@ -56,7 +75,6 @@ const Portfolio = () => {
   };
 
   const addPpor = () => {
-    // Check if PPOR data already exists from the PPOR Goal page
     const existingData = localStorage.getItem("portfolio-ppor");
     if (existingData) {
       try {
@@ -66,21 +84,8 @@ const Portfolio = () => {
         return;
       } catch {}
     }
-    const newPpor: ExistingProperty = {
-      id: "ppor",
-      nickname: "",
-      estimatedValue: 0,
-      loanBalance: 0,
-      earmarked: false,
-      sellInYears: 0,
-      ownership: "personal",
-      investmentType: "house",
-      loan: { ...defaultLoanDetails },
-      rental: { ...defaultRentalDetails },
-      purchase: { ...defaultPurchaseDetails },
-    };
-    setPpor(newPpor);
-    localStorage.setItem("portfolio-ppor", JSON.stringify(newPpor));
+    setPpor(defaultPpor);
+    localStorage.setItem("portfolio-ppor", JSON.stringify(defaultPpor));
     setPporSheetOpen(true);
   };
 

@@ -45,7 +45,7 @@ const Index = () => {
       investmentType: "house",
       loan: { ...defaultLoanDetails },
       rental: { ...defaultRentalDetails },
-      purchase: { ...defaultPurchaseDetails },
+      purchase: { ...defaultPurchaseDetails, purchasePrice: 2200000 },
     };
     localStorage.setItem("portfolio-ppor", JSON.stringify(defaultPpor));
     return defaultPpor;
