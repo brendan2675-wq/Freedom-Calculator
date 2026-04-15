@@ -332,7 +332,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   ) : null}
                   <div>
                     <label className="text-muted-foreground text-[11px]">Equity Available</label>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 flex-wrap">
                       <span className={`font-bold ${equity > 50000 ? 'text-success' : 'text-accent'}`}>${equity.toLocaleString()}</span>
                       <select
                         value={lvr}
