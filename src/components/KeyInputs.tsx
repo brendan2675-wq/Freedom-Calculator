@@ -68,7 +68,7 @@ const KeyInputs = ({
   const purchasePrice = ppor.purchase?.purchasePrice || 0;
   const [pporDetailOpen, setPporDetailOpen] = useState(false);
 
-  const currentValue = pporValue || 2750000;
+  const currentValue = pporValue;
   const growthPercent = useMemo(() => {
     if (purchasePrice <= 0) return 0;
     return ((currentValue - purchasePrice) / purchasePrice) * 100;
