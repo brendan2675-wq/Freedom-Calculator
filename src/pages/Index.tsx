@@ -15,6 +15,7 @@ import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
 import type { ExistingProperty, FutureProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
+import { normalizeExistingProperties } from "@/lib/portfolioDefaults";
 
 const Index = () => {
   const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
@@ -69,7 +70,14 @@ const Index = () => {
   const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>(() => {
     const stored = localStorage.getItem("portfolio-properties");
     if (stored) {
-      try { return JSON.parse(stored); } catch {}
+      try {
+        const parsed = JSON.parse(stored);
+        const { properties: normalized, changed } = normalizeExistingProperties(parsed);
+        if (changed) {
+          localStorage.setItem("portfolio-properties", JSON.stringify(normalized));
+        }
+        return normalized;
+      } catch {}
     }
     localStorage.setItem("portfolio-properties", JSON.stringify(defaultExisting));
     return defaultExisting;
@@ -139,7 +147,12 @@ const Index = () => {
 
   // Sync properties to localStorage for cross-page access
   useEffect(() => {
-    localStorage.setItem("portfolio-properties", JSON.stringify(existingProperties));
+    const { properties: normalized, changed } = normalizeExistingProperties(existingProperties);
+    if (changed) {
+      setExistingProperties(normalized);
+      return;
+    }
+    localStorage.setItem("portfolio-properties", JSON.stringify(normalized));
   }, [existingProperties]);
 
   useEffect(() => {
