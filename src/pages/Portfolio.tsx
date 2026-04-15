@@ -56,6 +56,16 @@ const Portfolio = () => {
   };
 
   const addPpor = () => {
+    // Check if PPOR data already exists from the PPOR Goal page
+    const existingData = localStorage.getItem("portfolio-ppor");
+    if (existingData) {
+      try {
+        const parsed = JSON.parse(existingData);
+        setPpor(parsed);
+        setPporSheetOpen(true);
+        return;
+      } catch {}
+    }
     const newPpor: ExistingProperty = {
       id: "ppor",
       nickname: "",
