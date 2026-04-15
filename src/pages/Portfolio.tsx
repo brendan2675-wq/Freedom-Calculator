@@ -52,11 +52,25 @@ const Portfolio = () => {
   useEffect(() => {
     const stored = localStorage.getItem("portfolio-properties");
     if (stored) {
-      try { setProperties(JSON.parse(stored)); } catch {}
+      try {
+        const parsed = JSON.parse(stored);
+        const { properties: normalized, changed } = normalizeExistingProperties(parsed);
+        setProperties(normalized);
+        if (changed) {
+          localStorage.setItem("portfolio-properties", JSON.stringify(normalized));
+        }
+      } catch {}
     }
     const handleStorage = (e: StorageEvent) => {
       if (e.key === "portfolio-properties" && e.newValue) {
-        try { setProperties(JSON.parse(e.newValue)); } catch {}
+        try {
+          const parsed = JSON.parse(e.newValue);
+          const { properties: normalized, changed } = normalizeExistingProperties(parsed);
+          setProperties(normalized);
+          if (changed) {
+            localStorage.setItem("portfolio-properties", JSON.stringify(normalized));
+          }
+        } catch {}
       }
       if (e.key === "portfolio-ppor") {
         if (e.newValue) {
@@ -71,8 +85,9 @@ const Portfolio = () => {
   }, []);
 
   const handleSetProperties = (p: ExistingProperty[]) => {
-    setProperties(p);
-    localStorage.setItem("portfolio-properties", JSON.stringify(p));
+    const { properties: normalized } = normalizeExistingProperties(p);
+    setProperties(normalized);
+    localStorage.setItem("portfolio-properties", JSON.stringify(normalized));
   };
 
   const addPpor = () => {
@@ -130,7 +145,6 @@ const Portfolio = () => {
     const investmentValue = properties.reduce((s, p) => s + p.estimatedValue, 0);
     const investmentLoan = properties.reduce((s, p) => s + p.loanBalance, 0);
     const investmentEquity = properties.reduce((s, p) => s + Math.max(0, (p.estimatedValue * masterLvr) - p.loanBalance), 0);
-    const investmentPurchase = properties.reduce((s, p) => s + (p.purchase?.purchasePrice ?? 0), 0);
     const pporValue = ppor?.estimatedValue ?? 0;
     const pporLoan = ppor?.loanBalance ?? 0;
     const pporPurchase = ppor?.purchase?.purchasePrice ?? 0;
@@ -138,15 +152,16 @@ const Portfolio = () => {
     const totalLoan = pporLoan + investmentLoan;
     const totalEquity = pporEquity + investmentEquity;
     const avgLvr = totalValue > 0 ? (totalLoan / totalValue) * 100 : 0;
-    // For growth calc, only include properties that have a purchase price set
-    const growthInvestmentValue = properties.reduce((s, p) => s + ((p.purchase?.purchasePrice ?? 0) > 0 ? p.estimatedValue : 0), 0);
-    const growthInvestmentPurchase = properties.reduce((s, p) => s + ((p.purchase?.purchasePrice ?? 0) > 0 ? p.purchase!.purchasePrice : 0), 0);
+
+    const growthEligibleProperties = properties.filter((p) => (p.purchase?.purchasePrice ?? 0) > 0);
+    const growthInvestmentValue = growthEligibleProperties.reduce((s, p) => s + p.estimatedValue, 0);
+    const growthInvestmentPurchase = growthEligibleProperties.reduce((s, p) => s + (p.purchase?.purchasePrice ?? 0), 0);
     const growthPporValue = pporPurchase > 0 ? pporValue : 0;
-    const totalPurchase = pporPurchase + investmentPurchase;
-    const growthTotalPurchase = pporPurchase + growthInvestmentPurchase;
+    const growthTotalPurchase = (pporPurchase > 0 ? pporPurchase : 0) + growthInvestmentPurchase;
     const growthTotalValue = growthPporValue + growthInvestmentValue;
     const totalGrowthPct = growthTotalPurchase > 0 ? ((growthTotalValue - growthTotalPurchase) / growthTotalPurchase) * 100 : 0;
-    return { totalValue, totalLoan, totalEquity, avgLvr, totalPurchase, totalGrowthPct };
+
+    return { totalValue, totalLoan, totalEquity, avgLvr, growthTotalPurchase, totalGrowthPct };
   }, [properties, ppor?.estimatedValue, ppor?.loanBalance, ppor?.purchase?.purchasePrice, pporEquity, masterLvr]);
 
   return (
@@ -221,8 +236,8 @@ const Portfolio = () => {
             <span className={`text-lg md:text-2xl font-bold ${totals.totalGrowthPct >= 0 ? 'text-accent' : 'text-destructive'}`}>
               {totals.totalGrowthPct >= 0 ? '↑' : '↓'}{Math.abs(totals.totalGrowthPct).toFixed(0)}%
             </span>
-            {totals.totalPurchase > 0 && (
-              <span className="text-[10px] text-muted-foreground">from ${totals.totalPurchase.toLocaleString()}</span>
+            {totals.growthTotalPurchase > 0 && (
+              <span className="text-[10px] text-muted-foreground">from ${totals.growthTotalPurchase.toLocaleString()}</span>
             )}
           </div>
           <div className="bg-card rounded-xl p-4 md:p-6 border border-border shadow-sm flex flex-col items-center gap-1.5 md:gap-2">
