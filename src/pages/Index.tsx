@@ -15,6 +15,7 @@ import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
 import type { ExistingProperty, FutureProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
+import { normalizeExistingProperties } from "@/lib/portfolioDefaults";
 
 const Index = () => {
   const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");

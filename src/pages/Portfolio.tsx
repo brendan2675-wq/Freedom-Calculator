@@ -7,6 +7,7 @@ import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import PporDetailSheet from "@/components/PporDetailSheet";
 import type { ExistingProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
+import { normalizeExistingProperties } from "@/lib/portfolioDefaults";
 
 const Portfolio = () => {
   const navigate = useNavigate();
