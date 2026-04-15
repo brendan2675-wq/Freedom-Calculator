@@ -291,7 +291,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm items-start">
                   <div>
                     <label className="text-muted-foreground text-[11px]">Current Value</label>
-                    <div className="flex items-baseline gap-1.5">
+                    <div className="flex items-baseline gap-1.5 flex-wrap">
                       <p className="text-foreground font-medium">${p.estimatedValue.toLocaleString()}</p>
                       {p.purchase?.purchasePrice > 0 ? (
                         <span className={`text-[10px] font-semibold px-1 py-0.5 rounded shrink-0 ${
