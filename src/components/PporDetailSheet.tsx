@@ -55,10 +55,10 @@ const PporDetailSheet = ({
   };
 
   const [purchasePrice, setPurchasePrice] = useState(() => {
-    return ppor.purchase?.purchasePrice || 2200000;
+    return ppor.purchase?.purchasePrice || 0;
   });
 
-  const currentValue = pporValue || 2750000;
+  const currentValue = pporValue;
   const growthPercent = useMemo(() => {
     if (purchasePrice <= 0) return 0;
     return ((currentValue - purchasePrice) / purchasePrice) * 100;
