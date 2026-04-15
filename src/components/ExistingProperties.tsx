@@ -322,9 +322,6 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                       <label className="text-muted-foreground text-[11px]">Rental Yield</label>
                       <p className="text-accent font-medium">
                         {((p.rental.weeklyRent * 52) / p.estimatedValue * 100).toFixed(1)}%
-                        <span className="text-muted-foreground text-[10px] ml-1">
-                          (${(p.rental.weeklyRent * 52).toLocaleString()} p.a.)
-                        </span>
                       </p>
                     </div>
                   ) : portfolioMode ? (
