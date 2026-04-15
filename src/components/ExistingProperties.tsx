@@ -332,7 +332,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                   ) : null}
                   <div>
                     <label className="text-muted-foreground text-[11px]">Equity Available</label>
-                    <div className="flex items-center gap-1 flex-wrap">
+                    <div className="flex flex-col gap-0.5">
                       <span className={`font-bold ${equity > 50000 ? 'text-success' : 'text-accent'}`}>${equity.toLocaleString()}</span>
                       <select
                         value={lvr}
@@ -341,7 +341,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                           e.stopPropagation();
                           setLvrRates({ ...lvrRates, [p.id]: Number(e.target.value) });
                         }}
-                        className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer"
+                        className="py-0.5 px-1 rounded border border-border bg-background text-foreground text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer w-fit"
                       >
                         <option value={0.8}>80%</option>
                         <option value={0.88}>88%</option>
