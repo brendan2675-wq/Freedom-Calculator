@@ -90,9 +90,21 @@ const PporDetailSheet = ({
     localStorage.setItem("ppor-starting-balance", String(v));
   };
 
+  // Re-sync startingBalance when localStorage changes (e.g., scenario load)
+  useEffect(() => {
+    const stored = localStorage.getItem("ppor-starting-balance");
+    const parsed = stored ? parseInt(stored, 10) : 0;
+    if (parsed > 0) setStartingBalanceState(parsed);
+  }, [ppor]);
+
   const [purchasePrice, setPurchasePrice] = useState(() => {
     return ppor.purchase?.purchasePrice || 0;
   });
+
+  // Re-sync purchasePrice when ppor changes (e.g., scenario load)
+  useEffect(() => {
+    setPurchasePrice(ppor.purchase?.purchasePrice || 0);
+  }, [ppor.purchase?.purchasePrice]);
 
   const currentValue = pporValue;
   const growthPercent = useMemo(() => {
