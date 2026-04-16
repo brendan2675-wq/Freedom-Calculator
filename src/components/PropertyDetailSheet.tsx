@@ -834,7 +834,9 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                               </div>
                             );
                           }
-                          const discountedGain = capitalGain * (1 - sc.cgtDiscount);
+                          const losses = sc.capitalLosses || 0;
+                          const gainAfterLosses = Math.max(0, capitalGain - losses);
+                          const discountedGain = gainAfterLosses * (1 - sc.cgtDiscount);
                           const mlRate = (sc.includeMedicareLevy ?? false) ? 0.02 : 0;
                           const effectiveRate = sc.incomeTaxRate + mlRate;
                           const cgtPayable = Math.round(discountedGain * effectiveRate);
