@@ -109,6 +109,9 @@ const Index = () => {
       setPpor(imported.ppor);
       setExistingProperties(imported.existingProperties);
       setFutureProperties(imported.futureProperties);
+      if (imported.pporStartingBalance) {
+        localStorage.setItem("ppor-starting-balance", String(imported.pporStartingBalance));
+      }
       // Clean URL
       window.history.replaceState({}, "", window.location.pathname);
       toast.success("Scenario loaded from shared link");
