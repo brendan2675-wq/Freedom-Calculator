@@ -28,6 +28,8 @@ interface Props {
   growthRate?: number;
   portfolioMode?: boolean;
   pporMode?: boolean;
+  targetMonth?: number;
+  targetYear?: number;
 }
 
 const currencyFormat = (v: number) => v.toLocaleString();

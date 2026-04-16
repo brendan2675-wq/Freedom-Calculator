@@ -486,6 +486,8 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           variant="existing"
           growthRate={growthRate}
           portfolioMode={portfolioMode}
+          targetMonth={targetMonth}
+          targetYear={targetYear}
         />
       </section>
     </TooltipProvider>
