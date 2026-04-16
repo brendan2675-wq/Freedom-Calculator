@@ -380,7 +380,15 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
                             onChange={(e) => {
                               e.stopPropagation();
                               const newSellYears = Number(e.target.value);
-                              const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, newSellYears));
+                              // Use fractional years matching card Future Value logic
+                              const now = new Date();
+                              const target = new Date(targetYear, targetMonth - 1);
+                              const yrsToTarget = Math.max(0, (target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+                              const fracYears = Math.abs(yrsToTarget - newSellYears) < 0.5 ? yrsToTarget : newSellYears;
+                              const purchaseStart = p.purchase?.purchaseDate ? new Date(p.purchase.purchaseDate) : null;
+                              const delayYrs = purchaseStart && purchaseStart > now ? (purchaseStart.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25) : 0;
+                              const effectiveYears = Math.max(0, fracYears - delayYrs);
+                              const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, effectiveYears));
                               setProperties(properties.map((prop) => prop.id === p.id ? { ...prop, sellInYears: newSellYears, saleCosts: { ...(prop.saleCosts || defaultSaleCosts), agentCommission: Math.round(projectedValue * 0.02) } } : prop));
                             }}
                             className="py-0.5 px-1 rounded border border-destructive/30 bg-background text-foreground text-[11px] font-semibold focus:outline-none focus:ring-1 focus:ring-destructive cursor-pointer"
