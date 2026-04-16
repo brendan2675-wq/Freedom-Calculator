@@ -430,6 +430,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             Without sell-down: <span className="font-semibold">{timeSaved.standardYears} yrs</span>.
             With sell-down: <span className="font-semibold text-accent">{timeSaved.acceleratedYears} yrs</span>.
             <span className="font-bold text-success ml-1">You save {timeSaved.saved} years!</span>
+            {surplusProfit > 0 && (
+              <span className="font-bold text-success ml-2">| Profit: ${surplusProfit.toLocaleString()}</span>
+            )}
           </p>
         </div>
       )}
