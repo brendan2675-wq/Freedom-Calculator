@@ -53,6 +53,7 @@ export interface SaleCosts {
   stylingCosts: number;
   sellerAdvisoryFees: number;
   // CGT
+  capitalLosses: number; // prior year or current year capital losses to offset
   cgtDiscount: number; // 0.5 or 0
   incomeTaxRate: number; // e.g. 0.325
   includeMedicareLevy: boolean;
