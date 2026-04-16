@@ -218,25 +218,32 @@ const Index = () => {
   }, [loanBalance, existingProperties, futureProperties, targetMonth, targetYear]);
 
   const sellDownEvents = useMemo(() => {
+    const now = new Date();
     return existingProperties
       .filter((p) => p.earmarked)
       .map((p) => {
         const sellYears = p.sellInYears || 0;
         const purchasePrice = p.purchase.purchasePrice || 0;
-        // Account for future purchase date - growth only starts from purchase date
         const purchaseDateStr = p.purchase?.purchaseDate;
         const purchaseStart = purchaseDateStr ? new Date(purchaseDateStr) : null;
-        const nowDate = new Date();
-        const purchaseDelayYears = purchaseStart && purchaseStart > nowDate
-          ? (purchaseStart.getTime() - nowDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+        const purchaseDelayYears = purchaseStart && purchaseStart > now
+          ? (purchaseStart.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
           : 0;
-        const effectiveGrowthYears = Math.max(0, sellYears - purchaseDelayYears);
+
+        // Match sidebar's fractional sell years logic
+        const target = new Date(targetYear, targetMonth - 1);
+        const yearsToTarget = Math.max(0, (target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+        const fractionalYears = Math.abs(yearsToTarget - sellYears) < 0.5 ? yearsToTarget : sellYears;
+        const effectiveGrowthYears = Math.max(0, fractionalYears - purchaseDelayYears);
+
         if (purchasePrice <= 0) {
           const proceeds = Math.max(0, p.estimatedValue - p.loanBalance);
           return { year: new Date().getFullYear() + sellYears, proceeds, nickname: p.nickname };
         }
-        const sc = p.saleCosts || { ...defaultSaleCosts };
+        const rawSc = p.saleCosts || { ...defaultSaleCosts };
         const projectedValue = Math.round(p.estimatedValue * Math.pow(1 + growthRate / 100, effectiveGrowthYears));
+        // Match sidebar: auto-default agent commission to 2% of projected value
+        const sc = { ...rawSc, agentCommission: rawSc.agentCommission || Math.round(projectedValue * 0.02) };
         const totalSelling = sc.agentCommission + sc.legalFeesSell + sc.advertisingCosts + sc.stylingCosts + sc.sellerAdvisoryFees;
         const proceeds = projectedValue - p.loanBalance - totalSelling;
         const autoStampDuty = p.state && purchasePrice > 0 ? calculateStampDuty(purchasePrice, p.state, p.purchase.purchaseDate || undefined) : 0;
@@ -253,7 +260,7 @@ const Index = () => {
         const netProceeds = Math.max(0, proceeds - cgtPayable);
         return { year: new Date().getFullYear() + sellYears, proceeds: netProceeds, nickname: p.nickname };
       });
-  }, [existingProperties, growthRate]);
+  }, [existingProperties, growthRate, targetYear, targetMonth]);
 
   const sellDownProceeds = useMemo(() => {
     return sellDownEvents
