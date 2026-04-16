@@ -46,7 +46,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   }, []);
 
   useEffect(() => { if (!growthFocused) setGrowthRateRaw(growthRate.toFixed(2)); }, [growthRate, growthFocused]);
-  const data = useMemo(() => {
+  const chartResult = useMemo(() => {
     const startYear = new Date().getFullYear();
     const years = Math.max(1, targetYear - startYear + 3);
     const monthlyRate = interestRate / 100 / 12;
@@ -71,6 +71,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
     let standardBalance = loanBalance;
     let acceleratedBalance = loanBalance;
+    let surplus = 0;
     let standardMonthElapsed = 0;
     let acceleratedMonthElapsed = 0;
     let standardPIPayment = 0;
@@ -83,7 +84,10 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       // so the balance drop is immediate in the sell year.
       if (proceedsByYear[year] && acceleratedBalance > 0) {
         acceleratedBalance -= proceedsByYear[year];
-        if (acceleratedBalance < 0) acceleratedBalance = 0;
+        if (acceleratedBalance < 0) {
+          surplus += Math.abs(acceleratedBalance);
+          acceleratedBalance = 0;
+        }
       }
 
       points.push({
@@ -127,8 +131,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         }
       }
     }
-    return points;
+    return { points, surplus };
   }, [loanBalance, targetYear, interestRate, sellDownEvents, repaymentType, loanTermYears, loanTermMonths, ioPeriodYears]);
+
+  const data = chartResult.points;
+  const surplusProfit = chartResult.surplus;
 
   const hasSellDowns = sellDownEvents.length > 0;
 
@@ -423,6 +430,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
             Without sell-down: <span className="font-semibold">{timeSaved.standardYears} yrs</span>.
             With sell-down: <span className="font-semibold text-accent">{timeSaved.acceleratedYears} yrs</span>.
             <span className="font-bold text-success ml-1">You save {timeSaved.saved} years!</span>
+            {surplusProfit > 0 && (
+              <span className="font-bold text-success ml-2">| Profit: ${surplusProfit.toLocaleString()}</span>
+            )}
           </p>
         </div>
       )}
@@ -437,6 +447,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           </button>
           <p className="text-accent font-extrabold text-2xl mb-1">🎉 Goal Achieved!</p>
           <p className="text-foreground text-base font-medium">Your strategy pays off the loan before the target date!</p>
+          {surplusProfit > 0 && (
+            <p className="text-success font-bold text-lg mt-2">
+              Profit remaining: ${surplusProfit.toLocaleString()}
+            </p>
+          )}
         </div>
       )}
       <div ref={chartWrapperRef} className={hasSellDowns && groupedSellDowns.length > 0 ? "h-72 md:h-80 relative" : "h-64 md:h-72 relative"}>
