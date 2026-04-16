@@ -71,6 +71,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
 
     let standardBalance = loanBalance;
     let acceleratedBalance = loanBalance;
+    let surplus = 0;
     let standardMonthElapsed = 0;
     let acceleratedMonthElapsed = 0;
     let standardPIPayment = 0;
@@ -83,7 +84,10 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       // so the balance drop is immediate in the sell year.
       if (proceedsByYear[year] && acceleratedBalance > 0) {
         acceleratedBalance -= proceedsByYear[year];
-        if (acceleratedBalance < 0) acceleratedBalance = 0;
+        if (acceleratedBalance < 0) {
+          surplus += Math.abs(acceleratedBalance);
+          acceleratedBalance = 0;
+        }
       }
 
       points.push({
@@ -127,8 +131,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         }
       }
     }
-    return points;
+    return { points, surplus };
   }, [loanBalance, targetYear, interestRate, sellDownEvents, repaymentType, loanTermYears, loanTermMonths, ioPeriodYears]);
+
+  const data = chartResult.points;
+  const surplusProfit = chartResult.surplus;
 
   const hasSellDowns = sellDownEvents.length > 0;
 
