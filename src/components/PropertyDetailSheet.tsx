@@ -28,6 +28,8 @@ interface Props {
   growthRate?: number;
   portfolioMode?: boolean;
   pporMode?: boolean;
+  targetMonth?: number;
+  targetYear?: number;
 }
 
 const currencyFormat = (v: number) => v.toLocaleString();
@@ -198,9 +200,27 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplicate, variant, growthRate = 6, portfolioMode = false, pporMode = false }: Props) => {
+const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplicate, variant, growthRate = 6, portfolioMode = false, pporMode = false, targetMonth, targetYear }: Props) => {
   const isExisting = variant === "existing";
   const manualTaxOverride = useRef(false);
+
+  // Compute fractional years to sell date, matching the card's Future Value logic
+  const getFractionalSellYears = (sellInYears: number, purchaseDateStr?: string) => {
+    const now = new Date();
+    // Use target date if available and sellInYears aligns, otherwise use sellInYears from now
+    if (targetYear && targetMonth) {
+      const target = new Date(targetYear, targetMonth - 1);
+      const yearsToTarget = Math.max(0, (target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+      // Use fractional yearsToTarget when sellInYears matches the rounded value
+      const fractionalYears = Math.abs(yearsToTarget - sellInYears) < 0.5 ? yearsToTarget : sellInYears;
+      const purchaseStart = purchaseDateStr ? new Date(purchaseDateStr) : null;
+      const purchaseDelayYears = purchaseStart && purchaseStart > now
+        ? (purchaseStart.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+        : 0;
+      return Math.max(0, fractionalYears - purchaseDelayYears);
+    }
+    return sellInYears;
+  };
   const [highlightFirstSplit, setHighlightFirstSplit] = useState(false);
   const firstAmtRef = useRef<HTMLInputElement>(null);
 
@@ -591,7 +611,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
             {isExisting && (() => {
               const ep = property as ExistingProperty;
               const rawSc = ep.saleCosts || { ...defaultSaleCosts };
-              const projectedSaleValue = Math.round(ep.estimatedValue * Math.pow(1 + (growthRate || 0) / 100, ep.sellInYears || 0));
+              const fractionalSellYears = getFractionalSellYears(ep.sellInYears || 0, ep.purchase?.purchaseDate);
+              const projectedSaleValue = Math.round(ep.estimatedValue * Math.pow(1 + (growthRate || 0) / 100, fractionalSellYears));
               const sc = { ...rawSc, agentCommission: rawSc.agentCommission || Math.round(projectedSaleValue * 0.02) };
               const purchasePrice = ep.purchase.purchasePrice || 0;
               const purchaseDate = ep.purchase.purchaseDate || undefined;
@@ -674,7 +695,8 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                         value={ep.sellInYears ?? 0}
                         onChange={(e) => {
                           const newYears = Number(e.target.value);
-                          const projectedValue = Math.round(ep.estimatedValue * Math.pow(1 + (growthRate || 0) / 100, newYears));
+                          const fracYears = getFractionalSellYears(newYears, ep.purchase?.purchaseDate);
+                          const projectedValue = Math.round(ep.estimatedValue * Math.pow(1 + (growthRate || 0) / 100, fracYears));
                           const newCommission = Math.round(projectedValue * 0.02);
                           const updatedSaleCosts = { ...(ep.saleCosts || defaultSaleCosts), agentCommission: newCommission };
                           update({ sellInYears: newYears, saleCosts: updatedSaleCosts } as Partial<ExistingProperty>);
@@ -698,14 +720,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                   {/* Sell-down sections - only when earmarked */}
                   {ep.earmarked && (() => {
                     const sellYears = ep.sellInYears ?? 0;
-                    // If property has a future purchase date, growth only starts from that date
-                    const purchaseDateStr = ep.purchase?.purchaseDate;
-                    const purchaseStart = purchaseDateStr ? new Date(purchaseDateStr) : null;
-                    const now = new Date();
-                    const purchaseDelayYears = purchaseStart && purchaseStart > now
-                      ? (purchaseStart.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
-                      : 0;
-                    const effectiveSellGrowthYears = Math.max(0, sellYears - purchaseDelayYears);
+                    const effectiveSellGrowthYears = getFractionalSellYears(sellYears, ep.purchase?.purchaseDate);
                     const currentValue = effectiveSellGrowthYears > 0
                       ? Math.round(ep.estimatedValue * Math.pow(1 + growthRate / 100, effectiveSellGrowthYears))
                       : ep.estimatedValue;
