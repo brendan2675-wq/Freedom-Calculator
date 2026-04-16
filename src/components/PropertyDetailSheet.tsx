@@ -203,6 +203,24 @@ function SectionHeader({ title }: { title: string }) {
 const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplicate, variant, growthRate = 6, portfolioMode = false, pporMode = false, targetMonth, targetYear }: Props) => {
   const isExisting = variant === "existing";
   const manualTaxOverride = useRef(false);
+
+  // Compute fractional years to sell date, matching the card's Future Value logic
+  const getFractionalSellYears = (sellInYears: number, purchaseDateStr?: string) => {
+    const now = new Date();
+    // Use target date if available and sellInYears aligns, otherwise use sellInYears from now
+    if (targetYear && targetMonth) {
+      const target = new Date(targetYear, targetMonth - 1);
+      const yearsToTarget = Math.max(0, (target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+      // Use fractional yearsToTarget when sellInYears matches the rounded value
+      const fractionalYears = Math.abs(yearsToTarget - sellInYears) < 0.5 ? yearsToTarget : sellInYears;
+      const purchaseStart = purchaseDateStr ? new Date(purchaseDateStr) : null;
+      const purchaseDelayYears = purchaseStart && purchaseStart > now
+        ? (purchaseStart.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+        : 0;
+      return Math.max(0, fractionalYears - purchaseDelayYears);
+    }
+    return sellInYears;
+  };
   const [highlightFirstSplit, setHighlightFirstSplit] = useState(false);
   const firstAmtRef = useRef<HTMLInputElement>(null);
 
