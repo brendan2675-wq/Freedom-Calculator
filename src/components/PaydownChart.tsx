@@ -444,6 +444,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
           </button>
           <p className="text-accent font-extrabold text-2xl mb-1">🎉 Goal Achieved!</p>
           <p className="text-foreground text-base font-medium">Your strategy pays off the loan before the target date!</p>
+          {surplusProfit > 0 && (
+            <p className="text-success font-bold text-lg mt-2">
+              Profit remaining: ${surplusProfit.toLocaleString()}
+            </p>
+          )}
         </div>
       )}
       <div ref={chartWrapperRef} className={hasSellDowns && groupedSellDowns.length > 0 ? "h-72 md:h-80 relative" : "h-64 md:h-72 relative"}>
