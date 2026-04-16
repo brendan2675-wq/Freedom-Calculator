@@ -53,6 +53,7 @@ export interface SaleCosts {
   stylingCosts: number;
   sellerAdvisoryFees: number;
   // CGT
+  capitalLosses: number; // prior year or current year capital losses to offset
   cgtDiscount: number; // 0.5 or 0
   incomeTaxRate: number; // e.g. 0.325
   includeMedicareLevy: boolean;
@@ -72,6 +73,7 @@ export const defaultSaleCosts: SaleCosts = {
   advertisingCosts: 0,
   stylingCosts: 0,
   sellerAdvisoryFees: 0,
+  capitalLosses: 0,
   cgtDiscount: 0.5,
   incomeTaxRate: 0.45,
   includeMedicareLevy: true,

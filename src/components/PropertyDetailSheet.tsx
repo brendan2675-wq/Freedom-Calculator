@@ -806,6 +806,20 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                             />
                             <span className="text-xs text-muted-foreground">+ 2% Medicare levy</span>
                           </label>
+                          <FieldGroup label="Capital Losses to Offset">
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={sc.capitalLosses ? `$${sc.capitalLosses.toLocaleString()}` : ""}
+                              placeholder="$0"
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(/[^0-9]/g, "");
+                                updateSaleCosts({ capitalLosses: raw ? Number(raw) : 0 });
+                              }}
+                              className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                            />
+                            <p className="text-[10px] text-muted-foreground mt-1">Prior or current year capital losses to offset against this gain</p>
+                          </FieldGroup>
                         </div>
 
                         {(() => {
@@ -820,7 +834,9 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                               </div>
                             );
                           }
-                          const discountedGain = capitalGain * (1 - sc.cgtDiscount);
+                          const losses = sc.capitalLosses || 0;
+                          const gainAfterLosses = Math.max(0, capitalGain - losses);
+                          const discountedGain = gainAfterLosses * (1 - sc.cgtDiscount);
                           const mlRate = (sc.includeMedicareLevy ?? false) ? 0.02 : 0;
                           const effectiveRate = sc.incomeTaxRate + mlRate;
                           const cgtPayable = Math.round(discountedGain * effectiveRate);
@@ -859,6 +875,18 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                                 <span className="text-muted-foreground">Capital Gain</span>
                                 <span className="text-foreground font-medium">${capitalGain.toLocaleString()}</span>
                               </div>
+                              {losses > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-muted-foreground">Less: Capital Losses</span>
+                                  <span className="text-destructive font-medium">-${losses.toLocaleString()}</span>
+                                </div>
+                              )}
+                              {losses > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-muted-foreground">Net Capital Gain</span>
+                                  <span className="text-foreground font-medium">${gainAfterLosses.toLocaleString()}</span>
+                                </div>
+                              )}
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">After {sc.cgtDiscount * 100}% Discount</span>
                                 <span className="text-foreground font-medium">${discountedGain.toLocaleString()}</span>
