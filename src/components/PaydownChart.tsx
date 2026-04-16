@@ -46,7 +46,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   }, []);
 
   useEffect(() => { if (!growthFocused) setGrowthRateRaw(growthRate.toFixed(2)); }, [growthRate, growthFocused]);
-  const data = useMemo(() => {
+  const chartResult = useMemo(() => {
     const startYear = new Date().getFullYear();
     const years = Math.max(1, targetYear - startYear + 3);
     const monthlyRate = interestRate / 100 / 12;
