@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Save, FolderOpen, Share2, Trash2, Download, Copy, Check } from "lucide-react";
+import { Save, FolderOpen, Share2, Trash2, Download, Copy, Check, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ScenarioState, SavedScenario } from "@/lib/scenarioManager";
-import { getSavedScenarios, saveScenario, deleteScenario, encodeStateToUrl } from "@/lib/scenarioManager";
+import { getSavedScenarios, saveScenario, updateScenario, deleteScenario, encodeStateToUrl } from "@/lib/scenarioManager";
 
 interface ScenarioManagerProps {
   getCurrentState: () => ScenarioState;
@@ -18,18 +18,45 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
   const [scenarios, setScenarios] = useState<SavedScenario[]>(getSavedScenarios);
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
+  const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
+
+  const activeScenario = scenarios.find((s) => s.id === activeScenarioId) || null;
 
   const handleSave = () => {
     const name = saveName.trim() || `Scenario ${scenarios.length + 1}`;
     const state = getCurrentState();
+    // Check if a scenario with the same name already exists
+    const existing = scenarios.find((s) => s.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      const updated = updateScenario(existing.id, state);
+      if (updated) {
+        setScenarios(getSavedScenarios());
+        setActiveScenarioId(existing.id);
+        setSaveName("");
+        toast.success(`Updated "${name}"`);
+        return;
+      }
+    }
     const saved = saveScenario(name, state);
     setScenarios([...scenarios, saved]);
+    setActiveScenarioId(saved.id);
     setSaveName("");
     toast.success(`Saved "${name}"`);
   };
 
+  const handleUpdate = () => {
+    if (!activeScenarioId) return;
+    const state = getCurrentState();
+    const updated = updateScenario(activeScenarioId, state);
+    if (updated) {
+      setScenarios(getSavedScenarios());
+      toast.success(`Updated "${updated.name}"`);
+    }
+  };
+
   const handleLoad = (scenario: SavedScenario) => {
     loadState(scenario.state);
+    setActiveScenarioId(scenario.id);
     setOpen(false);
     toast.success(`Loaded "${scenario.name}"`);
   };
@@ -37,6 +64,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
   const handleDelete = (id: string) => {
     deleteScenario(id);
     setScenarios(scenarios.filter((s) => s.id !== id));
+    if (activeScenarioId === id) setActiveScenarioId(null);
     toast("Scenario deleted");
   };
 
@@ -72,11 +100,20 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
         {/* Save */}
         <div className="space-y-3">
           <p className="text-sm font-medium text-foreground">Save Current State</p>
+          {activeScenario && (
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-accent/5 border border-accent/20">
+              <span className="text-xs text-muted-foreground">Active:</span>
+              <span className="text-sm font-medium text-foreground truncate flex-1">{activeScenario.name}</span>
+              <Button size="sm" variant="outline" onClick={handleUpdate} className="gap-1 h-7 text-xs shrink-0">
+                <RefreshCw size={12} /> Update
+              </Button>
+            </div>
+          )}
           <div className="flex gap-2">
             <Input
               value={saveName}
               onChange={(e) => setSaveName(e.target.value)}
-              placeholder="Scenario name..."
+              placeholder={activeScenario ? "New name or same to overwrite..." : "Scenario name..."}
               className="flex-1"
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
@@ -84,6 +121,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
               <Save size={14} /> Save
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground">Saving with an existing name will overwrite that scenario</p>
         </div>
 
         {/* Share */}
@@ -113,9 +151,15 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
             <p className="text-sm font-medium text-foreground">Saved Scenarios</p>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {scenarios.map((s) => (
-                <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
+                <div
+                  key={s.id}
+                  className={`flex items-center justify-between p-3 rounded-lg border ${s.id === activeScenarioId ? "bg-accent/5 border-accent/30" : "bg-muted/50 border-border"}`}
+                >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{s.name}</p>
+                    <p className="text-sm font-medium text-foreground truncate flex items-center gap-1.5">
+                      {s.name}
+                      {s.id === activeScenarioId && <span className="text-[10px] text-accent font-normal">● active</span>}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(s.savedAt).toLocaleDateString()} {new Date(s.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>

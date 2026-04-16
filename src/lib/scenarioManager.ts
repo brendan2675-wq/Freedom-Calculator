@@ -44,6 +44,15 @@ export function saveScenario(name: string, state: ScenarioState): SavedScenario 
   return scenario;
 }
 
+export function updateScenario(id: string, state: ScenarioState): SavedScenario | null {
+  const scenarios = getSavedScenarios();
+  const idx = scenarios.findIndex((s) => s.id === id);
+  if (idx === -1) return null;
+  scenarios[idx] = { ...scenarios[idx], savedAt: new Date().toISOString(), state };
+  localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
+  return scenarios[idx];
+}
+
 export function deleteScenario(id: string) {
   const scenarios = getSavedScenarios().filter((s) => s.id !== id);
   localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
