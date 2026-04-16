@@ -101,6 +101,46 @@ const KeyInputs = ({
   const totalSellDownProceeds = useMemo(() => sellDownEvents.reduce((sum, e) => sum + e.proceeds, 0), [sellDownEvents]);
   const [sellDownOpen, setSellDownOpen] = useState(false);
 
+  // Compute PPOR balance at the latest sell-down year
+  const sellDownAnalysis = useMemo(() => {
+    if (sellDownEvents.length === 0) return null;
+    const latestYear = Math.max(...sellDownEvents.map(e => e.year));
+    const currentYear = new Date().getFullYear();
+    const yearsAhead = Math.max(0, latestYear - currentYear);
+    
+    // Amortize the PPOR loan forward to the sell year
+    const monthlyRate = interestRate / 100 / 12;
+    const totalLoanMonths = loanTermYears * 12 + loanTermMonths;
+    const ioMonths = repaymentType === "io" ? ioPeriodYears * 12 : 0;
+    const piMonths = Math.max(1, totalLoanMonths - ioMonths);
+    
+    let balance = loanBalance;
+    let monthElapsed = 0;
+    let piPayment = 0;
+    
+    for (let m = 0; m < yearsAhead * 12; m++) {
+      if (balance <= 0) break;
+      if (monthElapsed < ioMonths) {
+        // IO: balance stays flat
+      } else {
+        if (monthElapsed === ioMonths) {
+          const rm = Math.max(1, piMonths);
+          piPayment = monthlyRate > 0 ? balance * (monthlyRate * Math.pow(1 + monthlyRate, rm)) / (Math.pow(1 + monthlyRate, rm) - 1) : balance / rm;
+        }
+        const interest = balance * monthlyRate;
+        const principal = piPayment - interest;
+        balance -= principal;
+        if (balance < 0) balance = 0;
+      }
+      monthElapsed++;
+    }
+    
+    const pporBalanceAtSell = Math.round(balance);
+    const profit = Math.max(0, totalSellDownProceeds - pporBalanceAtSell);
+    
+    return { pporBalanceAtSell, profit, sellYear: latestYear };
+  }, [sellDownEvents, loanBalance, interestRate, loanTermYears, loanTermMonths, repaymentType, ioPeriodYears, totalSellDownProceeds]);
+
   return (
     <TooltipProvider>
       <section>
@@ -319,6 +359,20 @@ const KeyInputs = ({
                   <span className="text-foreground">Total Net Proceeds</span>
                   <span className="text-success">${totalSellDownProceeds.toLocaleString()}</span>
                 </div>
+                {sellDownAnalysis && (
+                  <>
+                    <div className="flex items-center justify-between px-4 py-2.5 border-t border-border text-sm">
+                      <span className="text-muted-foreground">PPOR Balance at {sellDownAnalysis.sellYear}</span>
+                      <span className="font-semibold text-foreground">${sellDownAnalysis.pporBalanceAtSell.toLocaleString()}</span>
+                    </div>
+                    {sellDownAnalysis.profit > 0 && (
+                      <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-success/5 text-sm font-semibold">
+                        <span className="text-success">Profit After Payoff</span>
+                        <span className="text-success">${sellDownAnalysis.profit.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>
