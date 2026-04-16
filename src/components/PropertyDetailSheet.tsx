@@ -672,7 +672,13 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                     {ep.earmarked && (
                       <select
                         value={ep.sellInYears ?? 0}
-                        onChange={(e) => update({ sellInYears: Number(e.target.value) } as Partial<ExistingProperty>)}
+                        onChange={(e) => {
+                          const newYears = Number(e.target.value);
+                          const projectedValue = Math.round(ep.estimatedValue * Math.pow(1 + (growthRate || 0) / 100, newYears));
+                          const newCommission = Math.round(projectedValue * 0.02);
+                          const updatedSaleCosts = { ...(ep.saleCosts || defaultSaleCosts), agentCommission: newCommission };
+                          update({ sellInYears: newYears, saleCosts: updatedSaleCosts } as Partial<ExistingProperty>);
+                        }}
                         className="py-1.5 px-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                       >
                         <option value={0}>Now</option>
