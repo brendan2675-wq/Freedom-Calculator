@@ -73,6 +73,7 @@ export const defaultSaleCosts: SaleCosts = {
   advertisingCosts: 0,
   stylingCosts: 0,
   sellerAdvisoryFees: 0,
+  capitalLosses: 0,
   cgtDiscount: 0.5,
   incomeTaxRate: 0.45,
   includeMedicareLevy: true,
