@@ -10,6 +10,7 @@ export interface ScenarioState {
   ppor: ExistingProperty;
   existingProperties: ExistingProperty[];
   futureProperties: FutureProperty[];
+  pporStartingBalance?: number;
 }
 
 export interface SavedScenario {

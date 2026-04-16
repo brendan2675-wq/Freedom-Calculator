@@ -109,6 +109,9 @@ const Index = () => {
       setPpor(imported.ppor);
       setExistingProperties(imported.existingProperties);
       setFutureProperties(imported.futureProperties);
+      if (imported.pporStartingBalance) {
+        localStorage.setItem("ppor-starting-balance", String(imported.pporStartingBalance));
+      }
       // Clean URL
       window.history.replaceState({}, "", window.location.pathname);
       toast.success("Scenario loaded from shared link");
@@ -126,6 +129,7 @@ const Index = () => {
     ppor,
     existingProperties,
     futureProperties,
+    pporStartingBalance: parseInt(localStorage.getItem("ppor-starting-balance") || "0", 10) || undefined,
   }), [clientName, interestRate, targetMonth, targetYear, growthRate, pporSuburb, ppor, existingProperties, futureProperties]);
 
   const loadScenarioState = useCallback((state: ScenarioState) => {
@@ -142,6 +146,9 @@ const Index = () => {
     localStorage.setItem("portfolio-properties", JSON.stringify(state.existingProperties));
     localStorage.setItem("portfolio-future-properties", JSON.stringify(state.futureProperties));
     localStorage.setItem("client-name", state.clientName || "Client Name");
+    if (state.pporStartingBalance) {
+      localStorage.setItem("ppor-starting-balance", String(state.pporStartingBalance));
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
