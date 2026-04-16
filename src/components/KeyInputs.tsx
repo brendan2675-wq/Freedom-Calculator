@@ -359,6 +359,20 @@ const KeyInputs = ({
                   <span className="text-foreground">Total Net Proceeds</span>
                   <span className="text-success">${totalSellDownProceeds.toLocaleString()}</span>
                 </div>
+                {sellDownAnalysis && (
+                  <>
+                    <div className="flex items-center justify-between px-4 py-2.5 border-t border-border text-sm">
+                      <span className="text-muted-foreground">PPOR Balance at {sellDownAnalysis.sellYear}</span>
+                      <span className="font-semibold text-foreground">${sellDownAnalysis.pporBalanceAtSell.toLocaleString()}</span>
+                    </div>
+                    {sellDownAnalysis.profit > 0 && (
+                      <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-success/5 text-sm font-semibold">
+                        <span className="text-success">Profit After Payoff</span>
+                        <span className="text-success">${sellDownAnalysis.profit.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>
