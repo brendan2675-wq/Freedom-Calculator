@@ -875,6 +875,18 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                                 <span className="text-muted-foreground">Capital Gain</span>
                                 <span className="text-foreground font-medium">${capitalGain.toLocaleString()}</span>
                               </div>
+                              {losses > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-muted-foreground">Less: Capital Losses</span>
+                                  <span className="text-destructive font-medium">-${losses.toLocaleString()}</span>
+                                </div>
+                              )}
+                              {losses > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-muted-foreground">Net Capital Gain</span>
+                                  <span className="text-foreground font-medium">${gainAfterLosses.toLocaleString()}</span>
+                                </div>
+                              )}
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">After {sc.cgtDiscount * 100}% Discount</span>
                                 <span className="text-foreground font-medium">${discountedGain.toLocaleString()}</span>
