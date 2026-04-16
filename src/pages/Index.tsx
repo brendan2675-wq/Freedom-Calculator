@@ -245,7 +245,9 @@ const Index = () => {
         const totalImprovements = sc.renovations + sc.structuralWork;
         const costBase = totalAcquisition + totalImprovements + sc.ownershipCostsTotal + totalSelling;
         const capitalGain = Math.max(0, projectedValue - costBase);
-        const discountedGain = capitalGain * (1 - sc.cgtDiscount);
+        const losses = sc.capitalLosses || 0;
+        const gainAfterLosses = Math.max(0, capitalGain - losses);
+        const discountedGain = gainAfterLosses * (1 - sc.cgtDiscount);
         const effectiveRate = sc.incomeTaxRate + ((sc.includeMedicareLevy ?? false) ? 0.02 : 0);
         const cgtPayable = Math.round(discountedGain * effectiveRate);
         const netProceeds = Math.max(0, proceeds - cgtPayable);
