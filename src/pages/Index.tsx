@@ -146,6 +146,7 @@ const Index = () => {
     localStorage.setItem("portfolio-properties", JSON.stringify(state.existingProperties));
     localStorage.setItem("portfolio-future-properties", JSON.stringify(state.futureProperties));
     localStorage.setItem("client-name", state.clientName || "Client Name");
+    localStorage.setItem("ppor-suburb", state.pporSuburb || "");
     if (state.pporStartingBalance) {
       localStorage.setItem("ppor-starting-balance", String(state.pporStartingBalance));
     }
