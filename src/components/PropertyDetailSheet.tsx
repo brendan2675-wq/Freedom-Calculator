@@ -270,6 +270,9 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
     const capitalGain = Math.max(0, ep.estimatedValue - costBase);
     const discountedGain = capitalGain * (1 - sc.cgtDiscount);
 
+    // Only auto-suggest tax rate if saleCosts hasn't been set yet (first time)
+    if (ep.saleCosts) return;
+
     let suggestedRate = 0;
     if (discountedGain > 190000) suggestedRate = 0.45;
     else if (discountedGain > 135000) suggestedRate = 0.37;
