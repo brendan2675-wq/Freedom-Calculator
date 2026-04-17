@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw, Target, Sparkles } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { toast } from "sonner";
 import AuthFlow from "@/components/AuthFlow";
-import EmptyStateCard from "@/components/EmptyStateCard";
 
 const tiles = [
   {
@@ -73,6 +73,41 @@ const HomePage = () => {
     return { hasPpor, hasInvestments, isFreshUser: !hasPpor && !hasInvestments };
   }, []);
 
+  // Show 3-part welcome toast on first visit only (fresh users only)
+  useEffect(() => {
+    if (!isFreshUser) return;
+    if (localStorage.getItem("welcome-toast-seen")) return;
+    const t1 = setTimeout(() => {
+      toast("✨ Welcome to Atelier Wealth", {
+        description: "Build your property strategy in three steps — at your own pace.",
+        duration: 6000,
+      });
+    }, 600);
+    const t2 = setTimeout(() => {
+      toast("🏠 Step 1 — Add any properties you own", {
+        description: "Got an owner-occupied home or investments? Add what you have. No properties yet? You can still plan ahead.",
+        duration: 7000,
+      });
+    }, 3200);
+    const t3 = setTimeout(() => {
+      toast("🎯 Step 2 — Plan future buys & set a goal", {
+        description: "Add proposed purchases and choose a payoff target — we'll model the strategy for you.",
+        duration: 7000,
+        action: {
+          label: "Get started",
+          onClick: () => navigate("/portfolio"),
+        },
+      });
+      localStorage.setItem("welcome-toast-seen", "1");
+    }, 6000);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [navigate, isFreshUser]);
+
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -125,50 +160,7 @@ const HomePage = () => {
 
       {/* Tiles */}
       <main className="container mx-auto px-4 py-6 md:py-12">
-        {/* Welcome / 3-step guide for fresh users */}
-        {isFreshUser && (
-          <div className="max-w-5xl mx-auto mb-6 md:mb-10">
-            <div className="bg-card rounded-2xl border-2 border-accent/30 shadow-md p-5 md:p-8">
-              <div className="flex items-start gap-3 mb-5 md:mb-6">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <Sparkles size={22} className="text-accent" />
-                </div>
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-foreground mb-1">Welcome to Atelier Wealth</h2>
-                  <p className="text-sm md:text-base text-muted-foreground">Build your property strategy in three steps.</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mt-2">
-                <EmptyStateCard
-                  step={1}
-                  completed={hasPpor}
-                  icon={Home}
-                  title="Add your home"
-                  description="Tell us about your owner-occupied property — value, loan, and rate."
-                  ctaLabel={hasPpor ? "Review home" : "Add home"}
-                  onCta={() => navigate("/portfolio")}
-                />
-                <EmptyStateCard
-                  step={2}
-                  completed={hasInvestments}
-                  icon={Building2}
-                  title="Add investment properties"
-                  description="Build your portfolio so we can model equity, growth and sell-downs."
-                  ctaLabel={hasInvestments ? "Manage portfolio" : "Add investments"}
-                  onCta={() => navigate("/portfolio")}
-                />
-                <EmptyStateCard
-                  step={3}
-                  icon={Target}
-                  title="Set your payoff goal"
-                  description="Choose a target date and watch the strategy pay your home off."
-                  ctaLabel="Set goal"
-                  onCta={() => navigate("/ppor-goal")}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Welcome guidance is now delivered via a 3-part toast on first visit */}
 
         {/* Portfolio button - compact on mobile */}
         <div className="max-w-5xl mx-auto mb-4 md:mb-6">
