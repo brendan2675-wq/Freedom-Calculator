@@ -794,12 +794,12 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                               className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                             >
                               <option value={0}>0% – Tax-free threshold ($0 – $18,200)</option>
-                              <option value={0.18}>18% – 16% + 2% ML ($18,201 – $45,000)</option>
-                              <option value={0.25}>25% – Base Rate Entity Company</option>
-                              <option value={0.30}>30% – Company Tax Rate</option>
-                              <option value={0.32}>32% – 30% + 2% ML ($45,001 – $135,000)</option>
-                              <option value={0.39}>39% – 37% + 2% ML ($135,001 – $190,000)</option>
-                              <option value={0.47}>47% – 45% + 2% ML ($190,001+)</option>
+                              <option value={0.18}>16% + 2% ML ($18,201 – $45,000)</option>
+                              <option value={0.25}>Base Rate Entity Company (25%)</option>
+                              <option value={0.30}>Company Tax Rate (30%)</option>
+                              <option value={0.32}>30% + 2% ML ($45,001 – $135,000)</option>
+                              <option value={0.39}>37% + 2% ML ($135,001 – $190,000)</option>
+                              <option value={0.47}>45% + 2% ML ($190,001+)</option>
                             </select>
                           </FieldGroup>
                           <FieldGroup label="Capital Losses to Offset">
