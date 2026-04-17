@@ -53,6 +53,26 @@ const HomePage = () => {
     localStorage.setItem("client-name", name);
   };
 
+  const { hasPpor, hasInvestments, isFreshUser } = useMemo(() => {
+    let hasPpor = false;
+    let hasInvestments = false;
+    try {
+      const pporRaw = localStorage.getItem("portfolio-ppor");
+      if (pporRaw) {
+        const p = JSON.parse(pporRaw);
+        hasPpor = !!(p && (p.estimatedValue > 0 || p.loanBalance > 0));
+      }
+    } catch {}
+    try {
+      const propsRaw = localStorage.getItem("portfolio-properties");
+      if (propsRaw) {
+        const arr = JSON.parse(propsRaw);
+        hasInvestments = Array.isArray(arr) && arr.length > 0;
+      }
+    } catch {}
+    return { hasPpor, hasInvestments, isFreshUser: !hasPpor && !hasInvestments };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
