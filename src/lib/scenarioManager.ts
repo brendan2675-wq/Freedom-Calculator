@@ -1,4 +1,14 @@
-import type { ExistingProperty, FutureProperty } from "@/types/property";
+import type { ExistingProperty, FutureProperty, SaleCosts } from "@/types/property";
+
+// Migration: older scenarios saved saleCosts with incomeTaxRate: 0 (tax-free
+// threshold) which is almost never the user's intent. Promote any zero/missing
+// rate to the top marginal default (0.47 = 45% + 2% ML) to match new defaults.
+function migrateSaleCosts<T extends { saleCosts?: SaleCosts }>(p: T): T {
+  if (p?.saleCosts && (!p.saleCosts.incomeTaxRate || p.saleCosts.incomeTaxRate === 0)) {
+    return { ...p, saleCosts: { ...p.saleCosts, incomeTaxRate: 0.47 } };
+  }
+  return p;
+}
 
 export interface ScenarioState {
   clientName: string;
