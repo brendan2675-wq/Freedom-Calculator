@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw, Target } from "lucide-react";
-import { useState } from "react";
+import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw, Target, Sparkles } from "lucide-react";
+import { useState, useMemo } from "react";
 import AuthFlow from "@/components/AuthFlow";
+import EmptyStateCard from "@/components/EmptyStateCard";
 
 const tiles = [
   {
@@ -51,6 +52,26 @@ const HomePage = () => {
     setClientName(name);
     localStorage.setItem("client-name", name);
   };
+
+  const { hasPpor, hasInvestments, isFreshUser } = useMemo(() => {
+    let hasPpor = false;
+    let hasInvestments = false;
+    try {
+      const pporRaw = localStorage.getItem("portfolio-ppor");
+      if (pporRaw) {
+        const p = JSON.parse(pporRaw);
+        hasPpor = !!(p && (p.estimatedValue > 0 || p.loanBalance > 0));
+      }
+    } catch {}
+    try {
+      const propsRaw = localStorage.getItem("portfolio-properties");
+      if (propsRaw) {
+        const arr = JSON.parse(propsRaw);
+        hasInvestments = Array.isArray(arr) && arr.length > 0;
+      }
+    } catch {}
+    return { hasPpor, hasInvestments, isFreshUser: !hasPpor && !hasInvestments };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -104,6 +125,51 @@ const HomePage = () => {
 
       {/* Tiles */}
       <main className="container mx-auto px-4 py-6 md:py-12">
+        {/* Welcome / 3-step guide for fresh users */}
+        {isFreshUser && (
+          <div className="max-w-5xl mx-auto mb-6 md:mb-10">
+            <div className="bg-card rounded-2xl border-2 border-accent/30 shadow-md p-5 md:p-8">
+              <div className="flex items-start gap-3 mb-5 md:mb-6">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                  <Sparkles size={22} className="text-accent" />
+                </div>
+                <div>
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground mb-1">Welcome to Atelier Wealth</h2>
+                  <p className="text-sm md:text-base text-muted-foreground">Build your property strategy in three steps.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mt-2">
+                <EmptyStateCard
+                  step={1}
+                  completed={hasPpor}
+                  icon={Home}
+                  title="Add your home"
+                  description="Tell us about your owner-occupied property — value, loan, and rate."
+                  ctaLabel={hasPpor ? "Review home" : "Add home"}
+                  onCta={() => navigate("/portfolio")}
+                />
+                <EmptyStateCard
+                  step={2}
+                  completed={hasInvestments}
+                  icon={Building2}
+                  title="Add investment properties"
+                  description="Build your portfolio so we can model equity, growth and sell-downs."
+                  ctaLabel={hasInvestments ? "Manage portfolio" : "Add investments"}
+                  onCta={() => navigate("/portfolio")}
+                />
+                <EmptyStateCard
+                  step={3}
+                  icon={Target}
+                  title="Set your payoff goal"
+                  description="Choose a target date and watch the strategy pay your home off."
+                  ctaLabel="Set goal"
+                  onCta={() => navigate("/ppor-goal")}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Portfolio button - compact on mobile */}
         <div className="max-w-5xl mx-auto mb-4 md:mb-6">
           <button

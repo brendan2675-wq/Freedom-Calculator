@@ -23,11 +23,11 @@ const Index = () => {
     setClientName(name);
     localStorage.setItem("client-name", name);
   };
-  const [interestRate, setInterestRate] = useState(6.2);
-  const [targetMonth, setTargetMonth] = useState(2);
-  const [targetYear, setTargetYear] = useState(2036);
+  const [interestRate, setInterestRate] = useState(6.0);
+  const [targetMonth, setTargetMonth] = useState(() => new Date().getMonth() + 1);
+  const [targetYear, setTargetYear] = useState(() => new Date().getFullYear() + 10);
   const [growthRate, setGrowthRate] = useState(6);
-  const [pporSuburb, setPporSuburb] = useState("Bella Vista");
+  const [pporSuburb, setPporSuburb] = useState(() => localStorage.getItem("ppor-suburb") || "");
 
   // Shared PPOR state via localStorage
   const [ppor, setPpor] = useState<ExistingProperty>(() => {
@@ -35,21 +35,20 @@ const Index = () => {
     if (stored) {
       try { return JSON.parse(stored); } catch {}
     }
-    const defaultPpor: ExistingProperty = {
+    // Empty PPOR scaffold — user fills it in via the sidebar.
+    return {
       id: "ppor",
-      nickname: "Owner Occupied",
-      estimatedValue: 2750000,
-      loanBalance: 1750000,
+      nickname: "",
+      estimatedValue: 0,
+      loanBalance: 0,
       earmarked: false,
       sellInYears: 0,
       ownership: "personal",
       investmentType: "house",
       loan: { ...defaultLoanDetails },
       rental: { ...defaultRentalDetails },
-      purchase: { ...defaultPurchaseDetails, purchasePrice: 2200000 },
+      purchase: { ...defaultPurchaseDetails },
     };
-    localStorage.setItem("portfolio-ppor", JSON.stringify(defaultPpor));
-    return defaultPpor;
   });
 
   const loanBalance = ppor.loanBalance;
@@ -63,10 +62,6 @@ const Index = () => {
     setPpor(updated);
     localStorage.setItem("portfolio-ppor", JSON.stringify(updated));
   };
-  const defaultExisting: ExistingProperty[] = [
-    { id: "1", nickname: "Parramatta", estimatedValue: 580000, loanBalance: 480000, earmarked: false, sellInYears: 0, ownership: "trust", investmentType: "unit", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 480 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 200000 }, loanSplits: [{ id: "s1", label: "Parramatta loan", amount: 400000 }, { id: "s2", label: "Liverpool equity", amount: 80000 }] },
-    { id: "2", nickname: "Liverpool", estimatedValue: 750000, loanBalance: 530000, earmarked: false, sellInYears: 0, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 550 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 530000 } },
-  ];
   const [existingProperties, setExistingProperties] = useState<ExistingProperty[]>(() => {
     const stored = localStorage.getItem("portfolio-properties");
     if (stored) {
@@ -79,20 +74,14 @@ const Index = () => {
         return normalized;
       } catch {}
     }
-    localStorage.setItem("portfolio-properties", JSON.stringify(defaultExisting));
-    return defaultExisting;
+    return [];
   });
-  const defaultFuture: FutureProperty[] = [
-    { id: "3", suburb: "Marsden Park", purchasePrice: 850000, rentalYield: 4.2, projectedEquity5yr: 530000, lvr: 80, ownership: "trust", investmentType: "house", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 687 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 850000 } },
-    { id: "4", suburb: "Hoppers Crossing", purchasePrice: 620000, rentalYield: 4.5, projectedEquity5yr: 385000, lvr: 80, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails, weeklyRent: 536 }, purchase: { ...defaultPurchaseDetails, purchasePrice: 620000 } },
-  ];
   const [futureProperties, setFutureProperties] = useState<FutureProperty[]>(() => {
     const stored = localStorage.getItem("portfolio-future-properties");
     if (stored) {
       try { return JSON.parse(stored); } catch {}
     }
-    localStorage.setItem("portfolio-future-properties", JSON.stringify(defaultFuture));
-    return defaultFuture;
+    return [];
   });
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
@@ -184,6 +173,7 @@ const Index = () => {
   useEffect(() => {
     const hasSeenDragHint = localStorage.getItem("drag-hint-seen");
     if (!hasSeenDragHint) {
+      const isEmpty = ppor.estimatedValue === 0 && existingProperties.length === 0;
       const timer = setTimeout(() => {
         toast("⚠️ Important: These projections are estimates only and do not constitute financial advice. Please consult a qualified financial adviser before making any investment decisions.", {
           duration: 8000,
@@ -193,6 +183,13 @@ const Index = () => {
             duration: 5000,
           });
         }, 1500);
+        if (isEmpty) {
+          setTimeout(() => {
+            toast("🏠 Start by adding your owner-occupied home above", {
+              duration: 6000,
+            });
+          }, 3000);
+        }
         localStorage.setItem("drag-hint-seen", "true");
       }, 2000);
       return () => clearTimeout(timer);
