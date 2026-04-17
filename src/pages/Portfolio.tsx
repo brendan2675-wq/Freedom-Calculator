@@ -155,11 +155,16 @@ const Portfolio = () => {
     const totalEquity = pporEquity + investmentEquity;
     const avgLvr = totalValue > 0 ? (totalLoan / totalValue) * 100 : 0;
 
-    const growthEligibleProperties = properties.filter((p) => (p.purchase?.purchasePrice ?? 0) > 0);
+    // Only include properties with BOTH a purchase price and a current value > 0,
+    // otherwise an empty/blank PPOR with a stale purchase price would show -100% growth.
+    const growthEligibleProperties = properties.filter(
+      (p) => (p.purchase?.purchasePrice ?? 0) > 0 && p.estimatedValue > 0
+    );
     const growthInvestmentValue = growthEligibleProperties.reduce((s, p) => s + p.estimatedValue, 0);
     const growthInvestmentPurchase = growthEligibleProperties.reduce((s, p) => s + (p.purchase?.purchasePrice ?? 0), 0);
-    const growthPporValue = pporPurchase > 0 ? pporValue : 0;
-    const growthTotalPurchase = (pporPurchase > 0 ? pporPurchase : 0) + growthInvestmentPurchase;
+    const pporGrowthEligible = pporPurchase > 0 && pporValue > 0;
+    const growthPporValue = pporGrowthEligible ? pporValue : 0;
+    const growthTotalPurchase = (pporGrowthEligible ? pporPurchase : 0) + growthInvestmentPurchase;
     const growthTotalValue = growthPporValue + growthInvestmentValue;
     const totalGrowthPct = growthTotalPurchase > 0 ? ((growthTotalValue - growthTotalPurchase) / growthTotalPurchase) * 100 : 0;
 
