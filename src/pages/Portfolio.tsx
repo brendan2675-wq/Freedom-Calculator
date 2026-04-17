@@ -18,18 +18,18 @@ const Portfolio = () => {
     localStorage.setItem("client-name", name);
   };
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
-  const defaultPpor: ExistingProperty = {
+  const blankPpor: ExistingProperty = {
     id: "ppor",
-    nickname: "Owner Occupied",
-    estimatedValue: 2750000,
-    loanBalance: 1750000,
+    nickname: "",
+    estimatedValue: 0,
+    loanBalance: 0,
     earmarked: false,
     sellInYears: 0,
     ownership: "personal",
     investmentType: "house",
     loan: { ...defaultLoanDetails },
     rental: { ...defaultRentalDetails },
-    purchase: { ...defaultPurchaseDetails, purchasePrice: 2200000 },
+    purchase: { ...defaultPurchaseDetails },
   };
   const [ppor, setPpor] = useState<ExistingProperty | null>(() => {
     const stored = localStorage.getItem("portfolio-ppor");
@@ -41,8 +41,8 @@ const Portfolio = () => {
   const [pporSheetOpen, setPporSheetOpen] = useState(false);
   const [pporLvr, setPporLvr] = useState(0.8);
   const [masterLvr, setMasterLvr] = useState(0.8);
-  const [pporSuburb, setPporSuburb] = useState(() => localStorage.getItem("ppor-suburb") || "Bella Vista");
-  const [interestRate] = useState(6.2);
+  const [pporSuburb, setPporSuburb] = useState(() => localStorage.getItem("ppor-suburb") || "");
+  const [interestRate] = useState(6.0);
   const handleSetPporSuburb = (v: string) => {
     setPporSuburb(v);
     localStorage.setItem("ppor-suburb", v);
@@ -100,8 +100,8 @@ const Portfolio = () => {
         return;
       } catch {}
     }
-    setPpor(defaultPpor);
-    localStorage.setItem("portfolio-ppor", JSON.stringify(defaultPpor));
+    setPpor(blankPpor);
+    localStorage.setItem("portfolio-ppor", JSON.stringify(blankPpor));
     setPporSheetOpen(true);
   };
 
