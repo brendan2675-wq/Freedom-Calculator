@@ -73,8 +73,9 @@ const HomePage = () => {
     return { hasPpor, hasInvestments, isFreshUser: !hasPpor && !hasInvestments };
   }, []);
 
-  // Show 3-part welcome toast on first visit only
+  // Show 3-part welcome toast on first visit only (fresh users only)
   useEffect(() => {
+    if (!isFreshUser) return;
     if (localStorage.getItem("welcome-toast-seen")) return;
     const t1 = setTimeout(() => {
       toast("✨ Welcome to Atelier Wealth", {
