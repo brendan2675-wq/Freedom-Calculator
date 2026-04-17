@@ -395,30 +395,36 @@ const Portfolio = () => {
                 </div>
               </div>
 
-              {/* SMSF Tile */}
-              <div className="bg-card rounded-xl p-5 border-2 border-border shadow-sm">
-                <div className="flex items-center gap-1.5 mb-3">
-                  <Landmark size={16} className="text-accent shrink-0" />
-                  <p className="font-semibold text-sm text-foreground">SMSF Property</p>
+              {/* SMSF Tile — Coming Soon */}
+              <div className="relative bg-card rounded-xl p-5 border-2 border-dashed border-border shadow-sm overflow-hidden">
+                <div className="absolute top-3 right-3 z-10">
+                  <span className="px-2 py-0.5 rounded-full bg-accent/15 text-accent text-[10px] font-bold uppercase tracking-wide">Coming Soon</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-muted-foreground text-[11px] block mb-0.5">Fund Balance</label>
-                    <p className="text-foreground font-bold text-lg">$385,000</p>
+                <div className="opacity-40 pointer-events-none select-none">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <Landmark size={16} className="text-accent shrink-0" />
+                    <p className="font-semibold text-sm text-foreground">SMSF Property</p>
                   </div>
-                  <div>
-                    <label className="text-muted-foreground text-[11px] block mb-0.5">Property Value</label>
-                    <p className="text-foreground font-bold text-lg">$620,000</p>
-                  </div>
-                  <div>
-                    <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Balance</label>
-                    <p className="text-foreground font-bold text-lg">$415,000</p>
-                  </div>
-                  <div>
-                    <label className="text-muted-foreground text-[11px] block mb-0.5">Annual Contributions</label>
-                    <p className="text-foreground font-bold text-lg">$27,500</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-muted-foreground text-[11px] block mb-0.5">Fund Balance</label>
+                      <p className="text-foreground font-bold text-lg">$—</p>
+                    </div>
+                    <div>
+                      <label className="text-muted-foreground text-[11px] block mb-0.5">Property Value</label>
+                      <p className="text-foreground font-bold text-lg">$—</p>
+                    </div>
+                    <div>
+                      <label className="text-muted-foreground text-[11px] block mb-0.5">Loan Balance</label>
+                      <p className="text-foreground font-bold text-lg">$—</p>
+                    </div>
+                    <div>
+                      <label className="text-muted-foreground text-[11px] block mb-0.5">Annual Contributions</label>
+                      <p className="text-foreground font-bold text-lg">$—</p>
+                    </div>
                   </div>
                 </div>
+                <p className="absolute inset-x-0 bottom-3 text-center text-xs text-muted-foreground font-medium">SMSF modelling is on the way</p>
               </div>
 
             </div>
