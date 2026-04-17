@@ -2,10 +2,12 @@ import type { ExistingProperty, FutureProperty, SaleCosts } from "@/types/proper
 
 // Migration: older scenarios saved saleCosts with incomeTaxRate: 0 (tax-free
 // threshold) which is almost never the user's intent. Promote any zero/missing
-// rate to the top marginal default (0.47 = 45% + 2% ML) to match new defaults.
+// rate to the top marginal default (0.47 = 45% + 2% ML) — but ONLY when the
+// user has not explicitly chosen a bracket (taxRateUserSet flag absent).
 function migrateSaleCosts<T extends { saleCosts?: SaleCosts }>(p: T): T {
-  if (p?.saleCosts && (!p.saleCosts.incomeTaxRate || p.saleCosts.incomeTaxRate === 0)) {
-    return { ...p, saleCosts: { ...p.saleCosts, incomeTaxRate: 0.47 } };
+  const sc = p?.saleCosts as (SaleCosts & { taxRateUserSet?: boolean }) | undefined;
+  if (sc && !sc.taxRateUserSet && (!sc.incomeTaxRate || sc.incomeTaxRate === 0)) {
+    return { ...p, saleCosts: { ...sc, incomeTaxRate: 0.47 } };
   }
   return p;
 }
