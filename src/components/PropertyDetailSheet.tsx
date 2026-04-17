@@ -803,17 +803,29 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                             </select>
                           </FieldGroup>
                           <FieldGroup label="Capital Losses to Offset">
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              value={sc.capitalLosses ? `$${sc.capitalLosses.toLocaleString()}` : ""}
-                              placeholder="$0"
-                              onChange={(e) => {
-                                const raw = e.target.value.replace(/[^0-9]/g, "");
-                                updateSaleCosts({ capitalLosses: raw ? Number(raw) : 0 });
-                              }}
-                              className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
-                            />
+                            <div className="flex items-center gap-2 mb-2">
+                              <Switch
+                                checked={(sc.capitalLosses || 0) > 0}
+                                onCheckedChange={(checked) => {
+                                  if (!checked) updateSaleCosts({ capitalLosses: 0 });
+                                  else updateSaleCosts({ capitalLosses: sc.capitalLosses || 1 });
+                                }}
+                              />
+                              <span className="text-xs text-muted-foreground">Apply capital losses</span>
+                            </div>
+                            {(sc.capitalLosses || 0) > 0 && (
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                value={sc.capitalLosses ? `$${sc.capitalLosses.toLocaleString()}` : ""}
+                                placeholder="$0"
+                                onChange={(e) => {
+                                  const raw = e.target.value.replace(/[^0-9]/g, "");
+                                  updateSaleCosts({ capitalLosses: raw ? Number(raw) : 0 });
+                                }}
+                                className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                              />
+                            )}
                             <p className="text-[10px] text-muted-foreground mt-1">Prior or current year capital losses to offset against this gain</p>
                           </FieldGroup>
                         </div>
