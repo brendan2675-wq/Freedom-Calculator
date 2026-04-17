@@ -1,4 +1,14 @@
-import type { ExistingProperty, FutureProperty } from "@/types/property";
+import type { ExistingProperty, FutureProperty, SaleCosts } from "@/types/property";
+
+// Migration: older scenarios saved saleCosts with incomeTaxRate: 0 (tax-free
+// threshold) which is almost never the user's intent. Promote any zero/missing
+// rate to the top marginal default (0.47 = 45% + 2% ML) to match new defaults.
+function migrateSaleCosts<T extends { saleCosts?: SaleCosts }>(p: T): T {
+  if (p?.saleCosts && (!p.saleCosts.incomeTaxRate || p.saleCosts.incomeTaxRate === 0)) {
+    return { ...p, saleCosts: { ...p.saleCosts, incomeTaxRate: 0.47 } };
+  }
+  return p;
+}
 
 export interface ScenarioState {
   clientName: string;
@@ -45,9 +55,9 @@ export function buildScenarioFromStorage(): ScenarioState {
     targetYear: parseInt(localStorage.getItem("target-year") || String(new Date().getFullYear() + 10), 10) || new Date().getFullYear() + 10,
     growthRate: parseFloat(localStorage.getItem("growth-rate") || "6.5") || 6.5,
     pporSuburb: localStorage.getItem("ppor-suburb") || "",
-    ppor: safeJson<ExistingProperty>("portfolio-ppor", blankPpor),
-    existingProperties: safeJson<ExistingProperty[]>("portfolio-properties", []),
-    futureProperties: safeJson<FutureProperty[]>("portfolio-future-properties", []),
+    ppor: migrateSaleCosts(safeJson<ExistingProperty>("portfolio-ppor", blankPpor)),
+    existingProperties: safeJson<ExistingProperty[]>("portfolio-properties", []).map(migrateSaleCosts),
+    futureProperties: safeJson<FutureProperty[]>("portfolio-future-properties", []).map(migrateSaleCosts),
     pporStartingBalance: parseInt(localStorage.getItem("ppor-starting-balance") || "0", 10) || undefined,
   };
 }
@@ -129,7 +139,13 @@ export function decodeStateFromUrl(): ScenarioState | null {
   if (!encoded) return null;
   try {
     const json = decodeURIComponent(escape(atob(encoded)));
-    return JSON.parse(json);
+    const parsed = JSON.parse(json) as ScenarioState;
+    return {
+      ...parsed,
+      ppor: parsed.ppor ? migrateSaleCosts(parsed.ppor) : parsed.ppor,
+      existingProperties: (parsed.existingProperties || []).map(migrateSaleCosts),
+      futureProperties: (parsed.futureProperties || []).map(migrateSaleCosts),
+    };
   } catch {
     return null;
   }
