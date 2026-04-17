@@ -55,9 +55,9 @@ export function buildScenarioFromStorage(): ScenarioState {
     targetYear: parseInt(localStorage.getItem("target-year") || String(new Date().getFullYear() + 10), 10) || new Date().getFullYear() + 10,
     growthRate: parseFloat(localStorage.getItem("growth-rate") || "6.5") || 6.5,
     pporSuburb: localStorage.getItem("ppor-suburb") || "",
-    ppor: safeJson<ExistingProperty>("portfolio-ppor", blankPpor),
-    existingProperties: safeJson<ExistingProperty[]>("portfolio-properties", []),
-    futureProperties: safeJson<FutureProperty[]>("portfolio-future-properties", []),
+    ppor: migrateSaleCosts(safeJson<ExistingProperty>("portfolio-ppor", blankPpor)),
+    existingProperties: safeJson<ExistingProperty[]>("portfolio-properties", []).map(migrateSaleCosts),
+    futureProperties: safeJson<FutureProperty[]>("portfolio-future-properties", []).map(migrateSaleCosts),
     pporStartingBalance: parseInt(localStorage.getItem("ppor-starting-balance") || "0", 10) || undefined,
   };
 }
