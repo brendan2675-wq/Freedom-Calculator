@@ -42,7 +42,7 @@ const Portfolio = () => {
   const [pporLvr, setPporLvr] = useState(0.8);
   const [masterLvr, setMasterLvr] = useState(0.8);
   const [pporSuburb, setPporSuburb] = useState(() => localStorage.getItem("ppor-suburb") || "");
-  const [interestRate] = useState(6.0);
+  const [interestRate] = useState(6.5);
   const handleSetPporSuburb = (v: string) => {
     setPporSuburb(v);
     localStorage.setItem("ppor-suburb", v);

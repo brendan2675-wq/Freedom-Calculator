@@ -23,7 +23,7 @@ const Index = () => {
     setClientName(name);
     localStorage.setItem("client-name", name);
   };
-  const [interestRate, setInterestRate] = useState(6.0);
+  const [interestRate, setInterestRate] = useState(6.5);
   const [targetMonth, setTargetMonth] = useState(() => new Date().getMonth() + 1);
   const [targetYear, setTargetYear] = useState(() => new Date().getFullYear() + 10);
   const [growthRate, setGrowthRate] = useState(6);
