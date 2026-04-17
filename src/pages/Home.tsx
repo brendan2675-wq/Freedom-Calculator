@@ -212,6 +212,14 @@ const HomePage = () => {
           })}
         </div>
       </main>
+      <WelcomeDialog
+        open={welcomeOpen}
+        onOpenChange={setWelcomeOpen}
+        onPrimary={() => {
+          setWelcomeOpen(false);
+          navigate("/portfolio");
+        }}
+      />
     </div>
   );
 };
