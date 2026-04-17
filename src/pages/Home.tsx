@@ -105,7 +105,7 @@ const HomePage = () => {
       clearTimeout(t2);
       clearTimeout(t3);
     };
-  }, [navigate]);
+  }, [navigate, isFreshUser]);
 
 
   return (
