@@ -8,9 +8,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Portfolio from "./pages/Portfolio";
 
-// One-time cleanup for testers who have the old seeded Parramatta/Liverpool data.
-// Runs once per browser, then never again. Real user data is never touched.
-const SEED_CLEANUP_FLAG = "seed-cleanup-v1";
+// One-time cleanup for testers who have the old seeded Parramatta/Liverpool data
+// and the seeded PPOR loan/value defaults. Runs once per browser, then never again.
+const SEED_CLEANUP_FLAG = "seed-cleanup-v2";
 if (!localStorage.getItem(SEED_CLEANUP_FLAG)) {
   try {
     const stored = localStorage.getItem("portfolio-properties");
@@ -27,6 +27,27 @@ if (!localStorage.getItem(SEED_CLEANUP_FLAG)) {
           localStorage.removeItem("portfolio-future-properties");
         }
       }
+    }
+
+    // Clear seeded PPOR loan-to-pay-down values so testers see a blank slate.
+    const pporRaw = localStorage.getItem("portfolio-ppor");
+    if (pporRaw) {
+      const ppor = JSON.parse(pporRaw);
+      const seededLoan = ppor?.loanBalance === 1750000;
+      const seededValue = ppor?.estimatedValue === 2750000;
+      if (seededLoan || seededValue) {
+        const cleaned = {
+          ...ppor,
+          loanBalance: seededLoan ? 0 : ppor.loanBalance,
+          estimatedValue: seededValue ? 0 : ppor.estimatedValue,
+          loanSplits: seededLoan ? [] : ppor.loanSplits,
+        };
+        localStorage.setItem("portfolio-ppor", JSON.stringify(cleaned));
+      }
+    }
+    const startingRaw = localStorage.getItem("ppor-starting-balance");
+    if (startingRaw && parseInt(startingRaw, 10) === 1850000) {
+      localStorage.removeItem("ppor-starting-balance");
     }
   } catch {
     // ignore — non-blocking cleanup
