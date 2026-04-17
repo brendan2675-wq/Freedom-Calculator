@@ -139,7 +139,13 @@ export function decodeStateFromUrl(): ScenarioState | null {
   if (!encoded) return null;
   try {
     const json = decodeURIComponent(escape(atob(encoded)));
-    return JSON.parse(json);
+    const parsed = JSON.parse(json) as ScenarioState;
+    return {
+      ...parsed,
+      ppor: parsed.ppor ? migrateSaleCosts(parsed.ppor) : parsed.ppor,
+      existingProperties: (parsed.existingProperties || []).map(migrateSaleCosts),
+      futureProperties: (parsed.futureProperties || []).map(migrateSaleCosts),
+    };
   } catch {
     return null;
   }
