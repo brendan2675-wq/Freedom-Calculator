@@ -787,19 +787,19 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                               <option value={0}>0% (held less than 12 months)</option>
                             </select>
                           </FieldGroup>
-                          <FieldGroup label="Marginal Tax Rate (incl. 2% Medicare levy)">
+                          <FieldGroup label="Marginal Tax Rate (incl. Medicare levy)">
                             <select
                               value={sc.incomeTaxRate}
                               onChange={(e) => { manualTaxOverride.current = true; updateSaleCosts({ incomeTaxRate: Number(e.target.value), includeMedicareLevy: false }); }}
                               className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                             >
-                              <option value={0}>0% – $0 – $18,200</option>
-                              <option value={0.18}>18% – $18,201 – $45,000 (incl. 2% ML)</option>
-                              <option value={0.25}>25% – Base Entity Company Rate</option>
+                              <option value={0}>0% – Tax-free threshold ($0 – $18,200)</option>
+                              <option value={0.18}>18% – 16% + 2% ML ($18,201 – $45,000)</option>
+                              <option value={0.25}>25% – Base Rate Entity Company</option>
                               <option value={0.30}>30% – Company Tax Rate</option>
-                              <option value={0.32}>32% – $45,001 – $135,000 (incl. 2% ML)</option>
-                              <option value={0.39}>39% – $135,001 – $190,000 (incl. 2% ML)</option>
-                              <option value={0.47}>47% – $190,001+ (incl. 2% ML)</option>
+                              <option value={0.32}>32% – 30% + 2% ML ($45,001 – $135,000)</option>
+                              <option value={0.39}>39% – 37% + 2% ML ($135,001 – $190,000)</option>
+                              <option value={0.47}>47% – 45% + 2% ML ($190,001+)</option>
                             </select>
                           </FieldGroup>
                           <FieldGroup label="Capital Losses to Offset">
