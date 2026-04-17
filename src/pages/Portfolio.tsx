@@ -511,7 +511,7 @@ const Portfolio = () => {
           setProperties={handleSetProperties}
           targetMonth={2}
           targetYear={2036}
-          growthRate={6}
+          growthRate={6.5}
           portfolioMode
         />
 

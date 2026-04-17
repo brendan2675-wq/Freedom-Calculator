@@ -26,7 +26,7 @@ const Index = () => {
   const [interestRate, setInterestRate] = useState(6.5);
   const [targetMonth, setTargetMonth] = useState(() => new Date().getMonth() + 1);
   const [targetYear, setTargetYear] = useState(() => new Date().getFullYear() + 10);
-  const [growthRate, setGrowthRate] = useState(6);
+  const [growthRate, setGrowthRate] = useState(6.5);
   const [pporSuburb, setPporSuburb] = useState(() => localStorage.getItem("ppor-suburb") || "");
 
   // Shared PPOR state via localStorage

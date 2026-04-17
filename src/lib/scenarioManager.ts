@@ -43,7 +43,7 @@ export function buildScenarioFromStorage(): ScenarioState {
     interestRate: parseFloat(localStorage.getItem("global-interest-rate") || "6.5") || 6.5,
     targetMonth: parseInt(localStorage.getItem("target-month") || "0", 10) || 0,
     targetYear: parseInt(localStorage.getItem("target-year") || String(new Date().getFullYear() + 10), 10) || new Date().getFullYear() + 10,
-    growthRate: parseFloat(localStorage.getItem("growth-rate") || "6") || 6,
+    growthRate: parseFloat(localStorage.getItem("growth-rate") || "6.5") || 6.5,
     pporSuburb: localStorage.getItem("ppor-suburb") || "",
     ppor: safeJson<ExistingProperty>("portfolio-ppor", blankPpor),
     existingProperties: safeJson<ExistingProperty[]>("portfolio-properties", []),
