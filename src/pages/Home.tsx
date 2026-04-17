@@ -118,11 +118,20 @@ const HomePage = () => {
           {/* Top bar: brand + actions */}
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <p className="text-accent text-lg tracking-wider">Atelier Wealth</p>
-            <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
+              <ScenarioManager
+                getCurrentState={buildScenarioFromStorage}
+                loadState={(s) => {
+                  applyScenarioToStorage(s);
+                  window.location.reload();
+                }}
+              />
               <button
                 onClick={() => {
-                  if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
+                  if (window.confirm("Reset all data to defaults? This cannot be undone.\n\nSaved scenarios will be preserved.")) {
+                    const savedScenarios = localStorage.getItem("saved-scenarios");
                     localStorage.clear();
+                    if (savedScenarios) localStorage.setItem("saved-scenarios", savedScenarios);
                     window.location.reload();
                   }
                 }}
