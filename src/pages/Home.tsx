@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw, Target, Sparkles } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { toast } from "sonner";
 import AuthFlow from "@/components/AuthFlow";
 import EmptyStateCard from "@/components/EmptyStateCard";
 
