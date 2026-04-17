@@ -790,7 +790,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                           <FieldGroup label="Marginal Tax Rate (incl. Medicare levy)">
                             <select
                               value={sc.incomeTaxRate}
-                              onChange={(e) => { manualTaxOverride.current = true; updateSaleCosts({ incomeTaxRate: Number(e.target.value), includeMedicareLevy: false }); }}
+                              onChange={(e) => { manualTaxOverride.current = true; updateSaleCosts({ incomeTaxRate: Number(e.target.value), includeMedicareLevy: false, taxRateUserSet: true } as any); }}
                               className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                             >
                               <option value={0}>0% – Tax-free threshold ($0 – $18,200)</option>
