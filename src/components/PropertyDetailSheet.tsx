@@ -833,8 +833,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                           const losses = sc.capitalLosses || 0;
                           const gainAfterLosses = Math.max(0, capitalGain - losses);
                           const discountedGain = gainAfterLosses * (1 - sc.cgtDiscount);
-                          const mlRate = (sc.includeMedicareLevy ?? false) ? 0.02 : 0;
-                          const effectiveRate = sc.incomeTaxRate + mlRate;
+                          const effectiveRate = sc.incomeTaxRate;
                           const cgtPayable = Math.round(discountedGain * effectiveRate);
                           const netAfterCGT = saleProceeds - cgtPayable;
                           return (
