@@ -5,6 +5,8 @@ import AuthFlow from "@/components/AuthFlow";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import PporDetailSheet from "@/components/PporDetailSheet";
+import ScenarioManager from "@/components/ScenarioManager";
+import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
 import type { ExistingProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 import { normalizeExistingProperties } from "@/lib/portfolioDefaults";
