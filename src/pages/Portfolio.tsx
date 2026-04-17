@@ -5,6 +5,8 @@ import AuthFlow from "@/components/AuthFlow";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import PporDetailSheet from "@/components/PporDetailSheet";
+import ScenarioManager from "@/components/ScenarioManager";
+import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
 import type { ExistingProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 import { normalizeExistingProperties } from "@/lib/portfolioDefaults";
@@ -185,10 +187,19 @@ const Portfolio = () => {
             </div>
           </div>
           <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 self-end sm:self-auto">
+            <ScenarioManager
+              getCurrentState={buildScenarioFromStorage}
+              loadState={(s) => {
+                applyScenarioToStorage(s);
+                window.location.reload();
+              }}
+            />
             <button
               onClick={() => {
-                if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
+                if (window.confirm("Reset all data to defaults? This cannot be undone.\n\nSaved scenarios will be preserved.")) {
+                  const savedScenarios = localStorage.getItem("saved-scenarios");
                   localStorage.clear();
+                  if (savedScenarios) localStorage.setItem("saved-scenarios", savedScenarios);
                   window.location.reload();
                 }
               }}

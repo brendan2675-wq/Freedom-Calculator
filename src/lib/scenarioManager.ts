@@ -13,6 +13,63 @@ export interface ScenarioState {
   pporStartingBalance?: number;
 }
 
+// Build a complete scenario from localStorage so any page can save without
+// owning the React state for every input. Falls back to safe defaults.
+export function buildScenarioFromStorage(): ScenarioState {
+  const safeJson = <T,>(key: string, fallback: T): T => {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? (JSON.parse(raw) as T) : fallback;
+    } catch {
+      return fallback;
+    }
+  };
+  const blankPpor = {
+    id: "ppor",
+    nickname: "",
+    estimatedValue: 0,
+    loanBalance: 0,
+    earmarked: false,
+    sellInYears: 0,
+    ownership: "personal" as const,
+    investmentType: "house" as const,
+    loan: { interestRate: 6.5, repaymentType: "principal-and-interest" as const, ioYears: 0, loanTermYears: 30 },
+    rental: { weeklyRent: 0 },
+    purchase: { purchaseDate: "", settlementDate: "", purchasePrice: 0, deposit: 0, stampDuty: 0, otherCosts: 0, state: "NSW" as const },
+  } as unknown as ExistingProperty;
+
+  return {
+    clientName: localStorage.getItem("client-name") || "Client Name",
+    interestRate: parseFloat(localStorage.getItem("global-interest-rate") || "6.5") || 6.5,
+    targetMonth: parseInt(localStorage.getItem("target-month") || "0", 10) || 0,
+    targetYear: parseInt(localStorage.getItem("target-year") || String(new Date().getFullYear() + 10), 10) || new Date().getFullYear() + 10,
+    growthRate: parseFloat(localStorage.getItem("growth-rate") || "6") || 6,
+    pporSuburb: localStorage.getItem("ppor-suburb") || "",
+    ppor: safeJson<ExistingProperty>("portfolio-ppor", blankPpor),
+    existingProperties: safeJson<ExistingProperty[]>("portfolio-properties", []),
+    futureProperties: safeJson<FutureProperty[]>("portfolio-future-properties", []),
+    pporStartingBalance: parseInt(localStorage.getItem("ppor-starting-balance") || "0", 10) || undefined,
+  };
+}
+
+// Apply a scenario to localStorage and reload so every page picks up the new state.
+export function applyScenarioToStorage(state: ScenarioState) {
+  localStorage.setItem("client-name", state.clientName || "Client Name");
+  localStorage.setItem("ppor-suburb", state.pporSuburb || "");
+  localStorage.setItem("global-interest-rate", String(state.interestRate));
+  localStorage.setItem("target-month", String(state.targetMonth));
+  localStorage.setItem("target-year", String(state.targetYear));
+  localStorage.setItem("growth-rate", String(state.growthRate));
+  localStorage.setItem("portfolio-ppor", JSON.stringify(state.ppor));
+  localStorage.setItem("portfolio-properties", JSON.stringify(state.existingProperties));
+  localStorage.setItem("portfolio-future-properties", JSON.stringify(state.futureProperties));
+  if (state.pporStartingBalance) {
+    localStorage.setItem("ppor-starting-balance", String(state.pporStartingBalance));
+  } else {
+    localStorage.removeItem("ppor-starting-balance");
+  }
+}
+
 export interface SavedScenario {
   id: string;
   name: string;
