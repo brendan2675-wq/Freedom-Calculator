@@ -156,6 +156,30 @@ const Index = () => {
     localStorage.setItem("portfolio-future-properties", JSON.stringify(futureProperties));
   }, [futureProperties]);
 
+  // Cross-tab sync: listen for changes made on the Portfolio page in another tab
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (!e.newValue) return;
+      try {
+        if (e.key === "portfolio-ppor") {
+          setPpor(JSON.parse(e.newValue));
+        } else if (e.key === "portfolio-properties") {
+          const parsed = JSON.parse(e.newValue);
+          const { properties: normalized } = normalizeExistingProperties(parsed);
+          setExistingProperties(normalized);
+        } else if (e.key === "portfolio-future-properties") {
+          setFutureProperties(JSON.parse(e.newValue));
+        } else if (e.key === "client-name") {
+          setClientName(e.newValue);
+        } else if (e.key === "ppor-suburb") {
+          setPporSuburb(e.newValue);
+        }
+      } catch {}
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   // Split existing properties into active and sold
   const now = new Date();
   const soldProperties = useMemo(() => {
