@@ -477,6 +477,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
               tick={{ fill: 'hsl(0, 0%, 25%)', fontWeight: 500 }}
               width={chartWidth < 500 ? 40 : 60}
               tickCount={chartWidth < 500 ? 4 : undefined}
+              domain={loanBalance === 0 ? [0, 500000] : undefined}
             />
             <Tooltip
               formatter={(value: number, name: string) => [
