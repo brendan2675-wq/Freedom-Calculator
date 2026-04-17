@@ -187,10 +187,19 @@ const Portfolio = () => {
             </div>
           </div>
           <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 self-end sm:self-auto">
+            <ScenarioManager
+              getCurrentState={buildScenarioFromStorage}
+              loadState={(s) => {
+                applyScenarioToStorage(s);
+                window.location.reload();
+              }}
+            />
             <button
               onClick={() => {
-                if (window.confirm("Reset all data to defaults? This cannot be undone.")) {
+                if (window.confirm("Reset all data to defaults? This cannot be undone.\n\nSaved scenarios will be preserved.")) {
+                  const savedScenarios = localStorage.getItem("saved-scenarios");
                   localStorage.clear();
+                  if (savedScenarios) localStorage.setItem("saved-scenarios", savedScenarios);
                   window.location.reload();
                 }
               }}
