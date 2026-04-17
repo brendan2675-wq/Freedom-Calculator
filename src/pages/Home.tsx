@@ -50,6 +50,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
   const [authOpen, setAuthOpen] = useState(false);
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
   const handleSetClientName = (name: string) => {
     setClientName(name);
     localStorage.setItem("client-name", name);
