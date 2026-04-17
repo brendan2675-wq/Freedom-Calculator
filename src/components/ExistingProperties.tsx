@@ -451,7 +451,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
           {/* Primary Add Property button */}
           <button
             onClick={addProperty}
-            className="rounded-xl border-2 border-dashed border-accent/40 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent shrink-0"
+            className="rounded-xl border-2 border-dashed border-accent/40 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-accent shrink-0 min-h-[180px]"
             style={{ width: cardWidth, minWidth: isMobile ? "280px" : "200px", scrollSnapAlign: "start" }}
           >
             <Plus size={24} />
@@ -463,7 +463,7 @@ const ExistingProperties = ({ properties, setProperties, targetMonth, targetYear
             <button
               key={`empty-${i}`}
               onClick={addProperty}
-              className="rounded-xl border-2 border-dashed border-border/30 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent/40 hover:bg-accent/5 transition-all font-medium text-muted-foreground/40 shrink-0"
+              className="rounded-xl border-2 border-dashed border-border/30 p-4 flex flex-col items-center justify-center gap-2 hover:border-accent/40 hover:bg-accent/5 transition-all font-medium text-muted-foreground/40 shrink-0 min-h-[180px]"
               style={{ width: cardWidth, minWidth: isMobile ? "280px" : "200px", scrollSnapAlign: "start" }}
             >
               <Plus size={20} />
