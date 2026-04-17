@@ -1,114 +1,59 @@
 
+## Goal
+Remove seeded test properties (Parramatta, Liverpool, default PPOR values) so new users land on a clean slate, and replace emptiness with welcoming, actionable empty states across Home, PPOR Goal and Portfolio pages.
 
-# Comprehensive Mobile Optimization & Bug Fix Plan
-
-## Issues Found
-
-### Critical Mobile Layout Issues
-
-1. **Property cards clip on mobile (PPOR Goal page)**: The `cardWidth` is calculated as `calc((100% - 36px) / 4)` regardless of viewport. On a 390px screen, each card is ~85px wide — far too narrow. Text overflows ("Future V...", "$1,327", "$70,0"). Both `ExistingProperties.tsx` and `PropertiesToBuy.tsx` have this issue.
-
-2. **Portfolio summary cards stack into a single column**: `grid-cols-1 md:grid-cols-5` means on mobile, 5 tall cards take up the entire screen. Should be a 2-column or 3-column compact grid on mobile.
-
-3. **Sell-down bridge text overflows on mobile**: The "X properties earmarked → $Y net proceeds" button in `KeyInputs.tsx` uses `whitespace-nowrap` inline text that can overflow on narrow screens.
-
-4. **Scroll arrows positioned at `-left-5` / `-right-5`** on property carousels clip outside the container on mobile where there's no extra margin.
-
-### Moderate Issues
-
-5. **Portfolio page header "Atelier Wealth" / "Client Name" clusters at bottom-right**: On mobile, the branding and reset button sit on a separate row but feel disconnected from the title.
-
-6. **Property card touch targets too small**: The X (remove) button is only 14px, the "Go" sell-down button is tiny at `text-[10px]`, and the LVR dropdown is very small — all below the 44px minimum recommended touch target.
-
-7. **PaydownSummary fixed bar**: The bottom fixed bar with Total Equity / Loan Remaining can overlap mobile browser chrome and cut off content. Not enough bottom padding on the page.
-
-8. **"Sell All in" dropdown/button cluster**: The `flex` layout wrapping the sell-all controls in the ExistingProperties header can overflow on narrow screens.
-
-### Minor Issues
-
-9. **Sell-down event detail rows**: The flex layout showing property name + selling year + progress bar + amount doesn't wrap on narrow screens, causing horizontal scroll in the sell-down bridge.
-
-10. **Sheet/sidebar width**: The `Sheet` component uses Shadcn defaults which are fine, but on very small screens (320px), some input groups in PropertyDetailSheet can feel cramped.
-
----
+## Investigation summary
+- `src/App.tsx` seeds `portfolio-properties` with Parramatta + Liverpool on first load and runs a `normalizeExistingProperties` migration — this is the main source of test data.
+- `src/lib/portfolioDefaults.ts` only exists to backfill purchase prices for those seeded IDs.
+- `src/pages/Index.tsx` (PPOR Goal) and `src/pages/Portfolio.tsx` likely seed default PPOR values (suburb, current value, loan balance) via `useState` initialisers — need to clear.
+- `src/pages/Home.tsx` is the dashboard — currently assumes data exists.
+- An onboarding toast flow already exists (`mem://features/onboarding-experience`) — extendable.
+- Saved scenarios are stored separately under `saved-scenarios` and will be preserved.
 
 ## Plan
 
-### 1. Make property cards responsive (single-column on mobile)
-**Files: `src/components/ExistingProperties.tsx`, `src/components/PropertiesToBuy.tsx`**
+### 1. Strip seed data
+- **`src/App.tsx`**: Remove the `if (!storedPortfolio) { … defaults … }` block and the `normalizeExistingProperties` migration. New users start with `portfolio-properties = []`.
+- **`src/lib/portfolioDefaults.ts`**: Delete file and remove its import from `App.tsx`.
+- **`src/pages/Index.tsx`** & **`src/pages/Portfolio.tsx`**: Default PPOR fields (suburb, estimated value, loan balance, purchase price) to empty strings / 0. Keep interest rate at a neutral **6.00%** default since it's a market input rather than personal data. Keep target year/month at sensible defaults (10 years out).
+- **One-time cleanup for existing testers**: On app load, if `portfolio-properties` contains exactly the two seeded IDs `"1"` (Parramatta) and `"2"` (Liverpool) with their original nicknames, clear them. This catches existing testers without nuking real user data. Gate behind a `seed-cleanup-v1` flag in localStorage so it only runs once.
 
-- Change `cardWidth` to be responsive: on screens < 640px, use `calc(100% - 16px)` (nearly full width, one card visible at a time with horizontal scroll) instead of the 4-column calculation
-- Add a CSS media query or use a `useIsMobile()` hook to determine card width
-- Keep the horizontal scroll container but with `scroll-snap-type: x mandatory` so cards snap to full-width on mobile
-- Update `minWidth` from `200px` to a responsive value
+### 2. Reusable empty-state component
+Create **`src/components/EmptyStateCard.tsx`** — icon + headline + sub + CTA button. Reused on all three pages for visual consistency.
 
-### 2. Fix Portfolio summary grid for mobile
-**File: `src/pages/Portfolio.tsx`**
+### 3. Dashboard (Home) empty state
+When both PPOR has no value AND portfolio is empty, replace the summary tiles with a centered welcome panel:
+- Headline: "Welcome to Atelier Wealth"
+- Sub: "Build your property strategy in three steps"
+- Three numbered step cards with icons:
+  1. **Add your home** → CTA → `/ppor-goal`
+  2. **Add your investment properties** → CTA → `/portfolio`
+  3. **Set your payoff goal** → CTA → `/ppor-goal`
+- Partial states: completed steps show a tick; remaining steps still prompt.
 
-- Change `grid-cols-1 md:grid-cols-5` to `grid-cols-2 md:grid-cols-5` so mobile shows a compact 2x3 grid
-- Reduce padding from `p-6` to `p-4` on mobile for the summary cards
-- Make text sizes responsive (`text-xl` on mobile instead of `text-2xl`)
+### 4. PPOR Goal page empty state
+- When PPOR `estimatedValue === 0`: replace the metric mini-cards with a full-width prompt "Add your owner-occupied home to begin" + "Set up PPOR" button that opens the existing `PporDetailSheet` directly.
+- Investment list: when empty, show a friendly "No investment properties yet — add your first to model the paydown strategy" card with the existing Add CTA.
+- Charts/projections: render a muted placeholder ("Your projection will appear here once you add your home and at least one investment") instead of a flat-line chart.
 
-### 3. Fix scroll arrow positioning on mobile
-**Files: `src/components/ExistingProperties.tsx`, `src/components/PropertiesToBuy.tsx`**
+### 5. Portfolio page empty state
+- Existing Properties ribbon: when empty, show a single 180px "Add your first investment property" card matching ribbon dimensions, with icon + CTA opening the Add flow.
+- Proposed Purchases & Sold Properties: keep their current empty states.
+- Portfolio metrics summary bar: show "—" placeholders with sub-text "Add properties to see aggregate metrics" when empty.
 
-- Change `-left-5` / `-right-5` to `left-1` / `right-1` on mobile (or hide arrows on mobile since touch scrolling is native)
-- Add `hidden sm:flex` to arrows since mobile users swipe
+### 6. Onboarding tweak
+Extend the first-load toast sequence: after disclaimer + tip, add a third toast "Start by adding your home on the PPOR Goal page" with a clickable action that navigates to `/ppor-goal`. Only fires when both PPOR and portfolio are empty, so returning users aren't nagged.
 
-### 4. Increase touch targets
-**Files: `src/components/ExistingProperties.tsx`, `src/components/PropertiesToBuy.tsx`**
+## Files touched
+- `src/App.tsx` — remove seed block, add one-time cleanup
+- `src/lib/portfolioDefaults.ts` — delete
+- `src/pages/Home.tsx` — welcome empty state
+- `src/pages/Index.tsx` — clear PPOR defaults, empty states, placeholder chart
+- `src/pages/Portfolio.tsx` — clear defaults, ribbon empty state, placeholder metrics
+- `src/components/EmptyStateCard.tsx` — new reusable component
+- `src/components/Disclaimer.tsx` (or wherever onboarding toasts live) — add third toast
 
-- Increase X (remove) button hit area to `min-w-[44px] min-h-[44px]`
-- Increase "Go" button padding
-- Increase LVR dropdown touch area
+## Open question
+One quick decision before building — answer below and I'll implement:
 
-### 5. Fix sell-down bridge overflow on mobile
-**File: `src/components/KeyInputs.tsx`**
-
-- Allow the sell-down bridge button text to wrap on mobile: replace inline layout with `flex-col` on small screens
-- Reduce font size on mobile for the earmarked count text
-
-### 6. Fix "Sell All in" header controls on mobile
-**File: `src/components/ExistingProperties.tsx`**
-
-- Wrap the section header to stack title and sell controls vertically on mobile using `flex-col sm:flex-row`
-
-### 7. Add bottom padding for fixed PaydownSummary bar
-**File: `src/pages/Index.tsx`**
-
-- Add `pb-20` to the main container to prevent the fixed bottom bar from overlapping content
-
-### 8. Fix sell-down detail rows for mobile
-**File: `src/components/KeyInputs.tsx`**
-
-- Make sell-down event rows stack on mobile: property name on top, amount below, hide progress bar on very narrow screens
-
-### 9. Responsive text/spacing throughout
-**Files: Multiple**
-
-- Audit and add `text-sm md:text-base`, `p-3 md:p-6` patterns where needed
-- Ensure no fixed-width containers cause horizontal scroll
-
----
-
-## Technical Details
-
-The core fix is the `cardWidth` calculation in both property components. Currently:
-```js
-const cardWidth = hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
-```
-
-This will change to use the `useIsMobile()` hook:
-```js
-const isMobile = useIsMobile();
-const cardWidth = isMobile 
-  ? "calc(100% - 16px)"  // full-width cards on mobile
-  : hasOverflow ? "calc((100% - 36px) / 4.3)" : "calc((100% - 36px) / 4)";
-```
-
-For the Portfolio summary cards, the grid change is simple:
-```diff
-- <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-+ <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
-```
-
+**Dashboard empty state style:** 3-step guided cards (Add home → Add investments → Set goal), or a simpler single hero "Get started" CTA, or a hero + smaller supporting steps below? Default if you don't reply: **3-step guided cards**.
