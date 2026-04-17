@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw, Target, Sparkles } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
-import { toast } from "sonner";
 import AuthFlow from "@/components/AuthFlow";
 import ScenarioManager from "@/components/ScenarioManager";
+import WelcomeDialog from "@/components/WelcomeDialog";
 import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
 
 const tiles = [
@@ -50,6 +50,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
   const [authOpen, setAuthOpen] = useState(false);
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
   const handleSetClientName = (name: string) => {
     setClientName(name);
     localStorage.setItem("client-name", name);
@@ -75,39 +76,16 @@ const HomePage = () => {
     return { hasPpor, hasInvestments, isFreshUser: !hasPpor && !hasInvestments };
   }, []);
 
-  // Show 3-part welcome toast on first visit only (fresh users only)
+  // Show welcome dialog on first visit only (fresh users only)
   useEffect(() => {
     if (!isFreshUser) return;
-    if (localStorage.getItem("welcome-toast-seen")) return;
-    const t1 = setTimeout(() => {
-      toast("✨ Welcome to Atelier Wealth", {
-        description: "Build your property strategy in three steps — at your own pace.",
-        duration: 6000,
-      });
-    }, 600);
-    const t2 = setTimeout(() => {
-      toast("🏠 Step 1 — Add any properties you own", {
-        description: "Got an owner-occupied home or investments? Add what you have. No properties yet? You can still plan ahead.",
-        duration: 7000,
-      });
-    }, 3200);
-    const t3 = setTimeout(() => {
-      toast("🎯 Step 2 — Plan future buys & set a goal", {
-        description: "Add proposed purchases and choose a payoff target — we'll model the strategy for you.",
-        duration: 7000,
-        action: {
-          label: "Get started",
-          onClick: () => navigate("/portfolio"),
-        },
-      });
-      localStorage.setItem("welcome-toast-seen", "1");
-    }, 6000);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
-  }, [navigate, isFreshUser]);
+    if (localStorage.getItem("welcome-seen")) return;
+    const t = setTimeout(() => {
+      setWelcomeOpen(true);
+      localStorage.setItem("welcome-seen", "1");
+    }, 400);
+    return () => clearTimeout(t);
+  }, [isFreshUser]);
 
 
   return (
@@ -234,6 +212,14 @@ const HomePage = () => {
           })}
         </div>
       </main>
+      <WelcomeDialog
+        open={welcomeOpen}
+        onOpenChange={setWelcomeOpen}
+        onPrimary={() => {
+          setWelcomeOpen(false);
+          navigate("/portfolio");
+        }}
+      />
     </div>
   );
 };
