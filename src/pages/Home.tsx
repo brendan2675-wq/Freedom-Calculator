@@ -3,6 +3,8 @@ import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUp
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import AuthFlow from "@/components/AuthFlow";
+import ScenarioManager from "@/components/ScenarioManager";
+import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
 
 const tiles = [
   {
