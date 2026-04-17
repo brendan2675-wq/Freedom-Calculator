@@ -273,15 +273,16 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
     // Only auto-suggest tax rate if saleCosts hasn't been set yet (first time)
     if (ep.saleCosts) return;
 
-    let suggestedRate = 0;
-    if (discountedGain > 190000) suggestedRate = 0.45;
-    else if (discountedGain > 135000) suggestedRate = 0.37;
-    else if (discountedGain > 45000) suggestedRate = 0.30;
-    else if (discountedGain > 18200) suggestedRate = 0.16;
-    else suggestedRate = 0.45;
+    // Suggested marginal rate INCLUDES 2% Medicare levy for individuals
+    let suggestedRate = 0.47;
+    if (discountedGain > 190000) suggestedRate = 0.47;
+    else if (discountedGain > 135000) suggestedRate = 0.39;
+    else if (discountedGain > 45000) suggestedRate = 0.32;
+    else if (discountedGain > 18200) suggestedRate = 0.18;
+    else suggestedRate = 0.47;
 
     if (sc.incomeTaxRate !== suggestedRate) {
-      onUpdate({ ...property, saleCosts: { ...sc, incomeTaxRate: suggestedRate } } as ExistingProperty);
+      onUpdate({ ...property, saleCosts: { ...sc, incomeTaxRate: suggestedRate, includeMedicareLevy: false } } as ExistingProperty);
     }
   }, [isExisting, property, onUpdate]);
 
