@@ -7,27 +7,31 @@ import Home from "./pages/Home";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Portfolio from "./pages/Portfolio";
-import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
-import { normalizeExistingProperties } from "@/lib/portfolioDefaults";
 
-// Seed/migrate localStorage portfolio data
-const storedPortfolio = localStorage.getItem("portfolio-properties");
-if (!storedPortfolio) {
-  const defaults = [
-    { id: "1", nickname: "Parramatta", estimatedValue: 580000, loanBalance: 480000, earmarked: false, sellInYears: 0, ownership: "trust", investmentType: "unit", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 200000 }, loanSplits: [{ id: "s1", label: "Parramatta loan", amount: 400000 }, { id: "s2", label: "Liverpool equity", amount: 80000 }] },
-    { id: "2", nickname: "Liverpool", estimatedValue: 750000, loanBalance: 530000, earmarked: false, sellInYears: 0, ownership: "personal", investmentType: "townhouse", loan: { ...defaultLoanDetails }, rental: { ...defaultRentalDetails }, purchase: { ...defaultPurchaseDetails, purchasePrice: 530000 } },
-  ];
-  localStorage.setItem("portfolio-properties", JSON.stringify(defaults));
-} else {
+// One-time cleanup for testers who have the old seeded Parramatta/Liverpool data.
+// Runs once per browser, then never again. Real user data is never touched.
+const SEED_CLEANUP_FLAG = "seed-cleanup-v1";
+if (!localStorage.getItem(SEED_CLEANUP_FLAG)) {
   try {
-    const parsed = JSON.parse(storedPortfolio);
-    const { properties: normalized, changed } = normalizeExistingProperties(parsed);
-    if (changed) {
-      localStorage.setItem("portfolio-properties", JSON.stringify(normalized));
+    const stored = localStorage.getItem("portfolio-properties");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length === 2) {
+        const ids = parsed.map((p: { id?: string }) => p?.id).sort();
+        const names = parsed.map((p: { nickname?: string }) => p?.nickname).sort();
+        const isSeeded =
+          ids[0] === "1" && ids[1] === "2" &&
+          names.includes("Parramatta") && names.includes("Liverpool");
+        if (isSeeded) {
+          localStorage.removeItem("portfolio-properties");
+          localStorage.removeItem("portfolio-future-properties");
+        }
+      }
     }
   } catch {
-    // Ignore parse errors and keep existing data untouched
+    // ignore — non-blocking cleanup
   }
+  localStorage.setItem(SEED_CLEANUP_FLAG, "1");
 }
 
 const queryClient = new QueryClient();
