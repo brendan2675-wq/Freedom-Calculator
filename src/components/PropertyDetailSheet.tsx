@@ -273,15 +273,16 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
     // Only auto-suggest tax rate if saleCosts hasn't been set yet (first time)
     if (ep.saleCosts) return;
 
-    let suggestedRate = 0;
-    if (discountedGain > 190000) suggestedRate = 0.45;
-    else if (discountedGain > 135000) suggestedRate = 0.37;
-    else if (discountedGain > 45000) suggestedRate = 0.30;
-    else if (discountedGain > 18200) suggestedRate = 0.16;
-    else suggestedRate = 0.45;
+    // Suggested marginal rate INCLUDES 2% Medicare levy for individuals
+    let suggestedRate = 0.47;
+    if (discountedGain > 190000) suggestedRate = 0.47;
+    else if (discountedGain > 135000) suggestedRate = 0.39;
+    else if (discountedGain > 45000) suggestedRate = 0.32;
+    else if (discountedGain > 18200) suggestedRate = 0.18;
+    else suggestedRate = 0.47;
 
     if (sc.incomeTaxRate !== suggestedRate) {
-      onUpdate({ ...property, saleCosts: { ...sc, incomeTaxRate: suggestedRate } } as ExistingProperty);
+      onUpdate({ ...property, saleCosts: { ...sc, incomeTaxRate: suggestedRate, includeMedicareLevy: false } } as ExistingProperty);
     }
   }, [isExisting, property, onUpdate]);
 
@@ -786,29 +787,21 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                               <option value={0}>0% (held less than 12 months)</option>
                             </select>
                           </FieldGroup>
-                          <FieldGroup label="Marginal Tax Rate (excl. Medicare)">
+                          <FieldGroup label="Marginal Tax Rate (incl. 2% Medicare levy)">
                             <select
                               value={sc.incomeTaxRate}
-                              onChange={(e) => { manualTaxOverride.current = true; updateSaleCosts({ incomeTaxRate: Number(e.target.value) }); }}
+                              onChange={(e) => { manualTaxOverride.current = true; updateSaleCosts({ incomeTaxRate: Number(e.target.value), includeMedicareLevy: false }); }}
                               className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                             >
                               <option value={0}>0% – $0 – $18,200</option>
-                              <option value={0.16}>16% – $18,201 – $45,000</option>
-                              <option value={0.25}>25% – Base Entity Rate</option>
-                              <option value={0.30}>30% – $45,001 – $135,000 &amp; Company Tax Rate</option>
-                              <option value={0.37}>37% – $135,001 – $190,000</option>
-                              <option value={0.45}>45% – $190,001+</option>
+                              <option value={0.18}>18% – $18,201 – $45,000 (incl. 2% ML)</option>
+                              <option value={0.25}>25% – Base Entity Company Rate</option>
+                              <option value={0.30}>30% – Company Tax Rate</option>
+                              <option value={0.32}>32% – $45,001 – $135,000 (incl. 2% ML)</option>
+                              <option value={0.39}>39% – $135,001 – $190,000 (incl. 2% ML)</option>
+                              <option value={0.47}>47% – $190,001+ (incl. 2% ML)</option>
                             </select>
                           </FieldGroup>
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={sc.includeMedicareLevy ?? false}
-                              onChange={(e) => updateSaleCosts({ includeMedicareLevy: e.target.checked })}
-                              className="rounded border-border text-accent focus:ring-accent h-4 w-4"
-                            />
-                            <span className="text-xs text-muted-foreground">+ 2% Medicare levy</span>
-                          </label>
                           <FieldGroup label="Capital Losses to Offset">
                             <input
                               type="text"
@@ -840,8 +833,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                           const losses = sc.capitalLosses || 0;
                           const gainAfterLosses = Math.max(0, capitalGain - losses);
                           const discountedGain = gainAfterLosses * (1 - sc.cgtDiscount);
-                          const mlRate = (sc.includeMedicareLevy ?? false) ? 0.02 : 0;
-                          const effectiveRate = sc.incomeTaxRate + mlRate;
+                          const effectiveRate = sc.incomeTaxRate;
                           const cgtPayable = Math.round(discountedGain * effectiveRate);
                           const netAfterCGT = saleProceeds - cgtPayable;
                           return (
@@ -895,7 +887,7 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                                 <span className="text-foreground font-medium">${discountedGain.toLocaleString()}</span>
                               </div>
                               <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Tax Rate ({(sc.incomeTaxRate * 100).toFixed(0)}%{(sc.includeMedicareLevy ?? false) ? " + 2% ML" : ""})</span>
+                                <span className="text-muted-foreground">Tax Rate</span>
                                 <span className="text-foreground font-medium">{(effectiveRate * 100).toFixed(0)}%</span>
                               </div>
                               <div className="flex justify-between text-sm">

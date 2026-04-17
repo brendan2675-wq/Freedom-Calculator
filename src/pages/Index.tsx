@@ -255,7 +255,7 @@ const Index = () => {
         const losses = sc.capitalLosses || 0;
         const gainAfterLosses = Math.max(0, capitalGain - losses);
         const discountedGain = gainAfterLosses * (1 - sc.cgtDiscount);
-        const effectiveRate = sc.incomeTaxRate + ((sc.includeMedicareLevy ?? false) ? 0.02 : 0);
+        const effectiveRate = sc.incomeTaxRate;
         const cgtPayable = Math.round(discountedGain * effectiveRate);
         const netProceeds = Math.max(0, proceeds - cgtPayable);
         return { year: new Date().getFullYear() + sellYears, proceeds: netProceeds, nickname: p.nickname };
