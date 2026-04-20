@@ -1,7 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { LayoutDashboard, UserCircle, Building2, Landmark, TrendingUp, Home, Plus, RotateCcw, ArrowUpRight, ArrowDownRight, DollarSign, Activity } from "lucide-react";
+import { LayoutDashboard, Building2, Landmark, TrendingUp, Home, Plus, RotateCcw, ArrowUpRight, ArrowDownRight, DollarSign, Activity } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import AuthFlow from "@/components/AuthFlow";
+import UserMenu from "@/components/UserMenu";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import PporDetailSheet from "@/components/PporDetailSheet";
@@ -16,12 +16,6 @@ const Portfolio = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isReadOnly = searchParams.get("readonly") === "1";
-  const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
-  const [authOpen, setAuthOpen] = useState(false);
-  const handleSetClientName = (name: string) => {
-    setClientName(name);
-    localStorage.setItem("client-name", name);
-  };
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
   const blankPpor: ExistingProperty = {
     id: "ppor",
@@ -218,24 +212,7 @@ const Portfolio = () => {
               <RotateCcw size={14} />
               <span className="hidden sm:inline">Reset</span>
             </button>
-            <div className="flex flex-col items-center gap-1">
-              <p className="text-accent text-xs sm:text-sm tracking-wider mb-1">Atelier Wealth</p>
-              <button
-                onClick={() => setAuthOpen(true)}
-                className="text-accent hover:text-accent/80 transition-colors"
-                aria-label="Profile"
-              >
-                <UserCircle size={36} className="sm:hidden" />
-                <UserCircle size={44} className="hidden sm:block" />
-              </button>
-              <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={handleSetClientName} />
-              <input
-                value={clientName}
-                onChange={(e) => handleSetClientName(e.target.value)}
-                className="text-center text-xs sm:text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-24 sm:w-32 md:w-40"
-                placeholder="Client name"
-              />
-            </div>
+            <UserMenu />
           </div>
         </div>
       </header>
