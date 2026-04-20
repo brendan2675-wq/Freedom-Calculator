@@ -273,7 +273,7 @@ const Portfolio = () => {
         {/* Owner Occupied Property */}
         {ppor ? (
           <section>
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 mb-4">
+            <div className="hidden lg:grid grid-cols-[1fr_1fr] gap-4 mb-4">
               <div className="gold-underline pb-2">
                 <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
                   <Home size={26} strokeWidth={2.25} className="text-accent" />
@@ -288,6 +288,13 @@ const Portfolio = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+              {/* Mobile-only heading above PPOR card */}
+              <div className="gold-underline pb-2 lg:hidden">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                  <Home size={26} strokeWidth={2.25} className="text-accent" />
+                  Owner Occupied Property
+                </h2>
+              </div>
               {/* Main PPOR Card */}
               <div
                 onClick={() => setPporSheetOpen(true)}
@@ -392,6 +399,13 @@ const Portfolio = () => {
                 </div>
               </div>
 
+              {/* Mobile-only heading above SMSF tile */}
+              <div className="gold-underline pb-2 lg:hidden mt-2">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                  <Landmark size={26} strokeWidth={2.25} className="text-accent" />
+                  SMSF Property
+                </h2>
+              </div>
               {/* SMSF Tile — Coming Soon */}
               <div className="relative bg-card rounded-xl p-5 border-2 border-dashed border-border shadow-sm overflow-hidden">
                 <div className="absolute top-3 right-3 z-10">
@@ -428,7 +442,7 @@ const Portfolio = () => {
           </section>
         ) : (
           <section>
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 mb-4">
+            <div className="hidden lg:grid grid-cols-[1fr_1fr] gap-4 mb-4">
               <div className="gold-underline pb-2">
                 <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
                   <Home size={26} strokeWidth={2.25} className="text-accent" />
@@ -443,6 +457,13 @@ const Portfolio = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+              {/* Mobile-only heading above Add PPOR button */}
+              <div className="gold-underline pb-2 lg:hidden">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                  <Home size={26} strokeWidth={2.25} className="text-accent" />
+                  Owner Occupied Property
+                </h2>
+              </div>
               <button
                 onClick={addPpor}
                 className="rounded-xl border-2 border-dashed border-border/40 p-4 flex items-center justify-center gap-2 hover:border-accent hover:bg-accent/5 transition-all font-medium text-muted-foreground hover:text-accent"
@@ -451,6 +472,13 @@ const Portfolio = () => {
                 <span className="text-sm">Add Owner Occupied Property</span>
               </button>
 
+              {/* Mobile-only heading above SMSF tile */}
+              <div className="gold-underline pb-2 lg:hidden mt-2">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                  <Landmark size={26} strokeWidth={2.25} className="text-accent" />
+                  SMSF Property
+                </h2>
+              </div>
               {/* SMSF Tile — Coming Soon */}
               <div className="relative bg-card rounded-xl p-5 border-2 border-dashed border-border shadow-sm overflow-hidden">
                 <div className="absolute top-3 right-3 z-10">
