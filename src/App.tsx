@@ -20,6 +20,13 @@ const RootRedirect = () => {
   return <Navigate to={landingFor(role)} replace />;
 };
 
+const DashboardRoute = () => {
+  const role = getRole();
+  if (!role) return <Navigate to="/login" replace />;
+  if (role === "agent") return <Navigate to="/agent" replace />;
+  return <Home />;
+};
+
 // One-time cleanup for testers who have the old seeded Parramatta/Liverpool data
 // and the seeded PPOR loan/value defaults. Runs once per browser, then never again.
 const SEED_CLEANUP_FLAG = "seed-cleanup-v2";
@@ -78,6 +85,7 @@ const App = () => (
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<RootRedirect />} />
+          <Route path="/dashboard" element={<DashboardRoute />} />
           <Route
             path="/adviser"
             element={
