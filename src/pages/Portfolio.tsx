@@ -273,14 +273,14 @@ const Portfolio = () => {
         {/* Owner Occupied Property */}
         {ppor ? (
           <section>
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 mb-4">
-              <div className="gold-underline pb-2 order-1">
+            <div className="hidden lg:grid grid-cols-[1fr_1fr] gap-4 mb-4">
+              <div className="gold-underline pb-2">
                 <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
                   <Home size={26} strokeWidth={2.25} className="text-accent" />
                   Owner Occupied Property
                 </h2>
               </div>
-              <div className="gold-underline pb-2 order-3 lg:order-2">
+              <div className="gold-underline pb-2">
                 <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
                   <Landmark size={26} strokeWidth={2.25} className="text-accent" />
                   SMSF Property
