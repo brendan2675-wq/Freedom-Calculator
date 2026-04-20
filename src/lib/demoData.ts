@@ -132,19 +132,33 @@ const buildState = (clientName: string): ScenarioState => {
 export function seedDemoData(count = 20): { clients: number; scenarios: number } {
   const created: Client[] = [];
   for (let i = 0; i < count; i++) {
-    const name = `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
+    const surname = pick(LAST_NAMES);
+    const isCouple = Math.random() < 0.45; // ~45% couples
+    let name: string;
+    if (isCouple) {
+      let first1 = pick(FIRST_NAMES);
+      let first2 = pick(FIRST_NAMES);
+      while (first2 === first1) first2 = pick(FIRST_NAMES);
+      name = `${first1} and ${first2} ${surname}`;
+    } else {
+      name = `${pick(FIRST_NAMES)} ${surname}`;
+    }
     const email = name.toLowerCase().replace(/[^a-z]+/g, ".") + "@example.com";
     created.push(upsertClient({ name, email, agentIds: [] }));
   }
   const PLAN_LABELS = ["Base Plan", "Aggressive Growth", "Conservative", "Sell-down 2030", "SMSF Path"];
   let scenarioCount = 0;
   for (const client of created) {
+    // Label uses surname for couples (last word), first name for individuals
+    const parts = client.name.split(" ");
+    const isCouple = client.name.includes(" and ");
+    const label0 = isCouple ? `The ${parts[parts.length - 1]}s` : parts[0];
     // Most clients get 1 scenario; ~30% get 2; ~10% get 3 — so we can see the count badge vary
     const r = Math.random();
     const planCount = r < 0.1 ? 3 : r < 0.4 ? 2 : 1;
     for (let i = 0; i < planCount; i++) {
       const state = buildState(client.name);
-      const label = i === 0 ? `${client.name.split(" ")[0]}'s Plan` : `${client.name.split(" ")[0]} — ${PLAN_LABELS[i]}`;
+      const label = i === 0 ? `${label0}'s Plan` : `${label0} — ${PLAN_LABELS[i]}`;
       saveScenario(label, state, {
         clientId: client.id,
         ownerRole: "adviser",
