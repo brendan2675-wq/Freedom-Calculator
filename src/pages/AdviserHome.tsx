@@ -245,43 +245,28 @@ const AdviserHome = () => {
               {clients.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-6">No clients yet — add your first one.</p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {clients.map((c) => {
-                    const clientScenarios = scenarios.filter((s) => s.clientId === c.id);
+                    const count = scenarios.filter((s) => s.clientId === c.id).length;
                     return (
-                      <div key={c.id} className="border border-border rounded-xl p-3">
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-foreground truncate">{c.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{c.email}</p>
-                          </div>
-                          <div className="flex items-center gap-1 shrink-0">
-                            <button onClick={() => setClientDialog({ open: true, client: c })} className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground">
-                              <Edit2 size={13} />
-                            </button>
-                            <button onClick={() => { if (confirm("Delete client?")) { deleteClient(c.id); refresh(); } }} className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-destructive">
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
+                      <div key={c.id} className="flex items-center gap-3 border border-border rounded-xl p-3">
+                        <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                          <User size={16} className="text-accent" />
                         </div>
-                        {clientScenarios.length === 0 ? (
-                          <p className="text-xs text-muted-foreground italic pl-1">No scenarios assigned.</p>
-                        ) : (
-                          <div className="space-y-1 pl-1">
-                            {clientScenarios.map((s) => (
-                              <button
-                                key={s.id}
-                                onClick={() => openScenario(s)}
-                                className="w-full flex items-center gap-2 text-left px-2 py-1.5 rounded-md hover:bg-muted/50 text-xs"
-                              >
-                                <FileText size={12} className="text-accent" />
-                                <span className="font-medium text-foreground flex-1 truncate">{s.name}</span>
-                                <span className="text-muted-foreground">{fmtCurrency(sumPortfolioValue(s))}</span>
-                                <ChevronRight size={12} className="text-muted-foreground" />
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-foreground truncate">{c.name}</p>
+                        </div>
+                        <span className="text-xs text-muted-foreground shrink-0 px-2 py-1 rounded-full bg-muted">
+                          {count} scenario{count === 1 ? "" : "s"}
+                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button onClick={() => setClientDialog({ open: true, client: c })} className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground" title="Edit">
+                            <Edit2 size={13} />
+                          </button>
+                          <button onClick={() => { if (confirm("Delete client?")) { deleteClient(c.id); refresh(); } }} className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-destructive" title="Delete">
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
