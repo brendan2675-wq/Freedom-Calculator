@@ -82,11 +82,18 @@ export function applyScenarioToStorage(state: ScenarioState) {
   }
 }
 
+export type ScenarioType = "individual" | "smsf";
+
 export interface SavedScenario {
   id: string;
   name: string;
   savedAt: string;
   state: ScenarioState;
+  clientId?: string;
+  ownerId?: string; // user id of creator (adviser or client)
+  ownerRole?: "client" | "adviser";
+  sharedAgentIds?: string[];
+  type?: ScenarioType;
 }
 
 const SCENARIOS_KEY = "saved-scenarios";
