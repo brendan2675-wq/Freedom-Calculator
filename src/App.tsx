@@ -2,11 +2,23 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Portfolio from "./pages/Portfolio";
+import Login from "./pages/Login";
+import AdviserHome from "./pages/AdviserHome";
+import AgentHome from "./pages/AgentHome";
+import RoleGuard from "./components/RoleGuard";
+import { getRole, landingFor } from "./lib/auth";
+
+const RootRedirect = () => {
+  const role = getRole();
+  if (!role) return <Navigate to="/login" replace />;
+  if (role === "client") return <Home />;
+  return <Navigate to={landingFor(role)} replace />;
+};
 
 // One-time cleanup for testers who have the old seeded Parramatta/Liverpool data
 // and the seeded PPOR loan/value defaults. Runs once per browser, then never again.
