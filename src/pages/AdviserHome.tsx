@@ -20,6 +20,7 @@ import {
   type SavedScenario,
 } from "@/lib/scenarioManager";
 import ShareWithAgentsDialog from "@/components/ShareWithAgentsDialog";
+import { seedDemoData } from "@/lib/demoData";
 import { toast } from "sonner";
 
 const formatDate = (iso: string) =>
