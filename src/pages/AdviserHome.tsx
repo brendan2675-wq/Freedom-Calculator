@@ -322,6 +322,7 @@ const AdviserHome = () => {
         onOpenChange={(v) => setClientDialog({ open: v, client: v ? clientDialog.client : undefined })}
         title={clientDialog.client ? "Edit client" : "New client"}
         initial={clientDialog.client}
+        showEmail={false}
         onSave={(data) => {
           upsertClient({ id: clientDialog.client?.id, name: data.name, email: data.email, agentIds: clientDialog.client?.agentIds || [] });
           refresh();
