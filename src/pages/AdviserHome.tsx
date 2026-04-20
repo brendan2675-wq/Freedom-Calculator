@@ -125,7 +125,7 @@ const AdviserHome = () => {
           <ActionCard
             icon={<Plus size={22} className="text-accent" />}
             title="Individual Scenario"
-            desc="Build a new portfolio for a person or couple"
+            desc="Build new portfolios for clients"
             onClick={() => startNew()}
           />
           <ActionCard
