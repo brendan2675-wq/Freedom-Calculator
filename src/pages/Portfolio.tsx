@@ -14,6 +14,8 @@ import { normalizeExistingProperties } from "@/lib/portfolioDefaults";
 
 const Portfolio = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isReadOnly = searchParams.get("readonly") === "1";
   const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
   const [authOpen, setAuthOpen] = useState(false);
   const handleSetClientName = (name: string) => {
@@ -174,6 +176,7 @@ const Portfolio = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {isReadOnly && <ReadOnlyBanner />}
       <header className="bg-header text-primary-foreground">
         <div className="container mx-auto px-4 py-6 md:py-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4 md:gap-6">
