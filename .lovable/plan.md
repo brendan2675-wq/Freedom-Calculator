@@ -1,67 +1,125 @@
 
 
-## Login + Role-Based Landing Pages
+## Migrate All Persistence to Cloud (No localStorage for User Data)
 
-A new `/login` page becomes the entry point. The user picks a role (Client / Adviser / Agent), and we route them to the right landing experience. All UI-only, persisted in localStorage — no backend yet.
+You want **zero reliance on localStorage** for anything a Client or Adviser saves. Everything — auth, scenarios, clients, agents, sharing — moves to a real backend the developer hosts on your company domain. localStorage stays only for trivial UI state (e.g. "has the user dismissed the disclaimer toast").
 
-### New routes
+This plan answers two questions:
+1. What needs to change to move all persistence off localStorage.
+2. How to keep adding features in Lovable without breaking the cloud setup.
+
+---
+
+### 1. What's currently in localStorage (must move to cloud)
+
+| Key | Purpose | Cloud destination |
+|---|---|---|
+| `auth-role`, `auth-user` | Mock login session | Real auth provider session (JWT/cookie) |
+| `saved-scenarios` | All saved scenarios + sharing metadata | `scenarios` + `scenario_shares` tables |
+| `clients` | Adviser's client directory | `clients` table |
+| `agents` | Adviser's agent directory | `agents` table |
+| `portfolio-ppor`, `portfolio-properties`, `portfolio-future-properties`, `client-name`, `global-interest-rate`, `target-month`, `target-year`, `growth-rate`, `ppor-suburb`, `ppor-starting-balance` | The "current working scenario" — the live state of the dashboard | Loaded from / saved to a single `scenarios.state_json` row on the server |
+
+### 2. What can stay in localStorage (safe to wipe)
+
+- `disclaimer-shown`, `welcome-dismissed`, onboarding tip flags — pure UI prefs, regenerated on next visit
+- Anything in `mem://` (that's Lovable-side memory, not user data)
+
+---
+
+### 3. Architecture the developer should build
+
 ```text
-/login          → Role-pick login screen (everyone starts here)
-/               → Client dashboard (Role 1 — current Home page)
-/adviser        → Adviser landing (Role 2 — clients, scenarios, agents)
-/agent          → Agent landing (Role 3 — read-only scenarios shared with them)
-/ppor-goal      → Existing (gated by role)
-/portfolio      → Existing (gated by role)
+[ React app (Lovable) ]  →  [ Your API on company domain ]  →  [ Postgres DB ]
+        |                              |
+        |  JWT in httpOnly cookie      |
+        |  VITE_API_URL env var        |
 ```
 
-### Role model (localStorage)
-- `auth-role`: `"client" | "adviser" | "agent"`
-- `auth-user`: `{ id, name, email, role }`
-- `clients`: `Client[]` — `{ id, name, email, agentIds: string[] }`
-- `agents`: `Agent[]` — `{ id, name, email }`
-- Extend `SavedScenario` with `clientId`, `ownerId`, `sharedAgentIds[]`, `type: "individual" | "smsf"`
+**Tables**
+```sql
+profiles(id, name, email, created_at)
+user_roles(user_id, role)            -- 'client' | 'adviser' | 'agent'
+clients(id, adviser_id, name, email, created_at)
+client_agents(client_id, agent_id)   -- which agents an adviser has linked to a client
+agents(id, name, email, agency, created_at)
+scenarios(
+  id, name, type,                    -- 'individual' | 'smsf'
+  owner_id, client_id,
+  state_json,                        -- the entire ScenarioState blob
+  updated_at, created_at
+)
+scenario_shares(scenario_id, agent_id, granted_by, granted_at)
+```
 
-A small `useAuth()` hook + `<RoleGuard allow={[...]}>` wrapper enforces access. Agents only ever see scenarios where their id is in `sharedAgentIds`; they open them via a read-only flag that disables inputs/save.
+**Endpoints (minimum)**
+```text
+POST /auth/login, /auth/logout, GET /auth/me
+GET/POST/PATCH/DELETE /clients
+GET/POST/PATCH/DELETE /agents
+GET/POST/PATCH/DELETE /scenarios
+POST /scenarios/:id/shares     (adviser grants agent read access)
+GET  /scenarios/:id/state      (read-only honoured server-side for agents)
+```
 
-### Adviser landing (`/adviser`)
-Mirrors the screenshot:
-- Greeting "G'day {name}"
-- 3 top action cards: **+ Individual Scenario**, **+ SMSF Scenario**, **Previous Scenario** (resumes last edited)
-- **Your recent scenarios** list with search + "See all" — rows show scenario name, client sub-line, value, created by/date, type pill (Individual/SMSF), arrow → opens in `/portfolio`
-- Tabs below: **Clients** (grouped: client → their scenarios, with create/edit/delete) and **Agents** (Role 3 directory with create/edit/delete + count of scenarios shared)
+**Critical**: read-only access for agents is enforced **on the server** via the `scenario_shares` table — not by a `?readonly=1` URL flag (that flag is only a UI hint).
 
-Clicking "+ Individual/SMSF" opens the standard dashboard (`/`) in scenario-build mode; on save, an "Assign to client" dialog lets the adviser attach the scenario to a client and optionally share with agents.
+---
 
-### Client landing (`/`)
-Unchanged — current Home / dashboard. Client only sees their own scenarios in `ScenarioManager`.
+### 4. How to make the swap painless: a thin "data layer"
 
-### Agent landing (`/agent`)
-- Greeting + simple list of scenarios shared with them
-- Each row → opens `/portfolio?readonly=1` which disables all editing controls, hides Save/Reset, shows a "Read-only — shared by {adviser}" banner
+Right now the app calls `localStorage.getItem(...)` directly from many components. To make the migration a one-shot job for your developer, we should refactor every persistence call behind **three small modules** that act as the only seam between UI and storage:
 
-### Sharing
-Inside `ScenarioManager`'s saved-scenario list (Adviser only), add a **Share** icon → dialog with checkboxes for each agent. Updates `sharedAgentIds` on the scenario.
+```text
+src/lib/scenarioManager.ts   ← already the seam for scenarios
+src/lib/clients.ts           ← already the seam for clients/agents
+src/lib/auth.ts              ← already the seam for session
+src/lib/workingScenario.ts   ← NEW seam for the live dashboard state
+                                (wraps the 10+ portfolio-* keys)
+```
 
-### Files to add
-- `src/pages/Login.tsx` — role-pick login (extends current `AuthFlow` visuals)
-- `src/pages/AdviserHome.tsx` — landing per screenshot
-- `src/pages/AgentHome.tsx` — read-only scenario list
-- `src/lib/auth.ts` — role/user helpers + `useAuth()` hook
-- `src/lib/clients.ts` — clients/agents CRUD in localStorage
-- `src/components/RoleGuard.tsx` — route protection
-- `src/components/AssignClientDialog.tsx` — assign scenario to client + agents
-- `src/components/ShareWithAgentsDialog.tsx` — per-scenario agent sharing
-- `src/components/ReadOnlyBanner.tsx`
+Today these files use `localStorage` internally. The developer's job becomes: **swap the body of each function from localStorage to `fetch(VITE_API_URL + ...)`**, leaving every component untouched. No hunting through 40 files.
 
-### Files to update
-- `src/App.tsx` — add new routes, redirect `/` → `/login` if no `auth-role`, route by role after login
-- `src/lib/scenarioManager.ts` — extend `SavedScenario` with `clientId`, `ownerId`, `sharedAgentIds`, `type`; filter helpers per role
-- `src/components/ScenarioManager.tsx` — show Share button (adviser), filter list by role
-- `src/pages/Home.tsx` & `src/pages/Portfolio.tsx` — honour `?readonly=1`, role-aware header (logout)
-- `src/components/Header.tsx` — replace static profile with role badge + Logout
+We'll also add a tiny `src/lib/api.ts` with a single `apiFetch()` helper so the developer only needs to wire base URL + auth header in one place.
 
-### Out of scope (next pass if wanted)
-- Real auth + RLS via Lovable Cloud
-- Email-based agent invites
-- Scenario change history per role
+---
+
+### 5. What changes in this plan (Lovable-side)
+
+**Files to add**
+- `src/lib/workingScenario.ts` — wraps the current `buildScenarioFromStorage` / `applyScenarioToStorage` logic so all "live dashboard" reads/writes go through one module
+- `src/lib/api.ts` — placeholder `apiFetch()` that today just calls the local helpers, tomorrow calls your API
+- `BACKEND_INTEGRATION.md` (project root) — the spec to hand the developer: tables, endpoints, env vars, RLS rules, file map of seams to swap
+
+**Files to refactor (no behaviour change yet — just routing through seams)**
+- `src/pages/Home.tsx`, `src/pages/Portfolio.tsx`, `src/pages/AdviserHome.tsx`, `src/pages/AgentHome.tsx`, `src/components/ScenarioManager.tsx`, `src/components/PporDetailSheet.tsx`, `src/components/KeyInputs.tsx`, etc. — replace direct `localStorage.getItem('portfolio-*')` calls with `workingScenario.read()` / `.write()`
+- `src/lib/auth.ts`, `src/lib/clients.ts`, `src/lib/scenarioManager.ts` — keep public API identical, mark internals with a `// TODO(backend): replace with apiFetch` comment so the dev sees exactly where to swap
+
+**No visual or functional changes.** The app behaves identically; it's purely a structural cleanup so the cloud migration is a contained job.
+
+---
+
+### 6. Ongoing workflow once the backend is live
+
+Your concern: "If I add a new field in Lovable later, does the developer have to redo work?"
+
+Answer with this structure: **mostly no**. Here's the pattern:
+
+- Adding a UI-only field (e.g. a new toggle that affects calculation only) → zero backend change.
+- Adding a field that needs to persist (e.g. "client phone number") → 3 small steps:
+  1. Add field to the TypeScript type (e.g. `Client.phone?: string`)
+  2. Lovable auto-saves it inside the existing JSON blob (`scenarios.state_json`) or as a new column the dev adds via one migration
+  3. Tell the developer "new field on `clients`: `phone text`" — one migration, done
+
+For scenario internals (PPOR details, properties, sale costs etc.) — these all live inside `state_json`, so **adding new scenario fields requires zero backend work**. That's why we keep the entire `ScenarioState` as a single JSON column.
+
+---
+
+### 7. Deliverables
+
+1. The 3 new files above (`workingScenario.ts`, `api.ts`, `BACKEND_INTEGRATION.md`)
+2. Refactor of all direct `localStorage` calls into the four seam modules
+3. A clear "swap-list" comment in each seam pointing to where the developer plugs in `fetch()`
+
+Once approved, the developer gets a repo where migrating to cloud means editing **4 files**, not 40.
 
