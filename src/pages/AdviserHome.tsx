@@ -405,6 +405,12 @@ const AdviserHome = () => {
           }}
         />
       )}
+
+      <NewScenarioDialog
+        open={newScenarioOpen}
+        onOpenChange={setNewScenarioOpen}
+        onCreate={handleCreateScenario}
+      />
     </div>
   );
 };
