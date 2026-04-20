@@ -169,3 +169,22 @@ export function seedDemoData(count = 20): { clients: number; scenarios: number }
   }
   return { clients: created.length, scenarios: scenarioCount };
 }
+
+/**
+ * Wipe all clients, agents, and saved scenarios. Also clears any active
+ * adviser-acting-as context so the banner disappears. Useful for resetting
+ * between demo previews.
+ */
+export function clearDemoData(): { clients: number; agents: number; scenarios: number } {
+  const counts = {
+    clients: (JSON.parse(localStorage.getItem("clients") || "[]") as unknown[]).length,
+    agents: (JSON.parse(localStorage.getItem("agents") || "[]") as unknown[]).length,
+    scenarios: (JSON.parse(localStorage.getItem("saved-scenarios") || "[]") as unknown[]).length,
+  };
+  localStorage.removeItem("clients");
+  localStorage.removeItem("agents");
+  localStorage.removeItem("saved-scenarios");
+  localStorage.removeItem("active-scenario-id");
+  localStorage.removeItem("adviser-acting-as");
+  return counts;
+}
