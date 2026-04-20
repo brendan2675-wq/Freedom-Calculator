@@ -140,16 +140,30 @@ const AdviserHome = () => {
 
         {/* Recent scenarios with search */}
         <section className="bg-card border-2 border-border rounded-2xl p-4 md:p-5 mb-6">
-          <div className="flex items-center justify-between mb-3 gap-3">
+          <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
             <h2 className="text-base md:text-lg font-bold text-foreground">Your recent scenarios</h2>
-            <div className="relative w-48 md:w-64">
-              <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search…"
-                className="pl-8 h-9 text-sm"
-              />
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const r = seedDemoData(20);
+                  refresh();
+                  toast.success(`Loaded ${r.clients} demo clients & scenarios`);
+                }}
+                className="h-9 text-xs"
+              >
+                Load demo data
+              </Button>
+              <div className="relative w-48 md:w-64">
+                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search…"
+                  className="pl-8 h-9 text-sm"
+                />
+              </div>
             </div>
           </div>
 
