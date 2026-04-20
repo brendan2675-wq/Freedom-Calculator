@@ -386,10 +386,11 @@ interface PersonDialogProps {
   title: string;
   initial?: { name: string; email: string; agency?: string };
   showAgency?: boolean;
+  showEmail?: boolean; // default true
   onSave: (data: { name: string; email: string; agency?: string }) => void;
 }
 
-const PersonDialog = ({ open, onOpenChange, title, initial, showAgency, onSave }: PersonDialogProps) => {
+const PersonDialog = ({ open, onOpenChange, title, initial, showAgency, showEmail = true, onSave }: PersonDialogProps) => {
   const [name, setName] = useState(initial?.name || "");
   const [email, setEmail] = useState(initial?.email || "");
   const [agency, setAgency] = useState(initial?.agency || "");
@@ -411,12 +412,14 @@ const PersonDialog = ({ open, onOpenChange, title, initial, showAgency, onSave }
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label>Name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" autoFocus />
           </div>
-          <div className="space-y-1.5">
-            <Label>Email</Label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" />
-          </div>
+          {showEmail && (
+            <div className="space-y-1.5">
+              <Label>Email</Label>
+              <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" />
+            </div>
+          )}
           {showAgency && (
             <div className="space-y-1.5">
               <Label>Agency (optional)</Label>
@@ -427,7 +430,7 @@ const PersonDialog = ({ open, onOpenChange, title, initial, showAgency, onSave }
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button
-            disabled={!name.trim() || !email.trim()}
+            disabled={!name.trim()}
             onClick={() => onSave({ name: name.trim(), email: email.trim(), agency: agency.trim() || undefined })}
           >
             Save
