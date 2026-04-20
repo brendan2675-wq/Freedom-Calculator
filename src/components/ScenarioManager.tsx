@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { Save, FolderOpen, Share2, Trash2, Download, Copy, Check, RefreshCw } from "lucide-react";
+import { Save, FolderOpen, Share2, Trash2, Download, Copy, Check, RefreshCw, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ScenarioState, SavedScenario } from "@/lib/scenarioManager";
-import { getSavedScenarios, saveScenario, updateScenario, deleteScenario, encodeStateToUrl } from "@/lib/scenarioManager";
+import { getSavedScenarios, saveScenario, updateScenario, deleteScenario, encodeStateToUrl, setScenarioMeta } from "@/lib/scenarioManager";
+import { useAuth } from "@/lib/auth";
+import { listAgents } from "@/lib/clients";
+import ShareWithAgentsDialog from "@/components/ShareWithAgentsDialog";
+import AssignClientDialog from "@/components/AssignClientDialog";
 
 interface ScenarioManagerProps {
   getCurrentState: () => ScenarioState;
@@ -13,43 +17,76 @@ interface ScenarioManagerProps {
 }
 
 const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) => {
+  const { user, role } = useAuth();
+  const isAdviser = role === "adviser";
+  const isAgent = role === "agent";
+
   const [open, setOpen] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [scenarios, setScenarios] = useState<SavedScenario[]>(getSavedScenarios);
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
-  const [activeScenarioId, setActiveScenarioId] = useState<string | null>(null);
+  const [activeScenarioId, setActiveScenarioId] = useState<string | null>(
+    () => localStorage.getItem("active-scenario-id"),
+  );
+  const [shareDialog, setShareDialog] = useState<{ open: boolean; scenario?: SavedScenario }>({ open: false });
+  const [assignDialog, setAssignDialog] = useState<{ open: boolean; scenario?: SavedScenario }>({ open: false });
+
+  // Filter scenarios visible per role
+  const visibleScenarios = scenarios.filter((s) => {
+    if (isAdviser) return true;
+    if (isAgent) {
+      const myAgent = listAgents().find((a) => a.email.toLowerCase() === (user?.email || "").toLowerCase());
+      return myAgent ? !!s.sharedAgentIds?.includes(myAgent.id) : false;
+    }
+    if (!s.ownerId) return true;
+    return s.ownerId === user?.id;
+  });
 
   const activeScenario = scenarios.find((s) => s.id === activeScenarioId) || null;
 
+  const refresh = () => setScenarios(getSavedScenarios());
+
   const handleSave = () => {
+    if (isAgent) return;
     const name = saveName.trim() || `Scenario ${scenarios.length + 1}`;
     const state = getCurrentState();
-    // Check if a scenario with the same name already exists
     const existing = scenarios.find((s) => s.name.toLowerCase() === name.toLowerCase());
     if (existing) {
       const updated = updateScenario(existing.id, state);
       if (updated) {
-        setScenarios(getSavedScenarios());
+        refresh();
         setActiveScenarioId(existing.id);
+        localStorage.setItem("active-scenario-id", existing.id);
         setSaveName("");
         toast.success(`Updated "${name}"`);
         return;
       }
     }
-    const saved = saveScenario(name, state);
+    const pendingType = (localStorage.getItem("new-scenario-type") as "individual" | "smsf" | null) || "individual";
+    const saved = saveScenario(name, state, {
+      ownerId: user?.id,
+      ownerRole: isAdviser ? "adviser" : "client",
+      type: pendingType,
+      sharedAgentIds: [],
+    });
+    localStorage.removeItem("new-scenario-type");
     setScenarios([...scenarios, saved]);
     setActiveScenarioId(saved.id);
+    localStorage.setItem("active-scenario-id", saved.id);
     setSaveName("");
     toast.success(`Saved "${name}"`);
+    if (isAdviser) {
+      setAssignDialog({ open: true, scenario: saved });
+    }
   };
 
   const handleUpdate = () => {
-    if (!activeScenarioId) return;
+    if (isAgent || !activeScenarioId) return;
     const state = getCurrentState();
     const updated = updateScenario(activeScenarioId, state);
     if (updated) {
-      setScenarios(getSavedScenarios());
+      refresh();
       toast.success(`Updated "${updated.name}"`);
     }
   };
@@ -57,14 +94,19 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
   const handleLoad = (scenario: SavedScenario) => {
     loadState(scenario.state);
     setActiveScenarioId(scenario.id);
+    localStorage.setItem("active-scenario-id", scenario.id);
     setOpen(false);
     toast.success(`Loaded "${scenario.name}"`);
   };
 
   const handleDelete = (id: string) => {
+    if (isAgent) return;
     deleteScenario(id);
     setScenarios(scenarios.filter((s) => s.id !== id));
-    if (activeScenarioId === id) setActiveScenarioId(null);
+    if (activeScenarioId === id) {
+      setActiveScenarioId(null);
+      localStorage.removeItem("active-scenario-id");
+    }
     toast("Scenario deleted");
   };
 
