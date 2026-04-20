@@ -1,6 +1,6 @@
 # Freedom Calculator
 
-The Freedom Calculator by Atelier Wealth — model your PPOR pay-down strategy and pay off your home in 10 years, not 30.
+The Freedom Calculator by Atelier Wealth 
 
 ## Tech stack
 
