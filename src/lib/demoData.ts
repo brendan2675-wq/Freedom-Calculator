@@ -2,12 +2,16 @@
  * Demo data seeder — creates 20 dummy clients and 20 dummy scenarios for
  * the adviser dashboard so we can preview lists at scale.
  *
- * Triggered manually from AdviserHome via "Load demo data". Idempotent: when
- * called it appends a fresh batch (ids are uuids, so re-clicking duplicates).
+ * Triggered manually from AdviserHome via "Load demo data". Each call appends
+ * a fresh batch (uuids), so re-clicking duplicates intentionally.
  */
 import { upsertClient, type Client } from "@/lib/clients";
 import { saveScenario, type ScenarioState } from "@/lib/scenarioManager";
-import type { ExistingProperty, FutureProperty } from "@/types/property";
+import {
+  defaultLoanDetails, defaultRentalDetails,
+  type ExistingProperty, type FutureProperty, type InvestmentType,
+} from "@/types/property";
+import type { AustralianState } from "@/lib/stampDuty";
 
 const FIRST_NAMES = [
   "Olivia", "Liam", "Charlotte", "Noah", "Amelia", "Oliver", "Mia", "Jack",
@@ -25,12 +29,11 @@ const SUBURBS = [
   "Subiaco", "New Farm", "Teneriffe", "Coogee", "Balmain", "Richmond",
   "Hawthorn", "Annandale",
 ];
-const STATES: Array<ExistingProperty["purchase"]["state"]> = [
-  "NSW", "VIC", "QLD", "WA", "SA",
-];
+const STATES: AustralianState[] = ["NSW", "VIC", "QLD", "WA", "SA"];
+const INVESTMENT_TYPES: InvestmentType[] = ["house", "unit", "townhouse"];
 
 const rand = (min: number, max: number) => Math.round(min + Math.random() * (max - min));
-const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 const makePpor = (suburb: string): ExistingProperty => {
   const value = rand(900, 2400) * 1000;
@@ -45,18 +48,16 @@ const makePpor = (suburb: string): ExistingProperty => {
     sellInYears: 0,
     ownership: "personal",
     investmentType: "house",
-    loan: { interestRate: 6.25, repaymentType: "principal-and-interest", ioYears: 0, loanTermYears: 30 },
-    rental: { weeklyRent: 0 },
+    loan: { ...defaultLoanDetails, interestRate: 6.25 },
+    rental: { ...defaultRentalDetails, weeklyRent: 0 },
     purchase: {
       purchaseDate: "",
       settlementDate: "",
       purchasePrice,
-      deposit: Math.round(purchasePrice * 0.2),
       stampDuty: Math.round(purchasePrice * 0.04),
-      otherCosts: 3000,
-      state: pick(STATES),
     },
-  } as unknown as ExistingProperty;
+    state: pick(STATES),
+  };
 };
 
 const makeInvestment = (i: number): ExistingProperty => {
@@ -72,34 +73,42 @@ const makeInvestment = (i: number): ExistingProperty => {
     earmarked: false,
     sellInYears: 0,
     ownership: pick(["personal", "trust"] as const),
-    investmentType: pick(["house", "unit", "townhouse"] as const),
-    loan: { interestRate: 6.5, repaymentType: "interest-only", ioYears: 5, loanTermYears: 30 },
-    rental: { weeklyRent: weekly },
+    investmentType: pick(INVESTMENT_TYPES),
+    loan: { ...defaultLoanDetails, interestRate: 6.5, interestOnlyPeriodYears: 5 },
+    rental: { ...defaultRentalDetails, weeklyRent: weekly },
     purchase: {
       purchaseDate: "",
       settlementDate: "",
       purchasePrice,
-      deposit: Math.round(purchasePrice * 0.2),
       stampDuty: Math.round(purchasePrice * 0.04),
-      otherCosts: 2500,
-      state: pick(STATES),
     },
-  } as unknown as ExistingProperty;
+    state: pick(STATES),
+  };
 };
 
-const makeFuture = (i: number): FutureProperty => {
+const makeFuture = (): FutureProperty => {
   const price = rand(500, 1100) * 1000;
+  const weekly = rand(450, 850);
   return {
     id: `fp-${crypto.randomUUID()}`,
-    nickname: `Proposed ${pick(SUBURBS)}`,
-    estimatedValue: price,
+    suburb: pick(SUBURBS),
     purchasePrice: price,
-    yearsUntilPurchase: rand(1, 5),
-    weeklyRent: rand(450, 850),
-    state: pick(STATES),
-    investmentType: pick(["house", "unit", "townhouse"] as const),
+    rentalYield: +(((weekly * 52) / price) * 100).toFixed(2),
+    projectedEquity5yr: Math.round(price * 0.25),
+    lvr: 80,
     ownership: "personal",
-  } as unknown as FutureProperty;
+    investmentType: pick(INVESTMENT_TYPES),
+    loan: { ...defaultLoanDetails, interestRate: 6.5 },
+    rental: { ...defaultRentalDetails, weeklyRent: weekly },
+    purchase: {
+      purchaseDate: "",
+      settlementDate: "",
+      purchasePrice: price,
+      stampDuty: Math.round(price * 0.04),
+    },
+    state: pick(STATES),
+    proposedLoanAmount: Math.round(price * 0.8),
+  };
 };
 
 const buildState = (clientName: string): ScenarioState => {
@@ -112,11 +121,11 @@ const buildState = (clientName: string): ScenarioState => {
     interestRate: 6.5,
     targetMonth: rand(0, 11),
     targetYear: thisYear + rand(7, 15),
-    growthRate: 6 + Math.random() * 1.5,
+    growthRate: +(6 + Math.random() * 1.5).toFixed(2),
     pporSuburb: suburb,
     ppor: makePpor(suburb),
     existingProperties: Array.from({ length: investmentCount }, (_, i) => makeInvestment(i)),
-    futureProperties: Array.from({ length: futureCount }, (_, i) => makeFuture(i)),
+    futureProperties: Array.from({ length: futureCount }, () => makeFuture()),
   };
 };
 
@@ -125,8 +134,7 @@ export function seedDemoData(count = 20): { clients: number; scenarios: number }
   for (let i = 0; i < count; i++) {
     const name = `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
     const email = name.toLowerCase().replace(/[^a-z]+/g, ".") + "@example.com";
-    const client = upsertClient({ name, email, agentIds: [] });
-    created.push(client);
+    created.push(upsertClient({ name, email, agentIds: [] }));
   }
   for (const client of created) {
     const state = buildState(client.name);
