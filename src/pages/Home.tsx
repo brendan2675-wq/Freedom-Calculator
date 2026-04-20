@@ -89,7 +89,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4 py-6 md:py-14">
           {/* Top bar: brand + actions */}
           <div className="flex items-center justify-between mb-4 md:mb-6">
-            <p className="text-accent text-lg tracking-wider">Atelier Wealth</p>
+            <p className="text-accent text-lg tracking-wider">Atelier Wealth - Freedom Calculator</p>
           <div className="flex items-center gap-2 md:gap-4">
               <ScenarioManager
                 getCurrentState={buildScenarioFromStorage}

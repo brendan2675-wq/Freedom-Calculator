@@ -101,7 +101,7 @@ const AdviserHome = () => {
       <header className="bg-header text-primary-foreground">
         <div className="container mx-auto px-4 py-6 md:py-10">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-accent text-lg tracking-wider">Atelier Wealth</p>
+            <p className="text-accent text-lg tracking-wider">Atelier Wealth - Freedom Calculator</p>
             <div className="flex items-center gap-3">
               <span className="text-xs px-2 py-1 rounded-full bg-accent/15 text-accent border border-accent/30">
                 Adviser
