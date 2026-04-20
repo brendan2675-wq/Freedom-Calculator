@@ -136,14 +136,22 @@ export function seedDemoData(count = 20): { clients: number; scenarios: number }
     const email = name.toLowerCase().replace(/[^a-z]+/g, ".") + "@example.com";
     created.push(upsertClient({ name, email, agentIds: [] }));
   }
+  const PLAN_LABELS = ["Base Plan", "Aggressive Growth", "Conservative", "Sell-down 2030", "SMSF Path"];
+  let scenarioCount = 0;
   for (const client of created) {
-    const state = buildState(client.name);
-    const scenarioName = `${client.name.split(" ")[0]}'s Plan`;
-    saveScenario(scenarioName, state, {
-      clientId: client.id,
-      ownerRole: "adviser",
-      type: "individual",
-    });
+    // Most clients get 1 scenario; ~30% get 2; ~10% get 3 — so we can see the count badge vary
+    const r = Math.random();
+    const planCount = r < 0.1 ? 3 : r < 0.4 ? 2 : 1;
+    for (let i = 0; i < planCount; i++) {
+      const state = buildState(client.name);
+      const label = i === 0 ? `${client.name.split(" ")[0]}'s Plan` : `${client.name.split(" ")[0]} — ${PLAN_LABELS[i]}`;
+      saveScenario(label, state, {
+        clientId: client.id,
+        ownerRole: "adviser",
+        type: "individual",
+      });
+      scenarioCount++;
+    }
   }
-  return { clients: created.length, scenarios: created.length };
+  return { clients: created.length, scenarios: scenarioCount };
 }
