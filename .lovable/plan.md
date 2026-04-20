@@ -1,55 +1,64 @@
 
 
-## Replace "Sign In" buttons across the app
+## What's broken & what to add
 
-Since `/login` is now the entry point and users are always authenticated by the time they reach Home / PPOR / Portfolio, the per-page "Sign In" button in the header is redundant.
+**Bug**: When an adviser clicks a scenario, `openScenario` navigates to `/`. But `RootRedirect` sends advisers back to `/adviser`, so nothing happens.
 
-### Current state
+**Goal**: Let advisers walk into a client's dashboard + PPOR + Portfolio modules (the same views clients see), edit, and save back. Plus, when starting a new scenario, link it to an existing client or create a new client inline.
 
-The `Header` component (used on Home, PPOR, Portfolio, Adviser, Agent pages) shows a **"Sign In"** button that opens the legacy `AuthFlow` dialog. That dialog is now dead weight — the real login lives at `/login`.
+## Plan
 
-### Proposed change
+### 1. Fix scenario-open routing for advisers
+- Change `openScenario` in `AdviserHome.tsx` to navigate to `/dashboard` (or `/ppor-goal` directly) instead of `/`.
+- Add a `/dashboard` route in `App.tsx` that renders `Home` and is allowed for `client` and `adviser` (currently `Home` only renders via `RootRedirect` for clients).
+- Update `RootRedirect`: keep adviser → `/adviser`, but allow `/dashboard` as an explicit destination so advisers can land there.
 
-Replace the "Sign In" button with a **user menu** showing who's signed in and what role, with a **Sign Out** action. This matches the pattern of every real SaaS app and gives the user something useful in that slot.
+### 2. "Acting as client" context banner
+When an adviser opens a client's scenario, set a flag `adviser-acting-as` in localStorage with `{ clientId, scenarioId, clientName }`. On `Home`, `Index` (PPOR), and `Portfolio` pages, if the flag is present and current role is `adviser`, show a slim sticky banner at the top:
 
-**New header control (right side):**
+> Editing **Dennis & Jane Nguyen**'s scenario — *The Nguyens' Plan*    [Save changes] [Exit to dashboard]
 
-```text
-┌─────────────────────────────┐
-│  👤 Sam Client    ▼         │   ← click to open menu
-└─────────────────────────────┘
-            │
-            ▼
-┌─────────────────────────────┐
-│  Sam Client                 │
-│  sam@atelierwealth.com      │
-│  Role: Client               │
-│  ─────────────────────────  │
-│  ⎋  Sign out                │   ← clears session, returns to /login
-└─────────────────────────────┘
-```
+- **Save changes** → calls `updateScenario(scenarioId, buildScenarioFromStorage())` and toasts.
+- **Exit to dashboard** → clears the flag and `active-scenario-id`, navigates back to `/adviser`.
 
-### What changes
+A small `AdviserActingBanner.tsx` component, mounted in `Home`, `Index`, `Portfolio`.
 
-1. **`src/components/Header.tsx`**
-   - Remove the "Sign In" button and the `AuthFlow` dialog import/state
-   - Add a dropdown trigger showing the signed-in user's name + a small role badge (Client / Adviser / Agent)
-   - Dropdown contents: name, email, role, divider, **Sign out** action
-   - Sign out clears the session via `clearSession()` from `lib/auth.ts` and navigates to `/login`
+### 3. New scenario → pick or create client (inline)
+Replace the current "Individual Scenario" action card flow. Instead of just navigating away:
 
-2. **`src/components/AuthFlow.tsx`** — delete (no longer used anywhere)
+- Click **Individual Scenario** → opens a `NewScenarioDialog` with:
+  - A client picker (searchable list of existing clients, same `Client[]`)
+  - A "+ New client" button that swaps the picker for an inline "Client name" input
+  - A **Scenario name** input (defaulted to `"<Name>'s Plan"`)
+  - **Create** button
 
-3. **Remove `clientName` / `setClientName` plumbing** that only existed to feed the old AuthFlow dialog. The display name now comes from `getSession()` in `lib/auth.ts`, which is already the source of truth set at `/login`.
+- On Create:
+  1. If new client → `upsertClient({ name })`
+  2. Reset working storage to a clean slate (`applyScenarioToStorage` with blank state) so the adviser doesn't carry over the previous client's numbers
+  3. `saveScenario(name, blankState, { clientId, ownerId, ownerRole: "adviser" })`
+  4. Set `adviser-acting-as` flag and `active-scenario-id`
+  5. Navigate to `/dashboard`
 
-### Why a user menu (not just a Sign Out button)
+### 4. Make the recent-scenarios row actually work
+The row click already calls `openScenario`. After fix #1 it will navigate correctly. Also wire up `applyScenarioToStorage` followed by setting the acting-as flag so the banner appears.
 
-- Confirms to the user *which account / role* they're in — important because Adviser vs Client vs Agent show different data
-- Standard pattern, zero learning curve
-- Leaves room to later add "Switch role" or "Account settings" without redesigning the header
+### 5. Tiny polish
+- The "Previous Scenario" action card on AdviserHome currently opens scenario[0] but goes nowhere — fixed by #1.
+- Adviser header can keep a "Back to Adviser dashboard" link in `UserMenu` already, but the banner makes exit obvious.
 
-### Out of scope
+## Files touched
+- `src/App.tsx` — add `/dashboard` route, adjust `RootRedirect`
+- `src/pages/AdviserHome.tsx` — fix `openScenario` route, replace `startNew` with dialog flow, add `NewScenarioDialog`
+- `src/pages/Home.tsx`, `src/pages/Index.tsx`, `src/pages/Portfolio.tsx` — mount `AdviserActingBanner`
+- `src/components/AdviserActingBanner.tsx` — new component (Save/Exit)
+- `src/components/NewScenarioDialog.tsx` — new component (client picker + inline create + scenario name)
 
-- No change to `/login` itself
-- No change to routing or `RoleGuard`
-- localStorage `clientName` key cleanup is not needed — once `AuthFlow` is gone nothing writes to it
+## What stays the same
+- LocalStorage as source of truth.
+- `ScenarioManager`, `Client`/`Agent` storage shapes, role guard logic.
+- Demo data flow.
+
+## Out of scope
+- Multi-tenant data separation (still single-browser localStorage).
+- Editing a client's scenario in a side-by-side compare view.
 
