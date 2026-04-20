@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Plus, Search, ChevronRight, LogOut, User, Users, Briefcase, Building2, FileText,
+  Plus, Search, ChevronRight, LogOut, User, Users, Briefcase, FileText,
   Edit2, Trash2, Share2, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -75,13 +75,13 @@ const AdviserHome = () => {
   const openScenario = (s: SavedScenario) => {
     applyScenarioToStorage(s.state);
     localStorage.setItem("active-scenario-id", s.id);
-    navigate("/portfolio");
+    navigate("/");
   };
 
-  const startNew = (type: "individual" | "smsf") => {
+  const startNew = () => {
     localStorage.removeItem("active-scenario-id");
-    localStorage.setItem("new-scenario-type", type);
-    navigate("/portfolio");
+    localStorage.setItem("new-scenario-type", "individual");
+    navigate("/");
   };
 
   const handleDeleteScenario = (id: string) => {
@@ -114,25 +114,19 @@ const AdviserHome = () => {
               </button>
             </div>
           </div>
-          <h1 className="text-2xl md:text-4xl font-bold">G'day {user?.name?.split(" ")[0] || "there"} 👋</h1>
+          <h1 className="text-2xl md:text-4xl font-bold">G'day {user?.name?.split(" ")[0] || "there"}</h1>
           <p className="text-accent text-sm md:text-base mt-1 font-light">Manage clients, scenarios, and agent access</p>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-6 md:py-10 max-w-6xl">
         {/* Action cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-6">
           <ActionCard
             icon={<Plus size={22} className="text-accent" />}
             title="Individual Scenario"
             desc="Build a new portfolio for a person or couple"
-            onClick={() => startNew("individual")}
-          />
-          <ActionCard
-            icon={<Building2 size={22} className="text-accent" />}
-            title="SMSF Scenario"
-            desc="Build a new self-managed super fund scenario"
-            onClick={() => startNew("smsf")}
+            onClick={() => startNew()}
           />
           <ActionCard
             icon={<FileText size={22} className="text-accent" />}
@@ -173,7 +167,7 @@ const AdviserHome = () => {
                       className="flex items-center gap-3 flex-1 min-w-0 text-left"
                     >
                       <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                        {s.type === "smsf" ? <Building2 size={16} className="text-accent" /> : <User size={16} className="text-accent" />}
+                        <User size={16} className="text-accent" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-foreground truncate">{s.name}</p>
@@ -184,7 +178,7 @@ const AdviserHome = () => {
                       <div className="hidden md:block text-right shrink-0">
                         <p className="text-sm font-semibold text-foreground">{fmtCurrency(sumPortfolioValue(s))}</p>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                          {s.type === "smsf" ? "SMSF" : "Individual"}
+                          Individual
                         </p>
                       </div>
                     </button>
