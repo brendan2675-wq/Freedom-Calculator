@@ -82,11 +82,18 @@ export function applyScenarioToStorage(state: ScenarioState) {
   }
 }
 
+export type ScenarioType = "individual" | "smsf";
+
 export interface SavedScenario {
   id: string;
   name: string;
   savedAt: string;
   state: ScenarioState;
+  clientId?: string;
+  ownerId?: string; // user id of creator (adviser or client)
+  ownerRole?: "client" | "adviser";
+  sharedAgentIds?: string[];
+  type?: ScenarioType;
 }
 
 const SCENARIOS_KEY = "saved-scenarios";
@@ -100,27 +107,55 @@ export function getSavedScenarios(): SavedScenario[] {
   }
 }
 
-export function saveScenario(name: string, state: ScenarioState): SavedScenario {
+export function saveScenario(
+  name: string,
+  state: ScenarioState,
+  meta?: Partial<Pick<SavedScenario, "clientId" | "ownerId" | "ownerRole" | "sharedAgentIds" | "type">>,
+): SavedScenario {
   const scenarios = getSavedScenarios();
   const scenario: SavedScenario = {
     id: crypto.randomUUID(),
     name,
     savedAt: new Date().toISOString(),
     state,
+    sharedAgentIds: [],
+    type: "individual",
+    ...meta,
   };
   scenarios.push(scenario);
   localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
   return scenario;
 }
 
-export function updateScenario(id: string, state: ScenarioState): SavedScenario | null {
+export function updateScenario(
+  id: string,
+  state: ScenarioState,
+  meta?: Partial<Pick<SavedScenario, "clientId" | "ownerId" | "ownerRole" | "sharedAgentIds" | "type" | "name">>,
+): SavedScenario | null {
   const scenarios = getSavedScenarios();
   const idx = scenarios.findIndex((s) => s.id === id);
   if (idx === -1) return null;
-  scenarios[idx] = { ...scenarios[idx], savedAt: new Date().toISOString(), state };
+  scenarios[idx] = { ...scenarios[idx], ...meta, savedAt: new Date().toISOString(), state };
   localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
   return scenarios[idx];
 }
+
+export function setScenarioMeta(
+  id: string,
+  meta: Partial<Pick<SavedScenario, "clientId" | "ownerId" | "ownerRole" | "sharedAgentIds" | "type" | "name">>,
+): SavedScenario | null {
+  const scenarios = getSavedScenarios();
+  const idx = scenarios.findIndex((s) => s.id === id);
+  if (idx === -1) return null;
+  scenarios[idx] = { ...scenarios[idx], ...meta };
+  localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
+  return scenarios[idx];
+}
+
+export function getScenario(id: string): SavedScenario | undefined {
+  return getSavedScenarios().find((s) => s.id === id);
+}
+
 
 export function deleteScenario(id: string) {
   const scenarios = getSavedScenarios().filter((s) => s.id !== id);
