@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { Home, DollarSign, TrendingUp, BarChart3, UserCircle, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw, Target, Sparkles } from "lucide-react";
+import { Home, DollarSign, TrendingUp, BarChart3, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw, Target, Sparkles } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
-import AuthFlow from "@/components/AuthFlow";
 import ScenarioManager from "@/components/ScenarioManager";
+import UserMenu from "@/components/UserMenu";
 import WelcomeDialog from "@/components/WelcomeDialog";
 import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
 
@@ -48,13 +48,7 @@ const tiles = [
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [clientName, setClientName] = useState(() => localStorage.getItem("client-name") || "Client Name");
-  const [authOpen, setAuthOpen] = useState(false);
   const [welcomeOpen, setWelcomeOpen] = useState(false);
-  const handleSetClientName = (name: string) => {
-    setClientName(name);
-    localStorage.setItem("client-name", name);
-  };
 
   const { hasPpor, hasInvestments, isFreshUser } = useMemo(() => {
     let hasPpor = false;
@@ -119,22 +113,7 @@ const HomePage = () => {
                 <RotateCcw size={14} />
                 <span className="hidden sm:inline">Reset</span>
               </button>
-              <div className="flex flex-col items-center gap-0.5">
-                <button
-                  onClick={() => setAuthOpen(true)}
-                  className="text-accent hover:text-accent/80 transition-colors"
-                  aria-label="Profile"
-                >
-                  <UserCircle size={36} className="md:w-11 md:h-11" />
-                </button>
-                <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={handleSetClientName} />
-                <input
-                  value={clientName}
-                  onChange={(e) => handleSetClientName(e.target.value)}
-                  className="text-center text-xs md:text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-24 md:w-40"
-                  placeholder="Client name"
-                />
-              </div>
+              <UserMenu />
             </div>
           </div>
           {/* Title */}
