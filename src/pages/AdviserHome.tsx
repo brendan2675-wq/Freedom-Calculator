@@ -268,6 +268,7 @@ const AdviserHome = () => {
             <div className="divide-y divide-border">
               {filtered.slice(0, 8).map((s) => {
                 const client = clients.find((c) => c.id === s.clientId);
+                const modules = detectModules(s);
                 return (
                   <div key={s.id} className="flex items-center gap-3 py-3 group">
                     <button
@@ -283,11 +284,27 @@ const AdviserHome = () => {
                           {client?.name || "Unassigned"} • {formatDate(s.savedAt)}
                         </p>
                       </div>
-                      <div className="hidden md:block text-right shrink-0">
+                      <div className="hidden sm:flex items-center gap-1 shrink-0">
+                        {STRATEGY_MODULES.map((m) => {
+                          const active = modules.has(m.key);
+                          const Icon = m.icon;
+                          return (
+                            <span
+                              key={m.key}
+                              title={`${m.label}${active ? "" : " — no data"}`}
+                              className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${
+                                active
+                                  ? "bg-accent/15 text-accent"
+                                  : "bg-muted text-muted-foreground/30"
+                              }`}
+                            >
+                              <Icon size={12} />
+                            </span>
+                          );
+                        })}
+                      </div>
+                      <div className="hidden md:block text-right shrink-0 min-w-[64px]">
                         <p className="text-sm font-semibold text-foreground">{fmtCurrency(sumPortfolioValue(s))}</p>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                          Individual
-                        </p>
                       </div>
                     </button>
                     <div className="flex items-center gap-1 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -316,6 +333,28 @@ const AdviserHome = () => {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Strategy icon legend */}
+          {filtered.length > 0 && (
+            <div className="mt-4 pt-3 border-t border-border">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                Strategy modules
+              </p>
+              <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                {STRATEGY_MODULES.map((m) => {
+                  const Icon = m.icon;
+                  return (
+                    <div key={m.key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="w-5 h-5 rounded-md bg-accent/15 text-accent flex items-center justify-center">
+                        <Icon size={11} />
+                      </span>
+                      {m.label}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </section>
