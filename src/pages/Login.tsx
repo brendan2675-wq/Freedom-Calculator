@@ -49,7 +49,7 @@ const Login = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="bg-header text-primary-foreground py-6 md:py-10">
         <div className="container mx-auto px-4">
-          <p className="text-accent text-lg tracking-wider">Atelier Wealth - Freedom Calculator</p>
+          <p className="text-accent text-lg tracking-wider">Atelier Wealth</p>
         </div>
       </header>
 
