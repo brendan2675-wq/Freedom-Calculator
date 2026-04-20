@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Plus, Search, ChevronRight, LogOut, User, Users, Briefcase, FileText,
   Edit2, Trash2, Share2, Eye,
+  Home as HomeIcon, Building2, Landmark, TrendingUp, DollarSign, Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,38 @@ const sumPortfolioValue = (s: SavedScenario): number => {
 
 const fmtCurrency = (n: number) =>
   n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}M` : `$${(n / 1000).toFixed(0)}k`;
+
+// Strategy modules: which areas of the app a scenario has data in.
+// Order matters — this also drives the legend at the bottom.
+const STRATEGY_MODULES = [
+  { key: "ppor", label: "PPOR (Freedom Calc)", icon: HomeIcon },
+  { key: "investments", label: "Investment portfolio", icon: Building2 },
+  { key: "proposed", label: "Proposed purchases", icon: TrendingUp },
+  { key: "cashflow", label: "Cash flow (rental)", icon: DollarSign },
+  { key: "smsf", label: "SMSF strategy", icon: Landmark },
+  { key: "selldown", label: "Sell-down plan", icon: Target },
+] as const;
+
+type ModuleKey = typeof STRATEGY_MODULES[number]["key"];
+
+const detectModules = (s: SavedScenario): Set<ModuleKey> => {
+  const set = new Set<ModuleKey>();
+  const ppor = s.state?.ppor;
+  if (ppor && ((ppor.estimatedValue || 0) > 0 || (ppor.loanBalance || 0) > 0)) set.add("ppor");
+  const inv = s.state?.existingProperties || [];
+  if (inv.length > 0) set.add("investments");
+  const fut = s.state?.futureProperties || [];
+  if (fut.length > 0) set.add("proposed");
+  const hasRent = inv.some((p: any) => (p?.rental?.weeklyRent || 0) > 0);
+  if (hasRent) set.add("cashflow");
+  const hasSmsf = inv.some((p: any) => p?.ownership === "smsf") ||
+    fut.some((p: any) => p?.ownership === "smsf") ||
+    s.type === "smsf";
+  if (hasSmsf) set.add("smsf");
+  const hasSelldown = inv.some((p: any) => p?.earmarked);
+  if (hasSelldown) set.add("selldown");
+  return set;
+};
 
 const AdviserHome = () => {
   const navigate = useNavigate();
@@ -235,6 +268,7 @@ const AdviserHome = () => {
             <div className="divide-y divide-border">
               {filtered.slice(0, 8).map((s) => {
                 const client = clients.find((c) => c.id === s.clientId);
+                const modules = detectModules(s);
                 return (
                   <div key={s.id} className="flex items-center gap-3 py-3 group">
                     <button
@@ -250,11 +284,27 @@ const AdviserHome = () => {
                           {client?.name || "Unassigned"} • {formatDate(s.savedAt)}
                         </p>
                       </div>
-                      <div className="hidden md:block text-right shrink-0">
+                      <div className="hidden sm:flex items-center gap-1 shrink-0">
+                        {STRATEGY_MODULES.map((m) => {
+                          const active = modules.has(m.key);
+                          const Icon = m.icon;
+                          return (
+                            <span
+                              key={m.key}
+                              title={`${m.label}${active ? "" : " — no data"}`}
+                              className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${
+                                active
+                                  ? "bg-accent/15 text-accent"
+                                  : "bg-muted text-muted-foreground/30"
+                              }`}
+                            >
+                              <Icon size={12} />
+                            </span>
+                          );
+                        })}
+                      </div>
+                      <div className="hidden md:block text-right shrink-0 min-w-[64px]">
                         <p className="text-sm font-semibold text-foreground">{fmtCurrency(sumPortfolioValue(s))}</p>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                          Individual
-                        </p>
                       </div>
                     </button>
                     <div className="flex items-center gap-1 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -283,6 +333,28 @@ const AdviserHome = () => {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Strategy icon legend */}
+          {filtered.length > 0 && (
+            <div className="mt-4 pt-3 border-t border-border">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                Strategy modules
+              </p>
+              <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                {STRATEGY_MODULES.map((m) => {
+                  const Icon = m.icon;
+                  return (
+                    <div key={m.key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="w-5 h-5 rounded-md bg-accent/15 text-accent flex items-center justify-center">
+                        <Icon size={11} />
+                      </span>
+                      {m.label}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </section>
