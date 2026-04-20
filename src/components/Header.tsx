@@ -1,20 +1,16 @@
-import { useState } from "react";
-import { UserCircle, LayoutDashboard, RotateCcw } from "lucide-react";
+import { LayoutDashboard, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AuthFlow from "@/components/AuthFlow";
 import ScenarioManager from "@/components/ScenarioManager";
+import UserMenu from "@/components/UserMenu";
 import type { ScenarioState } from "@/lib/scenarioManager";
 
 interface HeaderProps {
-  clientName: string;
-  setClientName: (v: string) => void;
   getCurrentState?: () => ScenarioState;
   loadState?: (state: ScenarioState) => void;
 }
 
-const Header = ({ clientName, setClientName, getCurrentState, loadState }: HeaderProps) => {
+const Header = ({ getCurrentState, loadState }: HeaderProps) => {
   const navigate = useNavigate();
-  const [authOpen, setAuthOpen] = useState(false);
   return (
     <header className="bg-header text-primary-foreground">
       <div className="container mx-auto px-4 py-5 md:py-12">
@@ -47,23 +43,7 @@ const Header = ({ clientName, setClientName, getCurrentState, loadState }: Heade
               <RotateCcw size={14} />
               <span className="hidden sm:inline">Reset</span>
             </button>
-            <div className="flex flex-col items-center gap-0.5">
-              <button
-                onClick={() => setAuthOpen(true)}
-                className="text-accent hover:text-accent/80 transition-colors"
-                aria-label="Profile"
-              >
-                <UserCircle size={32} className="md:hidden" />
-                <UserCircle size={44} className="hidden md:block" />
-              </button>
-              <AuthFlow open={authOpen} onOpenChange={setAuthOpen} clientName={clientName} setClientName={(name) => { setClientName(name); localStorage.setItem("client-name", name); }} />
-              <input
-                value={clientName}
-                onChange={(e) => { setClientName(e.target.value); localStorage.setItem("client-name", e.target.value); }}
-                className="text-center text-xs md:text-sm text-accent bg-transparent border-b border-transparent hover:border-accent/40 focus:border-accent focus:outline-none transition-colors w-20 md:w-40"
-                placeholder="Client name"
-              />
-            </div>
+            <UserMenu />
           </div>
         </div>
         {/* Title */}
