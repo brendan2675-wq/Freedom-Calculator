@@ -16,10 +16,12 @@ import {
   type Client, type Agent,
 } from "@/lib/clients";
 import {
-  getSavedScenarios, deleteScenario, applyScenarioToStorage, setScenarioMeta,
-  type SavedScenario,
+  getSavedScenarios, deleteScenario, applyScenarioToStorage, setScenarioMeta, saveScenario,
+  type SavedScenario, type ScenarioState,
 } from "@/lib/scenarioManager";
 import ShareWithAgentsDialog from "@/components/ShareWithAgentsDialog";
+import NewScenarioDialog from "@/components/NewScenarioDialog";
+import { setActingAs } from "@/components/AdviserActingBanner";
 import { seedDemoData } from "@/lib/demoData";
 import { toast } from "sonner";
 
@@ -47,6 +49,7 @@ const AdviserHome = () => {
   const [clientDialog, setClientDialog] = useState<{ open: boolean; client?: Client }>({ open: false });
   const [agentDialog, setAgentDialog] = useState<{ open: boolean; agent?: Agent }>({ open: false });
   const [shareDialog, setShareDialog] = useState<{ open: boolean; scenario?: SavedScenario }>({ open: false });
+  const [newScenarioOpen, setNewScenarioOpen] = useState(false);
 
   const refresh = () => {
     setScenarios(getSavedScenarios());
@@ -76,13 +79,57 @@ const AdviserHome = () => {
   const openScenario = (s: SavedScenario) => {
     applyScenarioToStorage(s.state);
     localStorage.setItem("active-scenario-id", s.id);
-    navigate("/");
+    const client = clients.find((c) => c.id === s.clientId);
+    setActingAs({
+      clientId: s.clientId || "",
+      scenarioId: s.id,
+      clientName: client?.name || "Unassigned client",
+      scenarioName: s.name,
+    });
+    navigate("/dashboard");
   };
 
-  const startNew = () => {
-    localStorage.removeItem("active-scenario-id");
-    localStorage.setItem("new-scenario-type", "individual");
-    navigate("/");
+  const handleCreateScenario = ({ client, scenarioName }: { client: Client; scenarioName: string }) => {
+    // Reset working state to a clean slate so we don't carry over the previous scenario
+    const blankState: ScenarioState = {
+      clientName: client.name,
+      interestRate: 6.5,
+      targetMonth: 0,
+      targetYear: new Date().getFullYear() + 10,
+      growthRate: 6.5,
+      pporSuburb: "",
+      ppor: {
+        id: "ppor",
+        nickname: "",
+        estimatedValue: 0,
+        loanBalance: 0,
+        earmarked: false,
+        sellInYears: 0,
+        ownership: "personal",
+        investmentType: "house",
+        loan: { interestRate: 6.5, repaymentType: "principal-and-interest", ioYears: 0, loanTermYears: 30 },
+        rental: { weeklyRent: 0 },
+        purchase: { purchaseDate: "", settlementDate: "", purchasePrice: 0, deposit: 0, stampDuty: 0, otherCosts: 0, state: "NSW" },
+      } as any,
+      existingProperties: [],
+      futureProperties: [],
+    };
+    applyScenarioToStorage(blankState);
+    const saved = saveScenario(scenarioName, blankState, {
+      clientId: client.id,
+      ownerId: user?.id,
+      ownerRole: "adviser",
+    });
+    localStorage.setItem("active-scenario-id", saved.id);
+    setActingAs({
+      clientId: client.id,
+      scenarioId: saved.id,
+      clientName: client.name,
+      scenarioName: saved.name,
+    });
+    refresh();
+    toast.success(`Created "${saved.name}" for ${client.name}`);
+    navigate("/dashboard");
   };
 
   const handleDeleteScenario = (id: string) => {
