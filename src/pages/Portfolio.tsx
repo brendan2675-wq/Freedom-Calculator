@@ -240,7 +240,7 @@ const Portfolio = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12 space-y-10">
+      <main className={`container mx-auto px-4 py-12 space-y-10 ${isReadOnly ? "pointer-events-none select-none opacity-95" : ""}`}>
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
           <div className="bg-card rounded-xl p-4 md:p-6 border border-border shadow-sm flex flex-col items-center gap-1.5 md:gap-2">
