@@ -76,9 +76,40 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/ppor-goal" element={<Index />} />
-          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<RootRedirect />} />
+          <Route
+            path="/adviser"
+            element={
+              <RoleGuard allow={["adviser"]}>
+                <AdviserHome />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="/agent"
+            element={
+              <RoleGuard allow={["agent"]}>
+                <AgentHome />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="/ppor-goal"
+            element={
+              <RoleGuard allow={["client", "adviser"]}>
+                <Index />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="/portfolio"
+            element={
+              <RoleGuard allow={["client", "adviser", "agent"]}>
+                <Portfolio />
+              </RoleGuard>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
