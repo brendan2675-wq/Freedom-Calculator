@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { LayoutDashboard, UserCircle, Building2, Landmark, TrendingUp, Home, Plus, RotateCcw, ArrowUpRight, ArrowDownRight, DollarSign, Activity } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import AuthFlow from "@/components/AuthFlow";
@@ -6,6 +6,7 @@ import ExistingProperties from "@/components/ExistingProperties";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import PporDetailSheet from "@/components/PporDetailSheet";
 import ScenarioManager from "@/components/ScenarioManager";
+import ReadOnlyBanner from "@/components/ReadOnlyBanner";
 import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
 import type { ExistingProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
