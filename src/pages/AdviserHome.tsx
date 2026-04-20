@@ -202,6 +202,19 @@ const AdviserHome = () => {
               >
                 Load demo data
               </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  if (!confirm("Clear ALL clients, agents, and saved scenarios? This cannot be undone.")) return;
+                  const r = clearDemoData();
+                  refresh();
+                  toast.success(`Cleared ${r.clients} clients, ${r.agents} agents, ${r.scenarios} scenarios`);
+                }}
+                className="h-9 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+              >
+                Clear all demo data
+              </Button>
               <div className="relative w-48 md:w-64">
                 <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
