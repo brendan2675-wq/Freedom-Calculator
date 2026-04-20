@@ -1,4 +1,17 @@
-// Clients & Agents directory — UI-only, localStorage-backed.
+/**
+ * Clients & Agents directory seam — adviser-owned data.
+ *
+ * TODO(backend): swap the localStorage internals below for real API calls:
+ *   - listClients / getClient   →  GET /clients, GET /clients/:id
+ *   - upsertClient              →  POST /clients  or  PATCH /clients/:id
+ *   - deleteClient              →  DELETE /clients/:id
+ *   - listAgents / getAgent     →  GET /agents, GET /agents/:id
+ *   - upsertAgent               →  POST /agents  or  PATCH /agents/:id
+ *   - deleteAgent               →  DELETE /agents/:id
+ *
+ * Public function signatures must NOT change — components consume this module
+ * directly. See src/lib/api.ts and BACKEND_INTEGRATION.md.
+ */
 
 export interface Client {
   id: string;

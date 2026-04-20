@@ -1,3 +1,15 @@
+/**
+ * Auth seam — the only file that knows how the current user/session is stored.
+ *
+ * TODO(backend): swap the localStorage internals below for real auth calls:
+ *   - getRole / getUser  →  GET /auth/me
+ *   - setSession         →  POST /auth/login (server sets httpOnly cookie)
+ *   - logout             →  POST /auth/logout
+ *
+ * Keep the exported function signatures and the "auth-changed" event identical
+ * so no component needs to be updated. See src/lib/api.ts and
+ * BACKEND_INTEGRATION.md for the wider plan.
+ */
 import { useEffect, useState } from "react";
 
 export type Role = "client" | "adviser" | "agent";

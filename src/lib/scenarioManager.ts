@@ -1,3 +1,22 @@
+/**
+ * Scenario seam — saved scenarios + sharing metadata + the live working state.
+ *
+ * TODO(backend): swap the localStorage internals below for real API calls:
+ *   - getSavedScenarios / getScenario   →  GET /scenarios, GET /scenarios/:id
+ *   - saveScenario                      →  POST /scenarios
+ *   - updateScenario / setScenarioMeta  →  PATCH /scenarios/:id
+ *   - deleteScenario                    →  DELETE /scenarios/:id
+ *   - buildScenarioFromStorage          →  GET /scenarios/current  (working state)
+ *   - applyScenarioToStorage            →  PATCH /scenarios/current
+ *
+ * Sharing with agents (sharedAgentIds) should be enforced server-side via a
+ * `scenario_shares` table — the client merely displays/edits the list.
+ * The `?readonly=1` URL flag is a UI hint only; trust the server's permission
+ * check, not the URL.
+ *
+ * Keep public signatures unchanged. See src/lib/api.ts and
+ * BACKEND_INTEGRATION.md.
+ */
 import type { ExistingProperty, FutureProperty, SaleCosts } from "@/types/property";
 
 // Migration: older scenarios saved saleCosts with incomeTaxRate: 0 (tax-free
