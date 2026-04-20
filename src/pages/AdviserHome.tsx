@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Plus, Search, ChevronRight, LogOut, User, Users, Briefcase, FileText,
   Edit2, Trash2, Share2, Eye,
+  Home as HomeIcon, Building2, Landmark, TrendingUp, DollarSign, Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,38 @@ const sumPortfolioValue = (s: SavedScenario): number => {
 
 const fmtCurrency = (n: number) =>
   n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(2)}M` : `$${(n / 1000).toFixed(0)}k`;
+
+// Strategy modules: which areas of the app a scenario has data in.
+// Order matters — this also drives the legend at the bottom.
+const STRATEGY_MODULES = [
+  { key: "ppor", label: "PPOR (Freedom Calc)", icon: HomeIcon },
+  { key: "investments", label: "Investment portfolio", icon: Building2 },
+  { key: "proposed", label: "Proposed purchases", icon: TrendingUp },
+  { key: "cashflow", label: "Cash flow (rental)", icon: DollarSign },
+  { key: "smsf", label: "SMSF strategy", icon: Landmark },
+  { key: "selldown", label: "Sell-down plan", icon: Target },
+] as const;
+
+type ModuleKey = typeof STRATEGY_MODULES[number]["key"];
+
+const detectModules = (s: SavedScenario): Set<ModuleKey> => {
+  const set = new Set<ModuleKey>();
+  const ppor = s.state?.ppor;
+  if (ppor && ((ppor.estimatedValue || 0) > 0 || (ppor.loanBalance || 0) > 0)) set.add("ppor");
+  const inv = s.state?.existingProperties || [];
+  if (inv.length > 0) set.add("investments");
+  const fut = s.state?.futureProperties || [];
+  if (fut.length > 0) set.add("proposed");
+  const hasRent = inv.some((p: any) => (p?.rental?.weeklyRent || 0) > 0);
+  if (hasRent) set.add("cashflow");
+  const hasSmsf = inv.some((p: any) => p?.ownership === "smsf") ||
+    fut.some((p: any) => p?.ownership === "smsf") ||
+    s.type === "smsf";
+  if (hasSmsf) set.add("smsf");
+  const hasSelldown = inv.some((p: any) => p?.earmarked);
+  if (hasSelldown) set.add("selldown");
+  return set;
+};
 
 const AdviserHome = () => {
   const navigate = useNavigate();
