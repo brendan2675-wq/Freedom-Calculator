@@ -22,7 +22,7 @@ import {
 import ShareWithAgentsDialog from "@/components/ShareWithAgentsDialog";
 import NewScenarioDialog from "@/components/NewScenarioDialog";
 import { setActingAs } from "@/components/AdviserActingBanner";
-import { seedDemoData } from "@/lib/demoData";
+import { seedDemoData, clearDemoData } from "@/lib/demoData";
 import { toast } from "sonner";
 
 const formatDate = (iso: string) =>
