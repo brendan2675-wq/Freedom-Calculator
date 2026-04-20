@@ -288,6 +288,13 @@ const Portfolio = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+              {/* Mobile-only heading above PPOR card */}
+              <div className="gold-underline pb-2 lg:hidden">
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2.5">
+                  <Home size={26} strokeWidth={2.25} className="text-accent" />
+                  Owner Occupied Property
+                </h2>
+              </div>
               {/* Main PPOR Card */}
               <div
                 onClick={() => setPporSheetOpen(true)}
