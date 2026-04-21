@@ -9,7 +9,7 @@ import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenario
 
 const tiles = [
   {
-    title: "Freedom Calculator",
+    title: "PPOR Pay Down Goal",
     description: "Pay off your home in 10 years, not 30",
     icon: Home,
     route: "/ppor-goal",
