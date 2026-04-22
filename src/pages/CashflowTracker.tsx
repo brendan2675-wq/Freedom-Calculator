@@ -152,9 +152,9 @@ const CashflowTracker = () => {
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm md:col-span-2">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
             <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-11 text-lg font-bold" />
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{propertyDetails.owner}</p>
+            <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="mt-2 h-10 text-sm font-semibold" />
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Info icon={Building2} label="Manager" value={propertyDetails.manager} />
+              <EditableInfo icon={Building2} label="Manager" value={propertyDetails.manager} onChange={(value) => setPropertyDetails((current) => ({ ...current, manager: value }))} />
               <EditableInfo icon={Banknote} label="Bank" value={propertyDetails.bank} onChange={(value) => setPropertyDetails((current) => ({ ...current, bank: value }))} />
             </div>
           </div>
