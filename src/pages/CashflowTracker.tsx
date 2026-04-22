@@ -670,7 +670,7 @@ const CashflowTracker = () => {
             </div>
           </div>
         </section>
-        <section>
+        <section className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
           <button onClick={() => openPropertyDetailsSheet("current")} className="group w-full rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Edit property details">
             <div className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-3">
@@ -681,19 +681,21 @@ const CashflowTracker = () => {
                 <span className="shrink-0 text-xs font-semibold text-accent opacity-80 transition-opacity group-hover:opacity-100">Manage</span>
               </div>
               {propertyDetails.address && <p className="truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
-              <div className="flex flex-wrap items-center gap-1.5 border-t border-border/70 pt-2">
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{getInvestmentTypeLabel(propertyDetails.investmentType)}</span>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-                  {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
-                </span>
-              </div>
-              <div className="grid gap-3 border-t border-border/70 pt-3 sm:grid-cols-3">
+              <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
                 <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
                 <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
                 <SummaryMeasure icon={CalendarDays} label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
               </div>
+              <div className="flex flex-wrap items-center gap-1.5 border-t border-border/70 pt-2">
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                  {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
+                </span>
+              </div>
             </div>
           </button>
+          <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
+          <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
+          <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
         </section>
 
         <Sheet open={propertySheetOpen} onOpenChange={setPropertySheetOpen}>
@@ -782,9 +784,6 @@ const CashflowTracker = () => {
         </Sheet>
 
         <section className="mt-4 grid items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
-          <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
-          <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
           <ExpenseControl label="Council rates" value={councilRates.amount} frequency={councilRates.frequency} onAmountChange={(amount) => updateCouncilRates({ amount })} onFrequencyChange={(frequency) => updateCouncilRates({ frequency })} />
           <ExpenseControl label="Insurance" value={insurance.amount} frequency={insurance.frequency} onAmountChange={(amount) => updateInsurance({ amount })} onFrequencyChange={(frequency) => updateInsurance({ frequency })} />
           <ExpenseControl label="Land tax" value={landTax.amount} frequency={landTax.frequency} onAmountChange={(amount) => updateLandTax({ amount })} onFrequencyChange={(frequency) => updateLandTax({ frequency })} />
@@ -910,12 +909,12 @@ const Metric = ({ icon: Icon, label, value, highlight = false, className = "" }:
 );
 
 const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon: typeof Home; label: string; value: string; highlight?: boolean }) => (
-  <div className="rounded-lg bg-muted/40 p-3">
-    <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+  <div className="min-w-0">
+    <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
       <Icon size={14} className="shrink-0 text-accent" />
       <span className="truncate">{label}</span>
     </div>
-    <p className={`text-xl font-bold ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
+    <p className={`truncate text-base font-bold tabular-nums ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
   </div>
 );
 
