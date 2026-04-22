@@ -88,7 +88,7 @@ const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   }
 };
 
-const defaultCashflowState: CashflowState = { rows: initialRows, propertyDetails: property, councilRates: defaultCouncilRates, insurance: defaultInsurance, landTax: defaultLandTax, activeMonth: 7 };
+const defaultCashflowState: CashflowState = { rows: initialRows, propertyDetails: property, councilRates: defaultCouncilRates, insurance: defaultInsurance, landTax: defaultLandTax, water: defaultWater, activeMonth: 7 };
 
 const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState => ({
   ...defaultCashflowState,
@@ -97,6 +97,7 @@ const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState =
   councilRates: { ...defaultCouncilRates, ...state?.councilRates },
   insurance: { ...defaultInsurance, ...state?.insurance },
   landTax: { ...defaultLandTax, ...state?.landTax },
+  water: { ...defaultWater, ...state?.water },
   rows: state?.rows?.length ? state.rows : initialRows,
 });
 
