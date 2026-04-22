@@ -394,14 +394,20 @@ const CashflowTracker = () => {
               <UserMenu />
             </div>
           </div>
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-accent">Cashflow Tracker</p>
-              <h1 className="text-3xl font-bold md:text-5xl">Rental income and expense tracker</h1>
+              <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-accent">Atelier Wealth - Freedom calculator</p>
+              <h1 className="text-3xl font-bold md:text-5xl">Cashflow tracker</h1>
               <p className="mt-3 max-w-2xl text-sm text-primary-foreground/80 md:text-base">Demo prototype based on the spreadsheet layout, showing month-by-month rental income, deductible expenses and net position.</p>
             </div>
-            <div className="rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent">
-              Period ended 30th June 2027
+            <div className="flex flex-col gap-3 sm:flex-row md:items-center">
+              <label className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent/90">
+                <Upload size={18} /> Upload invoices / receipts
+                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
+              </label>
+              <div className="rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent">
+                Period ended 30th June 2027
+              </div>
             </div>
           </div>
         </div>
@@ -437,10 +443,6 @@ const CashflowTracker = () => {
               <p className="text-sm text-muted-foreground">Edit weekly rents, row labels and monthly values directly in the worksheet.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
-                <Upload size={16} /> Upload
-                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
-              </label>
               <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Download size={16} /> Export summary</button>
               <button onClick={() => addRow("income")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Income row</button>
               <button onClick={() => addRow("expense")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Expense row</button>
