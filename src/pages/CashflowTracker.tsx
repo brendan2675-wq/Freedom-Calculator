@@ -909,6 +909,16 @@ const Metric = ({ icon: Icon, label, value, highlight = false, className = "" }:
   </div>
 );
 
+const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon: typeof Home; label: string; value: string; highlight?: boolean }) => (
+  <div className="rounded-lg bg-muted/40 p-3">
+    <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+      <Icon size={14} className="shrink-0 text-accent" />
+      <span className="truncate">{label}</span>
+    </div>
+    <p className={`text-xl font-bold ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
+  </div>
+);
+
 const EditableMetric = ({ icon: Icon, label, value, onChange, suffix, step = "1" }: { icon: typeof Home; label: string; value: number; onChange: (value: number) => void; suffix?: string; step?: string }) => (
   <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
     <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={22} /></div>
