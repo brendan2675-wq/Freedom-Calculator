@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Banknote, Building2, CalendarDays, Download, FolderOpen, Home, LayoutDashboard, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -189,9 +189,25 @@ const CashflowTracker = () => {
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
+  const topScrollRef = useRef<HTMLDivElement>(null);
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const syncingScrollRef = useRef(false);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
+
+  const syncHorizontalScroll = (source: "top" | "table") => {
+    if (syncingScrollRef.current) return;
+    const from = source === "top" ? topScrollRef.current : tableScrollRef.current;
+    const to = source === "top" ? tableScrollRef.current : topScrollRef.current;
+    if (!from || !to) return;
+
+    syncingScrollRef.current = true;
+    to.scrollLeft = from.scrollLeft;
+    requestAnimationFrame(() => {
+      syncingScrollRef.current = false;
+    });
+  };
 
   useEffect(() => {
     const active = getActiveScenario();
