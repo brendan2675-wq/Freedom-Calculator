@@ -3,17 +3,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Search, User, Plus, ArrowLeft } from "lucide-react";
+import { Search, User, Plus, ArrowLeft, PencilLine } from "lucide-react";
 import { listClients, upsertClient, type Client } from "@/lib/clients";
 
 interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  onCreate: (params: { client: Client; scenarioName: string }) => void;
+  onCreate: (params: { client?: Client; scenarioName: string }) => void;
 }
 
 const NewScenarioDialog = ({ open, onOpenChange, onCreate }: Props) => {
-  const [mode, setMode] = useState<"pick" | "new">("pick");
+  const [mode, setMode] = useState<"pick" | "new" | "unassigned">("pick");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
@@ -51,18 +51,21 @@ const NewScenarioDialog = ({ open, onOpenChange, onCreate }: Props) => {
       const parts = newName.split(" ");
       setScenarioName(`${parts[0]}'s Plan`);
     }
+    if (mode === "unassigned" && !scenarioName) {
+      setScenarioName("Working Scenario");
+    }
   }, [mode, selectedClient, newName, scenarioName]);
 
   const canCreate =
     scenarioName.trim().length > 0 &&
-    ((mode === "pick" && !!selectedClient) || (mode === "new" && newName.trim().length > 0));
+    ((mode === "pick" && !!selectedClient) || (mode === "new" && newName.trim().length > 0) || mode === "unassigned");
 
   const handleCreate = () => {
     if (!canCreate) return;
-    let client: Client;
+    let client: Client | undefined;
     if (mode === "new") {
       client = upsertClient({ name: newName.trim(), email: "", agentIds: [] });
-    } else {
+    } else if (mode === "pick") {
       client = selectedClient!;
     }
     onCreate({ client, scenarioName: scenarioName.trim() });
@@ -113,6 +116,28 @@ const NewScenarioDialog = ({ open, onOpenChange, onCreate }: Props) => {
               >
                 <Plus size={12} /> New client
               </button>
+              <button
+                onClick={() => setMode("unassigned")}
+                className="mt-2 flex w-full items-start gap-2 rounded-lg border border-border bg-muted/30 p-3 text-left transition-colors hover:bg-muted"
+              >
+                <PencilLine size={14} className="mt-0.5 shrink-0 text-accent" />
+                <span>
+                  <span className="block text-xs font-semibold text-foreground">Build without client</span>
+                  <span className="block text-xs text-muted-foreground">Start a working scenario and assign it later.</span>
+                </span>
+              </button>
+            </div>
+          </div>
+        ) : mode === "unassigned" ? (
+          <div className="space-y-3">
+            <button
+              onClick={() => setMode("pick")}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft size={12} /> Back to clients
+            </button>
+            <div className="rounded-lg border border-accent/20 bg-accent/5 p-3 text-sm text-muted-foreground">
+              Not ready to link this to a client? Build the strategy now and assign it later from Adviser Home.
             </div>
           </div>
         ) : (
