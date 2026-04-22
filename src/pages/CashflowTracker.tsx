@@ -5,7 +5,7 @@ import AdviserActingBanner from "@/components/AdviserActingBanner";
 import UserMenu from "@/components/UserMenu";
 import { Input } from "@/components/ui/input";
 
-const months = ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"];
+const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
 
 type CashflowRow = {
   id: string;
@@ -64,7 +64,7 @@ const CashflowTracker = () => {
     const expensesByMonth = months.map((_, i) => rows.filter((r) => r.type === "expense").reduce((sum, row) => sum + row.values[i], 0));
     const incomeByMonth = rows.find((r) => r.type === "income")?.values || [];
     const expenses = expensesByMonth.reduce((a, b) => a + b, 0);
-    return { income, expenses, net: income - expenses, incomeByMonth, expensesByMonth };
+    return { income, expenses, net: income - expenses, holdingCost: Math.max(expenses - income, 0), incomeByMonth, expensesByMonth };
   }, [rows]);
 
   const updateRow = (rowId: string, updates: Partial<CashflowRow>) => {
@@ -110,7 +110,7 @@ const CashflowTracker = () => {
               <p className="mt-3 max-w-2xl text-sm text-primary-foreground/80 md:text-base">Demo prototype based on the spreadsheet layout, showing month-by-month rental income, deductible expenses and net position.</p>
             </div>
             <div className="rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent">
-              Period ended 30th June 2026
+              Period ended 30th June 2027
             </div>
           </div>
         </div>
@@ -131,6 +131,7 @@ const CashflowTracker = () => {
           </div>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
           <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
+          <Metric label="Yearly holding cost" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
           <Metric label="Net profit / loss" value={formatCurrency(totals.net)} icon={CalendarDays} highlight={totals.net < 0} />
           <Metric label="Weekly rent" value={formatCurrency(property.weeklyRent)} icon={Home} />
         </section>
