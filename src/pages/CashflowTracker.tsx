@@ -213,6 +213,7 @@ const CashflowTracker = () => {
     const nextScenarios = existing ? savedScenarios.map((scenario) => scenario.id === existing.id ? nextScenario : scenario) : [...savedScenarios, nextScenario];
     localStorage.setItem(CASHFLOW_SCENARIOS_KEY, JSON.stringify(nextScenarios));
     localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, nextScenario.id);
+    localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(nextScenario.state));
     setSavedScenarios(nextScenarios);
     setActiveScenarioId(nextScenario.id);
     setSaveName("");
@@ -225,6 +226,7 @@ const CashflowTracker = () => {
     if (!active) return saveCashflowScenario();
     const nextScenarios = savedScenarios.map((scenario) => scenario.id === activeScenarioId ? { ...scenario, savedAt: new Date().toISOString(), state: currentCashflowState() } : scenario);
     localStorage.setItem(CASHFLOW_SCENARIOS_KEY, JSON.stringify(nextScenarios));
+    localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(currentCashflowState()));
     setSavedScenarios(nextScenarios);
     toast.success(`Updated "${active.name}"`);
   };
@@ -238,6 +240,7 @@ const CashflowTracker = () => {
     setActiveMonth(scenario.state.activeMonth);
     setActiveScenarioId(scenario.id);
     localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, scenario.id);
+    localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(normalizeCashflowState(scenario.state)));
     toast.success(`Loaded "${scenario.name}"`);
   };
 
