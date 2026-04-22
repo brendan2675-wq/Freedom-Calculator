@@ -252,7 +252,7 @@ const EditableMetric = ({ icon: Icon, label, value, onChange, suffix, step = "1"
     <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={22} /></div>
     <p className="text-sm font-medium text-muted-foreground">{label}</p>
     <div className="mt-1 flex items-center gap-2">
-      <Input type="number" min="0" step={step} value={value} onChange={(event) => onChange(Number(event.target.value) || 0)} className="h-11 text-2xl font-bold tabular-nums" />
+      <Input type="number" min="0" step={step} value={value === 0 ? "" : value} onChange={(event) => onChange(Number(event.target.value) || 0)} className="h-11 text-2xl font-bold tabular-nums" />
       {suffix ? <span className="text-xl font-bold text-muted-foreground">{suffix}</span> : null}
     </div>
   </div>
