@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Save, X, UserCog } from "lucide-react";
 import { toast } from "sonner";
 import { getRole } from "@/lib/auth";
-import { buildScenarioFromStorage, updateScenario, getScenario } from "@/lib/scenarioManager";
+import { getScenario, saveActiveScenarioFromWorkingState } from "@/lib/scenarioManager";
 
 export interface ActingAsContext {
   clientId: string;
@@ -52,9 +52,9 @@ const AdviserActingBanner = () => {
   if (getRole() !== "adviser") return null;
 
   const handleSave = () => {
-    const state = buildScenarioFromStorage();
-    const updated = updateScenario(ctx.scenarioId, state);
-    if (updated) {
+    const { scenario: updated, conflict } = saveActiveScenarioFromWorkingState();
+    if (updated && updated.id === ctx.scenarioId) {
+      if (conflict) toast.warning("Saved over a newer version of this scenario");
       toast.success(`Saved to ${ctx.clientName}'s scenario`);
     } else {
       toast.error("Could not save — scenario not found");
@@ -67,7 +67,8 @@ const AdviserActingBanner = () => {
   };
 
   // Verify scenario still exists; if not, auto-clear
-  if (!getScenario(ctx.scenarioId)) {
+  const scenario = getScenario(ctx.scenarioId);
+  if (!scenario) {
     clearActingAs();
     return null;
   }
@@ -79,6 +80,9 @@ const AdviserActingBanner = () => {
         <p className="text-xs md:text-sm flex-1 min-w-0">
           Editing <span className="font-semibold">{ctx.clientName}</span>'s scenario
           <span className="opacity-80"> — {ctx.scenarioName}</span>
+          {scenario.lastEditedByName && (
+            <span className="opacity-70"> · Last updated by {scenario.lastEditedByName}</span>
+          )}
         </p>
         <div className="flex items-center gap-2 shrink-0">
           <button
