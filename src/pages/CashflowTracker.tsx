@@ -263,14 +263,25 @@ const CashflowTracker = () => {
     const state = currentCashflowState();
     localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(state));
 
-    if (!activeScenarioId) return;
+    if (!cashflowContext) return;
+    if (skipNextAutosaveRef.current) {
+      skipNextAutosaveRef.current = false;
+      return;
+    }
 
-    setSavedScenarios((current) => {
-      const nextScenarios = current.map((scenario) => scenario.id === activeScenarioId ? { ...scenario, state } : scenario);
-      localStorage.setItem(CASHFLOW_SCENARIOS_KEY, JSON.stringify(nextScenarios));
-      return nextScenarios;
-    });
-  }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, activeScenarioId]);
+    setAutosaveStatus("saving");
+    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    autosaveTimerRef.current = setTimeout(() => {
+      const saved = saveCashflowForProperty({ ...cashflowContext, financialYear }, state, `${propertyDetails.nickname || propertyDetails.address || "Property"} ${financialYear}`);
+      setCashflowContextState(saved);
+      setLastAutosavedAt(new Date(saved.savedAt));
+      setAutosaveStatus("saved");
+    }, 800);
+
+    return () => {
+      if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    };
+  }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, cashflowContext?.propertyId, cashflowContext?.scenarioId, financialYear]);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
