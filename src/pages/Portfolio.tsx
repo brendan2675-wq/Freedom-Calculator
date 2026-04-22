@@ -324,6 +324,14 @@ const Portfolio = () => {
                   <Home size={16} className="text-accent shrink-0" />
                   <p className="font-semibold text-sm text-foreground">{pporSuburb || ppor.nickname || "Owner Occupied"}</p>
                 </div>
+                {!isReadOnly && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); openCashflow(ppor.id || "ppor", "ppor"); }}
+                    className="absolute bottom-3 right-3 inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-3 text-xs font-semibold text-accent transition-colors hover:bg-accent/15"
+                  >
+                    <DollarSign size={14} /> Cashflow
+                  </button>
+                )}
 
                 {/* Current Value + Current Loan (left) | Rate/Term + Equity (right) */}
                 <div className="grid grid-cols-2 gap-3">
@@ -536,6 +544,27 @@ const Portfolio = () => {
           growthRate={6.5}
           portfolioMode
         />
+
+        {!isReadOnly && properties.length > 0 && (
+          <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <h2 className="mb-3 text-base font-bold text-foreground">Property cashflow</h2>
+            <div className="grid gap-2 md:grid-cols-2">
+              {properties.map((property) => (
+                <button
+                  key={property.id}
+                  onClick={() => openCashflow(property.id, property.ownership === "trust" ? "smsf" : "investment")}
+                  className="flex min-h-11 items-center justify-between rounded-lg border border-border px-3 py-2 text-left transition-colors hover:bg-muted"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-foreground">{property.nickname || "Investment property"}</span>
+                    <span className="text-xs text-muted-foreground">Open linked cashflow worksheet</span>
+                  </span>
+                  <DollarSign size={16} className="text-accent" />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* PPOR Detail Sheet */}
         {ppor && (
