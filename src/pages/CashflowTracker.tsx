@@ -89,16 +89,30 @@ const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
 
 const defaultCashflowState: CashflowState = { rows: initialRows, propertyDetails: property, councilRates: defaultCouncilRates, insurance: defaultInsurance, landTax: defaultLandTax, water: defaultWater, activeMonth: 7 };
 
-const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState => ({
-  ...defaultCashflowState,
-  ...state,
-  propertyDetails: { ...property, ...state?.propertyDetails },
-  councilRates: { ...defaultCouncilRates, ...state?.councilRates },
-  insurance: { ...defaultInsurance, ...state?.insurance },
-  landTax: { ...defaultLandTax, ...state?.landTax },
-  water: { ...defaultWater, ...state?.water },
-  rows: state?.rows?.length ? state.rows : initialRows,
-});
+const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState => {
+  const councilRates = { ...defaultCouncilRates, ...state?.councilRates };
+  const insurance = { ...defaultInsurance, ...state?.insurance };
+  const landTax = { ...defaultLandTax, ...state?.landTax };
+  const water = { ...defaultWater, ...state?.water };
+  const rows = (state?.rows?.length ? state.rows : initialRows).map((row) => {
+    if (row.id === "council") return { ...row, values: scheduledExpenseValues(councilRates.amount, councilRates.frequency) };
+    if (row.id === "insurance") return { ...row, values: scheduledExpenseValues(insurance.amount, insurance.frequency) };
+    if (row.id === "land-tax") return { ...row, values: scheduledExpenseValues(landTax.amount, landTax.frequency) };
+    if (row.id === "water") return { ...row, values: scheduledExpenseValues(water.amount, water.frequency) };
+    return row;
+  });
+
+  return {
+    ...defaultCashflowState,
+    ...state,
+    propertyDetails: { ...property, ...state?.propertyDetails },
+    councilRates,
+    insurance,
+    landTax,
+    water,
+    rows,
+  };
+};
 
 const getInitialCashflowState = (): CashflowState => {
   try {
