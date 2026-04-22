@@ -21,6 +21,7 @@ type CashflowRow = {
 
 const monthlyRentFromWeekly = (weeklyRent: number) => Math.round((weeklyRent * 52) / 12);
 const monthlyInterestOnlyCost = (loanAmount: number, interestRate: number) => Math.round((loanAmount * (interestRate / 100)) / 12);
+const monthlyAgentFee = (weeklyRent: number) => Math.round(monthlyRentFromWeekly(weeklyRent) * 0.06);
 
 const initialRows: CashflowRow[] = [
   { id: "rental-income", label: "Rental income", type: "income", weeklyRent: INITIAL_WEEKLY_RENT, values: Array(12).fill(monthlyRentFromWeekly(INITIAL_WEEKLY_RENT)) },
@@ -37,7 +38,7 @@ const initialRows: CashflowRow[] = [
   { id: "land-tax", label: "Land tax", type: "expense", values: Array(12).fill(0) },
   { id: "legal", label: "Legal fees", type: "expense", values: Array(12).fill(0) },
   { id: "pest", label: "Pest control", type: "expense", values: Array(12).fill(0) },
-  { id: "agent-fees", label: "Property agent fees / commission", type: "expense", values: [429, 282, 282, 282, 125, 251, 251, 251, 0, 0, 0, 0] },
+  { id: "agent-fees", label: "Property agent fees / commission", type: "expense", values: Array(12).fill(monthlyAgentFee(INITIAL_WEEKLY_RENT)) },
   { id: "repairs", label: "Repairs and maintenance", type: "expense", values: [0, 0, 0, 0, 0, 275, 0, 2750, 0, 0, 0, 0] },
   { id: "capital-works", label: "Capital works deductions", type: "expense", values: Array(12).fill(0) },
   { id: "stationery", label: "Stationery, telephone and postage", type: "expense", values: Array(12).fill(0) },
@@ -86,7 +87,17 @@ const CashflowTracker = () => {
   };
 
   const updateWeeklyRent = (rowId: string, weeklyRent: number) => {
-    updateRow(rowId, { weeklyRent, values: Array(12).fill(monthlyRentFromWeekly(weeklyRent)) });
+    setRows((current) => current.map((row) => {
+      if (row.id === rowId) {
+        return { ...row, weeklyRent, values: Array(12).fill(monthlyRentFromWeekly(weeklyRent)) };
+      }
+
+      if (row.id === "agent-fees") {
+        return { ...row, values: Array(12).fill(monthlyAgentFee(weeklyRent)) };
+      }
+
+      return row;
+    }));
   };
 
   const updateInterestRow = (loanAmount: number, interestRate: number) => {
