@@ -91,6 +91,7 @@ const CashflowTracker = () => {
   const [rows, setRows] = useState<CashflowRow[]>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.rows ?? initialRows);
   const [propertyDetails, setPropertyDetails] = useState(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.propertyDetails ?? property);
   const [councilRates, setCouncilRates] = useState<CouncilRatesState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.councilRates ?? defaultCouncilRates);
+  const [insurance, setInsurance] = useState<InsuranceState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.insurance ?? defaultInsurance);
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
@@ -173,7 +174,7 @@ const CashflowTracker = () => {
     setRows((current) => current.filter((row) => row.id !== rowId));
   };
 
-  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, activeMonth });
+  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, activeMonth });
 
   const saveCashflowScenario = () => {
     const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
@@ -202,6 +203,7 @@ const CashflowTracker = () => {
     setRows(scenario.state.rows);
     setPropertyDetails(scenario.state.propertyDetails);
     setCouncilRates(scenario.state.councilRates);
+    setInsurance(scenario.state.insurance ?? defaultInsurance);
     setActiveMonth(scenario.state.activeMonth);
     setActiveScenarioId(scenario.id);
     localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, scenario.id);
@@ -211,7 +213,13 @@ const CashflowTracker = () => {
   const updateCouncilRates = (updates: Partial<typeof councilRates>) => {
     const next = { ...councilRates, ...updates };
     setCouncilRates(next);
-    updateRow("council", { values: councilRatesValues(next.amount, next.frequency) });
+    updateRow("council", { values: scheduledExpenseValues(next.amount, next.frequency) });
+  };
+
+  const updateInsurance = (updates: Partial<InsuranceState>) => {
+    const next = { ...insurance, ...updates };
+    setInsurance(next);
+    updateRow("insurance", { values: scheduledExpenseValues(next.amount, next.frequency) });
   };
 
   return (
