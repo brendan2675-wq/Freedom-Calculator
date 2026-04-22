@@ -640,34 +640,61 @@ const CashflowTracker = () => {
           <ScenarioContextBanner compact />
         </div>
         <section className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Linked property</p>
-              <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.nickname || propertyDetails.address || "Choose a property"}</h2>
-              <p className="text-sm text-muted-foreground">
-                {linkedScenario?.name || "No active scenario"} · {cashflowContext?.propertyType || "property"} · {financialYear}
-                {linkedRecord?.lastEditedByName && ` · Last updated by ${linkedRecord.lastEditedByName}`}
-              </p>
+          <div className="space-y-4">
+            <div className="flex flex-col gap-1 md:flex-row md:items-start md:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Property cashflow</p>
+                <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.nickname || propertyDetails.address || "Choose a property"}</h2>
+                <p className="text-sm text-muted-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
+              </div>
+              <p className="text-sm font-semibold text-accent">{autosaveLabel}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <select
-                value={financialYear}
-                onChange={(event) => {
-                  const nextYear = event.target.value;
-                  setFinancialYear(nextYear);
-                  if (cashflowContext) {
-                    const nextContext = { ...cashflowContext, financialYear: nextYear };
-                    setActiveCashflowContext(nextContext);
-                    setCashflowContextState(nextContext);
-                  }
-                }}
-                className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
-              >
-                {['FY2027', 'FY2028', 'FY2029', 'FY2030'].map((year) => <option key={year} value={year}>{year}</option>)}
-              </select>
-              <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save cashflow</button>
-              <button onClick={saveAsNewYear} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Save as new year</button>
-            </div>
+            {portfolioProperties.length > 0 ? (
+              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto]">
+                <select value={cashflowContext?.propertyId || selectedPortfolioProperty?.id || ""} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                  <option value="" disabled>Select property</option>
+                  {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                </select>
+                <select
+                  value={financialYear}
+                  onChange={(event) => {
+                    const nextYear = event.target.value;
+                    setFinancialYear(nextYear);
+                    if (cashflowContext) {
+                      skipNextAutosaveRef.current = true;
+                      const nextContext = { ...cashflowContext, financialYear: nextYear };
+                      setActiveCashflowContext(nextContext);
+                      setCashflowContextState(nextContext);
+                      const record = getCashflowForProperty<CashflowState>(nextContext);
+                      if (record?.state) {
+                        const normalized = normalizeCashflowState(record.state);
+                        setRows(normalized.rows);
+                        setPropertyDetails(normalized.propertyDetails);
+                        setCouncilRates(normalized.councilRates);
+                        setInsurance(normalized.insurance);
+                        setLandTax(normalized.landTax);
+                        setWater(normalized.water);
+                        setActiveMonth(normalized.activeMonth);
+                        setLastAutosavedAt(new Date(record.savedAt));
+                        setAutosaveStatus("saved");
+                      } else {
+                        setLastAutosavedAt(null);
+                        setAutosaveStatus("idle");
+                      }
+                    }
+                  }}
+                  className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
+                >
+                  {['FY2027', 'FY2028', 'FY2029', 'FY2030'].map((year) => <option key={year} value={year}>{year}</option>)}
+                </select>
+                <button onClick={saveAsNewYear} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Copy to another year</button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm font-medium text-muted-foreground">No portfolio properties yet</p>
+                <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add property</button>
+              </div>
+            )}
           </div>
         </section>
         <section className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-5">
