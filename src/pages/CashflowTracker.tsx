@@ -550,7 +550,7 @@ const CashflowTracker = () => {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="mb-1 text-xl font-bold md:mb-3 md:text-5xl">Cashflow Tracker</h1>
-              <p className="max-w-2xl text-sm font-light text-accent md:text-xl">Track month-by-month rental income, deductible expenses and net position.</p>
+              <p className="max-w-2xl text-sm font-light text-accent md:text-xl">Track your properties on-going expenses and income</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row md:items-center">
               <label className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent/90">
