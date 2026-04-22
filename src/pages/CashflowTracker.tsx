@@ -401,6 +401,29 @@ const CashflowTracker = () => {
             </div>
           </div>
         </section>
+
+        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-foreground">Land tax</h2>
+            <p className="text-sm text-muted-foreground">Enter an annual, quarterly or monthly amount to update the Land tax row above.</p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg bg-muted/40 p-3 md:col-span-2">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Amount</label>
+              <Input type="number" min="0" value={landTax.amount === 0 ? "" : landTax.amount} onChange={(event) => updateLandTax({ amount: Number(event.target.value) || 0 })} className="h-11 bg-card text-lg font-bold tabular-nums" />
+            </div>
+            <div className="rounded-lg bg-muted/40 p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Frequency</p>
+              <div className="grid grid-cols-3 gap-2">
+                {(["annual", "quarterly", "monthly"] as const).map((frequency) => (
+                  <button key={frequency} onClick={() => updateLandTax({ frequency })} className={`min-h-11 rounded-lg border px-2 text-sm font-semibold capitalize transition-colors ${landTax.frequency === frequency ? "border-accent bg-accent text-accent-foreground" : "border-border text-foreground hover:bg-muted"}`}>
+                    {frequency}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );
