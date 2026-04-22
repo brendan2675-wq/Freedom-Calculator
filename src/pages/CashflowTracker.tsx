@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Banknote, Building2, CalendarDays, Download, FolderOpen, Home, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown } from "lucide-react";
+import { ArrowLeft, Banknote, Building2, CalendarDays, Download, FolderOpen, Home, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input";
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
 
-const INITIAL_WEEKLY_RENT = 600;
-const INITIAL_LOAN_AMOUNT = 500000;
-const INITIAL_INTEREST_RATE = 6.54;
+const CASHFLOW_TEMPLATE_VERSION = 2;
+const INITIAL_WEEKLY_RENT = 0;
+const INITIAL_LOAN_AMOUNT = 0;
+const INITIAL_INTEREST_RATE = 0;
 
 type CashflowRow = {
   id: string;
@@ -46,29 +47,29 @@ const initialRows: CashflowRow[] = [
   { id: "legal", label: "Legal fees", type: "expense", values: Array(12).fill(0) },
   { id: "pest", label: "Pest control", type: "expense", values: Array(12).fill(0) },
   { id: "agent-fees", label: "Property agent fees / commission", type: "expense", values: Array(12).fill(monthlyAgentFee(INITIAL_WEEKLY_RENT)) },
-  { id: "repairs", label: "Repairs and maintenance", type: "expense", values: [0, 0, 0, 0, 0, 275, 0, 2750, 0, 0, 0, 0] },
+  { id: "repairs", label: "Repairs and maintenance", type: "expense", values: Array(12).fill(0) },
   { id: "capital-works", label: "Capital works deductions", type: "expense", values: Array(12).fill(0) },
-  { id: "stationery", label: "Stationery, telephone and postage", type: "expense", values: Array(12).fill(0) },
+  { id: "stationery", label: "Stationary telephone and postage", type: "expense", values: Array(12).fill(0) },
   { id: "travel", label: "Travel expenses", type: "expense", values: Array(12).fill(0) },
   { id: "water", label: "Water charges", type: "expense", values: Array(12).fill(0) },
   { id: "sundry", label: "Sundry expenses", type: "expense", values: Array(12).fill(0) },
 ];
 
 const property = {
-  owner: "Christie-David Family Super Fund",
-  address: "4 Monash Court, Durack NT 0830",
-  bank: "Bluebay",
+  owner: "",
+  address: "",
+  bank: "",
   weeklyRent: INITIAL_WEEKLY_RENT,
   interestRate: INITIAL_INTEREST_RATE,
   loanAmount: INITIAL_LOAN_AMOUNT,
-  manager: "Nida Billa @ Billy Nida Realty Pty Ltd",
+  manager: "",
 };
 
 type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type InsuranceState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
-type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number };
+type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
@@ -88,7 +89,7 @@ const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   }
 };
 
-const defaultCashflowState: CashflowState = { rows: initialRows, propertyDetails: property, councilRates: defaultCouncilRates, insurance: defaultInsurance, landTax: defaultLandTax, water: defaultWater, activeMonth: 7 };
+const defaultCashflowState: CashflowState = { rows: initialRows, propertyDetails: property, councilRates: defaultCouncilRates, insurance: defaultInsurance, landTax: defaultLandTax, water: defaultWater, activeMonth: 7, templateVersion: CASHFLOW_TEMPLATE_VERSION };
 
 const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState => {
   const councilRates = { ...defaultCouncilRates, ...state?.councilRates };
@@ -119,7 +120,8 @@ const getInitialCashflowState = (): CashflowState => {
   try {
     const activeScenario = getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
     const workingState = localStorage.getItem(CASHFLOW_WORKING_STATE_KEY);
-    return normalizeCashflowState(activeScenario?.state ?? (workingState ? JSON.parse(workingState) : undefined));
+    const parsedWorkingState = workingState ? JSON.parse(workingState) : undefined;
+    return normalizeCashflowState(activeScenario?.state ?? (parsedWorkingState?.templateVersion === CASHFLOW_TEMPLATE_VERSION ? parsedWorkingState : undefined));
   } catch {
     return defaultCashflowState;
   }
@@ -232,7 +234,12 @@ const CashflowTracker = () => {
     setRows((current) => current.filter((row) => row.id !== rowId));
   };
 
-  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth });
+  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
+
+  const handlePrototypeUpload = (files: FileList | null) => {
+    if (!files?.length) return;
+    toast.info(`${files.length} file${files.length === 1 ? "" : "s"} queued. Receipt scanning will populate totals in a future release.`);
+  };
 
   const saveCashflowScenario = () => {
     const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
@@ -430,6 +437,10 @@ const CashflowTracker = () => {
               <p className="text-sm text-muted-foreground">Edit weekly rents, row labels and monthly values directly in the worksheet.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
+                <Upload size={16} /> Upload
+                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
+              </label>
               <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Download size={16} /> Export summary</button>
               <button onClick={() => addRow("income")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Income row</button>
               <button onClick={() => addRow("expense")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Expense row</button>
