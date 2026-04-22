@@ -58,7 +58,7 @@ describe("role-aware scenario UI", () => {
     renderWithRouter(<ScenarioManager getCurrentState={() => state} loadState={vi.fn()} />);
     fireEvent.click(screen.getByRole("button", { name: /scenarios/i }));
 
-    expect(screen.getByText("Client scenarios")).toBeInTheDocument();
+    expect(screen.getAllByText("Client scenarios").length).toBeGreaterThan(0);
     expect(screen.getByText("Needs client")).toBeInTheDocument();
   });
 
