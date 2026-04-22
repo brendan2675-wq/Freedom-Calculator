@@ -72,6 +72,7 @@ type SavedCashflowScenario = { id: string; name: string; savedAt: string; state:
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
+const CASHFLOW_WORKING_STATE_KEY = "cashflow-working-state";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
 const defaultInsurance: InsuranceState = { amount: 189, frequency: "monthly" };
 const defaultLandTax: LandTaxState = { amount: 0, frequency: "annual" };
@@ -82,6 +83,28 @@ const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
     return stored ? JSON.parse(stored) : [];
   } catch {
     return [];
+  }
+};
+
+const defaultCashflowState: CashflowState = { rows: initialRows, propertyDetails: property, councilRates: defaultCouncilRates, insurance: defaultInsurance, landTax: defaultLandTax, activeMonth: 7 };
+
+const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState => ({
+  ...defaultCashflowState,
+  ...state,
+  propertyDetails: { ...property, ...state?.propertyDetails },
+  councilRates: { ...defaultCouncilRates, ...state?.councilRates },
+  insurance: { ...defaultInsurance, ...state?.insurance },
+  landTax: { ...defaultLandTax, ...state?.landTax },
+  rows: state?.rows?.length ? state.rows : initialRows,
+});
+
+const getInitialCashflowState = (): CashflowState => {
+  try {
+    const activeScenario = getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
+    const workingState = localStorage.getItem(CASHFLOW_WORKING_STATE_KEY);
+    return normalizeCashflowState(activeScenario?.state ?? (workingState ? JSON.parse(workingState) : undefined));
+  } catch {
+    return defaultCashflowState;
   }
 };
 
