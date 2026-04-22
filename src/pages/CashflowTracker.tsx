@@ -600,8 +600,8 @@ const CashflowTracker = () => {
             </div>
           </div>
         </section>
-        <section className="grid items-start gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-border bg-card p-3 shadow-sm md:col-span-2">
+        <section className="grid items-start gap-4 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="rounded-xl border border-border bg-card p-3 shadow-sm lg:col-span-2">
             <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
               <div className="flex flex-wrap gap-2">
@@ -615,13 +615,13 @@ const CashflowTracker = () => {
                 {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
               </select>
             )}
-            <div className="grid gap-1.5 lg:grid-cols-[1.15fr_1fr]">
+            <div className="grid gap-1.5 xl:grid-cols-[1.15fr_1fr]">
               <div className="space-y-1.5">
                 <Input value={propertyDetails.nickname} onChange={(event) => setPropertyDetails((current) => ({ ...current, nickname: event.target.value }))} placeholder="Property nickname" className="h-9 text-sm font-bold" />
                 <AddressSearchInput value={propertyDetails.address} onChange={(value) => setPropertyDetails((current) => ({ ...current, address: value }))} placeholder="Optional address search" className="h-9 text-sm font-semibold" />
                 <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="h-9 text-sm font-semibold" />
               </div>
-              <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-1">
                 <EditableInfo icon={Building2} label="Manager" value={propertyDetails.manager} onChange={(value) => setPropertyDetails((current) => ({ ...current, manager: value }))} />
                 <EditableInfo icon={Banknote} label="Bank" value={propertyDetails.bank} onChange={(value) => setPropertyDetails((current) => ({ ...current, bank: value }))} />
               </div>
@@ -629,10 +629,13 @@ const CashflowTracker = () => {
           </div>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
           <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
+          <Metric label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
+        </section>
+
+        <section className="mt-4 grid items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
           <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
           <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
           <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
-          <Metric label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
           <ExpenseControl label="Council rates" value={councilRates.amount} frequency={councilRates.frequency} onAmountChange={(amount) => updateCouncilRates({ amount })} onFrequencyChange={(frequency) => updateCouncilRates({ frequency })} />
           <ExpenseControl label="Insurance" value={insurance.amount} frequency={insurance.frequency} onAmountChange={(amount) => updateInsurance({ amount })} onFrequencyChange={(frequency) => updateInsurance({ frequency })} />
           <ExpenseControl label="Land tax" value={landTax.amount} frequency={landTax.frequency} onAmountChange={(amount) => updateLandTax({ amount })} onFrequencyChange={(frequency) => updateLandTax({ frequency })} />
