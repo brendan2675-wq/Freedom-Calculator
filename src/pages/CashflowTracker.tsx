@@ -42,13 +42,14 @@ const initialRows: CashflowRow[] = [
 ];
 
 const property = {
-  owner: "Nunki Sigma Pty Ltd ATF Nunki Bare Trust ATF Christie-David Super Investments Pty Ltd ATF Christie-David Family Super Fund",
+  owner: "Christie-David Family Super Fund",
   address: "4 Monash Court, Durack NT 0830",
   bank: "Bluebay",
   bsb: "636-380",
   account: "400173265",
   weeklyRent: 600,
   interestRate: 6.54,
+  loanAmount: 500000,
   manager: "Nida Billa @ Billy Nida Realty Pty Ltd",
 };
 
@@ -58,6 +59,7 @@ const CashflowTracker = () => {
   const navigate = useNavigate();
   const [activeMonth, setActiveMonth] = useState(7);
   const [rows, setRows] = useState<CashflowRow[]>(initialRows);
+  const [propertyDetails, setPropertyDetails] = useState(property);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
