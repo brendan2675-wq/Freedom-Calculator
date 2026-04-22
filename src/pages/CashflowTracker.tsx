@@ -481,6 +481,34 @@ const CashflowTracker = () => {
   );
 };
 
+type ExpenseFrequency = "annual" | "quarterly" | "monthly";
+
+const ExpenseControl = ({
+  label,
+  value,
+  frequency,
+  onAmountChange,
+  onFrequencyChange,
+}: {
+  label: string;
+  value: number;
+  frequency: ExpenseFrequency;
+  onAmountChange: (value: number) => void;
+  onFrequencyChange: (value: ExpenseFrequency) => void;
+}) => (
+  <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+    <p className="text-sm font-medium text-muted-foreground">{label}</p>
+    <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto]">
+      <Input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="h-11 text-lg font-bold tabular-nums" />
+      <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-11 rounded-md border border-input bg-background px-3 text-sm font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+        <option value="annual">Annual</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+    </div>
+  </div>
+);
+
 const Info = ({ icon: Icon, label, value }: { icon: typeof Home; label: string; value: string }) => (
   <div className="rounded-lg bg-muted/40 p-3">
     <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Icon size={14} /> {label}</div>
