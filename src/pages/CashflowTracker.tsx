@@ -175,7 +175,7 @@ const CashflowTracker = () => {
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.label} className="border-b border-border/70 hover:bg-muted/30">
+                  <tr key={row.id} className="border-b border-border/70 hover:bg-muted/30">
                     <td className="sticky left-0 z-10 bg-card px-4 py-3 font-medium text-foreground">
                       <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-9 min-w-56 bg-card font-semibold" />
                     </td>
