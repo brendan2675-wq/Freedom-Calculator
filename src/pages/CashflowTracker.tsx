@@ -239,7 +239,7 @@ const EditableMetric = ({ icon: Icon, label, value, onChange, suffix, step = "1"
 
 const SummaryRow = ({ label, values, total }: { label: string; values: number[]; total: number }) => (
   <tr className="border-t-2 border-border bg-accent/10 font-bold">
-    <td className="sticky left-0 z-10 bg-accent/10 px-4 py-3 text-foreground">{label}</td>
+    <td className="sticky left-0 z-20 min-w-72 bg-card px-4 py-3 text-foreground shadow-sm">{label}</td>
     {values.map((value, i) => <td key={i} className="px-3 py-3 text-right tabular-nums text-foreground">{formatCurrency(value)}</td>)}
     <td className="px-4 py-3 text-right tabular-nums text-foreground">{formatCurrency(total)}</td>
     <td className="px-3 py-3" />
