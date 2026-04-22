@@ -8,7 +8,10 @@ import PporDetailSheet from "@/components/PporDetailSheet";
 import ScenarioManager from "@/components/ScenarioManager";
 import ReadOnlyBanner from "@/components/ReadOnlyBanner";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
+import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
+import { getActiveScenario } from "@/lib/scenarioManager";
+import { setActiveCashflowContext } from "@/lib/cashflowManager";
 import type { ExistingProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 import { normalizeExistingProperties } from "@/lib/portfolioDefaults";
@@ -117,6 +120,13 @@ const Portfolio = () => {
 
   const pporEquity = ppor ? Math.max(0, (ppor.estimatedValue * pporLvr) - ppor.loanBalance) : 0;
 
+  const openCashflow = (propertyId: string, propertyType: "ppor" | "investment" | "smsf") => {
+    const scenario = getActiveScenario();
+    if (!scenario) return navigate("/cashflow");
+    setActiveCashflowContext({ clientId: scenario.clientId, scenarioId: scenario.id, propertyId, propertyType, financialYear: "FY2027" });
+    navigate("/cashflow");
+  };
+
   // Growth since purchase
   const pporGrowth = useMemo(() => {
     if (!ppor || !ppor.purchase?.purchasePrice || ppor.purchase.purchasePrice === 0) return null;
@@ -192,14 +202,14 @@ const Portfolio = () => {
             </div>
           </div>
           <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 self-end sm:self-auto">
-            <ScenarioManager
+            {!isReadOnly && <ScenarioManager
               getCurrentState={buildScenarioFromStorage}
               loadState={(s) => {
                 applyScenarioToStorage(s);
                 window.location.reload();
               }}
-            />
-            <button
+            />}
+            {!isReadOnly && <button
               onClick={() => {
                 if (window.confirm("Reset all data to defaults? This cannot be undone.\n\nSaved scenarios will be preserved.")) {
                   const savedScenarios = localStorage.getItem("saved-scenarios");
@@ -213,13 +223,14 @@ const Portfolio = () => {
             >
               <RotateCcw size={14} />
               <span className="hidden sm:inline">Reset</span>
-            </button>
+            </button>}
             <UserMenu />
           </div>
         </div>
       </header>
 
       <main className={`container mx-auto px-4 py-12 space-y-10 ${isReadOnly ? "pointer-events-none select-none opacity-95" : ""}`}>
+        <ScenarioContextBanner readOnly={isReadOnly} />
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
           <div className="bg-card rounded-xl p-4 md:p-6 border border-border shadow-sm flex flex-col items-center gap-1.5 md:gap-2">
