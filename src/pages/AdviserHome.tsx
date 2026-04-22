@@ -334,6 +334,13 @@ const AdviserHome = () => {
                     </button>
                     <div className="flex items-center gap-1 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
                       <button
+                        onClick={() => setCashflowDialog({ open: true, scenario: s })}
+                        className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-accent"
+                        title="Open property cashflow"
+                      >
+                        <DollarSign size={14} />
+                      </button>
+                      <button
                         onClick={() => setShareDialog({ open: true, scenario: s })}
                         className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-accent"
                         title="Share with agents"
@@ -514,6 +521,34 @@ const AdviserHome = () => {
             toast.success(`Shared with ${ids.length} agent${ids.length === 1 ? "" : "s"}`);
           }}
         />
+      )}
+
+      {cashflowDialog.scenario && (
+        <Dialog open={cashflowDialog.open} onOpenChange={(v) => setCashflowDialog({ open: v, scenario: v ? cashflowDialog.scenario : undefined })}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Select property for cashflow</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">{cashflowDialog.scenario.name}</p>
+              {propertyOptionsForScenario(cashflowDialog.scenario).length === 0 ? (
+                <p className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">No properties in this scenario yet.</p>
+              ) : propertyOptionsForScenario(cashflowDialog.scenario).map((property) => (
+                <button
+                  key={`${property.type}-${property.id}`}
+                  onClick={() => openPropertyCashflow(cashflowDialog.scenario!, property.id, property.type)}
+                  className="flex w-full min-h-11 items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors hover:bg-muted"
+                >
+                  <span>
+                    <span className="block text-sm font-semibold text-foreground">{property.label}</span>
+                    <span className="text-xs capitalize text-muted-foreground">{property.type}</span>
+                  </span>
+                  <ChevronRight size={16} className="text-accent" />
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       <NewScenarioDialog
