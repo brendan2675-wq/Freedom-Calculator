@@ -3,10 +3,13 @@ import { ArrowLeft, Banknote, Building2, CalendarDays, Download, FolderOpen, Hom
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
+import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type { ExistingProperty } from "@/types/property";
+import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
+import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
 
@@ -72,7 +75,7 @@ type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "month
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
-type PortfolioPropertyOption = { id: string; label: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number };
+type PortfolioPropertyOption = { id: string; label: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -105,6 +108,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       weeklyRent: item.rental?.weeklyRent || 0,
       interestRate: item.loan?.interestRate || 0,
       loanAmount: item.loanSplits?.length ? item.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : item.loanBalance || 0,
+      propertyType: item.id === "ppor" ? "ppor" : item.ownership === "trust" ? "smsf" : "investment",
     }));
   } catch {
     return [];
@@ -140,6 +144,9 @@ const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState =
 
 const getInitialCashflowState = (): CashflowState => {
   try {
+    const context = getActiveCashflowContext();
+    const linked = context ? getCashflowForProperty<CashflowState>(context) : undefined;
+    if (linked?.state) return normalizeCashflowState(linked.state);
     const activeScenario = getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
     const workingState = localStorage.getItem(CASHFLOW_WORKING_STATE_KEY);
     const parsedWorkingState = workingState ? JSON.parse(workingState) : undefined;
