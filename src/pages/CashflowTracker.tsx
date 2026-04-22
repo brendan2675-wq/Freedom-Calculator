@@ -202,8 +202,18 @@ const Info = ({ icon: Icon, label, value }: { icon: typeof Home; label: string; 
   </div>
 );
 
-const Metric = ({ icon: Icon, label, value, highlight = false }: { icon: typeof Home; label: string; value: string; highlight?: boolean }) => (
-  <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+const EditableInfo = ({ icon: Icon, label, value, onChange, type = "text", suffix }: { icon: typeof Home; label: string; value: string | number; onChange: (value: string) => void; type?: string; suffix?: string }) => (
+  <div className="rounded-lg bg-muted/40 p-3">
+    <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Icon size={14} /> {label}</div>
+    <div className="flex items-center gap-2">
+      <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-9 bg-card text-sm font-semibold" />
+      {suffix ? <span className="text-sm font-semibold text-muted-foreground">{suffix}</span> : null}
+    </div>
+  </div>
+);
+
+const Metric = ({ icon: Icon, label, value, highlight = false, className = "" }: { icon: typeof Home; label: string; value: string; highlight?: boolean; className?: string }) => (
+  <div className={`rounded-xl border border-border bg-card p-4 shadow-sm ${className}`}>
     <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={22} /></div>
     <p className="text-sm font-medium text-muted-foreground">{label}</p>
     <p className={`mt-1 text-2xl font-bold ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
