@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, Building2, CalendarDays, Download, FolderOpen, Home, LayoutDashboard, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
+import { Banknote, Building2, CalendarDays, Download, Home, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import AddressSearchInput from "@/components/AddressSearchInput";
@@ -187,14 +186,24 @@ const CashflowTracker = () => {
   const [portfolioProperties, setPortfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
+  const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [lastAutosavedAt, setLastAutosavedAt] = useState<Date | null>(null);
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
   const topScrollRef = useRef<HTMLDivElement>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const syncingScrollRef = useRef(false);
+  const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipNextAutosaveRef = useRef(true);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
+  const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId);
+  const autosaveLabel = autosaveStatus === "saving"
+    ? "Saving…"
+    : lastAutosavedAt
+      ? `Autosaved ${lastAutosavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+      : "Autosave ready";
 
   const syncHorizontalScroll = (source: "top" | "table") => {
     if (syncingScrollRef.current) return;
@@ -254,14 +263,25 @@ const CashflowTracker = () => {
     const state = currentCashflowState();
     localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(state));
 
-    if (!activeScenarioId) return;
+    if (!cashflowContext) return;
+    if (skipNextAutosaveRef.current) {
+      skipNextAutosaveRef.current = false;
+      return;
+    }
 
-    setSavedScenarios((current) => {
-      const nextScenarios = current.map((scenario) => scenario.id === activeScenarioId ? { ...scenario, state } : scenario);
-      localStorage.setItem(CASHFLOW_SCENARIOS_KEY, JSON.stringify(nextScenarios));
-      return nextScenarios;
-    });
-  }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, activeScenarioId]);
+    setAutosaveStatus("saving");
+    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    autosaveTimerRef.current = setTimeout(() => {
+      const saved = saveCashflowForProperty({ ...cashflowContext, financialYear }, state, `${propertyDetails.nickname || propertyDetails.address || "Property"} ${financialYear}`);
+      setCashflowContextState(saved);
+      setLastAutosavedAt(new Date(saved.savedAt));
+      setAutosaveStatus("saved");
+    }, 800);
+
+    return () => {
+      if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    };
+  }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, cashflowContext?.propertyId, cashflowContext?.scenarioId, financialYear]);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
@@ -336,6 +356,7 @@ const CashflowTracker = () => {
     const selected = portfolioProperties.find((item) => item.id === propertyId);
     if (!selected) return;
     setPropertySheetMode("current");
+    skipNextAutosaveRef.current = true;
     const scenario = getActiveScenario();
     if (scenario) {
       const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
@@ -351,6 +372,8 @@ const CashflowTracker = () => {
         setLandTax(normalized.landTax);
         setWater(normalized.water);
         setActiveMonth(normalized.activeMonth);
+        setLastAutosavedAt(new Date(record.savedAt));
+        setAutosaveStatus("saved");
         toast.success(`Loaded ${selected.label} cashflow`);
         return;
       }
@@ -368,7 +391,9 @@ const CashflowTracker = () => {
       ownership: selected.ownership,
       trustName: selected.trustName || "",
     }));
-    toast.success(`Linked ${selected.label}`);
+    setLastAutosavedAt(null);
+    setAutosaveStatus("idle");
+    toast.success(`Loaded ${selected.label}`);
   };
 
   const addNewPortfolioProperty = () => {
@@ -589,47 +614,6 @@ const CashflowTracker = () => {
               <LayoutDashboard size={32} className="hidden md:block" />
             </button>
             <div className="flex items-center gap-2 md:gap-4">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <button className="flex min-h-11 items-center gap-1.5 rounded-lg border border-accent/20 px-3 text-xs font-medium text-accent/70 transition-all hover:bg-accent/10 hover:text-accent" aria-label="Cashflow scenarios">
-                    <FolderOpen size={14} /> Scenarios
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Cashflow scenarios</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-3">
-                    {activeScenario && (
-                      <div className="flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/5 p-2.5">
-                        <span className="text-xs text-muted-foreground">Active:</span>
-                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{activeScenario.name}</span>
-                        <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-1 rounded-lg border border-border px-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted"><RefreshCw size={12} /> Update</button>
-                      </div>
-                    )}
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      <Input value={saveName} onChange={(event) => setSaveName(event.target.value)} onKeyDown={(event) => event.key === "Enter" && saveCashflowScenario()} placeholder="Scenario name..." className="h-11" />
-                      <button onClick={saveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save</button>
-                    </div>
-                    {savedScenarios.length > 0 ? (
-                      <div className="space-y-2 border-t border-border pt-3">
-                        <p className="text-sm font-medium text-foreground">Saved scenarios</p>
-                        <div className="max-h-60 space-y-2 overflow-y-auto scrollbar-thin">
-                          {savedScenarios.map((scenario) => (
-                            <div key={scenario.id} className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${scenario.id === activeScenarioId ? "border-accent bg-accent/5" : "border-border bg-muted/50"}`}>
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-foreground">{scenario.name}</p>
-                                <p className="text-xs text-muted-foreground">{new Date(scenario.savedAt).toLocaleDateString()} {new Date(scenario.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
-                              </div>
-                              <button onClick={() => loadCashflowScenario(scenario)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Download size={16} /> Load</button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : <p className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">No cashflow scenarios saved yet.</p>}
-                  </div>
-                </DialogContent>
-              </Dialog>
               <UserMenu />
             </div>
           </div>
@@ -656,34 +640,61 @@ const CashflowTracker = () => {
           <ScenarioContextBanner compact />
         </div>
         <section className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Linked property</p>
-              <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.nickname || propertyDetails.address || "Choose a property"}</h2>
-              <p className="text-sm text-muted-foreground">
-                {linkedScenario?.name || "No active scenario"} · {cashflowContext?.propertyType || "property"} · {financialYear}
-                {linkedRecord?.lastEditedByName && ` · Last updated by ${linkedRecord.lastEditedByName}`}
-              </p>
+          <div className="space-y-4">
+            <div className="flex flex-col gap-1 md:flex-row md:items-start md:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Property cashflow</p>
+                <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.nickname || propertyDetails.address || "Choose a property"}</h2>
+                <p className="text-sm text-muted-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
+              </div>
+              <p className="text-sm font-semibold text-accent">{autosaveLabel}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <select
-                value={financialYear}
-                onChange={(event) => {
-                  const nextYear = event.target.value;
-                  setFinancialYear(nextYear);
-                  if (cashflowContext) {
-                    const nextContext = { ...cashflowContext, financialYear: nextYear };
-                    setActiveCashflowContext(nextContext);
-                    setCashflowContextState(nextContext);
-                  }
-                }}
-                className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
-              >
-                {['FY2027', 'FY2028', 'FY2029', 'FY2030'].map((year) => <option key={year} value={year}>{year}</option>)}
-              </select>
-              <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save cashflow</button>
-              <button onClick={saveAsNewYear} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Save as new year</button>
-            </div>
+            {portfolioProperties.length > 0 ? (
+              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto]">
+                <select value={cashflowContext?.propertyId || selectedPortfolioProperty?.id || ""} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                  <option value="" disabled>Select property</option>
+                  {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                </select>
+                <select
+                  value={financialYear}
+                  onChange={(event) => {
+                    const nextYear = event.target.value;
+                    setFinancialYear(nextYear);
+                    if (cashflowContext) {
+                      skipNextAutosaveRef.current = true;
+                      const nextContext = { ...cashflowContext, financialYear: nextYear };
+                      setActiveCashflowContext(nextContext);
+                      setCashflowContextState(nextContext);
+                      const record = getCashflowForProperty<CashflowState>(nextContext);
+                      if (record?.state) {
+                        const normalized = normalizeCashflowState(record.state);
+                        setRows(normalized.rows);
+                        setPropertyDetails(normalized.propertyDetails);
+                        setCouncilRates(normalized.councilRates);
+                        setInsurance(normalized.insurance);
+                        setLandTax(normalized.landTax);
+                        setWater(normalized.water);
+                        setActiveMonth(normalized.activeMonth);
+                        setLastAutosavedAt(new Date(record.savedAt));
+                        setAutosaveStatus("saved");
+                      } else {
+                        setLastAutosavedAt(null);
+                        setAutosaveStatus("idle");
+                      }
+                    }
+                  }}
+                  className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
+                >
+                  {['FY2027', 'FY2028', 'FY2029', 'FY2030'].map((year) => <option key={year} value={year}>{year}</option>)}
+                </select>
+                <button onClick={saveAsNewYear} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Copy to another year</button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm font-medium text-muted-foreground">No portfolio properties yet</p>
+                <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add property</button>
+              </div>
+            )}
           </div>
         </section>
         <section className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-5">
