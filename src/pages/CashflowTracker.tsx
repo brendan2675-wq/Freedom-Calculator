@@ -598,47 +598,6 @@ const CashflowTracker = () => {
               <LayoutDashboard size={32} className="hidden md:block" />
             </button>
             <div className="flex items-center gap-2 md:gap-4">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <button className="flex min-h-11 items-center gap-1.5 rounded-lg border border-accent/20 px-3 text-xs font-medium text-accent/70 transition-all hover:bg-accent/10 hover:text-accent" aria-label="Cashflow scenarios">
-                    <FolderOpen size={14} /> Scenarios
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Cashflow scenarios</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-3">
-                    {activeScenario && (
-                      <div className="flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/5 p-2.5">
-                        <span className="text-xs text-muted-foreground">Active:</span>
-                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{activeScenario.name}</span>
-                        <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-1 rounded-lg border border-border px-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted"><RefreshCw size={12} /> Update</button>
-                      </div>
-                    )}
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      <Input value={saveName} onChange={(event) => setSaveName(event.target.value)} onKeyDown={(event) => event.key === "Enter" && saveCashflowScenario()} placeholder="Scenario name..." className="h-11" />
-                      <button onClick={saveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save</button>
-                    </div>
-                    {savedScenarios.length > 0 ? (
-                      <div className="space-y-2 border-t border-border pt-3">
-                        <p className="text-sm font-medium text-foreground">Saved scenarios</p>
-                        <div className="max-h-60 space-y-2 overflow-y-auto scrollbar-thin">
-                          {savedScenarios.map((scenario) => (
-                            <div key={scenario.id} className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${scenario.id === activeScenarioId ? "border-accent bg-accent/5" : "border-border bg-muted/50"}`}>
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-foreground">{scenario.name}</p>
-                                <p className="text-xs text-muted-foreground">{new Date(scenario.savedAt).toLocaleDateString()} {new Date(scenario.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
-                              </div>
-                              <button onClick={() => loadCashflowScenario(scenario)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Download size={16} /> Load</button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : <p className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">No cashflow scenarios saved yet.</p>}
-                  </div>
-                </DialogContent>
-              </Dialog>
               <UserMenu />
             </div>
           </div>
