@@ -64,7 +64,7 @@ const property = {
   manager: "Nida Billa @ Billy Nida Realty Pty Ltd",
 };
 
-type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" };
+type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type InsuranceState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
@@ -417,6 +417,10 @@ const CashflowTracker = () => {
           <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
           <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
           <Metric label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
+          <ExpenseControl label="Council rates" value={councilRates.amount} frequency={councilRates.frequency} onAmountChange={(amount) => updateCouncilRates({ amount })} onFrequencyChange={(frequency) => updateCouncilRates({ frequency })} />
+          <ExpenseControl label="Insurance" value={insurance.amount} frequency={insurance.frequency} onAmountChange={(amount) => updateInsurance({ amount })} onFrequencyChange={(frequency) => updateInsurance({ frequency })} />
+          <ExpenseControl label="Land tax" value={landTax.amount} frequency={landTax.frequency} onAmountChange={(amount) => updateLandTax({ amount })} onFrequencyChange={(frequency) => updateLandTax({ frequency })} />
+          <ExpenseControl label="Water charges" value={water.amount} frequency={water.frequency} onAmountChange={(amount) => updateWater({ amount })} onFrequencyChange={(frequency) => updateWater({ frequency })} />
         </section>
 
         <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
