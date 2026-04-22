@@ -74,29 +74,32 @@ const AdviserActingBanner = () => {
   }
 
   return (
-    <div className="sticky top-0 z-50 bg-accent text-accent-foreground border-b border-accent/40 shadow-sm">
-      <div className="container mx-auto px-4 py-2 flex items-center gap-3 flex-wrap">
-        <UserCog size={16} className="shrink-0" />
-        <p className="text-xs md:text-sm flex-1 min-w-0">
+    <div className="sticky top-2 z-50 pointer-events-none">
+      <div className="container mx-auto px-4 flex justify-end">
+        <div className="pointer-events-auto flex max-w-full items-center gap-2 rounded-xl border border-accent/30 bg-card/95 px-3 py-2 text-foreground shadow-md backdrop-blur-sm">
+        <UserCog size={14} className="shrink-0 text-accent" />
+        <p className="hidden min-w-0 max-w-[56vw] truncate text-xs md:block">
           Editing <span className="font-semibold">{ctx.clientName}</span>'s scenario
           <span className="opacity-80"> — {ctx.scenarioName}</span>
           {scenario.lastEditedByName && (
             <span className="opacity-70"> · Last updated by {scenario.lastEditedByName}</span>
           )}
         </p>
+        <p className="max-w-[42vw] truncate text-xs font-semibold md:hidden">{ctx.scenarioName}</p>
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleSave}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-accent-foreground/10 hover:bg-accent-foreground/20 transition-colors"
+            className="flex min-h-9 items-center gap-1.5 rounded-md bg-accent/10 px-3 text-xs font-medium text-accent transition-colors hover:bg-accent/15"
           >
             <Save size={13} /> Save changes
           </button>
           <button
             onClick={handleExit}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border border-accent-foreground/30 hover:bg-accent-foreground/10 transition-colors"
+            className="flex min-h-9 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted"
           >
             <X size={13} /> Exit
           </button>
+        </div>
         </div>
       </div>
     </div>
