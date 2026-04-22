@@ -10,6 +10,7 @@ import Portfolio from "./pages/Portfolio";
 import Login from "./pages/Login";
 import AdviserHome from "./pages/AdviserHome";
 import AgentHome from "./pages/AgentHome";
+import CashflowTracker from "./pages/CashflowTracker";
 import RoleGuard from "./components/RoleGuard";
 import { getRole, landingFor } from "./lib/auth";
 
@@ -115,6 +116,14 @@ const App = () => (
             element={
               <RoleGuard allow={["client", "adviser", "agent"]}>
                 <Portfolio />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="/cashflow"
+            element={
+              <RoleGuard allow={["client", "adviser"]}>
+                <CashflowTracker />
               </RoleGuard>
             }
           />
