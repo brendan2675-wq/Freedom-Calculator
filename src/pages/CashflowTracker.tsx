@@ -670,9 +670,9 @@ const CashflowTracker = () => {
             </div>
           </div>
         </section>
-        <section className="grid items-start gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          <button onClick={() => openPropertyDetailsSheet("current")} className="group rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:col-span-2" aria-label="Edit property details">
-            <div className="flex min-h-[116px] flex-col justify-between gap-4">
+        <section>
+          <button onClick={() => openPropertyDetailsSheet("current")} className="group w-full rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Edit property details">
+            <div className="flex flex-col gap-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
                   <InvestmentTypeIcon type={propertyDetails.investmentType} size={18} className="shrink-0 text-accent" />
@@ -687,11 +687,13 @@ const CashflowTracker = () => {
                   {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
                 </span>
               </div>
+              <div className="grid gap-3 border-t border-border/70 pt-3 sm:grid-cols-3">
+                <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
+                <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
+                <SummaryMeasure icon={CalendarDays} label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
+              </div>
             </div>
           </button>
-          <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
-          <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
-          <Metric label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
         </section>
 
         <Sheet open={propertySheetOpen} onOpenChange={setPropertySheetOpen}>
