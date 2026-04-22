@@ -80,10 +80,13 @@ const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${
 
 const CashflowTracker = () => {
   const navigate = useNavigate();
-  const [activeMonth, setActiveMonth] = useState(7);
-  const [rows, setRows] = useState<CashflowRow[]>(initialRows);
-  const [propertyDetails, setPropertyDetails] = useState(property);
-  const [councilRates, setCouncilRates] = useState({ amount: 0, frequency: "annual" as "annual" | "quarterly" });
+  const [activeMonth, setActiveMonth] = useState(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.activeMonth ?? 7);
+  const [rows, setRows] = useState<CashflowRow[]>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.rows ?? initialRows);
+  const [propertyDetails, setPropertyDetails] = useState(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.propertyDetails ?? property);
+  const [councilRates, setCouncilRates] = useState<CouncilRatesState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.councilRates ?? defaultCouncilRates);
+  const [saveName, setSaveName] = useState("");
+  const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
+  const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
 
   useEffect(() => {
     setRows((current) => current.map((row) => {
@@ -161,6 +164,41 @@ const CashflowTracker = () => {
 
   const removeRow = (rowId: string) => {
     setRows((current) => current.filter((row) => row.id !== rowId));
+  };
+
+  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, activeMonth });
+
+  const saveCashflowScenario = () => {
+    const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
+    const existing = savedScenarios.find((scenario) => scenario.name.toLowerCase() === name.toLowerCase());
+    const nextScenario: SavedCashflowScenario = { id: existing?.id || crypto.randomUUID(), name, savedAt: new Date().toISOString(), state: currentCashflowState() };
+    const nextScenarios = existing ? savedScenarios.map((scenario) => scenario.id === existing.id ? nextScenario : scenario) : [...savedScenarios, nextScenario];
+    localStorage.setItem(CASHFLOW_SCENARIOS_KEY, JSON.stringify(nextScenarios));
+    localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, nextScenario.id);
+    setSavedScenarios(nextScenarios);
+    setActiveScenarioId(nextScenario.id);
+    setSaveName("");
+    toast.success(`${existing ? "Updated" : "Saved"} "${name}"`);
+  };
+
+  const updateActiveCashflowScenario = () => {
+    if (!activeScenarioId) return saveCashflowScenario();
+    const active = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
+    if (!active) return saveCashflowScenario();
+    const nextScenarios = savedScenarios.map((scenario) => scenario.id === activeScenarioId ? { ...scenario, savedAt: new Date().toISOString(), state: currentCashflowState() } : scenario);
+    localStorage.setItem(CASHFLOW_SCENARIOS_KEY, JSON.stringify(nextScenarios));
+    setSavedScenarios(nextScenarios);
+    toast.success(`Updated "${active.name}"`);
+  };
+
+  const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
+    setRows(scenario.state.rows);
+    setPropertyDetails(scenario.state.propertyDetails);
+    setCouncilRates(scenario.state.councilRates);
+    setActiveMonth(scenario.state.activeMonth);
+    setActiveScenarioId(scenario.id);
+    localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, scenario.id);
+    toast.success(`Loaded "${scenario.name}"`);
   };
 
   const updateCouncilRates = (updates: Partial<typeof councilRates>) => {
