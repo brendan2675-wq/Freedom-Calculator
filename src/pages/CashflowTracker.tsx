@@ -454,7 +454,13 @@ const CashflowTracker = () => {
       <main className="container mx-auto px-4 py-6 md:py-10">
         <section className="grid gap-4 md:grid-cols-4">
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm md:col-span-2">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
+              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="h-10 rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                <option value="" disabled>Link portfolio property</option>
+                {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+              </select>
+            </div>
             <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-11 text-lg font-bold" />
             <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="mt-2 h-10 text-sm font-semibold" />
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -579,7 +585,7 @@ const EditableInfo = ({ icon: Icon, label, value, onChange, type = "text", suffi
 
 const Metric = ({ icon: Icon, label, value, highlight = false, className = "" }: { icon: typeof Home; label: string; value: string; highlight?: boolean; className?: string }) => (
   <div className={`rounded-xl border border-border bg-card p-4 shadow-sm ${className}`}>
-    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={22} /></div>
+    <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={22} /></div>
     <p className="text-sm font-medium text-muted-foreground">{label}</p>
     <p className={`mt-1 text-2xl font-bold ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
   </div>
