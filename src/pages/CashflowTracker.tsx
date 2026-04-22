@@ -718,7 +718,6 @@ const CashflowTracker = () => {
 
               {propertySheetMode === "current" && (
                 <div className="space-y-2 rounded-lg border border-border p-3">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Link Existing Property</label>
                   <select onChange={(event) => linkPortfolioProperty(event.target.value)} value={cashflowContext?.propertyId || ""} className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                     <option value="" disabled>Select existing portfolio property</option>
                     {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
