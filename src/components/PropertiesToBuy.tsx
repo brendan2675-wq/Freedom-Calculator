@@ -55,6 +55,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
   const addProperty = () => {
     const newProperty: FutureProperty = {
       id: crypto.randomUUID(),
+      nickname: "",
       suburb: "",
       purchasePrice: 0,
       rentalYield: 0,
@@ -201,7 +202,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
                 </div>
                 <div className="flex items-center gap-1.5 mb-2">
                   <InvestmentTypeIcon type={p.investmentType} size={16} className="text-accent shrink-0" />
-                  <p className="font-semibold text-sm text-foreground truncate">{p.suburb || "Untitled"}</p>
+                  <p className="font-semibold text-sm text-foreground truncate">{p.nickname || p.suburb || "Untitled"}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
                   <div>
@@ -268,7 +269,7 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
           open={!!selectedId}
           onOpenChange={(o) => {
             if (!o) {
-              if (selectedProperty && !selectedProperty.suburb && selectedProperty.purchasePrice === 0) {
+              if (selectedProperty && !selectedProperty.nickname && !selectedProperty.suburb && selectedProperty.purchasePrice === 0) {
                 setProperties(properties.filter((p) => p.id !== selectedId));
               }
               setSelectedId(null);
@@ -278,7 +279,8 @@ const PropertiesToBuy = ({ properties, setProperties, growthRate, targetMonth, t
             setProperties(properties.map((p) => p.id === updated.id ? updated as FutureProperty : p));
           }}
           onDuplicate={(prop) => {
-            const dup = { ...prop, id: crypto.randomUUID(), suburb: `${(prop as FutureProperty).suburb || "Property"} (copy)` } as FutureProperty;
+            const baseName = (prop as FutureProperty).nickname || (prop as FutureProperty).suburb || "Property";
+            const dup = { ...prop, id: crypto.randomUUID(), nickname: `${baseName} (copy)`, suburb: `${baseName} (copy)` } as FutureProperty;
             setProperties([...properties, dup]);
             setSelectedId(dup.id);
           }}
