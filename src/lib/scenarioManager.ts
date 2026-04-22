@@ -19,6 +19,7 @@
  */
 import type { ExistingProperty, FutureProperty, SaleCosts } from "@/types/property";
 import { getRole, getUser } from "@/lib/auth";
+import { getClient } from "@/lib/clients";
 
 // Migration: older scenarios saved saleCosts with incomeTaxRate: 0 (tax-free
 // threshold) which is almost never the user's intent. Promote any zero/missing
@@ -197,7 +198,15 @@ export function setScenarioMeta(
   const scenarios = getSavedScenarios();
   const idx = scenarios.findIndex((s) => s.id === id);
   if (idx === -1) return null;
-  scenarios[idx] = { ...scenarios[idx], ...meta };
+  const clientChanged = Object.prototype.hasOwnProperty.call(meta, "clientId");
+  const clientName = meta.clientId ? getClient(meta.clientId)?.name : undefined;
+  scenarios[idx] = {
+    ...scenarios[idx],
+    ...meta,
+    state: clientChanged
+      ? { ...scenarios[idx].state, clientName: clientName || "Unassigned client" }
+      : scenarios[idx].state,
+  };
   localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
   return scenarios[idx];
 }
