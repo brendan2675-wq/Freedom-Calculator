@@ -208,6 +208,9 @@ const CashflowTracker = () => {
         weeklyRent: ppor?.rental?.weeklyRent || 0,
         interestRate: ppor?.loan?.interestRate || 0,
         loanAmount: ppor?.loanSplits?.length ? ppor.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : ppor?.loanBalance || 0,
+        investmentType: ppor?.investmentType || "house",
+        ownership: ppor?.ownership || "personal",
+        trustName: ppor?.trustName || "",
       },
     });
     const nextContext = { clientId: active.clientId, scenarioId: active.id, propertyId: ppor?.id || "ppor", propertyType: "ppor" as CashflowPropertyType, financialYear };
@@ -345,6 +348,9 @@ const CashflowTracker = () => {
       weeklyRent: selected.weeklyRent,
       interestRate: selected.interestRate,
       loanAmount: selected.loanAmount,
+      investmentType: selected.investmentType,
+      ownership: selected.ownership,
+      trustName: selected.trustName || "",
     }));
     toast.success(`Linked ${selected.label}`);
   };
@@ -359,8 +365,9 @@ const CashflowTracker = () => {
       loanBalance: propertyDetails.loanAmount || 0,
       earmarked: false,
       sellInYears: 0,
-      ownership: "personal",
-      investmentType: "house",
+      ownership: propertyDetails.ownership,
+      trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
+      investmentType: propertyDetails.investmentType,
       loan: { ...defaultLoanDetails, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
       rental: { ...defaultRentalDetails, weeklyRent: propertyDetails.weeklyRent },
       purchase: { ...defaultPurchaseDetails },
