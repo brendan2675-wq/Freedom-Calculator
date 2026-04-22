@@ -578,10 +578,10 @@ const Info = ({ icon: Icon, label, value }: { icon: typeof Home; label: string; 
 );
 
 const EditableInfo = ({ icon: Icon, label, value, onChange, type = "text", suffix }: { icon: typeof Home; label: string; value: string | number; onChange: (value: string) => void; type?: string; suffix?: string }) => (
-  <div className="flex h-11 items-center gap-2 rounded-md border border-input bg-background px-3">
+  <div className="flex h-9 items-center gap-2 rounded-md border border-input bg-background px-3">
     <div className="flex min-w-[5.5rem] items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Icon size={14} /> {label}</div>
     <div className="flex min-w-0 flex-1 items-center gap-2">
-      <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-9 border-0 bg-transparent px-0 text-sm font-semibold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+      <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-8 border-0 bg-transparent px-0 text-sm font-semibold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
       {suffix ? <span className="text-sm font-semibold text-muted-foreground">{suffix}</span> : null}
     </div>
   </div>
