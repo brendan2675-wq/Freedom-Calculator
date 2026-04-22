@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Banknote, Building2, CalendarDays, Home, Percent, Plus, Trash2, TrendingDown } from "lucide-react";
+import { ArrowLeft, Banknote, Building2, CalendarDays, Download, Home, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
 import UserMenu from "@/components/UserMenu";
 import { Input } from "@/components/ui/input";
@@ -58,14 +59,34 @@ const property = {
   manager: "Nida Billa @ Billy Nida Realty Pty Ltd",
 };
 
+type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" };
+type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; activeMonth: number };
+type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
+
+const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
+const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
+const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
+
+const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
+  try {
+    const stored = localStorage.getItem(CASHFLOW_SCENARIOS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
 const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`;
 
 const CashflowTracker = () => {
   const navigate = useNavigate();
-  const [activeMonth, setActiveMonth] = useState(7);
-  const [rows, setRows] = useState<CashflowRow[]>(initialRows);
-  const [propertyDetails, setPropertyDetails] = useState(property);
-  const [councilRates, setCouncilRates] = useState({ amount: 0, frequency: "annual" as "annual" | "quarterly" });
+  const [activeMonth, setActiveMonth] = useState(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.activeMonth ?? 7);
+  const [rows, setRows] = useState<CashflowRow[]>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.rows ?? initialRows);
+  const [propertyDetails, setPropertyDetails] = useState(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.propertyDetails ?? property);
+  const [councilRates, setCouncilRates] = useState<CouncilRatesState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.councilRates ?? defaultCouncilRates);
+  const [saveName, setSaveName] = useState("");
+  const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
+  const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
 
   useEffect(() => {
     setRows((current) => current.map((row) => {
@@ -143,6 +164,41 @@ const CashflowTracker = () => {
 
   const removeRow = (rowId: string) => {
     setRows((current) => current.filter((row) => row.id !== rowId));
+  };
+
+  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, activeMonth });
+
+  const saveCashflowScenario = () => {
+    const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
+    const existing = savedScenarios.find((scenario) => scenario.name.toLowerCase() === name.toLowerCase());
+    const nextScenario: SavedCashflowScenario = { id: existing?.id || crypto.randomUUID(), name, savedAt: new Date().toISOString(), state: currentCashflowState() };
+    const nextScenarios = existing ? savedScenarios.map((scenario) => scenario.id === existing.id ? nextScenario : scenario) : [...savedScenarios, nextScenario];
+    localStorage.setItem(CASHFLOW_SCENARIOS_KEY, JSON.stringify(nextScenarios));
+    localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, nextScenario.id);
+    setSavedScenarios(nextScenarios);
+    setActiveScenarioId(nextScenario.id);
+    setSaveName("");
+    toast.success(`${existing ? "Updated" : "Saved"} "${name}"`);
+  };
+
+  const updateActiveCashflowScenario = () => {
+    if (!activeScenarioId) return saveCashflowScenario();
+    const active = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
+    if (!active) return saveCashflowScenario();
+    const nextScenarios = savedScenarios.map((scenario) => scenario.id === activeScenarioId ? { ...scenario, savedAt: new Date().toISOString(), state: currentCashflowState() } : scenario);
+    localStorage.setItem(CASHFLOW_SCENARIOS_KEY, JSON.stringify(nextScenarios));
+    setSavedScenarios(nextScenarios);
+    toast.success(`Updated "${active.name}"`);
+  };
+
+  const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
+    setRows(scenario.state.rows);
+    setPropertyDetails(scenario.state.propertyDetails);
+    setCouncilRates(scenario.state.councilRates);
+    setActiveMonth(scenario.state.activeMonth);
+    setActiveScenarioId(scenario.id);
+    localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, scenario.id);
+    toast.success(`Loaded "${scenario.name}"`);
   };
 
   const updateCouncilRates = (updates: Partial<typeof councilRates>) => {
@@ -243,6 +299,35 @@ const CashflowTracker = () => {
                 <SummaryRow label="Net Profit / (Loss)" values={totals.incomeByMonth.map((v, i) => v - totals.expensesByMonth[i])} total={totals.net} />
               </tbody>
             </table>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-foreground">Save cashflow scenario</h2>
+              <p className="text-sm text-muted-foreground">Save the current property details, assumptions, council rates and worksheet values locally.</p>
+            </div>
+            <div className="flex w-full flex-col gap-2 md:w-auto md:min-w-96">
+              <div className="flex gap-2">
+                <Input value={saveName} onChange={(event) => setSaveName(event.target.value)} onKeyDown={(event) => event.key === "Enter" && saveCashflowScenario()} placeholder="Scenario name..." className="h-11" />
+                <button onClick={saveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save</button>
+                <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><RefreshCw size={16} /> Update</button>
+              </div>
+              {savedScenarios.length > 0 ? (
+                <div className="max-h-44 space-y-2 overflow-y-auto scrollbar-thin">
+                  {savedScenarios.map((scenario) => (
+                    <div key={scenario.id} className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${scenario.id === activeScenarioId ? "border-accent bg-accent/5" : "border-border bg-muted/40"}`}>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-foreground">{scenario.name}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(scenario.savedAt).toLocaleDateString()} {new Date(scenario.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                      </div>
+                      <button onClick={() => loadCashflowScenario(scenario)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-card"><Download size={16} /> Load</button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
         </section>
 
