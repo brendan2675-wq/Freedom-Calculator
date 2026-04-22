@@ -151,10 +151,11 @@ const AdviserHome = () => {
     navigate("/cashflow");
   };
 
-  const handleCreateScenario = ({ client, scenarioName }: { client: Client; scenarioName: string }) => {
+  const handleCreateScenario = ({ client, scenarioName }: { client?: Client; scenarioName: string }) => {
     // Reset working state to a clean slate so we don't carry over the previous scenario
+    const clientName = client?.name || "Unassigned client";
     const blankState: ScenarioState = {
-      clientName: client.name,
+      clientName,
       interestRate: 6.5,
       targetMonth: 0,
       targetYear: new Date().getFullYear() + 10,
@@ -178,19 +179,19 @@ const AdviserHome = () => {
     };
     applyScenarioToStorage(blankState);
     const saved = saveScenario(scenarioName, blankState, {
-      clientId: client.id,
+      clientId: client?.id,
       ownerId: user?.id,
       ownerRole: "adviser",
     });
     setActiveScenario(saved.id);
     setActingAs({
-      clientId: client.id,
+      clientId: client?.id || "",
       scenarioId: saved.id,
-      clientName: client.name,
+      clientName,
       scenarioName: saved.name,
     });
     refresh();
-    toast.success(`Created "${saved.name}" for ${client.name}`);
+    toast.success(client ? `Created "${saved.name}" for ${client.name}` : "Saved draft. You can assign it to a client later from Adviser Home.");
     navigate("/dashboard");
   };
 
