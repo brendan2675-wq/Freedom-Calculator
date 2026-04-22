@@ -18,6 +18,7 @@
  * BACKEND_INTEGRATION.md.
  */
 import type { ExistingProperty, FutureProperty, SaleCosts } from "@/types/property";
+import { getRole, getUser } from "@/lib/auth";
 
 // Migration: older scenarios saved saleCosts with incomeTaxRate: 0 (tax-free
 // threshold) which is almost never the user's intent. Promote any zero/missing
@@ -113,14 +114,40 @@ export interface SavedScenario {
   ownerRole?: "client" | "adviser";
   sharedAgentIds?: string[];
   type?: ScenarioType;
+  lastEditedById?: string;
+  lastEditedByName?: string;
+  lastEditedByRole?: "client" | "adviser";
+  lastOpenedAt?: string;
+  version?: number;
 }
 
 const SCENARIOS_KEY = "saved-scenarios";
+const ACTIVE_SCENARIO_KEY = "active-scenario-id";
+const LOADED_SCENARIO_VERSION_KEY = "active-scenario-loaded-version";
+
+const stampEditMeta = () => {
+  const user = getUser();
+  const role = getRole();
+  return {
+    lastEditedById: user?.id,
+    lastEditedByName: user?.name || (role === "adviser" ? "Adviser" : role === "client" ? "Client" : undefined),
+    lastEditedByRole: role === "adviser" || role === "client" ? role : undefined,
+  } satisfies Partial<SavedScenario>;
+};
+
+const normalizeScenario = (scenario: SavedScenario): SavedScenario => ({
+  ...scenario,
+  sharedAgentIds: scenario.sharedAgentIds || [],
+  type: scenario.type || "individual",
+  version: scenario.version || 1,
+  lastEditedByRole: scenario.lastEditedByRole || scenario.ownerRole,
+  lastEditedById: scenario.lastEditedById || scenario.ownerId,
+});
 
 export function getSavedScenarios(): SavedScenario[] {
   try {
     const stored = localStorage.getItem(SCENARIOS_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return stored ? (JSON.parse(stored) as SavedScenario[]).map(normalizeScenario) : [];
   } catch {
     return [];
   }
@@ -129,9 +156,10 @@ export function getSavedScenarios(): SavedScenario[] {
 export function saveScenario(
   name: string,
   state: ScenarioState,
-  meta?: Partial<Pick<SavedScenario, "clientId" | "ownerId" | "ownerRole" | "sharedAgentIds" | "type">>,
+  meta?: Partial<Pick<SavedScenario, "clientId" | "ownerId" | "ownerRole" | "sharedAgentIds" | "type" | "lastEditedById" | "lastEditedByName" | "lastEditedByRole">>,
 ): SavedScenario {
   const scenarios = getSavedScenarios();
+  const editMeta = stampEditMeta();
   const scenario: SavedScenario = {
     id: crypto.randomUUID(),
     name,
@@ -139,6 +167,8 @@ export function saveScenario(
     state,
     sharedAgentIds: [],
     type: "individual",
+    version: 1,
+    ...editMeta,
     ...meta,
   };
   scenarios.push(scenario);
@@ -149,19 +179,20 @@ export function saveScenario(
 export function updateScenario(
   id: string,
   state: ScenarioState,
-  meta?: Partial<Pick<SavedScenario, "clientId" | "ownerId" | "ownerRole" | "sharedAgentIds" | "type" | "name">>,
+  meta?: Partial<Pick<SavedScenario, "clientId" | "ownerId" | "ownerRole" | "sharedAgentIds" | "type" | "name" | "lastEditedById" | "lastEditedByName" | "lastEditedByRole" | "lastOpenedAt" | "version">>,
 ): SavedScenario | null {
   const scenarios = getSavedScenarios();
   const idx = scenarios.findIndex((s) => s.id === id);
   if (idx === -1) return null;
-  scenarios[idx] = { ...scenarios[idx], ...meta, savedAt: new Date().toISOString(), state };
+  const editMeta = stampEditMeta();
+  scenarios[idx] = { ...scenarios[idx], ...editMeta, ...meta, savedAt: new Date().toISOString(), version: meta?.version ?? ((scenarios[idx].version || 1) + 1), state };
   localStorage.setItem(SCENARIOS_KEY, JSON.stringify(scenarios));
   return scenarios[idx];
 }
 
 export function setScenarioMeta(
   id: string,
-  meta: Partial<Pick<SavedScenario, "clientId" | "ownerId" | "ownerRole" | "sharedAgentIds" | "type" | "name">>,
+  meta: Partial<Pick<SavedScenario, "clientId" | "ownerId" | "ownerRole" | "sharedAgentIds" | "type" | "name" | "lastEditedById" | "lastEditedByName" | "lastEditedByRole" | "lastOpenedAt" | "version">>,
 ): SavedScenario | null {
   const scenarios = getSavedScenarios();
   const idx = scenarios.findIndex((s) => s.id === id);
@@ -173,6 +204,41 @@ export function setScenarioMeta(
 
 export function getScenario(id: string): SavedScenario | undefined {
   return getSavedScenarios().find((s) => s.id === id);
+}
+
+export function getActiveScenario(): SavedScenario | null {
+  const id = localStorage.getItem(ACTIVE_SCENARIO_KEY);
+  return id ? getScenario(id) || null : null;
+}
+
+export function setActiveScenario(id: string) {
+  const scenario = getScenario(id);
+  if (!scenario) return null;
+  localStorage.setItem(ACTIVE_SCENARIO_KEY, id);
+  localStorage.setItem(LOADED_SCENARIO_VERSION_KEY, String(scenario.version || 1));
+  setScenarioMeta(id, { lastOpenedAt: new Date().toISOString() });
+  window.dispatchEvent(new Event("active-scenario-changed"));
+  return scenario;
+}
+
+export function loadScenarioToWorkingState(scenario: SavedScenario) {
+  applyScenarioToStorage(scenario.state);
+  setActiveScenario(scenario.id);
+}
+
+export function saveActiveScenarioFromWorkingState(meta?: Partial<SavedScenario>): { scenario: SavedScenario | null; conflict: boolean } {
+  const activeId = localStorage.getItem(ACTIVE_SCENARIO_KEY);
+  if (!activeId) return { scenario: null, conflict: false };
+  const current = getScenario(activeId);
+  if (!current) return { scenario: null, conflict: false };
+  const loadedVersion = parseInt(localStorage.getItem(LOADED_SCENARIO_VERSION_KEY) || String(current.version || 1), 10);
+  const conflict = (current.version || 1) > loadedVersion;
+  const updated = updateScenario(activeId, buildScenarioFromStorage(), meta);
+  if (updated) {
+    localStorage.setItem(LOADED_SCENARIO_VERSION_KEY, String(updated.version || 1));
+    window.dispatchEvent(new Event("active-scenario-changed"));
+  }
+  return { scenario: updated, conflict };
 }
 
 

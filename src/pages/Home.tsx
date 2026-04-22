@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import ScenarioManager from "@/components/ScenarioManager";
 import UserMenu from "@/components/UserMenu";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
+import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import WelcomeDialog from "@/components/WelcomeDialog";
 import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
 
@@ -131,6 +132,9 @@ const HomePage = () => {
       {/* Tiles */}
       <main className="container mx-auto px-4 py-6 md:py-12">
         {/* Welcome guidance is now delivered via a 3-part toast on first visit */}
+        <div className="max-w-5xl mx-auto mb-4 md:mb-6">
+          <ScenarioContextBanner />
+        </div>
 
         {/* Portfolio button - compact on mobile */}
         <div className="max-w-5xl mx-auto mb-4 md:mb-6">

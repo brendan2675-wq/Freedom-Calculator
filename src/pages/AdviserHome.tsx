@@ -17,9 +17,10 @@ import {
   type Client, type Agent,
 } from "@/lib/clients";
 import {
-  getSavedScenarios, deleteScenario, applyScenarioToStorage, setScenarioMeta, saveScenario,
+  getSavedScenarios, deleteScenario, applyScenarioToStorage, setScenarioMeta, saveScenario, setActiveScenario,
   type SavedScenario, type ScenarioState,
 } from "@/lib/scenarioManager";
+import { setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 import ShareWithAgentsDialog from "@/components/ShareWithAgentsDialog";
 import NewScenarioDialog from "@/components/NewScenarioDialog";
 import { setActingAs } from "@/components/AdviserActingBanner";
@@ -83,6 +84,7 @@ const AdviserHome = () => {
   const [agentDialog, setAgentDialog] = useState<{ open: boolean; agent?: Agent }>({ open: false });
   const [shareDialog, setShareDialog] = useState<{ open: boolean; scenario?: SavedScenario }>({ open: false });
   const [newScenarioOpen, setNewScenarioOpen] = useState(false);
+  const [cashflowDialog, setCashflowDialog] = useState<{ open: boolean; scenario?: SavedScenario }>({ open: false });
 
   const refresh = () => {
     setScenarios(getSavedScenarios());
@@ -111,7 +113,7 @@ const AdviserHome = () => {
 
   const openScenario = (s: SavedScenario) => {
     applyScenarioToStorage(s.state);
-    localStorage.setItem("active-scenario-id", s.id);
+    setActiveScenario(s.id);
     const client = clients.find((c) => c.id === s.clientId);
     setActingAs({
       clientId: s.clientId || "",
@@ -120,6 +122,29 @@ const AdviserHome = () => {
       scenarioName: s.name,
     });
     navigate("/dashboard");
+  };
+
+  const propertyOptionsForScenario = (s: SavedScenario) => {
+    const ppor = s.state.ppor && (s.state.ppor.nickname || s.state.ppor.estimatedValue || s.state.ppor.loanBalance)
+      ? [{ id: s.state.ppor.id || "ppor", label: s.state.ppor.nickname || s.state.pporSuburb || "Owner occupied property", type: "ppor" as CashflowPropertyType }]
+      : [];
+    const existing = (s.state.existingProperties || []).map((p) => ({
+      id: p.id,
+      label: p.nickname || "Investment property",
+      type: (p.ownership === "trust" ? "smsf" : "investment") as CashflowPropertyType,
+    }));
+    const future = (s.state.futureProperties || []).map((p) => ({ id: p.id, label: p.suburb || "Proposed purchase", type: "future" as CashflowPropertyType }));
+    return [...ppor, ...existing, ...future];
+  };
+
+  const openPropertyCashflow = (s: SavedScenario, propertyId: string, propertyType: CashflowPropertyType) => {
+    applyScenarioToStorage(s.state);
+    setActiveScenario(s.id);
+    const client = clients.find((c) => c.id === s.clientId);
+    setActingAs({ clientId: s.clientId || "", scenarioId: s.id, clientName: client?.name || "Unassigned client", scenarioName: s.name });
+    setActiveCashflowContext({ clientId: s.clientId, scenarioId: s.id, propertyId, propertyType, financialYear: "FY2027" });
+    setCashflowDialog({ open: false });
+    navigate("/cashflow");
   };
 
   const handleCreateScenario = ({ client, scenarioName }: { client: Client; scenarioName: string }) => {
@@ -153,7 +178,7 @@ const AdviserHome = () => {
       ownerId: user?.id,
       ownerRole: "adviser",
     });
-    localStorage.setItem("active-scenario-id", saved.id);
+    setActiveScenario(saved.id);
     setActingAs({
       clientId: client.id,
       scenarioId: saved.id,
@@ -308,6 +333,13 @@ const AdviserHome = () => {
                       </div>
                     </button>
                     <div className="flex items-center gap-1 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => setCashflowDialog({ open: true, scenario: s })}
+                        className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-accent"
+                        title="Open property cashflow"
+                      >
+                        <DollarSign size={14} />
+                      </button>
                       <button
                         onClick={() => setShareDialog({ open: true, scenario: s })}
                         className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-accent"
@@ -489,6 +521,34 @@ const AdviserHome = () => {
             toast.success(`Shared with ${ids.length} agent${ids.length === 1 ? "" : "s"}`);
           }}
         />
+      )}
+
+      {cashflowDialog.scenario && (
+        <Dialog open={cashflowDialog.open} onOpenChange={(v) => setCashflowDialog({ open: v, scenario: v ? cashflowDialog.scenario : undefined })}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Select property for cashflow</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">{cashflowDialog.scenario.name}</p>
+              {propertyOptionsForScenario(cashflowDialog.scenario).length === 0 ? (
+                <p className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">No properties in this scenario yet.</p>
+              ) : propertyOptionsForScenario(cashflowDialog.scenario).map((property) => (
+                <button
+                  key={`${property.type}-${property.id}`}
+                  onClick={() => openPropertyCashflow(cashflowDialog.scenario!, property.id, property.type)}
+                  className="flex w-full min-h-11 items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-left transition-colors hover:bg-muted"
+                >
+                  <span>
+                    <span className="block text-sm font-semibold text-foreground">{property.label}</span>
+                    <span className="text-xs capitalize text-muted-foreground">{property.type}</span>
+                  </span>
+                  <ChevronRight size={16} className="text-accent" />
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       <NewScenarioDialog

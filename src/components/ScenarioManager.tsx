@@ -5,9 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ScenarioState, SavedScenario } from "@/lib/scenarioManager";
-import { getSavedScenarios, saveScenario, updateScenario, deleteScenario, encodeStateToUrl, setScenarioMeta } from "@/lib/scenarioManager";
+import { getSavedScenarios, saveScenario, updateScenario, deleteScenario, encodeStateToUrl, setScenarioMeta, setActiveScenario } from "@/lib/scenarioManager";
 import { useAuth } from "@/lib/auth";
-import { listAgents } from "@/lib/clients";
+import { listAgents, listClients } from "@/lib/clients";
 import ShareWithAgentsDialog from "@/components/ShareWithAgentsDialog";
 import AssignClientDialog from "@/components/AssignClientDialog";
 
@@ -39,8 +39,9 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
       const myAgent = listAgents().find((a) => a.email.toLowerCase() === (user?.email || "").toLowerCase());
       return myAgent ? !!s.sharedAgentIds?.includes(myAgent.id) : false;
     }
-    if (!s.ownerId) return true;
-    return s.ownerId === user?.id;
+    if (!s.ownerId && !s.clientId) return true;
+    if (s.ownerId === user?.id) return true;
+    return !!s.clientId && listClients().some((c) => c.id === s.clientId && (c.email?.toLowerCase() === user?.email?.toLowerCase() || c.name === user?.name));
   });
 
   const activeScenario = scenarios.find((s) => s.id === activeScenarioId) || null;
@@ -57,7 +58,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
       if (updated) {
         refresh();
         setActiveScenarioId(existing.id);
-        localStorage.setItem("active-scenario-id", existing.id);
+        setActiveScenario(existing.id);
         setSaveName("");
         toast.success(`Updated "${name}"`);
         return;
@@ -73,7 +74,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
     localStorage.removeItem("new-scenario-type");
     setScenarios([...scenarios, saved]);
     setActiveScenarioId(saved.id);
-    localStorage.setItem("active-scenario-id", saved.id);
+    setActiveScenario(saved.id);
     setSaveName("");
     toast.success(`Saved "${name}"`);
     if (isAdviser) {
@@ -94,7 +95,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
   const handleLoad = (scenario: SavedScenario) => {
     loadState(scenario.state);
     setActiveScenarioId(scenario.id);
-    localStorage.setItem("active-scenario-id", scenario.id);
+    setActiveScenario(scenario.id);
     setOpen(false);
     toast.success(`Loaded "${scenario.name}"`);
   };
@@ -136,7 +137,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Save &amp; Load Scenarios</DialogTitle>
+          <DialogTitle>{isAgent ? "Shared scenarios" : isAdviser ? "Client scenarios" : "My scenarios"}</DialogTitle>
         </DialogHeader>
 
         {/* Save (hidden for agents) */}
@@ -193,7 +194,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
         {visibleScenarios.length > 0 && (
           <div className="space-y-3 pt-2 border-t border-border">
             <p className="text-sm font-medium text-foreground">
-              {isAgent ? "Scenarios shared with you" : "Saved Scenarios"}
+              {isAgent ? "Shared scenarios" : isAdviser ? "Client scenarios" : "My scenarios"}
             </p>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {visibleScenarios.map((s) => (
@@ -209,6 +210,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(s.savedAt).toLocaleDateString()} {new Date(s.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {s.lastEditedByName && <> · edited by {s.lastEditedByName}</>}
                       {isAdviser && s.sharedAgentIds && s.sharedAgentIds.length > 0 && (
                         <> · shared with {s.sharedAgentIds.length}</>
                       )}

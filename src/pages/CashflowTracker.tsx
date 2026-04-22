@@ -3,10 +3,13 @@ import { ArrowLeft, Banknote, Building2, CalendarDays, Download, FolderOpen, Hom
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
+import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import type { ExistingProperty } from "@/types/property";
+import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
+import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
 
@@ -72,7 +75,7 @@ type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "month
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
-type PortfolioPropertyOption = { id: string; label: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number };
+type PortfolioPropertyOption = { id: string; label: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -105,6 +108,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       weeklyRent: item.rental?.weeklyRent || 0,
       interestRate: item.loan?.interestRate || 0,
       loanAmount: item.loanSplits?.length ? item.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : item.loanBalance || 0,
+      propertyType: item.id === "ppor" ? "ppor" : item.ownership === "trust" ? "smsf" : "investment",
     }));
   } catch {
     return [];
@@ -140,6 +144,9 @@ const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState =
 
 const getInitialCashflowState = (): CashflowState => {
   try {
+    const context = getActiveCashflowContext();
+    const linked = context ? getCashflowForProperty<CashflowState>(context) : undefined;
+    if (linked?.state) return normalizeCashflowState(linked.state);
     const activeScenario = getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
     const workingState = localStorage.getItem(CASHFLOW_WORKING_STATE_KEY);
     const parsedWorkingState = workingState ? JSON.parse(workingState) : undefined;
@@ -164,7 +171,11 @@ const CashflowTracker = () => {
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
   const [portfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
+  const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
+  const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
+  const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
+  const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
 
   useEffect(() => {
     setRows((current) => current.map((row) => {
@@ -260,6 +271,25 @@ const CashflowTracker = () => {
   const linkPortfolioProperty = (propertyId: string) => {
     const selected = portfolioProperties.find((item) => item.id === propertyId);
     if (!selected) return;
+    const scenario = getActiveScenario();
+    if (scenario) {
+      const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
+      setActiveCashflowContext(nextContext);
+      setCashflowContextState(nextContext);
+      const record = getCashflowForProperty<CashflowState>(nextContext);
+      if (record?.state) {
+        const normalized = normalizeCashflowState(record.state);
+        setRows(normalized.rows);
+        setPropertyDetails(normalized.propertyDetails);
+        setCouncilRates(normalized.councilRates);
+        setInsurance(normalized.insurance);
+        setLandTax(normalized.landTax);
+        setWater(normalized.water);
+        setActiveMonth(normalized.activeMonth);
+        toast.success(`Loaded ${selected.label} cashflow`);
+        return;
+      }
+    }
     setPropertyDetails((current) => ({
       ...current,
       address: selected.label,
@@ -294,6 +324,12 @@ const CashflowTracker = () => {
   };
 
   const updateActiveCashflowScenario = () => {
+    if (cashflowContext) {
+      const saved = saveCashflowForProperty({ ...cashflowContext, financialYear }, currentCashflowState(), `${propertyDetails.address || "Property"} ${financialYear}`);
+      setCashflowContextState(saved);
+      toast.success(`Saved ${financialYear} cashflow`);
+      return;
+    }
     if (!activeScenarioId) return saveCashflowScenario();
     const active = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
     if (!active) return saveCashflowScenario();
@@ -302,6 +338,17 @@ const CashflowTracker = () => {
     localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(currentCashflowState()));
     setSavedScenarios(nextScenarios);
     toast.success(`Updated "${active.name}"`);
+  };
+
+  const saveAsNewYear = () => {
+    if (!cashflowContext) return updateActiveCashflowScenario();
+    const nextYear = window.prompt("Financial year", financialYear === "FY2027" ? "FY2028" : financialYear);
+    if (!nextYear) return;
+    const nextContext = { ...cashflowContext, financialYear: nextYear };
+    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.address || "Property"} ${nextYear}`);
+    setFinancialYear(nextYear);
+    setCashflowContextState(saved);
+    toast.success(`Saved as ${nextYear}`);
   };
 
   const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
@@ -452,6 +499,40 @@ const CashflowTracker = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 md:py-10">
+        <div className="mb-4">
+          <ScenarioContextBanner compact />
+        </div>
+        <section className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Linked property</p>
+              <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.address || "Choose a property"}</h2>
+              <p className="text-sm text-muted-foreground">
+                {linkedScenario?.name || "No active scenario"} · {cashflowContext?.propertyType || "property"} · {financialYear}
+                {linkedRecord?.lastEditedByName && ` · Last updated by ${linkedRecord.lastEditedByName}`}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={financialYear}
+                onChange={(event) => {
+                  const nextYear = event.target.value;
+                  setFinancialYear(nextYear);
+                  if (cashflowContext) {
+                    const nextContext = { ...cashflowContext, financialYear: nextYear };
+                    setActiveCashflowContext(nextContext);
+                    setCashflowContextState(nextContext);
+                  }
+                }}
+                className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
+              >
+                {['FY2027', 'FY2028', 'FY2029', 'FY2030'].map((year) => <option key={year} value={year}>{year}</option>)}
+              </select>
+              <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save cashflow</button>
+              <button onClick={saveAsNewYear} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Save as new year</button>
+            </div>
+          </div>
+        </section>
         <section className="grid items-start gap-4 md:grid-cols-4">
           <div className="rounded-xl border border-border bg-card p-3 shadow-sm md:col-span-2">
             <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
