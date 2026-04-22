@@ -25,7 +25,7 @@ const tiles = [
     title: "Cashflow Tracker",
     description: "Monitor property cashflow in real time",
     icon: BarChart3,
-    route: null,
+    route: "/cashflow",
   },
   {
     title: "Portfolio Value",
