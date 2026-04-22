@@ -42,13 +42,14 @@ const initialRows: CashflowRow[] = [
 ];
 
 const property = {
-  owner: "Nunki Sigma Pty Ltd ATF Nunki Bare Trust ATF Christie-David Super Investments Pty Ltd ATF Christie-David Family Super Fund",
+  owner: "Christie-David Family Super Fund",
   address: "4 Monash Court, Durack NT 0830",
   bank: "Bluebay",
   bsb: "636-380",
   account: "400173265",
   weeklyRent: 600,
   interestRate: 6.54,
+  loanAmount: 500000,
   manager: "Nida Billa @ Billy Nida Realty Pty Ltd",
 };
 
@@ -58,6 +59,7 @@ const CashflowTracker = () => {
   const navigate = useNavigate();
   const [activeMonth, setActiveMonth] = useState(7);
   const [rows, setRows] = useState<CashflowRow[]>(initialRows);
+  const [propertyDetails, setPropertyDetails] = useState(property);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
@@ -118,22 +120,23 @@ const CashflowTracker = () => {
 
       <main className="container mx-auto px-4 py-6 md:py-10">
         <section className="grid gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-border bg-card p-4 shadow-sm md:col-span-2">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-sm md:col-span-2 md:row-span-2">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
-            <h2 className="text-lg font-bold text-foreground">{property.address}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{property.owner}</p>
+            <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-11 text-lg font-bold" />
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{propertyDetails.owner}</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Info icon={Building2} label="Manager" value={property.manager} />
-              <Info icon={Banknote} label="Bank" value={`${property.bank} · ${property.bsb}`} />
-              <Info icon={ExternalLink} label="Account" value={property.account} />
-              <Info icon={Percent} label="Interest rate" value={`${property.interestRate.toFixed(2)}%`} />
+              <Info icon={Building2} label="Manager" value={propertyDetails.manager} />
+              <EditableInfo icon={Banknote} label="Bank" value={propertyDetails.bank} onChange={(value) => setPropertyDetails((current) => ({ ...current, bank: value }))} />
+              <Info icon={ExternalLink} label="Account" value={propertyDetails.account} />
+              <EditableInfo icon={Percent} label="Interest rate" type="number" value={propertyDetails.interestRate} suffix="%" onChange={(value) => setPropertyDetails((current) => ({ ...current, interestRate: Number(value) || 0 }))} />
+              <EditableInfo icon={Banknote} label="Total loan amount" type="number" value={propertyDetails.loanAmount} onChange={(value) => setPropertyDetails((current) => ({ ...current, loanAmount: Number(value) || 0 }))} />
             </div>
           </div>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
           <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
-          <Metric label="Yearly holding cost" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
           <Metric label="Net profit / loss" value={formatCurrency(totals.net)} icon={CalendarDays} highlight={totals.net < 0} />
-          <Metric label="Weekly rent" value={formatCurrency(property.weeklyRent)} icon={Home} />
+          <Metric label="Weekly rent" value={formatCurrency(propertyDetails.weeklyRent)} icon={Home} />
+          <Metric label="Yearly holding cost" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} className="md:col-span-2" />
         </section>
 
         <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
@@ -153,7 +156,6 @@ const CashflowTracker = () => {
               <thead>
                 <tr className="border-b border-border bg-muted/40">
                    <th className="sticky left-0 z-10 bg-muted px-4 py-3 text-left font-bold text-foreground">Cashflow item</th>
-                  <th className="bg-muted px-3 py-3 text-right font-bold text-foreground">Weekly</th>
                   {months.map((month, i) => (
                     <th key={month} className="px-3 py-3 text-right">
                       <button onClick={() => setActiveMonth(i)} className={`min-h-11 rounded-lg px-3 text-sm font-bold transition-colors ${activeMonth === i ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent/10"}`}>
@@ -170,9 +172,6 @@ const CashflowTracker = () => {
                   <tr key={row.label} className="border-b border-border/70 hover:bg-muted/30">
                     <td className="sticky left-0 z-10 bg-card px-4 py-3 font-medium text-foreground">
                       <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-9 min-w-56 bg-card font-semibold" />
-                    </td>
-                    <td className="px-3 py-3 text-right">
-                      {row.type === "income" ? <Input type="number" min="0" value={row.weeklyRent ?? 0} onChange={(event) => updateWeeklyRent(row.id, Number(event.target.value) || 0)} className="ml-auto h-9 w-24 text-right tabular-nums" /> : <span className="text-muted-foreground">—</span>}
                     </td>
                     {row.values.map((value, i) => (
                       <td key={i} className={`px-3 py-3 text-right tabular-nums ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>
@@ -203,8 +202,18 @@ const Info = ({ icon: Icon, label, value }: { icon: typeof Home; label: string; 
   </div>
 );
 
-const Metric = ({ icon: Icon, label, value, highlight = false }: { icon: typeof Home; label: string; value: string; highlight?: boolean }) => (
-  <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+const EditableInfo = ({ icon: Icon, label, value, onChange, type = "text", suffix }: { icon: typeof Home; label: string; value: string | number; onChange: (value: string) => void; type?: string; suffix?: string }) => (
+  <div className="rounded-lg bg-muted/40 p-3">
+    <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Icon size={14} /> {label}</div>
+    <div className="flex items-center gap-2">
+      <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-9 bg-card text-sm font-semibold" />
+      {suffix ? <span className="text-sm font-semibold text-muted-foreground">{suffix}</span> : null}
+    </div>
+  </div>
+);
+
+const Metric = ({ icon: Icon, label, value, highlight = false, className = "" }: { icon: typeof Home; label: string; value: string; highlight?: boolean; className?: string }) => (
+  <div className={`rounded-xl border border-border bg-card p-4 shadow-sm ${className}`}>
     <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={22} /></div>
     <p className="text-sm font-medium text-muted-foreground">{label}</p>
     <p className={`mt-1 text-2xl font-bold ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
@@ -214,7 +223,6 @@ const Metric = ({ icon: Icon, label, value, highlight = false }: { icon: typeof 
 const SummaryRow = ({ label, values, total }: { label: string; values: number[]; total: number }) => (
   <tr className="border-t-2 border-border bg-accent/10 font-bold">
     <td className="sticky left-0 z-10 bg-accent/10 px-4 py-3 text-foreground">{label}</td>
-    <td className="px-3 py-3 text-right text-muted-foreground">—</td>
     {values.map((value, i) => <td key={i} className="px-3 py-3 text-right tabular-nums text-foreground">{formatCurrency(value)}</td>)}
     <td className="px-4 py-3 text-right tabular-nums text-foreground">{formatCurrency(total)}</td>
     <td className="px-3 py-3" />
