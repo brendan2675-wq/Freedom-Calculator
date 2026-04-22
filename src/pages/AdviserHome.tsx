@@ -17,9 +17,10 @@ import {
   type Client, type Agent,
 } from "@/lib/clients";
 import {
-  getSavedScenarios, deleteScenario, applyScenarioToStorage, setScenarioMeta, saveScenario,
+  getSavedScenarios, deleteScenario, applyScenarioToStorage, setScenarioMeta, saveScenario, setActiveScenario,
   type SavedScenario, type ScenarioState,
 } from "@/lib/scenarioManager";
+import { setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 import ShareWithAgentsDialog from "@/components/ShareWithAgentsDialog";
 import NewScenarioDialog from "@/components/NewScenarioDialog";
 import { setActingAs } from "@/components/AdviserActingBanner";
@@ -83,6 +84,7 @@ const AdviserHome = () => {
   const [agentDialog, setAgentDialog] = useState<{ open: boolean; agent?: Agent }>({ open: false });
   const [shareDialog, setShareDialog] = useState<{ open: boolean; scenario?: SavedScenario }>({ open: false });
   const [newScenarioOpen, setNewScenarioOpen] = useState(false);
+  const [cashflowDialog, setCashflowDialog] = useState<{ open: boolean; scenario?: SavedScenario }>({ open: false });
 
   const refresh = () => {
     setScenarios(getSavedScenarios());
@@ -111,7 +113,7 @@ const AdviserHome = () => {
 
   const openScenario = (s: SavedScenario) => {
     applyScenarioToStorage(s.state);
-    localStorage.setItem("active-scenario-id", s.id);
+    setActiveScenario(s.id);
     const client = clients.find((c) => c.id === s.clientId);
     setActingAs({
       clientId: s.clientId || "",
@@ -120,6 +122,29 @@ const AdviserHome = () => {
       scenarioName: s.name,
     });
     navigate("/dashboard");
+  };
+
+  const propertyOptionsForScenario = (s: SavedScenario) => {
+    const ppor = s.state.ppor && (s.state.ppor.nickname || s.state.ppor.estimatedValue || s.state.ppor.loanBalance)
+      ? [{ id: s.state.ppor.id || "ppor", label: s.state.ppor.nickname || s.state.pporSuburb || "Owner occupied property", type: "ppor" as CashflowPropertyType }]
+      : [];
+    const existing = (s.state.existingProperties || []).map((p) => ({
+      id: p.id,
+      label: p.nickname || "Investment property",
+      type: (p.ownership === "trust" ? "smsf" : "investment") as CashflowPropertyType,
+    }));
+    const future = (s.state.futureProperties || []).map((p) => ({ id: p.id, label: p.suburb || "Proposed purchase", type: "future" as CashflowPropertyType }));
+    return [...ppor, ...existing, ...future];
+  };
+
+  const openPropertyCashflow = (s: SavedScenario, propertyId: string, propertyType: CashflowPropertyType) => {
+    applyScenarioToStorage(s.state);
+    setActiveScenario(s.id);
+    const client = clients.find((c) => c.id === s.clientId);
+    setActingAs({ clientId: s.clientId || "", scenarioId: s.id, clientName: client?.name || "Unassigned client", scenarioName: s.name });
+    setActiveCashflowContext({ clientId: s.clientId, scenarioId: s.id, propertyId, propertyType, financialYear: "FY2027" });
+    setCashflowDialog({ open: false });
+    navigate("/cashflow");
   };
 
   const handleCreateScenario = ({ client, scenarioName }: { client: Client; scenarioName: string }) => {
@@ -153,7 +178,7 @@ const AdviserHome = () => {
       ownerId: user?.id,
       ownerRole: "adviser",
     });
-    localStorage.setItem("active-scenario-id", saved.id);
+    setActiveScenario(saved.id);
     setActingAs({
       clientId: client.id,
       scenarioId: saved.id,
