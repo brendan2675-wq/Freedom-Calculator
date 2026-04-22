@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { Banknote, Building2, CalendarDays, Download, FolderOpen, Home, LayoutDashboard, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
+import { Banknote, Building2, CalendarDays, Download, FolderOpen, Home, LayoutDashboard, Link2, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import AddressSearchInput from "@/components/AddressSearchInput";
 import type { ExistingProperty } from "@/types/property";
+import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
 import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 
@@ -60,6 +62,7 @@ const initialRows: CashflowRow[] = [
 
 const property = {
   owner: "",
+  nickname: "",
   address: "",
   bank: "",
   weeklyRent: INITIAL_WEEKLY_RENT,
@@ -74,7 +77,7 @@ type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "month
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
-type PortfolioPropertyOption = { id: string; label: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType };
+type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -102,6 +105,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
     return [ppor, ...properties].filter((item): item is ExistingProperty => Boolean(item)).map((item) => ({
       id: item.id,
       label: item.nickname || "Portfolio property",
+      address: item.address || "",
       owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
       bank: item.loan?.lenderName || "",
       weeklyRent: item.rental?.weeklyRent || 0,
@@ -174,6 +178,7 @@ const CashflowTracker = () => {
   const [portfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
+  const [showLinkExisting, setShowLinkExisting] = useState(false);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
@@ -186,7 +191,8 @@ const CashflowTracker = () => {
     const fallback = normalizeCashflowState({
       propertyDetails: {
         ...property,
-        address: ppor?.nickname || active.state.pporSuburb || "",
+          nickname: ppor?.nickname || active.state.pporSuburb || "",
+          address: ppor?.address || "",
         owner: ppor?.ownership === "trust" ? ppor.trustName || "Trust" : "Personal",
         bank: ppor?.loan?.lenderName || "",
         weeklyRent: ppor?.rental?.weeklyRent || 0,
@@ -321,7 +327,8 @@ const CashflowTracker = () => {
     }
     setPropertyDetails((current) => ({
       ...current,
-      address: selected.label,
+      nickname: selected.label,
+      address: selected.address,
       owner: selected.owner,
       bank: selected.bank,
       weeklyRent: selected.weeklyRent,
@@ -329,6 +336,34 @@ const CashflowTracker = () => {
       loanAmount: selected.loanAmount,
     }));
     toast.success(`Linked ${selected.label}`);
+  };
+
+  const addNewPortfolioProperty = () => {
+    const propertyId = crypto.randomUUID();
+    const newProperty: ExistingProperty = {
+      id: propertyId,
+      nickname: propertyDetails.nickname || "New property",
+      address: propertyDetails.address,
+      estimatedValue: 0,
+      loanBalance: propertyDetails.loanAmount || 0,
+      earmarked: false,
+      sellInYears: 0,
+      ownership: "personal",
+      investmentType: "house",
+      loan: { ...defaultLoanDetails, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
+      rental: { ...defaultRentalDetails, weeklyRent: propertyDetails.weeklyRent },
+      purchase: { ...defaultPurchaseDetails },
+    };
+    const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
+    localStorage.setItem("portfolio-properties", JSON.stringify([...existing, newProperty]));
+    const scenario = getActiveScenario();
+    if (scenario) {
+      const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId, propertyType: "investment" as CashflowPropertyType, financialYear };
+      setActiveCashflowContext(nextContext);
+      setCashflowContextState(nextContext);
+    }
+    setPropertyDetails((current) => ({ ...current, nickname: newProperty.nickname }));
+    toast.success("Added new portfolio property");
   };
 
   const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
@@ -354,7 +389,7 @@ const CashflowTracker = () => {
 
   const updateActiveCashflowScenario = () => {
     if (cashflowContext) {
-      const saved = saveCashflowForProperty({ ...cashflowContext, financialYear }, currentCashflowState(), `${propertyDetails.address || "Property"} ${financialYear}`);
+      const saved = saveCashflowForProperty({ ...cashflowContext, financialYear }, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${financialYear}`);
       setCashflowContextState(saved);
       toast.success(`Saved ${financialYear} cashflow`);
       return;
@@ -374,7 +409,7 @@ const CashflowTracker = () => {
     const nextYear = window.prompt("Financial year", financialYear === "FY2027" ? "FY2028" : financialYear);
     if (!nextYear) return;
     const nextContext = { ...cashflowContext, financialYear: nextYear };
-    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.address || "Property"} ${nextYear}`);
+    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${nextYear}`);
     setFinancialYear(nextYear);
     setCashflowContextState(saved);
     toast.success(`Saved as ${nextYear}`);
@@ -538,7 +573,7 @@ const CashflowTracker = () => {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Linked property</p>
-              <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.address || "Choose a property"}</h2>
+              <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.nickname || propertyDetails.address || "Choose a property"}</h2>
               <p className="text-sm text-muted-foreground">
                 {linkedScenario?.name || "No active scenario"} · {cashflowContext?.propertyType || "property"} · {financialYear}
                 {linkedRecord?.lastEditedByName && ` · Last updated by ${linkedRecord.lastEditedByName}`}
@@ -569,14 +604,21 @@ const CashflowTracker = () => {
           <div className="rounded-xl border border-border bg-card p-3 shadow-sm md:col-span-2">
             <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
-              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="h-9 rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                <option value="" disabled>Link portfolio property</option>
+              <div className="flex flex-wrap gap-2">
+                <button onClick={() => setShowLinkExisting((current) => !current)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Link2 size={16} /> Link existing property</button>
+                <button onClick={addNewPortfolioProperty} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add new property</button>
+              </div>
+            </div>
+            {showLinkExisting && (
+              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="mb-3 h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                <option value="" disabled>Select existing portfolio property</option>
                 {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
               </select>
-            </div>
+            )}
             <div className="grid gap-1.5 lg:grid-cols-[1.15fr_1fr]">
               <div className="space-y-1.5">
-                <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-9 text-sm font-bold" />
+                <Input value={propertyDetails.nickname} onChange={(event) => setPropertyDetails((current) => ({ ...current, nickname: event.target.value }))} placeholder="Property nickname" className="h-9 text-sm font-bold" />
+                <AddressSearchInput value={propertyDetails.address} onChange={(value) => setPropertyDetails((current) => ({ ...current, address: value }))} placeholder="Optional address search" className="h-9 text-sm font-semibold" />
                 <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="h-9 text-sm font-semibold" />
               </div>
               <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-1">

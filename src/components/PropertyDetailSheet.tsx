@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import AddressSearchInput from "@/components/AddressSearchInput";
 
 type PropertyType = ExistingProperty | FutureProperty;
 
@@ -352,6 +353,14 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                     placeholder="e.g. Parramatta Unit"
                   />
                 </FieldGroup>
+                <FieldGroup label="Full Address (Optional)">
+                  <AddressSearchInput
+                    value={(property as ExistingProperty).address || ""}
+                    onChange={(v) => update({ address: v } as Partial<ExistingProperty>)}
+                    placeholder="Search address or enter manually"
+                    className="h-10 text-sm"
+                  />
+                </FieldGroup>
                 <FieldGroup label="Estimated Value">
                   <CurrencyInput
                     value={(property as ExistingProperty).estimatedValue}
@@ -491,12 +500,20 @@ const PropertyDetailSheet = ({ property, open, onOpenChange, onUpdate, onDuplica
                     <p className="text-xs text-muted-foreground">Fill in the suburb and purchase price to get started.</p>
                   </div>
                 )}
-                <FieldGroup label="Suburb">
+                <FieldGroup label="Property Nickname">
                   <TextInput
-                    value={(property as FutureProperty).suburb}
-                    onChange={(v) => update({ suburb: v } as Partial<FutureProperty>)}
-                    placeholder="e.g. Parramatta"
+                    value={(property as FutureProperty).nickname || (property as FutureProperty).suburb}
+                    onChange={(v) => update({ nickname: v, suburb: v } as Partial<FutureProperty>)}
+                    placeholder="e.g. Geelong townhouse"
                     autoFocus={!(property as FutureProperty).suburb}
+                  />
+                </FieldGroup>
+                <FieldGroup label="Full Address (Optional)">
+                  <AddressSearchInput
+                    value={(property as FutureProperty).address || ""}
+                    onChange={(v) => update({ address: v } as Partial<FutureProperty>)}
+                    placeholder="Search address if known"
+                    className="h-10 text-sm"
                   />
                 </FieldGroup>
                 <FieldGroup label="Purchase Price">

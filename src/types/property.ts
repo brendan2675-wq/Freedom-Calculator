@@ -82,6 +82,7 @@ export const defaultSaleCosts: SaleCosts = {
 export interface ExistingProperty {
   id: string;
   nickname: string;
+  address?: string;
   estimatedValue: number;
   loanBalance: number;
   earmarked: boolean;
@@ -99,6 +100,8 @@ export interface ExistingProperty {
 
 export interface FutureProperty {
   id: string;
+  nickname?: string;
+  address?: string;
   suburb: string;
   purchasePrice: number;
   rentalYield: number;
