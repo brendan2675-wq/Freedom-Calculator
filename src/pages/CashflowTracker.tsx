@@ -121,6 +121,7 @@ const CashflowTracker = () => {
   const [councilRates, setCouncilRates] = useState<CouncilRatesState>(() => getInitialCashflowState().councilRates);
   const [insurance, setInsurance] = useState<InsuranceState>(() => getInitialCashflowState().insurance);
   const [landTax, setLandTax] = useState<LandTaxState>(() => getInitialCashflowState().landTax);
+  const [water, setWater] = useState<WaterState>(() => getInitialCashflowState().water);
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
