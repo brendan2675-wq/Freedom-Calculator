@@ -826,8 +826,8 @@ const CashflowTracker = () => {
               <colgroup>
                 <col className="w-[168px] sm:w-[210px] lg:w-[18%]" />
                 {months.map((month) => <col key={month} className="w-[70px] lg:w-[5.8%]" />)}
-                <col className="w-[88px] lg:w-[7.4%]" />
-                <col className="w-[56px] lg:w-[4.2%]" />
+                <col className="w-[88px] lg:w-[7.2%]" />
+                <col className="w-[72px] lg:w-[5.4%]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-border bg-muted/40">
@@ -839,8 +839,8 @@ const CashflowTracker = () => {
                       </button>
                     </th>
                   ))}
-                  <th className="sticky right-14 z-30 bg-muted px-2 py-2 text-right font-bold text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[4.2%]">Total</th>
-                  <th className="sticky right-0 z-30 bg-muted px-1 py-2 text-right font-bold text-foreground">Remove</th>
+                  <th className="sticky right-[4.5rem] z-30 bg-muted px-2 py-2 text-right font-bold text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[5.4%]">Total</th>
+                  <th className="sticky right-0 z-30 bg-muted px-2 py-2 text-center font-bold text-foreground">Remove</th>
                 </tr>
               </thead>
               <tbody>
@@ -854,8 +854,8 @@ const CashflowTracker = () => {
                         <Input type="number" min="0" value={value || ""} onChange={(event) => updateValue(row.id, i, Number(event.target.value) || 0)} className="ml-auto h-11 w-full px-1 text-right text-xs tabular-nums lg:h-10 lg:px-2 lg:text-sm" />
                       </td>
                     ))}
-                    <td className="sticky right-14 z-20 bg-card px-2 py-2 text-right font-bold tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[4.2%]">{formatCurrency(row.values.reduce((a, b) => a + b, 0))}</td>
-                    <td className="sticky right-0 z-20 bg-card px-1 py-2 text-right">
+                    <td className="sticky right-[4.5rem] z-20 bg-card px-2 py-2 text-right font-bold tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[5.4%]">{formatCurrency(row.values.reduce((a, b) => a + b, 0))}</td>
+                    <td className="sticky right-0 z-20 bg-card px-2 py-2 text-center">
                       <button onClick={() => removeRow(row.id)} className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" aria-label={`Remove ${row.label}`}><Trash2 size={16} /></button>
                     </td>
                   </tr>
@@ -957,8 +957,8 @@ const SummaryRow = ({ label, values, total }: { label: string; values: number[];
   <tr className="border-t-2 border-border bg-accent/10 font-bold">
     <td className="sticky left-0 z-20 bg-card px-2 py-2 text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">{label}</td>
     {values.map((value, i) => <td key={i} className="px-1 py-2 text-right tabular-nums text-foreground lg:px-1.5">{formatCurrency(value)}</td>)}
-    <td className="sticky right-14 z-20 bg-card px-2 py-2 text-right tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[4.2%]">{formatCurrency(total)}</td>
-    <td className="sticky right-0 z-20 bg-card px-1 py-2" />
+    <td className="sticky right-[4.5rem] z-20 bg-card px-2 py-2 text-right tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[5.4%]">{formatCurrency(total)}</td>
+    <td className="sticky right-0 z-20 bg-card px-2 py-2" />
   </tr>
 );
 
