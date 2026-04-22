@@ -499,6 +499,40 @@ const CashflowTracker = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 md:py-10">
+        <div className="mb-4">
+          <ScenarioContextBanner compact />
+        </div>
+        <section className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Linked property</p>
+              <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.address || "Choose a property"}</h2>
+              <p className="text-sm text-muted-foreground">
+                {linkedScenario?.name || "No active scenario"} · {cashflowContext?.propertyType || "property"} · {financialYear}
+                {linkedRecord?.lastEditedByName && ` · Last updated by ${linkedRecord.lastEditedByName}`}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={financialYear}
+                onChange={(event) => {
+                  const nextYear = event.target.value;
+                  setFinancialYear(nextYear);
+                  if (cashflowContext) {
+                    const nextContext = { ...cashflowContext, financialYear: nextYear };
+                    setActiveCashflowContext(nextContext);
+                    setCashflowContextState(nextContext);
+                  }
+                }}
+                className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
+              >
+                {['FY2027', 'FY2028', 'FY2029', 'FY2030'].map((year) => <option key={year} value={year}>{year}</option>)}
+              </select>
+              <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save cashflow</button>
+              <button onClick={saveAsNewYear} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Save as new year</button>
+            </div>
+          </div>
+        </section>
         <section className="grid items-start gap-4 md:grid-cols-4">
           <div className="rounded-xl border border-border bg-card p-3 shadow-sm md:col-span-2">
             <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
