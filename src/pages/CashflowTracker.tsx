@@ -163,6 +163,7 @@ const CashflowTracker = () => {
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
+  const [portfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
 
   useEffect(() => {
@@ -254,6 +255,21 @@ const CashflowTracker = () => {
 
   const removeRow = (rowId: string) => {
     setRows((current) => current.filter((row) => row.id !== rowId));
+  };
+
+  const linkPortfolioProperty = (propertyId: string) => {
+    const selected = portfolioProperties.find((item) => item.id === propertyId);
+    if (!selected) return;
+    setPropertyDetails((current) => ({
+      ...current,
+      address: selected.label,
+      owner: selected.owner,
+      bank: selected.bank,
+      weeklyRent: selected.weeklyRent,
+      interestRate: selected.interestRate,
+      loanAmount: selected.loanAmount,
+    }));
+    toast.success(`Linked ${selected.label}`);
   };
 
   const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
