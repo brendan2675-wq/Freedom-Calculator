@@ -64,7 +64,7 @@ const property = {
   manager: "Nida Billa @ Billy Nida Realty Pty Ltd",
 };
 
-type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" };
+type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type InsuranceState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
@@ -417,6 +417,10 @@ const CashflowTracker = () => {
           <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
           <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
           <Metric label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
+          <ExpenseControl label="Council rates" value={councilRates.amount} frequency={councilRates.frequency} onAmountChange={(amount) => updateCouncilRates({ amount })} onFrequencyChange={(frequency) => updateCouncilRates({ frequency })} />
+          <ExpenseControl label="Insurance" value={insurance.amount} frequency={insurance.frequency} onAmountChange={(amount) => updateInsurance({ amount })} onFrequencyChange={(frequency) => updateInsurance({ frequency })} />
+          <ExpenseControl label="Land tax" value={landTax.amount} frequency={landTax.frequency} onAmountChange={(amount) => updateLandTax({ amount })} onFrequencyChange={(frequency) => updateLandTax({ frequency })} />
+          <ExpenseControl label="Water charges" value={water.amount} frequency={water.frequency} onAmountChange={(amount) => updateWater({ amount })} onFrequencyChange={(frequency) => updateWater({ frequency })} />
         </section>
 
         <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
@@ -472,100 +476,38 @@ const CashflowTracker = () => {
           </div>
         </section>
 
-        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="mb-4">
-            <h2 className="text-xl font-bold text-foreground">Council rates</h2>
-            <p className="text-sm text-muted-foreground">Enter an annual amount to spread monthly, or a quarterly amount to post every three months.</p>
-          </div>
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="rounded-lg bg-muted/40 p-3 md:col-span-2">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Amount</label>
-              <Input type="number" min="0" value={councilRates.amount === 0 ? "" : councilRates.amount} onChange={(event) => updateCouncilRates({ amount: Number(event.target.value) || 0 })} className="h-11 bg-card text-lg font-bold tabular-nums" />
-            </div>
-            <div className="rounded-lg bg-muted/40 p-3">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Frequency</p>
-              <div className="grid grid-cols-2 gap-2">
-                {(["annual", "quarterly"] as const).map((frequency) => (
-                  <button key={frequency} onClick={() => updateCouncilRates({ frequency })} className={`min-h-11 rounded-lg border px-3 text-sm font-semibold capitalize transition-colors ${councilRates.frequency === frequency ? "border-accent bg-accent text-accent-foreground" : "border-border text-foreground hover:bg-muted"}`}>
-                    {frequency}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="mb-4">
-            <h2 className="text-xl font-bold text-foreground">Insurance</h2>
-            <p className="text-sm text-muted-foreground">Enter an annual, quarterly or monthly amount to update the Insurance row above.</p>
-          </div>
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="rounded-lg bg-muted/40 p-3 md:col-span-2">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Amount</label>
-              <Input type="number" min="0" value={insurance.amount === 0 ? "" : insurance.amount} onChange={(event) => updateInsurance({ amount: Number(event.target.value) || 0 })} className="h-11 bg-card text-lg font-bold tabular-nums" />
-            </div>
-            <div className="rounded-lg bg-muted/40 p-3">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Frequency</p>
-              <div className="grid grid-cols-3 gap-2">
-                {(["annual", "quarterly", "monthly"] as const).map((frequency) => (
-                  <button key={frequency} onClick={() => updateInsurance({ frequency })} className={`min-h-11 rounded-lg border px-2 text-sm font-semibold capitalize transition-colors ${insurance.frequency === frequency ? "border-accent bg-accent text-accent-foreground" : "border-border text-foreground hover:bg-muted"}`}>
-                    {frequency}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="mb-4">
-            <h2 className="text-xl font-bold text-foreground">Land tax</h2>
-            <p className="text-sm text-muted-foreground">Enter an annual, quarterly or monthly amount to update the Land tax row above.</p>
-          </div>
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="rounded-lg bg-muted/40 p-3 md:col-span-2">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Amount</label>
-              <Input type="number" min="0" value={landTax.amount === 0 ? "" : landTax.amount} onChange={(event) => updateLandTax({ amount: Number(event.target.value) || 0 })} className="h-11 bg-card text-lg font-bold tabular-nums" />
-            </div>
-            <div className="rounded-lg bg-muted/40 p-3">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Frequency</p>
-              <div className="grid grid-cols-3 gap-2">
-                {(["annual", "quarterly", "monthly"] as const).map((frequency) => (
-                  <button key={frequency} onClick={() => updateLandTax({ frequency })} className={`min-h-11 rounded-lg border px-2 text-sm font-semibold capitalize transition-colors ${landTax.frequency === frequency ? "border-accent bg-accent text-accent-foreground" : "border-border text-foreground hover:bg-muted"}`}>
-                    {frequency}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="mb-4">
-            <h2 className="text-xl font-bold text-foreground">Water charges</h2>
-            <p className="text-sm text-muted-foreground">Enter an annual, quarterly or monthly amount to update the Water charges row above.</p>
-          </div>
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="rounded-lg bg-muted/40 p-3 md:col-span-2">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Amount</label>
-              <Input type="number" min="0" value={water.amount === 0 ? "" : water.amount} onChange={(event) => updateWater({ amount: Number(event.target.value) || 0 })} className="h-11 bg-card text-lg font-bold tabular-nums" />
-            </div>
-            <div className="rounded-lg bg-muted/40 p-3">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Frequency</p>
-              <div className="grid grid-cols-3 gap-2">
-                {(["annual", "quarterly", "monthly"] as const).map((frequency) => (
-                  <button key={frequency} onClick={() => updateWater({ frequency })} className={`min-h-11 rounded-lg border px-2 text-sm font-semibold capitalize transition-colors ${water.frequency === frequency ? "border-accent bg-accent text-accent-foreground" : "border-border text-foreground hover:bg-muted"}`}>
-                    {frequency}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
     </div>
   );
 };
+
+type ExpenseFrequency = "annual" | "quarterly" | "monthly";
+
+const ExpenseControl = ({
+  label,
+  value,
+  frequency,
+  onAmountChange,
+  onFrequencyChange,
+}: {
+  label: string;
+  value: number;
+  frequency: ExpenseFrequency;
+  onAmountChange: (value: number) => void;
+  onFrequencyChange: (value: ExpenseFrequency) => void;
+}) => (
+  <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+    <p className="text-sm font-medium text-muted-foreground">{label}</p>
+    <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto]">
+      <Input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="h-11 text-lg font-bold tabular-nums" />
+      <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-11 rounded-md border border-input bg-background px-3 text-sm font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+        <option value="annual">Annual</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="monthly">Monthly</option>
+      </select>
+    </div>
+  </div>
+);
 
 const Info = ({ icon: Icon, label, value }: { icon: typeof Home; label: string; value: string }) => (
   <div className="rounded-lg bg-muted/40 p-3">
