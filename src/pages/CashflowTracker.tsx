@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { Banknote, Building2, CalendarDays, Download, FolderOpen, Home, LayoutDashboard, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
+import { Banknote, Building2, CalendarDays, Download, FolderOpen, Home, LayoutDashboard, Link2, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import AddressSearchInput from "@/components/AddressSearchInput";
 import type { ExistingProperty } from "@/types/property";
+import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
 import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 
@@ -60,6 +62,7 @@ const initialRows: CashflowRow[] = [
 
 const property = {
   owner: "",
+  nickname: "",
   address: "",
   bank: "",
   weeklyRent: INITIAL_WEEKLY_RENT,
