@@ -24,6 +24,11 @@ const monthlyRentFromWeekly = (weeklyRent: number) => Math.round((weeklyRent * 5
 const monthlyInterestOnlyCost = (loanAmount: number, interestRate: number) => Math.round((loanAmount * (interestRate / 100)) / 12);
 const monthlyAgentFee = (weeklyRent: number) => Math.round(monthlyRentFromWeekly(weeklyRent) * 0.06);
 const councilRatesValues = (amount: number, frequency: "annual" | "quarterly") => frequency === "annual" ? Array(12).fill(Math.round(amount / 12)) : months.map((_, index) => index % 3 === 0 ? amount : 0);
+const scheduledExpenseValues = (amount: number, frequency: "annual" | "quarterly" | "monthly") => {
+  if (frequency === "annual") return Array(12).fill(Math.round(amount / 12));
+  if (frequency === "quarterly") return months.map((_, index) => index % 3 === 0 ? amount : 0);
+  return Array(12).fill(amount);
+};
 
 const initialRows: CashflowRow[] = [
   { id: "rental-income", label: "Rental income", type: "income", weeklyRent: INITIAL_WEEKLY_RENT, values: Array(12).fill(monthlyRentFromWeekly(INITIAL_WEEKLY_RENT)) },
@@ -35,7 +40,7 @@ const initialRows: CashflowRow[] = [
   { id: "council", label: "Council rates", type: "expense", values: Array(12).fill(0) },
   { id: "depreciation", label: "Depreciation on plant", type: "expense", values: Array(12).fill(0) },
   { id: "gardening", label: "Gardening / lawn mowing", type: "expense", values: Array(12).fill(0) },
-  { id: "insurance", label: "Insurance", type: "expense", values: [189, 189, 189, 189, 189, 189, 189, 189, 0, 0, 0, 0] },
+  { id: "insurance", label: "Insurance", type: "expense", values: scheduledExpenseValues(189, "monthly") },
   { id: "interest", label: "Interest on loan", type: "expense", values: Array(12).fill(monthlyInterestOnlyCost(INITIAL_LOAN_AMOUNT, INITIAL_INTEREST_RATE)) },
   { id: "land-tax", label: "Land tax", type: "expense", values: Array(12).fill(0) },
   { id: "legal", label: "Legal fees", type: "expense", values: Array(12).fill(0) },
@@ -60,12 +65,14 @@ const property = {
 };
 
 type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" };
-type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; activeMonth: number };
+type InsuranceState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
+type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; activeMonth: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
+const defaultInsurance: InsuranceState = { amount: 189, frequency: "monthly" };
 
 const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   try {
@@ -84,6 +91,7 @@ const CashflowTracker = () => {
   const [rows, setRows] = useState<CashflowRow[]>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.rows ?? initialRows);
   const [propertyDetails, setPropertyDetails] = useState(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.propertyDetails ?? property);
   const [councilRates, setCouncilRates] = useState<CouncilRatesState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.councilRates ?? defaultCouncilRates);
+  const [insurance, setInsurance] = useState<InsuranceState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.insurance ?? defaultInsurance);
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
@@ -166,7 +174,7 @@ const CashflowTracker = () => {
     setRows((current) => current.filter((row) => row.id !== rowId));
   };
 
-  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, activeMonth });
+  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, activeMonth });
 
   const saveCashflowScenario = () => {
     const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
@@ -195,6 +203,7 @@ const CashflowTracker = () => {
     setRows(scenario.state.rows);
     setPropertyDetails(scenario.state.propertyDetails);
     setCouncilRates(scenario.state.councilRates);
+    setInsurance(scenario.state.insurance ?? defaultInsurance);
     setActiveMonth(scenario.state.activeMonth);
     setActiveScenarioId(scenario.id);
     localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, scenario.id);
@@ -204,7 +213,13 @@ const CashflowTracker = () => {
   const updateCouncilRates = (updates: Partial<typeof councilRates>) => {
     const next = { ...councilRates, ...updates };
     setCouncilRates(next);
-    updateRow("council", { values: councilRatesValues(next.amount, next.frequency) });
+    updateRow("council", { values: scheduledExpenseValues(next.amount, next.frequency) });
+  };
+
+  const updateInsurance = (updates: Partial<InsuranceState>) => {
+    const next = { ...insurance, ...updates };
+    setInsurance(next);
+    updateRow("insurance", { values: scheduledExpenseValues(next.amount, next.frequency) });
   };
 
   return (
@@ -346,6 +361,29 @@ const CashflowTracker = () => {
               <div className="grid grid-cols-2 gap-2">
                 {(["annual", "quarterly"] as const).map((frequency) => (
                   <button key={frequency} onClick={() => updateCouncilRates({ frequency })} className={`min-h-11 rounded-lg border px-3 text-sm font-semibold capitalize transition-colors ${councilRates.frequency === frequency ? "border-accent bg-accent text-accent-foreground" : "border-border text-foreground hover:bg-muted"}`}>
+                    {frequency}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-foreground">Insurance</h2>
+            <p className="text-sm text-muted-foreground">Enter an annual, quarterly or monthly amount to update the Insurance row above.</p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg bg-muted/40 p-3 md:col-span-2">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Amount</label>
+              <Input type="number" min="0" value={insurance.amount === 0 ? "" : insurance.amount} onChange={(event) => updateInsurance({ amount: Number(event.target.value) || 0 })} className="h-11 bg-card text-lg font-bold tabular-nums" />
+            </div>
+            <div className="rounded-lg bg-muted/40 p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Frequency</p>
+              <div className="grid grid-cols-3 gap-2">
+                {(["annual", "quarterly", "monthly"] as const).map((frequency) => (
+                  <button key={frequency} onClick={() => updateInsurance({ frequency })} className={`min-h-11 rounded-lg border px-2 text-sm font-semibold capitalize transition-colors ${insurance.frequency === frequency ? "border-accent bg-accent text-accent-foreground" : "border-border text-foreground hover:bg-muted"}`}>
                     {frequency}
                   </button>
                 ))}
