@@ -1,33 +1,44 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Banknote, Building2, CalendarDays, ExternalLink, Home, Percent, TrendingDown } from "lucide-react";
+import { ArrowLeft, Banknote, Building2, CalendarDays, ExternalLink, Home, Percent, Plus, Trash2, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
 import UserMenu from "@/components/UserMenu";
+import { Input } from "@/components/ui/input";
 
 const months = ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"];
 
-const rows = [
-  { label: "Rental income", type: "income", values: [429, 2700, 2700, 2700, 1200, 2400, 2722, 2400, 0, 0, 0, 0] },
-  { label: "Advertising for tenants", type: "expense", values: Array(12).fill(0) },
-  { label: "Bank fees", type: "expense", values: Array(12).fill(0) },
-  { label: "Body corporate fees", type: "expense", values: Array(12).fill(0) },
-  { label: "Borrowing expenses", type: "expense", values: Array(12).fill(0) },
-  { label: "Cleaning", type: "expense", values: Array(12).fill(0) },
-  { label: "Council rates", type: "expense", values: Array(12).fill(0) },
-  { label: "Depreciation on plant", type: "expense", values: Array(12).fill(0) },
-  { label: "Gardening / lawn mowing", type: "expense", values: Array(12).fill(0) },
-  { label: "Insurance", type: "expense", values: [189, 189, 189, 189, 189, 189, 189, 189, 0, 0, 0, 0] },
-  { label: "Interest on Bluebay loan", type: "expense", values: [0, 2722, 2688, 2533, 2616, 2529, 3002, 0, 0, 0, 0, 0] },
-  { label: "Land tax", type: "expense", values: Array(12).fill(0) },
-  { label: "Legal fees", type: "expense", values: Array(12).fill(0) },
-  { label: "Pest control", type: "expense", values: Array(12).fill(0) },
-  { label: "Property agent fees / commission", type: "expense", values: [429, 282, 282, 282, 125, 251, 251, 251, 0, 0, 0, 0] },
-  { label: "Repairs and maintenance", type: "expense", values: [0, 0, 0, 0, 0, 275, 0, 2750, 0, 0, 0, 0] },
-  { label: "Capital works deductions", type: "expense", values: Array(12).fill(0) },
-  { label: "Stationery, telephone and postage", type: "expense", values: Array(12).fill(0) },
-  { label: "Travel expenses", type: "expense", values: Array(12).fill(0) },
-  { label: "Water charges", type: "expense", values: [0, 0, 285, 0, 0, 856, 0, 0, 0, 0, 0, 0] },
-  { label: "Sundry expenses", type: "expense", values: Array(12).fill(0) },
+type CashflowRow = {
+  id: string;
+  label: string;
+  type: "income" | "expense";
+  values: number[];
+  weeklyRent?: number;
+};
+
+const monthlyRentFromWeekly = (weeklyRent: number) => Math.round((weeklyRent * 52) / 12);
+
+const initialRows: CashflowRow[] = [
+  { id: "rental-income", label: "Rental income", type: "income", weeklyRent: 600, values: Array(12).fill(monthlyRentFromWeekly(600)) },
+  { id: "advertising", label: "Advertising for tenants", type: "expense", values: Array(12).fill(0) },
+  { id: "bank-fees", label: "Bank fees", type: "expense", values: Array(12).fill(0) },
+  { id: "body-corporate", label: "Body corporate fees", type: "expense", values: Array(12).fill(0) },
+  { id: "borrowing", label: "Borrowing expenses", type: "expense", values: Array(12).fill(0) },
+  { id: "cleaning", label: "Cleaning", type: "expense", values: Array(12).fill(0) },
+  { id: "council", label: "Council rates", type: "expense", values: Array(12).fill(0) },
+  { id: "depreciation", label: "Depreciation on plant", type: "expense", values: Array(12).fill(0) },
+  { id: "gardening", label: "Gardening / lawn mowing", type: "expense", values: Array(12).fill(0) },
+  { id: "insurance", label: "Insurance", type: "expense", values: [189, 189, 189, 189, 189, 189, 189, 189, 0, 0, 0, 0] },
+  { id: "interest", label: "Interest on Bluebay loan", type: "expense", values: [0, 2722, 2688, 2533, 2616, 2529, 3002, 0, 0, 0, 0, 0] },
+  { id: "land-tax", label: "Land tax", type: "expense", values: Array(12).fill(0) },
+  { id: "legal", label: "Legal fees", type: "expense", values: Array(12).fill(0) },
+  { id: "pest", label: "Pest control", type: "expense", values: Array(12).fill(0) },
+  { id: "agent-fees", label: "Property agent fees / commission", type: "expense", values: [429, 282, 282, 282, 125, 251, 251, 251, 0, 0, 0, 0] },
+  { id: "repairs", label: "Repairs and maintenance", type: "expense", values: [0, 0, 0, 0, 0, 275, 0, 2750, 0, 0, 0, 0] },
+  { id: "capital-works", label: "Capital works deductions", type: "expense", values: Array(12).fill(0) },
+  { id: "stationery", label: "Stationery, telephone and postage", type: "expense", values: Array(12).fill(0) },
+  { id: "travel", label: "Travel expenses", type: "expense", values: Array(12).fill(0) },
+  { id: "water", label: "Water charges", type: "expense", values: [0, 0, 285, 0, 0, 856, 0, 0, 0, 0, 0, 0] },
+  { id: "sundry", label: "Sundry expenses", type: "expense", values: Array(12).fill(0) },
 ];
 
 const property = {
