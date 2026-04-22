@@ -135,7 +135,6 @@ const CashflowTracker = () => {
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Info icon={Building2} label="Manager" value={propertyDetails.manager} />
               <EditableInfo icon={Banknote} label="Bank" value={propertyDetails.bank} onChange={(value) => setPropertyDetails((current) => ({ ...current, bank: value }))} />
-              <Info icon={ExternalLink} label="Account" value={propertyDetails.account} />
             </div>
           </div>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
@@ -143,7 +142,7 @@ const CashflowTracker = () => {
           <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={(value) => setPropertyDetails((current) => ({ ...current, loanAmount: value }))} />
           <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={(value) => setPropertyDetails((current) => ({ ...current, interestRate: value }))} />
           <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
-          <Metric label="Yearly holding cost" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} className="md:col-span-2" />
+          <Metric label="Yearly holding cost" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
         </section>
 
         <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
