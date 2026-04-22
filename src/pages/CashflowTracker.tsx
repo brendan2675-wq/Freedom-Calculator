@@ -796,6 +796,13 @@ const CashflowTracker = () => {
 
 type ExpenseFrequency = "annual" | "quarterly" | "monthly";
 
+const PropertySheetField = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div>
+    <label className="mb-1 block text-xs font-medium text-muted-foreground">{label}</label>
+    {children}
+  </div>
+);
+
 const ExpenseControl = ({
   label,
   value,
