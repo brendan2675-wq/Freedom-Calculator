@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Banknote, Building2, CalendarDays, Download, FolderOpen, Home, LayoutDashboard, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -189,9 +189,25 @@ const CashflowTracker = () => {
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
+  const topScrollRef = useRef<HTMLDivElement>(null);
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const syncingScrollRef = useRef(false);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
+
+  const syncHorizontalScroll = (source: "top" | "table") => {
+    if (syncingScrollRef.current) return;
+    const from = source === "top" ? topScrollRef.current : tableScrollRef.current;
+    const to = source === "top" ? tableScrollRef.current : topScrollRef.current;
+    if (!from || !to) return;
+
+    syncingScrollRef.current = true;
+    to.scrollLeft = from.scrollLeft;
+    requestAnimationFrame(() => {
+      syncingScrollRef.current = false;
+    });
+  };
 
   useEffect(() => {
     const active = getActiveScenario();
@@ -802,35 +818,44 @@ const CashflowTracker = () => {
               <div className="text-sm font-semibold text-accent">Net YTD {formatCurrency(totals.net)}</div>
             </div>
           </div>
-          <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full min-w-[1400px] border-collapse text-sm">
+          <div ref={topScrollRef} onScroll={() => syncHorizontalScroll("top")} className="overflow-x-auto border-b border-border bg-muted/20 scrollbar-thin">
+            <div className="h-3 min-w-[1120px] lg:min-w-full" />
+          </div>
+          <div ref={tableScrollRef} onScroll={() => syncHorizontalScroll("table")} className="overflow-x-auto scrollbar-thin">
+            <table className="w-full min-w-[1120px] table-fixed border-collapse text-xs lg:min-w-0 lg:text-sm">
+              <colgroup>
+                <col className="w-[168px] sm:w-[210px] lg:w-[18%]" />
+                {months.map((month) => <col key={month} className="w-[70px] lg:w-[5.8%]" />)}
+                <col className="w-[88px] lg:w-[7.4%]" />
+                <col className="w-[56px] lg:w-[4.2%]" />
+              </colgroup>
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                   <th className="sticky left-0 z-20 min-w-72 bg-muted px-4 py-3 text-left font-bold text-foreground shadow-sm">Cashflow item</th>
+                   <th className="sticky left-0 z-30 bg-muted px-2 py-2 text-left font-bold text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">Cashflow item</th>
                   {months.map((month, i) => (
-                    <th key={month} className="px-3 py-3 text-right">
-                      <button onClick={() => setActiveMonth(i)} className={`min-h-11 rounded-lg px-3 text-sm font-bold transition-colors ${activeMonth === i ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent/10"}`}>
+                    <th key={month} className="px-1 py-2 text-right lg:px-1.5">
+                      <button onClick={() => setActiveMonth(i)} className={`min-h-11 w-full rounded-lg px-1 text-xs font-bold transition-colors lg:text-sm ${activeMonth === i ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent/10"}`}>
                         {month}
                       </button>
                     </th>
                   ))}
-                  <th className="px-4 py-3 text-right font-bold text-foreground">Total</th>
-                  <th className="px-3 py-3 text-right font-bold text-foreground">Remove</th>
+                  <th className="sticky right-14 z-30 bg-muted px-2 py-2 text-right font-bold text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[4.2%]">Total</th>
+                  <th className="sticky right-0 z-30 bg-muted px-1 py-2 text-right font-bold text-foreground">Remove</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.id} className="border-b border-border/70 hover:bg-muted/30">
-                    <td className="sticky left-0 z-20 min-w-72 bg-card px-4 py-3 font-medium text-foreground shadow-sm">
-                      <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-9 min-w-56 bg-card font-semibold" />
+                    <td className="sticky left-0 z-20 bg-card px-2 py-2 font-medium text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">
+                      <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-11 bg-card px-2 text-xs font-semibold lg:h-10 lg:text-sm" />
                     </td>
                     {row.values.map((value, i) => (
-                      <td key={i} className={`px-3 py-3 text-right tabular-nums ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>
-                        <Input type="number" min="0" value={value || ""} onChange={(event) => updateValue(row.id, i, Number(event.target.value) || 0)} className="ml-auto h-9 w-24 text-right tabular-nums" />
+                      <td key={i} className={`px-1 py-2 text-right tabular-nums lg:px-1.5 ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>
+                        <Input type="number" min="0" value={value || ""} onChange={(event) => updateValue(row.id, i, Number(event.target.value) || 0)} className="ml-auto h-11 w-full px-1 text-right text-xs tabular-nums lg:h-10 lg:px-2 lg:text-sm" />
                       </td>
                     ))}
-                    <td className="px-4 py-3 text-right font-bold tabular-nums text-foreground">{formatCurrency(row.values.reduce((a, b) => a + b, 0))}</td>
-                    <td className="px-3 py-3 text-right">
+                    <td className="sticky right-14 z-20 bg-card px-2 py-2 text-right font-bold tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[4.2%]">{formatCurrency(row.values.reduce((a, b) => a + b, 0))}</td>
+                    <td className="sticky right-0 z-20 bg-card px-1 py-2 text-right">
                       <button onClick={() => removeRow(row.id)} className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" aria-label={`Remove ${row.label}`}><Trash2 size={16} /></button>
                     </td>
                   </tr>
@@ -930,10 +955,10 @@ const EditableMetric = ({ icon: Icon, label, value, onChange, suffix, step = "1"
 
 const SummaryRow = ({ label, values, total }: { label: string; values: number[]; total: number }) => (
   <tr className="border-t-2 border-border bg-accent/10 font-bold">
-    <td className="sticky left-0 z-20 min-w-72 bg-card px-4 py-3 text-foreground shadow-sm">{label}</td>
-    {values.map((value, i) => <td key={i} className="px-3 py-3 text-right tabular-nums text-foreground">{formatCurrency(value)}</td>)}
-    <td className="px-4 py-3 text-right tabular-nums text-foreground">{formatCurrency(total)}</td>
-    <td className="px-3 py-3" />
+    <td className="sticky left-0 z-20 bg-card px-2 py-2 text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">{label}</td>
+    {values.map((value, i) => <td key={i} className="px-1 py-2 text-right tabular-nums text-foreground lg:px-1.5">{formatCurrency(value)}</td>)}
+    <td className="sticky right-14 z-20 bg-card px-2 py-2 text-right tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[4.2%]">{formatCurrency(total)}</td>
+    <td className="sticky right-0 z-20 bg-card px-1 py-2" />
   </tr>
 );
 
