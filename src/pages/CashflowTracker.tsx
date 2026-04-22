@@ -148,7 +148,7 @@ const CashflowTracker = () => {
             </div>
           </div>
           <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full min-w-[1180px] border-collapse text-sm">
+            <table className="w-full min-w-[1400px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
                    <th className="sticky left-0 z-10 bg-muted px-4 py-3 text-left font-bold text-foreground">Cashflow item</th>
@@ -161,6 +161,7 @@ const CashflowTracker = () => {
                     </th>
                   ))}
                   <th className="px-4 py-3 text-right font-bold text-foreground">Total</th>
+                  <th className="px-3 py-3 text-right font-bold text-foreground">Remove</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,8 +213,10 @@ const Metric = ({ icon: Icon, label, value, highlight = false }: { icon: typeof 
 const SummaryRow = ({ label, values, total }: { label: string; values: number[]; total: number }) => (
   <tr className="border-t-2 border-border bg-accent/10 font-bold">
     <td className="sticky left-0 z-10 bg-accent/10 px-4 py-3 text-foreground">{label}</td>
+    <td className="px-3 py-3 text-right text-muted-foreground">—</td>
     {values.map((value, i) => <td key={i} className="px-3 py-3 text-right tabular-nums text-foreground">{formatCurrency(value)}</td>)}
     <td className="px-4 py-3 text-right tabular-nums text-foreground">{formatCurrency(total)}</td>
+    <td className="px-3 py-3" />
   </tr>
 );
 
