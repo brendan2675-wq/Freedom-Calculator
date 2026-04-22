@@ -171,7 +171,11 @@ const CashflowTracker = () => {
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
   const [portfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
+  const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
+  const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
+  const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
+  const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
 
   useEffect(() => {
     setRows((current) => current.map((row) => {
@@ -267,6 +271,25 @@ const CashflowTracker = () => {
   const linkPortfolioProperty = (propertyId: string) => {
     const selected = portfolioProperties.find((item) => item.id === propertyId);
     if (!selected) return;
+    const scenario = getActiveScenario();
+    if (scenario) {
+      const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
+      setActiveCashflowContext(nextContext);
+      setCashflowContextState(nextContext);
+      const record = getCashflowForProperty<CashflowState>(nextContext);
+      if (record?.state) {
+        const normalized = normalizeCashflowState(record.state);
+        setRows(normalized.rows);
+        setPropertyDetails(normalized.propertyDetails);
+        setCouncilRates(normalized.councilRates);
+        setInsurance(normalized.insurance);
+        setLandTax(normalized.landTax);
+        setWater(normalized.water);
+        setActiveMonth(normalized.activeMonth);
+        toast.success(`Loaded ${selected.label} cashflow`);
+        return;
+      }
+    }
     setPropertyDetails((current) => ({
       ...current,
       address: selected.label,
@@ -301,6 +324,12 @@ const CashflowTracker = () => {
   };
 
   const updateActiveCashflowScenario = () => {
+    if (cashflowContext) {
+      const saved = saveCashflowForProperty({ ...cashflowContext, financialYear }, currentCashflowState(), `${propertyDetails.address || "Property"} ${financialYear}`);
+      setCashflowContextState(saved);
+      toast.success(`Saved ${financialYear} cashflow`);
+      return;
+    }
     if (!activeScenarioId) return saveCashflowScenario();
     const active = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
     if (!active) return saveCashflowScenario();
@@ -309,6 +338,17 @@ const CashflowTracker = () => {
     localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(currentCashflowState()));
     setSavedScenarios(nextScenarios);
     toast.success(`Updated "${active.name}"`);
+  };
+
+  const saveAsNewYear = () => {
+    if (!cashflowContext) return updateActiveCashflowScenario();
+    const nextYear = window.prompt("Financial year", financialYear === "FY2027" ? "FY2028" : financialYear);
+    if (!nextYear) return;
+    const nextContext = { ...cashflowContext, financialYear: nextYear };
+    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.address || "Property"} ${nextYear}`);
+    setFinancialYear(nextYear);
+    setCashflowContextState(saved);
+    toast.success(`Saved as ${nextYear}`);
   };
 
   const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
