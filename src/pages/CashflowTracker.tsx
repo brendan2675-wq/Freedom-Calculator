@@ -137,7 +137,7 @@ const CashflowTracker = () => {
 
   useEffect(() => {
     localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(currentCashflowState()));
-  }, [rows, propertyDetails, councilRates, insurance, landTax, activeMonth]);
+  }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth]);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
