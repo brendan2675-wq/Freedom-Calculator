@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Banknote, Building2, CalendarDays, Download, FolderOpen, Home, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
+import { Banknote, Building2, CalendarDays, Download, FolderOpen, Home, LayoutDashboard, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
@@ -457,10 +457,15 @@ const CashflowTracker = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-header text-primary-foreground">
-        <div className="container mx-auto px-4 py-6 md:py-10">
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <button onClick={() => navigate("/dashboard")} className="flex min-h-11 items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-accent/80">
-              <ArrowLeft size={18} /> Dashboard
+        <div className="container mx-auto px-4 py-5 md:py-12">
+          <div className="mb-3 flex items-center justify-between gap-4 md:mb-5">
+            <button
+              onClick={() => navigate("/")}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-accent/30 bg-accent/15 text-accent transition-all hover:border-accent/50 hover:bg-accent/25 md:h-14 md:w-14"
+              aria-label="Back to Dashboard"
+            >
+              <LayoutDashboard size={22} className="md:hidden" />
+              <LayoutDashboard size={32} className="hidden md:block" />
             </button>
             <div className="flex items-center gap-2 md:gap-4">
               <Dialog>
@@ -509,9 +514,8 @@ const CashflowTracker = () => {
           </div>
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-accent">Atelier Wealth - Freedom calculator</p>
-              <h1 className="text-3xl font-bold md:text-5xl">Cashflow tracker</h1>
-              <p className="mt-3 max-w-2xl text-sm text-primary-foreground/80 md:text-base">Demo prototype based on the spreadsheet layout, showing month-by-month rental income, deductible expenses and net position.</p>
+              <h1 className="mb-1 text-xl font-bold md:mb-3 md:text-5xl">Cashflow Tracker</h1>
+              <p className="max-w-2xl text-sm font-light text-accent md:text-xl">Track month-by-month rental income, deductible expenses and net position.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row md:items-center">
               <label className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent/90">
