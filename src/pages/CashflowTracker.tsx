@@ -77,6 +77,7 @@ const CASHFLOW_WORKING_STATE_KEY = "cashflow-working-state";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
 const defaultInsurance: InsuranceState = { amount: 189, frequency: "monthly" };
 const defaultLandTax: LandTaxState = { amount: 0, frequency: "annual" };
+const defaultWater: WaterState = { amount: 0, frequency: "annual" };
 
 const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   try {
