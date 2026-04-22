@@ -177,7 +177,7 @@ const CashflowTracker = () => {
     setRows((current) => current.filter((row) => row.id !== rowId));
   };
 
-  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, activeMonth });
+  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, activeMonth });
 
   const saveCashflowScenario = () => {
     const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
@@ -207,6 +207,7 @@ const CashflowTracker = () => {
     setPropertyDetails(scenario.state.propertyDetails);
     setCouncilRates(scenario.state.councilRates);
     setInsurance(scenario.state.insurance ?? defaultInsurance);
+    setLandTax(scenario.state.landTax ?? defaultLandTax);
     setActiveMonth(scenario.state.activeMonth);
     setActiveScenarioId(scenario.id);
     localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, scenario.id);
@@ -223,6 +224,12 @@ const CashflowTracker = () => {
     const next = { ...insurance, ...updates };
     setInsurance(next);
     updateRow("insurance", { values: scheduledExpenseValues(next.amount, next.frequency) });
+  };
+
+  const updateLandTax = (updates: Partial<LandTaxState>) => {
+    const next = { ...landTax, ...updates };
+    setLandTax(next);
+    updateRow("land-tax", { values: scheduledExpenseValues(next.amount, next.frequency) });
   };
 
   return (
