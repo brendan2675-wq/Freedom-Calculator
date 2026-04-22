@@ -76,8 +76,9 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
     setActiveScenarioId(saved.id);
     setActiveScenario(saved.id);
     setSaveName("");
-    toast.success(`Saved "${name}"`);
-    if (isAdviser) {
+    const isUnassignedAdviserDraft = isAdviser && !saved.clientId;
+    toast.success(isUnassignedAdviserDraft ? "Saved draft. You can assign it to a client later from Adviser Home." : `Saved "${name}"`);
+    if (isAdviser && !isUnassignedAdviserDraft) {
       setAssignDialog({ open: true, scenario: saved });
     }
   };
@@ -207,6 +208,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
                       {s.name}
                       {s.id === activeScenarioId && <span className="text-[10px] text-accent font-normal">● active</span>}
                       {s.type === "smsf" && <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent">SMSF</span>}
+                      {isAdviser && !s.clientId && <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent">Needs client</span>}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(s.savedAt).toLocaleDateString()} {new Date(s.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}

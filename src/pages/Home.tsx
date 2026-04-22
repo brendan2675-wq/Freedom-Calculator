@@ -3,7 +3,6 @@ import { Home, DollarSign, TrendingUp, BarChart3, Building2, ArrowUpRight, Landm
 import { useState, useMemo, useEffect } from "react";
 import ScenarioManager from "@/components/ScenarioManager";
 import UserMenu from "@/components/UserMenu";
-import AdviserActingBanner from "@/components/AdviserActingBanner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import WelcomeDialog from "@/components/WelcomeDialog";
 import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
@@ -86,7 +85,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdviserActingBanner />
       {/* Header */}
       <header className="bg-header text-primary-foreground">
         <div className="container mx-auto px-4 py-6 md:py-14">

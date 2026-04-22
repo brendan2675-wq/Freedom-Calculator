@@ -13,7 +13,6 @@ import SoldProperties from "@/components/SoldProperties";
 import PaydownSummary from "@/components/PaydownSummary";
 import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
-import AdviserActingBanner from "@/components/AdviserActingBanner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import type { ExistingProperty, FutureProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
@@ -293,7 +292,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdviserActingBanner />
       <Header getCurrentState={getCurrentState} loadState={loadScenarioState} />
 
       <main className="container mx-auto px-4 py-8 space-y-8 pb-24">

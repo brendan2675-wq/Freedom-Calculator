@@ -151,10 +151,11 @@ const AdviserHome = () => {
     navigate("/cashflow");
   };
 
-  const handleCreateScenario = ({ client, scenarioName }: { client: Client; scenarioName: string }) => {
+  const handleCreateScenario = ({ client, scenarioName }: { client?: Client; scenarioName: string }) => {
     // Reset working state to a clean slate so we don't carry over the previous scenario
+    const clientName = client?.name || "Unassigned client";
     const blankState: ScenarioState = {
-      clientName: client.name,
+      clientName,
       interestRate: 6.5,
       targetMonth: 0,
       targetYear: new Date().getFullYear() + 10,
@@ -178,19 +179,19 @@ const AdviserHome = () => {
     };
     applyScenarioToStorage(blankState);
     const saved = saveScenario(scenarioName, blankState, {
-      clientId: client.id,
+      clientId: client?.id,
       ownerId: user?.id,
       ownerRole: "adviser",
     });
     setActiveScenario(saved.id);
     setActingAs({
-      clientId: client.id,
+      clientId: client?.id || "",
       scenarioId: saved.id,
-      clientName: client.name,
+      clientName,
       scenarioName: saved.name,
     });
     refresh();
-    toast.success(`Created "${saved.name}" for ${client.name}`);
+    toast.success(client ? `Created "${saved.name}" for ${client.name}` : "Saved draft. You can assign it to a client later from Adviser Home.");
     navigate("/dashboard");
   };
 
@@ -234,13 +235,13 @@ const AdviserHome = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-6">
           <ActionCard
             icon={<Plus size={22} className="text-accent" />}
-            title="Individual Scenario"
-            desc="Build new portfolios for clients"
+            title="Build scenario"
+            desc="Start from a clean slate. Assign to a client now or later."
             onClick={() => setNewScenarioOpen(true)}
           />
           <ActionCard
             icon={<FileText size={22} className="text-accent" />}
-            title="Previous Scenario"
+            title="Previous scenario"
             desc={scenarios[0] ? `Resume "${scenarios[0].name}"` : "No scenarios yet"}
             onClick={() => scenarios[0] && openScenario(scenarios[0])}
             disabled={!scenarios[0]}
@@ -310,9 +311,14 @@ const AdviserHome = () => {
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-foreground truncate">{s.name}</p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {client?.name || "Unassigned"} • {formatDate(s.savedAt)}
+                          {client?.name || "Unassigned draft"} • {formatDate(s.savedAt)}
                         </p>
                       </div>
+                      {!client && (
+                        <span className="hidden rounded-full bg-accent/10 px-2 py-1 text-[10px] font-semibold text-accent sm:inline-flex">
+                          Needs client
+                        </span>
+                      )}
                       <div className="hidden sm:flex items-center gap-1 shrink-0">
                         {STRATEGY_MODULES.map((m) => {
                           const active = modules.has(m.key);

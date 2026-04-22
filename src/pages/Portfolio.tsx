@@ -7,7 +7,6 @@ import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import PporDetailSheet from "@/components/PporDetailSheet";
 import ScenarioManager from "@/components/ScenarioManager";
 import ReadOnlyBanner from "@/components/ReadOnlyBanner";
-import AdviserActingBanner from "@/components/AdviserActingBanner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
 import { getActiveScenario } from "@/lib/scenarioManager";
@@ -181,7 +180,6 @@ const Portfolio = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdviserActingBanner />
       {isReadOnly && <ReadOnlyBanner />}
       <header className="bg-header text-primary-foreground">
         <div className="container mx-auto px-4 py-6 md:py-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
