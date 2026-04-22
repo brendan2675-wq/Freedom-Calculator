@@ -682,6 +682,26 @@ const CashflowTracker = () => {
               </div>
             </SheetHeader>
             <div className="space-y-6 pt-6">
+              <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-muted/30 p-1">
+                <button onClick={() => setPropertySheetMode("current")} className={`min-h-11 rounded-md px-3 text-sm font-semibold transition-colors ${propertySheetMode === "current" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60"}`}>
+                  Use existing
+                </button>
+                <button onClick={() => openPropertyDetailsSheet("new")} className={`min-h-11 rounded-md px-3 text-sm font-semibold transition-colors ${propertySheetMode === "new" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60"}`}>
+                  Add new
+                </button>
+              </div>
+
+              {propertySheetMode === "current" && (
+                <div className="space-y-2 rounded-lg border border-border p-3">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Link Existing Property</label>
+                  <select onChange={(event) => linkPortfolioProperty(event.target.value)} value={cashflowContext?.propertyId || ""} className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                    <option value="" disabled>Select existing portfolio property</option>
+                    {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                  </select>
+                  <p className="text-xs text-muted-foreground">Shared fields below are prefilled from the selected property and can be reviewed before saving.</p>
+                </div>
+              )}
+
               <div className="space-y-4">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Property Details</h3>
                 <PropertySheetField label="Property Nickname">
