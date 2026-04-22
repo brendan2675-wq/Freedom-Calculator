@@ -120,7 +120,8 @@ const getInitialCashflowState = (): CashflowState => {
   try {
     const activeScenario = getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
     const workingState = localStorage.getItem(CASHFLOW_WORKING_STATE_KEY);
-    return normalizeCashflowState(activeScenario?.state ?? (workingState ? JSON.parse(workingState) : undefined));
+    const parsedWorkingState = workingState ? JSON.parse(workingState) : undefined;
+    return normalizeCashflowState(activeScenario?.state ?? (parsedWorkingState?.templateVersion === CASHFLOW_TEMPLATE_VERSION ? parsedWorkingState : undefined));
   } catch {
     return defaultCashflowState;
   }
@@ -233,7 +234,12 @@ const CashflowTracker = () => {
     setRows((current) => current.filter((row) => row.id !== rowId));
   };
 
-  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth });
+  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
+
+  const handlePrototypeUpload = (files: FileList | null) => {
+    if (!files?.length) return;
+    toast.info(`${files.length} file${files.length === 1 ? "" : "s"} queued. Receipt scanning will populate totals in a future release.`);
+  };
 
   const saveCashflowScenario = () => {
     const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
