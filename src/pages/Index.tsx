@@ -14,6 +14,7 @@ import PaydownSummary from "@/components/PaydownSummary";
 import Disclaimer from "@/components/Disclaimer";
 import Footer from "@/components/Footer";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
+import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import type { ExistingProperty, FutureProperty } from "@/types/property";
 import { defaultLoanDetails, defaultRentalDetails, defaultPurchaseDetails } from "@/types/property";
 import { normalizeExistingProperties } from "@/lib/portfolioDefaults";
@@ -296,6 +297,7 @@ const Index = () => {
       <Header getCurrentState={getCurrentState} loadState={loadScenarioState} />
 
       <main className="container mx-auto px-4 py-8 space-y-8 pb-24">
+        <ScenarioContextBanner />
         <KeyInputs
           loanBalance={loanBalance}
           setLoanBalance={setLoanBalance}
