@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import AddressSearchInput from "@/components/AddressSearchInput";
 import type { ExistingProperty } from "@/types/property";
@@ -175,10 +176,12 @@ const CashflowTracker = () => {
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
-  const [portfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
+  const [portfolioProperties, setPortfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
   const [showLinkExisting, setShowLinkExisting] = useState(false);
+  const [propertySheetOpen, setPropertySheetOpen] = useState(false);
+  const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
@@ -356,6 +359,7 @@ const CashflowTracker = () => {
     };
     const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
     localStorage.setItem("portfolio-properties", JSON.stringify([...existing, newProperty]));
+    setPortfolioProperties(getPortfolioPropertyOptions());
     const scenario = getActiveScenario();
     if (scenario) {
       const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId, propertyType: "investment" as CashflowPropertyType, financialYear };
@@ -364,6 +368,51 @@ const CashflowTracker = () => {
     }
     setPropertyDetails((current) => ({ ...current, nickname: newProperty.nickname }));
     toast.success("Added new portfolio property");
+  };
+
+  const openPropertyDetailsSheet = (mode: "current" | "new") => {
+    setPropertySheetMode(mode);
+    if (mode === "new") {
+      setPropertyDetails((current) => ({ ...property, ...current, nickname: current.nickname || "New property" }));
+    }
+    setPropertySheetOpen(true);
+  };
+
+  const savePropertyDetailsFromSheet = () => {
+    const linkedId = cashflowContext?.propertyId;
+    const isLinkedPortfolioProperty = linkedId && linkedId !== "ppor" && propertySheetMode === "current";
+    if (isLinkedPortfolioProperty) {
+      const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
+      const updated = existing.map((item) => item.id === linkedId ? {
+        ...item,
+        nickname: propertyDetails.nickname || item.nickname,
+        address: propertyDetails.address,
+        loanBalance: propertyDetails.loanAmount || item.loanBalance,
+        loan: { ...item.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
+        rental: { ...item.rental, weeklyRent: propertyDetails.weeklyRent },
+      } : item);
+      localStorage.setItem("portfolio-properties", JSON.stringify(updated));
+      setPortfolioProperties(getPortfolioPropertyOptions());
+      toast.success("Property details updated");
+    } else if (linkedId === "ppor" && propertySheetMode === "current") {
+      const stored = localStorage.getItem("portfolio-ppor");
+      if (stored) {
+        const ppor = JSON.parse(stored) as ExistingProperty;
+        localStorage.setItem("portfolio-ppor", JSON.stringify({
+          ...ppor,
+          nickname: propertyDetails.nickname || ppor.nickname,
+          address: propertyDetails.address,
+          loanBalance: propertyDetails.loanAmount || ppor.loanBalance,
+          loan: { ...ppor.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
+          rental: { ...ppor.rental, weeklyRent: propertyDetails.weeklyRent },
+        }));
+        setPortfolioProperties(getPortfolioPropertyOptions());
+        toast.success("Property details updated");
+      }
+    } else {
+      addNewPortfolioProperty();
+    }
+    setPropertySheetOpen(false);
   };
 
   const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
