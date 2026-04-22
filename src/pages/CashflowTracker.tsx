@@ -1,11 +1,15 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Banknote, Building2, CalendarDays, ExternalLink, Home, Percent, Plus, Trash2, TrendingDown } from "lucide-react";
+import { ArrowLeft, Banknote, Building2, CalendarDays, Home, Percent, Plus, Trash2, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
 import UserMenu from "@/components/UserMenu";
 import { Input } from "@/components/ui/input";
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
+
+const INITIAL_WEEKLY_RENT = 600;
+const INITIAL_LOAN_AMOUNT = 500000;
+const INITIAL_INTEREST_RATE = 6.54;
 
 type CashflowRow = {
   id: string;
@@ -16,9 +20,10 @@ type CashflowRow = {
 };
 
 const monthlyRentFromWeekly = (weeklyRent: number) => Math.round((weeklyRent * 52) / 12);
+const monthlyInterestOnlyCost = (loanAmount: number, interestRate: number) => Math.round((loanAmount * (interestRate / 100)) / 12);
 
 const initialRows: CashflowRow[] = [
-  { id: "rental-income", label: "Rental income", type: "income", weeklyRent: 600, values: Array(12).fill(monthlyRentFromWeekly(600)) },
+  { id: "rental-income", label: "Rental income", type: "income", weeklyRent: INITIAL_WEEKLY_RENT, values: Array(12).fill(monthlyRentFromWeekly(INITIAL_WEEKLY_RENT)) },
   { id: "advertising", label: "Advertising for tenants", type: "expense", values: Array(12).fill(0) },
   { id: "bank-fees", label: "Bank fees", type: "expense", values: Array(12).fill(0) },
   { id: "body-corporate", label: "Body corporate fees", type: "expense", values: Array(12).fill(0) },
@@ -28,7 +33,7 @@ const initialRows: CashflowRow[] = [
   { id: "depreciation", label: "Depreciation on plant", type: "expense", values: Array(12).fill(0) },
   { id: "gardening", label: "Gardening / lawn mowing", type: "expense", values: Array(12).fill(0) },
   { id: "insurance", label: "Insurance", type: "expense", values: [189, 189, 189, 189, 189, 189, 189, 189, 0, 0, 0, 0] },
-  { id: "interest", label: "Interest on Bluebay loan", type: "expense", values: [0, 2722, 2688, 2533, 2616, 2529, 3002, 0, 0, 0, 0, 0] },
+  { id: "interest", label: "Interest on loan", type: "expense", values: Array(12).fill(monthlyInterestOnlyCost(INITIAL_LOAN_AMOUNT, INITIAL_INTEREST_RATE)) },
   { id: "land-tax", label: "Land tax", type: "expense", values: Array(12).fill(0) },
   { id: "legal", label: "Legal fees", type: "expense", values: Array(12).fill(0) },
   { id: "pest", label: "Pest control", type: "expense", values: Array(12).fill(0) },
@@ -45,11 +50,9 @@ const property = {
   owner: "Christie-David Family Super Fund",
   address: "4 Monash Court, Durack NT 0830",
   bank: "Bluebay",
-  bsb: "636-380",
-  account: "400173265",
-  weeklyRent: 600,
-  interestRate: 6.54,
-  loanAmount: 500000,
+  weeklyRent: INITIAL_WEEKLY_RENT,
+  interestRate: INITIAL_INTEREST_RATE,
+  loanAmount: INITIAL_LOAN_AMOUNT,
   manager: "Nida Billa @ Billy Nida Realty Pty Ltd",
 };
 
@@ -86,12 +89,30 @@ const CashflowTracker = () => {
     updateRow(rowId, { weeklyRent, values: Array(12).fill(monthlyRentFromWeekly(weeklyRent)) });
   };
 
+  const updateInterestRow = (loanAmount: number, interestRate: number) => {
+    updateRow("interest", { values: Array(12).fill(monthlyInterestOnlyCost(loanAmount, interestRate)) });
+  };
+
   const updatePropertyWeeklyRent = (weeklyRent: number) => {
     setPropertyDetails((current) => ({ ...current, weeklyRent }));
     const rentalRow = rows.find((row) => row.type === "income");
     if (rentalRow) {
       updateWeeklyRent(rentalRow.id, weeklyRent);
     }
+  };
+
+  const updateLoanAmount = (loanAmount: number) => {
+    setPropertyDetails((current) => {
+      updateInterestRow(loanAmount, current.interestRate);
+      return { ...current, loanAmount };
+    });
+  };
+
+  const updateInterestRate = (interestRate: number) => {
+    setPropertyDetails((current) => {
+      updateInterestRow(current.loanAmount, interestRate);
+      return { ...current, interestRate };
+    });
   };
 
   const addRow = (type: CashflowRow["type"]) => {
@@ -139,8 +160,8 @@ const CashflowTracker = () => {
           </div>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
           <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
-          <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={(value) => setPropertyDetails((current) => ({ ...current, loanAmount: value }))} />
-          <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={(value) => setPropertyDetails((current) => ({ ...current, interestRate: value }))} />
+          <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
+          <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
           <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
           <Metric label="Yearly holding cost" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
         </section>
