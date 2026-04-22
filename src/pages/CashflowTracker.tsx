@@ -50,7 +50,7 @@ const initialRows: CashflowRow[] = [
   { id: "capital-works", label: "Capital works deductions", type: "expense", values: Array(12).fill(0) },
   { id: "stationery", label: "Stationery, telephone and postage", type: "expense", values: Array(12).fill(0) },
   { id: "travel", label: "Travel expenses", type: "expense", values: Array(12).fill(0) },
-  { id: "water", label: "Water charges", type: "expense", values: [0, 0, 285, 0, 0, 856, 0, 0, 0, 0, 0, 0] },
+  { id: "water", label: "Water charges", type: "expense", values: Array(12).fill(0) },
   { id: "sundry", label: "Sundry expenses", type: "expense", values: Array(12).fill(0) },
 ];
 
@@ -67,7 +67,8 @@ const property = {
 type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" };
 type InsuranceState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
-type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; activeMonth: number };
+type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
+type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
@@ -76,6 +77,7 @@ const CASHFLOW_WORKING_STATE_KEY = "cashflow-working-state";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
 const defaultInsurance: InsuranceState = { amount: 189, frequency: "monthly" };
 const defaultLandTax: LandTaxState = { amount: 0, frequency: "annual" };
+const defaultWater: WaterState = { amount: 0, frequency: "annual" };
 
 const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   try {
@@ -86,7 +88,7 @@ const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   }
 };
 
-const defaultCashflowState: CashflowState = { rows: initialRows, propertyDetails: property, councilRates: defaultCouncilRates, insurance: defaultInsurance, landTax: defaultLandTax, activeMonth: 7 };
+const defaultCashflowState: CashflowState = { rows: initialRows, propertyDetails: property, councilRates: defaultCouncilRates, insurance: defaultInsurance, landTax: defaultLandTax, water: defaultWater, activeMonth: 7 };
 
 const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState => ({
   ...defaultCashflowState,
@@ -95,6 +97,7 @@ const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState =
   councilRates: { ...defaultCouncilRates, ...state?.councilRates },
   insurance: { ...defaultInsurance, ...state?.insurance },
   landTax: { ...defaultLandTax, ...state?.landTax },
+  water: { ...defaultWater, ...state?.water },
   rows: state?.rows?.length ? state.rows : initialRows,
 });
 
@@ -118,6 +121,7 @@ const CashflowTracker = () => {
   const [councilRates, setCouncilRates] = useState<CouncilRatesState>(() => getInitialCashflowState().councilRates);
   const [insurance, setInsurance] = useState<InsuranceState>(() => getInitialCashflowState().insurance);
   const [landTax, setLandTax] = useState<LandTaxState>(() => getInitialCashflowState().landTax);
+  const [water, setWater] = useState<WaterState>(() => getInitialCashflowState().water);
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
@@ -133,7 +137,7 @@ const CashflowTracker = () => {
 
   useEffect(() => {
     localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(currentCashflowState()));
-  }, [rows, propertyDetails, councilRates, insurance, landTax, activeMonth]);
+  }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth]);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
@@ -204,7 +208,7 @@ const CashflowTracker = () => {
     setRows((current) => current.filter((row) => row.id !== rowId));
   };
 
-  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, activeMonth });
+  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth });
 
   const saveCashflowScenario = () => {
     const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
