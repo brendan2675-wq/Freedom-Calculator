@@ -112,12 +112,12 @@ const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${
 
 const CashflowTracker = () => {
   const navigate = useNavigate();
-  const [activeMonth, setActiveMonth] = useState(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.activeMonth ?? 7);
-  const [rows, setRows] = useState<CashflowRow[]>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.rows ?? initialRows);
-  const [propertyDetails, setPropertyDetails] = useState(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.propertyDetails ?? property);
-  const [councilRates, setCouncilRates] = useState<CouncilRatesState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.councilRates ?? defaultCouncilRates);
-  const [insurance, setInsurance] = useState<InsuranceState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.insurance ?? defaultInsurance);
-  const [landTax, setLandTax] = useState<LandTaxState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.landTax ?? defaultLandTax);
+  const [activeMonth, setActiveMonth] = useState(() => getInitialCashflowState().activeMonth);
+  const [rows, setRows] = useState<CashflowRow[]>(() => getInitialCashflowState().rows);
+  const [propertyDetails, setPropertyDetails] = useState(() => getInitialCashflowState().propertyDetails);
+  const [councilRates, setCouncilRates] = useState<CouncilRatesState>(() => getInitialCashflowState().councilRates);
+  const [insurance, setInsurance] = useState<InsuranceState>(() => getInitialCashflowState().insurance);
+  const [landTax, setLandTax] = useState<LandTaxState>(() => getInitialCashflowState().landTax);
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
@@ -130,6 +130,10 @@ const CashflowTracker = () => {
       return row;
     }));
   }, [propertyDetails.weeklyRent, propertyDetails.loanAmount, propertyDetails.interestRate]);
+
+  useEffect(() => {
+    localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(currentCashflowState()));
+  }, [rows, propertyDetails, councilRates, insurance, landTax, activeMonth]);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
