@@ -578,10 +578,10 @@ const Info = ({ icon: Icon, label, value }: { icon: typeof Home; label: string; 
 );
 
 const EditableInfo = ({ icon: Icon, label, value, onChange, type = "text", suffix }: { icon: typeof Home; label: string; value: string | number; onChange: (value: string) => void; type?: string; suffix?: string }) => (
-  <div className="rounded-lg bg-muted/40 p-3">
-    <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Icon size={14} /> {label}</div>
+  <div className="rounded-lg bg-muted/40 px-3 py-2">
+    <div className="mb-0.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Icon size={14} /> {label}</div>
     <div className="flex items-center gap-2">
-      <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-9 bg-card text-sm font-semibold" />
+      <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-8 bg-card text-sm font-semibold" />
       {suffix ? <span className="text-sm font-semibold text-muted-foreground">{suffix}</span> : null}
     </div>
   </div>
