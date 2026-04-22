@@ -408,28 +408,31 @@ const CashflowTracker = () => {
         <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <h2 className="text-xl font-bold text-foreground">Save cashflow scenario</h2>
-              <p className="text-sm text-muted-foreground">Save the current property details, assumptions, council rates and worksheet values locally.</p>
+              <h2 className="text-xl font-bold text-foreground">Cashflow scenarios</h2>
+              <p className="text-sm text-muted-foreground">Save, update and load your locally saved cashflow tracker scenarios.</p>
             </div>
-            <div className="flex w-full flex-col gap-2 md:w-auto md:min-w-96">
-              <div className="flex gap-2">
+            <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-[32rem]">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <Input value={saveName} onChange={(event) => setSaveName(event.target.value)} onKeyDown={(event) => event.key === "Enter" && saveCashflowScenario()} placeholder="Scenario name..." className="h-11" />
-                <button onClick={saveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save</button>
-                <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><RefreshCw size={16} /> Update</button>
+                <button onClick={saveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save new</button>
+                <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><RefreshCw size={16} /> Update current</button>
               </div>
               {savedScenarios.length > 0 ? (
-                <div className="max-h-44 space-y-2 overflow-y-auto scrollbar-thin">
-                  {savedScenarios.map((scenario) => (
-                    <div key={scenario.id} className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${scenario.id === activeScenarioId ? "border-accent bg-accent/5" : "border-border bg-muted/40"}`}>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-foreground">{scenario.name}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(scenario.savedAt).toLocaleDateString()} {new Date(scenario.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                <div className="rounded-lg border border-border bg-muted/30 p-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Saved scenarios</p>
+                  <div className="max-h-56 space-y-2 overflow-y-auto scrollbar-thin">
+                    {savedScenarios.map((scenario) => (
+                      <div key={scenario.id} className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${scenario.id === activeScenarioId ? "border-accent bg-accent/5" : "border-border bg-card"}`}>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-foreground">{scenario.name}</p>
+                          <p className="text-xs text-muted-foreground">{new Date(scenario.savedAt).toLocaleDateString()} {new Date(scenario.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                        </div>
+                        <button onClick={() => loadCashflowScenario(scenario)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Download size={16} /> Load</button>
                       </div>
-                      <button onClick={() => loadCashflowScenario(scenario)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-card"><Download size={16} /> Load</button>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              ) : null}
+              ) : <p className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">No cashflow scenarios saved yet.</p>}
             </div>
           </div>
         </section>
