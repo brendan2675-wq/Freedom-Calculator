@@ -356,6 +356,7 @@ const CashflowTracker = () => {
     const selected = portfolioProperties.find((item) => item.id === propertyId);
     if (!selected) return;
     setPropertySheetMode("current");
+    skipNextAutosaveRef.current = true;
     const scenario = getActiveScenario();
     if (scenario) {
       const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
@@ -371,6 +372,8 @@ const CashflowTracker = () => {
         setLandTax(normalized.landTax);
         setWater(normalized.water);
         setActiveMonth(normalized.activeMonth);
+        setLastAutosavedAt(new Date(record.savedAt));
+        setAutosaveStatus("saved");
         toast.success(`Loaded ${selected.label} cashflow`);
         return;
       }
@@ -388,7 +391,9 @@ const CashflowTracker = () => {
       ownership: selected.ownership,
       trustName: selected.trustName || "",
     }));
-    toast.success(`Linked ${selected.label}`);
+    setLastAutosavedAt(null);
+    setAutosaveStatus("idle");
+    toast.success(`Loaded ${selected.label}`);
   };
 
   const addNewPortfolioProperty = () => {
