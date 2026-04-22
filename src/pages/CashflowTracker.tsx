@@ -671,24 +671,28 @@ const CashflowTracker = () => {
           </div>
         </section>
         <section className="grid items-start gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          <div className="rounded-xl border border-border bg-card p-3 shadow-sm lg:col-span-2">
-            <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <button onClick={() => openPropertyDetailsSheet("current")} className="rounded-xl border border-border bg-card p-3 text-left shadow-sm transition-all hover:border-accent/50 hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:col-span-2" aria-label="Edit property details">
+            <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={() => openPropertyDetailsSheet("current")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Link2 size={16} /> Manage property</button>
-              </div>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent"><Link2 size={14} /> Manage</span>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <button onClick={() => openPropertyDetailsSheet("current")} className="w-full text-left" aria-label="Edit property details">
-                <p className="truncate text-base font-bold text-foreground">{propertyDetails.nickname || "Property nickname"}</p>
-                <p className="mt-1 truncate text-sm text-muted-foreground">{propertyDetails.address || "No address added"}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <span className="truncate">Owner: <strong className="text-foreground">{propertyDetails.owner || "—"}</strong></span>
-                  <span className="truncate">Bank: <strong className="text-foreground">{propertyDetails.bank || "—"}</strong></span>
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                  <InvestmentTypeIcon type={propertyDetails.investmentType} size={20} />
                 </div>
-              </button>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-base font-bold text-foreground">{propertyDetails.nickname || "Property nickname"}</p>
+                  <p className="mt-1 truncate text-sm text-muted-foreground">{propertyDetails.address || "No address added"}</p>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    <span className="truncate">Type: <strong className="text-foreground">{getInvestmentTypeLabel(propertyDetails.investmentType)}</strong></span>
+                    <span className="truncate">Owner: <strong className="text-foreground">{propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}</strong></span>
+                    <span className="truncate">Bank: <strong className="text-foreground">{propertyDetails.bank || "—"}</strong></span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          </button>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
           <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
           <Metric label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
