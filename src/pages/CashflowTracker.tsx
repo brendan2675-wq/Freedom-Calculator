@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, Building2, CalendarDays, Download, FolderOpen, Home, LayoutDashboard, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
+import { Banknote, Building2, CalendarDays, Download, Home, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
@@ -187,14 +187,24 @@ const CashflowTracker = () => {
   const [portfolioProperties, setPortfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
+  const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [lastAutosavedAt, setLastAutosavedAt] = useState<Date | null>(linkedRecord?.savedAt ? new Date(linkedRecord.savedAt) : null);
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
   const topScrollRef = useRef<HTMLDivElement>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const syncingScrollRef = useRef(false);
+  const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipNextAutosaveRef = useRef(true);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
+  const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId);
+  const autosaveLabel = autosaveStatus === "saving"
+    ? "Saving…"
+    : lastAutosavedAt
+      ? `Autosaved ${lastAutosavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+      : "Autosave ready";
 
   const syncHorizontalScroll = (source: "top" | "table") => {
     if (syncingScrollRef.current) return;
