@@ -57,6 +57,7 @@ const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${
 const CashflowTracker = () => {
   const navigate = useNavigate();
   const [activeMonth, setActiveMonth] = useState(7);
+  const [rows, setRows] = useState<CashflowRow[]>(initialRows);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
@@ -64,7 +65,32 @@ const CashflowTracker = () => {
     const incomeByMonth = rows.find((r) => r.type === "income")?.values || [];
     const expenses = expensesByMonth.reduce((a, b) => a + b, 0);
     return { income, expenses, net: income - expenses, incomeByMonth, expensesByMonth };
-  }, []);
+  }, [rows]);
+
+  const updateRow = (rowId: string, updates: Partial<CashflowRow>) => {
+    setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...updates } : row)));
+  };
+
+  const updateValue = (rowId: string, monthIndex: number, value: number) => {
+    setRows((current) => current.map((row) => {
+      if (row.id !== rowId) return row;
+      const nextValues = [...row.values];
+      nextValues[monthIndex] = value;
+      return { ...row, values: nextValues };
+    }));
+  };
+
+  const updateWeeklyRent = (rowId: string, weeklyRent: number) => {
+    updateRow(rowId, { weeklyRent, values: Array(12).fill(monthlyRentFromWeekly(weeklyRent)) });
+  };
+
+  const addRow = (type: CashflowRow["type"]) => {
+    setRows((current) => [...current, { id: `${type}-${Date.now()}`, label: type === "income" ? "New income" : "New expense", type, values: Array(12).fill(0), ...(type === "income" ? { weeklyRent: 0 } : {}) }]);
+  };
+
+  const removeRow = (rowId: string) => {
+    setRows((current) => current.filter((row) => row.id !== rowId));
+  };
 
   return (
     <div className="min-h-screen bg-background">
