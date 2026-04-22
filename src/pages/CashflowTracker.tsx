@@ -909,12 +909,12 @@ const Metric = ({ icon: Icon, label, value, highlight = false, className = "" }:
 );
 
 const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon: typeof Home; label: string; value: string; highlight?: boolean }) => (
-  <div className="rounded-lg bg-muted/40 p-3">
-    <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+  <div className="min-w-0">
+    <div className="mb-1 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
       <Icon size={14} className="shrink-0 text-accent" />
       <span className="truncate">{label}</span>
     </div>
-    <p className={`text-xl font-bold ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
+    <p className={`truncate text-base font-bold tabular-nums ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
   </div>
 );
 
