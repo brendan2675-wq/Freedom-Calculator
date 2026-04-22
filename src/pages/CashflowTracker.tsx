@@ -6,6 +6,7 @@ import AdviserActingBanner from "@/components/AdviserActingBanner";
 import UserMenu from "@/components/UserMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import type { ExistingProperty } from "@/types/property";
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
 
@@ -71,6 +72,7 @@ type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "month
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
+type PortfolioPropertyOption = { id: string; label: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -84,6 +86,26 @@ const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   try {
     const stored = localStorage.getItem(CASHFLOW_SCENARIOS_KEY);
     return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
+  try {
+    const storedPpor = localStorage.getItem("portfolio-ppor");
+    const storedProperties = localStorage.getItem("portfolio-properties");
+    const ppor = storedPpor ? JSON.parse(storedPpor) as ExistingProperty : null;
+    const properties = storedProperties ? JSON.parse(storedProperties) as ExistingProperty[] : [];
+    return [ppor, ...properties].filter((item): item is ExistingProperty => Boolean(item)).map((item) => ({
+      id: item.id,
+      label: item.nickname || "Portfolio property",
+      owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
+      bank: item.loan?.lenderName || "",
+      weeklyRent: item.rental?.weeklyRent || 0,
+      interestRate: item.loan?.interestRate || 0,
+      loanAmount: item.loanSplits?.length ? item.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : item.loanBalance || 0,
+    }));
   } catch {
     return [];
   }
@@ -141,6 +163,7 @@ const CashflowTracker = () => {
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
+  const [portfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
 
   useEffect(() => {
@@ -232,6 +255,21 @@ const CashflowTracker = () => {
 
   const removeRow = (rowId: string) => {
     setRows((current) => current.filter((row) => row.id !== rowId));
+  };
+
+  const linkPortfolioProperty = (propertyId: string) => {
+    const selected = portfolioProperties.find((item) => item.id === propertyId);
+    if (!selected) return;
+    setPropertyDetails((current) => ({
+      ...current,
+      address: selected.label,
+      owner: selected.owner,
+      bank: selected.bank,
+      weeklyRent: selected.weeklyRent,
+      interestRate: selected.interestRate,
+      loanAmount: selected.loanAmount,
+    }));
+    toast.success(`Linked ${selected.label}`);
   };
 
   const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
@@ -414,9 +452,15 @@ const CashflowTracker = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 md:py-10">
-        <section className="grid gap-4 md:grid-cols-4">
+        <section className="grid items-start gap-4 md:grid-cols-4">
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm md:col-span-2">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
+              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="h-10 rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                <option value="" disabled>Link portfolio property</option>
+                {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+              </select>
+            </div>
             <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-11 text-lg font-bold" />
             <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="mt-2 h-10 text-sm font-semibold" />
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -541,7 +585,7 @@ const EditableInfo = ({ icon: Icon, label, value, onChange, type = "text", suffi
 
 const Metric = ({ icon: Icon, label, value, highlight = false, className = "" }: { icon: typeof Home; label: string; value: string; highlight?: boolean; className?: string }) => (
   <div className={`rounded-xl border border-border bg-card p-4 shadow-sm ${className}`}>
-    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={22} /></div>
+    <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={22} /></div>
     <p className="text-sm font-medium text-muted-foreground">{label}</p>
     <p className={`mt-1 text-2xl font-bold ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
   </div>
