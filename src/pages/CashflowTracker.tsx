@@ -453,20 +453,20 @@ const CashflowTracker = () => {
 
       <main className="container mx-auto px-4 py-6 md:py-10">
         <section className="grid items-start gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-border bg-card p-4 shadow-sm md:col-span-2">
-            <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="rounded-xl border border-border bg-card p-3 shadow-sm md:col-span-2">
+            <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
-              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="h-10 rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="h-9 rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                 <option value="" disabled>Link portfolio property</option>
                 {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
               </select>
             </div>
-            <div className="grid gap-3 lg:grid-cols-[1.15fr_1fr]">
-              <div className="space-y-2">
-                <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-11 text-lg font-bold" />
-                <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="h-10 text-sm font-semibold" />
+            <div className="grid gap-1.5 lg:grid-cols-[1.15fr_1fr]">
+              <div className="space-y-1.5">
+                <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-9 text-sm font-bold" />
+                <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="h-9 text-sm font-semibold" />
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
                 <EditableInfo icon={Building2} label="Manager" value={propertyDetails.manager} onChange={(value) => setPropertyDetails((current) => ({ ...current, manager: value }))} />
                 <EditableInfo icon={Banknote} label="Bank" value={propertyDetails.bank} onChange={(value) => setPropertyDetails((current) => ({ ...current, bank: value }))} />
               </div>
@@ -578,10 +578,10 @@ const Info = ({ icon: Icon, label, value }: { icon: typeof Home; label: string; 
 );
 
 const EditableInfo = ({ icon: Icon, label, value, onChange, type = "text", suffix }: { icon: typeof Home; label: string; value: string | number; onChange: (value: string) => void; type?: string; suffix?: string }) => (
-  <div className="flex h-11 items-center gap-2 rounded-md border border-input bg-background px-3">
+  <div className="flex h-9 items-center gap-2 rounded-md border border-input bg-background px-3">
     <div className="flex min-w-[5.5rem] items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Icon size={14} /> {label}</div>
     <div className="flex min-w-0 flex-1 items-center gap-2">
-      <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-9 border-0 bg-transparent px-0 text-sm font-semibold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+      <Input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="h-8 border-0 bg-transparent px-0 text-sm font-semibold shadow-none focus-visible:ring-0 focus-visible:ring-offset-0" />
       {suffix ? <span className="text-sm font-semibold text-muted-foreground">{suffix}</span> : null}
     </div>
   </div>
