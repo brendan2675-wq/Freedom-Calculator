@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { setSession } from "@/lib/auth";
 import { saveScenario, setActiveScenario, type ScenarioState } from "@/lib/scenarioManager";
@@ -57,7 +56,7 @@ describe("role-aware scenario UI", () => {
     saveScenario("Strategy Draft", state, { ownerId: "adviser-1", ownerRole: "adviser" });
 
     renderWithRouter(<ScenarioManager getCurrentState={() => state} loadState={vi.fn()} />);
-    await userEvent.click(screen.getByRole("button", { name: /scenarios/i }));
+    fireEvent.click(screen.getByRole("button", { name: /scenarios/i }));
 
     expect(screen.getByText("Client scenarios")).toBeInTheDocument();
     expect(screen.getByText("Needs client")).toBeInTheDocument();
@@ -67,12 +66,12 @@ describe("role-aware scenario UI", () => {
     const onCreate = vi.fn();
 
     render(<NewScenarioDialog open onOpenChange={vi.fn()} onCreate={onCreate} />);
-    await userEvent.click(screen.getByText("Build without client"));
+    fireEvent.click(screen.getByText("Build without client"));
 
     expect(screen.getByText(/assign it later/i)).toBeInTheDocument();
     expect(screen.getByDisplayValue("Working Scenario")).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: /create scenario/i }));
+    fireEvent.click(screen.getByRole("button", { name: /create scenario/i }));
 
     expect(onCreate).toHaveBeenCalledWith({ client: undefined, scenarioName: "Working Scenario" });
   });
