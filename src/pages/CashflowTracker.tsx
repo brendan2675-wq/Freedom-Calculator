@@ -236,15 +236,17 @@ const CashflowTracker = () => {
   };
 
   const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
-    setRows(scenario.state.rows);
-    setPropertyDetails(scenario.state.propertyDetails);
-    setCouncilRates(scenario.state.councilRates);
-    setInsurance(scenario.state.insurance ?? defaultInsurance);
-    setLandTax(scenario.state.landTax ?? defaultLandTax);
-    setActiveMonth(scenario.state.activeMonth);
+    const normalizedState = normalizeCashflowState(scenario.state);
+    setRows(normalizedState.rows);
+    setPropertyDetails(normalizedState.propertyDetails);
+    setCouncilRates(normalizedState.councilRates);
+    setInsurance(normalizedState.insurance);
+    setLandTax(normalizedState.landTax);
+    setWater(normalizedState.water);
+    setActiveMonth(normalizedState.activeMonth);
     setActiveScenarioId(scenario.id);
     localStorage.setItem(ACTIVE_CASHFLOW_SCENARIO_KEY, scenario.id);
-    localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(normalizeCashflowState(scenario.state)));
+    localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(normalizedState));
     toast.success(`Loaded "${scenario.name}"`);
   };
 
@@ -264,6 +266,12 @@ const CashflowTracker = () => {
     const next = { ...landTax, ...updates };
     setLandTax(next);
     updateRow("land-tax", { values: scheduledExpenseValues(next.amount, next.frequency) });
+  };
+
+  const updateWater = (updates: Partial<WaterState>) => {
+    const next = { ...water, ...updates };
+    setWater(next);
+    updateRow("water", { values: scheduledExpenseValues(next.amount, next.frequency) });
   };
 
   const exportCashflowSummary = () => {
