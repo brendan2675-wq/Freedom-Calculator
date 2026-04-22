@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Banknote, Building2, CalendarDays, Home, Percent, Plus, Trash2, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
@@ -22,6 +22,7 @@ type CashflowRow = {
 const monthlyRentFromWeekly = (weeklyRent: number) => Math.round((weeklyRent * 52) / 12);
 const monthlyInterestOnlyCost = (loanAmount: number, interestRate: number) => Math.round((loanAmount * (interestRate / 100)) / 12);
 const monthlyAgentFee = (weeklyRent: number) => Math.round(monthlyRentFromWeekly(weeklyRent) * 0.06);
+const councilRatesValues = (amount: number, frequency: "annual" | "quarterly") => frequency === "annual" ? Array(12).fill(Math.round(amount / 12)) : months.map((_, index) => index % 3 === 0 ? amount : 0);
 
 const initialRows: CashflowRow[] = [
   { id: "rental-income", label: "Rental income", type: "income", weeklyRent: INITIAL_WEEKLY_RENT, values: Array(12).fill(monthlyRentFromWeekly(INITIAL_WEEKLY_RENT)) },
@@ -64,6 +65,16 @@ const CashflowTracker = () => {
   const [activeMonth, setActiveMonth] = useState(7);
   const [rows, setRows] = useState<CashflowRow[]>(initialRows);
   const [propertyDetails, setPropertyDetails] = useState(property);
+  const [councilRates, setCouncilRates] = useState({ amount: 0, frequency: "annual" as "annual" | "quarterly" });
+
+  useEffect(() => {
+    setRows((current) => current.map((row) => {
+      if (row.id === "rental-income") return { ...row, weeklyRent: propertyDetails.weeklyRent, values: Array(12).fill(monthlyRentFromWeekly(propertyDetails.weeklyRent)) };
+      if (row.id === "agent-fees") return { ...row, values: Array(12).fill(monthlyAgentFee(propertyDetails.weeklyRent)) };
+      if (row.id === "interest") return { ...row, values: Array(12).fill(monthlyInterestOnlyCost(propertyDetails.loanAmount, propertyDetails.interestRate)) };
+      return row;
+    }));
+  }, [propertyDetails.weeklyRent, propertyDetails.loanAmount, propertyDetails.interestRate]);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
@@ -132,6 +143,12 @@ const CashflowTracker = () => {
 
   const removeRow = (rowId: string) => {
     setRows((current) => current.filter((row) => row.id !== rowId));
+  };
+
+  const updateCouncilRates = (updates: Partial<typeof councilRates>) => {
+    const next = { ...councilRates, ...updates };
+    setCouncilRates(next);
+    updateRow("council", { values: councilRatesValues(next.amount, next.frequency) });
   };
 
   return (
@@ -226,6 +243,29 @@ const CashflowTracker = () => {
                 <SummaryRow label="Net Profit / (Loss)" values={totals.incomeByMonth.map((v, i) => v - totals.expensesByMonth[i])} total={totals.net} />
               </tbody>
             </table>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-foreground">Council rates</h2>
+            <p className="text-sm text-muted-foreground">Enter an annual amount to spread monthly, or a quarterly amount to post every three months.</p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg bg-muted/40 p-3 md:col-span-2">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Amount</label>
+              <Input type="number" min="0" value={councilRates.amount === 0 ? "" : councilRates.amount} onChange={(event) => updateCouncilRates({ amount: Number(event.target.value) || 0 })} className="h-11 bg-card text-lg font-bold tabular-nums" />
+            </div>
+            <div className="rounded-lg bg-muted/40 p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Frequency</p>
+              <div className="grid grid-cols-2 gap-2">
+                {(["annual", "quarterly"] as const).map((frequency) => (
+                  <button key={frequency} onClick={() => updateCouncilRates({ frequency })} className={`min-h-11 rounded-lg border px-3 text-sm font-semibold capitalize transition-colors ${councilRates.frequency === frequency ? "border-accent bg-accent text-accent-foreground" : "border-border text-foreground hover:bg-muted"}`}>
+                    {frequency}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       </main>
