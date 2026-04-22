@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Banknote, Building2, CalendarDays, Download, FolderOpen, Home, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import AdviserActingBanner from "@/components/AdviserActingBanner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -457,7 +456,6 @@ const CashflowTracker = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdviserActingBanner />
       <header className="bg-header text-primary-foreground">
         <div className="container mx-auto px-4 py-6 md:py-10">
           <div className="mb-6 flex items-center justify-between gap-4">
