@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Banknote, Building2, CalendarDays, Home, Percent, Plus, Trash2, TrendingDown } from "lucide-react";
+import { ArrowLeft, Banknote, Building2, CalendarDays, Download, Home, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
 import UserMenu from "@/components/UserMenu";
 import { Input } from "@/components/ui/input";
@@ -56,6 +57,23 @@ const property = {
   interestRate: INITIAL_INTEREST_RATE,
   loanAmount: INITIAL_LOAN_AMOUNT,
   manager: "Nida Billa @ Billy Nida Realty Pty Ltd",
+};
+
+type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" };
+type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; activeMonth: number };
+type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
+
+const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
+const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
+const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
+
+const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
+  try {
+    const stored = localStorage.getItem(CASHFLOW_SCENARIOS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
 };
 
 const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`;
