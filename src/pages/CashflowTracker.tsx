@@ -86,6 +86,14 @@ const CashflowTracker = () => {
     updateRow(rowId, { weeklyRent, values: Array(12).fill(monthlyRentFromWeekly(weeklyRent)) });
   };
 
+  const updatePropertyWeeklyRent = (weeklyRent: number) => {
+    setPropertyDetails((current) => ({ ...current, weeklyRent }));
+    const rentalRow = rows.find((row) => row.type === "income");
+    if (rentalRow) {
+      updateWeeklyRent(rentalRow.id, weeklyRent);
+    }
+  };
+
   const addRow = (type: CashflowRow["type"]) => {
     setRows((current) => [...current, { id: `${type}-${Date.now()}`, label: type === "income" ? "New income" : "New expense", type, values: Array(12).fill(0), ...(type === "income" ? { weeklyRent: 0 } : {}) }]);
   };
@@ -120,7 +128,7 @@ const CashflowTracker = () => {
 
       <main className="container mx-auto px-4 py-6 md:py-10">
         <section className="grid gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-border bg-card p-4 shadow-sm md:col-span-2 md:row-span-2">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-sm md:col-span-2">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
             <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-11 text-lg font-bold" />
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{propertyDetails.owner}</p>
@@ -128,14 +136,13 @@ const CashflowTracker = () => {
               <Info icon={Building2} label="Manager" value={propertyDetails.manager} />
               <EditableInfo icon={Banknote} label="Bank" value={propertyDetails.bank} onChange={(value) => setPropertyDetails((current) => ({ ...current, bank: value }))} />
               <Info icon={ExternalLink} label="Account" value={propertyDetails.account} />
-              <EditableInfo icon={Percent} label="Interest rate" type="number" value={propertyDetails.interestRate} suffix="%" onChange={(value) => setPropertyDetails((current) => ({ ...current, interestRate: Number(value) || 0 }))} />
-              <EditableInfo icon={Banknote} label="Total loan amount" type="number" value={propertyDetails.loanAmount} onChange={(value) => setPropertyDetails((current) => ({ ...current, loanAmount: Number(value) || 0 }))} />
             </div>
           </div>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
           <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
-          <Metric label="Net profit / loss" value={formatCurrency(totals.net)} icon={CalendarDays} highlight={totals.net < 0} />
-          <Metric label="Weekly rent" value={formatCurrency(propertyDetails.weeklyRent)} icon={Home} />
+          <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={(value) => setPropertyDetails((current) => ({ ...current, loanAmount: value }))} />
+          <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={(value) => setPropertyDetails((current) => ({ ...current, interestRate: value }))} />
+          <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
           <Metric label="Yearly holding cost" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} className="md:col-span-2" />
         </section>
 
