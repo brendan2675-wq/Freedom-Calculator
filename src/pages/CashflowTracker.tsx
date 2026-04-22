@@ -89,12 +89,30 @@ const CashflowTracker = () => {
     updateRow(rowId, { weeklyRent, values: Array(12).fill(monthlyRentFromWeekly(weeklyRent)) });
   };
 
+  const updateInterestRow = (loanAmount: number, interestRate: number) => {
+    updateRow("interest", { values: Array(12).fill(monthlyInterestOnlyCost(loanAmount, interestRate)) });
+  };
+
   const updatePropertyWeeklyRent = (weeklyRent: number) => {
     setPropertyDetails((current) => ({ ...current, weeklyRent }));
     const rentalRow = rows.find((row) => row.type === "income");
     if (rentalRow) {
       updateWeeklyRent(rentalRow.id, weeklyRent);
     }
+  };
+
+  const updateLoanAmount = (loanAmount: number) => {
+    setPropertyDetails((current) => {
+      updateInterestRow(loanAmount, current.interestRate);
+      return { ...current, loanAmount };
+    });
+  };
+
+  const updateInterestRate = (interestRate: number) => {
+    setPropertyDetails((current) => {
+      updateInterestRow(current.loanAmount, interestRate);
+      return { ...current, interestRate };
+    });
   };
 
   const addRow = (type: CashflowRow["type"]) => {
@@ -142,8 +160,8 @@ const CashflowTracker = () => {
           </div>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
           <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
-          <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={(value) => setPropertyDetails((current) => ({ ...current, loanAmount: value }))} />
-          <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={(value) => setPropertyDetails((current) => ({ ...current, interestRate: value }))} />
+          <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
+          <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
           <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
           <Metric label="Yearly holding cost" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
         </section>
