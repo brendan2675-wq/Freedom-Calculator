@@ -145,6 +145,8 @@ const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState =
 const getInitialCashflowState = (): CashflowState => {
   try {
     const context = getActiveCashflowContext();
+    const activeScenarioId = localStorage.getItem("active-scenario-id");
+    if (context && activeScenarioId && context.scenarioId !== activeScenarioId) return defaultCashflowState;
     const linked = context ? getCashflowForProperty<CashflowState>(context) : undefined;
     if (linked?.state) return normalizeCashflowState(linked.state);
     const activeScenario = getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
@@ -176,6 +178,34 @@ const CashflowTracker = () => {
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
+
+  useEffect(() => {
+    const active = getActiveScenario();
+    const context = getActiveCashflowContext();
+    if (!active || !context || context.scenarioId === active.id) return;
+    const ppor = active.state.ppor;
+    const fallback = normalizeCashflowState({
+      propertyDetails: {
+        ...property,
+        address: ppor?.nickname || active.state.pporSuburb || "",
+        owner: ppor?.ownership === "trust" ? ppor.trustName || "Trust" : "Personal",
+        bank: ppor?.loan?.lenderName || "",
+        weeklyRent: ppor?.rental?.weeklyRent || 0,
+        interestRate: ppor?.loan?.interestRate || 0,
+        loanAmount: ppor?.loanSplits?.length ? ppor.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : ppor?.loanBalance || 0,
+      },
+    });
+    const nextContext = { clientId: active.clientId, scenarioId: active.id, propertyId: ppor?.id || "ppor", propertyType: "ppor" as CashflowPropertyType, financialYear };
+    setActiveCashflowContext(nextContext);
+    setCashflowContextState(nextContext);
+    setRows(fallback.rows);
+    setPropertyDetails(fallback.propertyDetails);
+    setCouncilRates(fallback.councilRates);
+    setInsurance(fallback.insurance);
+    setLandTax(fallback.landTax);
+    setWater(fallback.water);
+    setActiveMonth(fallback.activeMonth);
+  }, [financialYear]);
 
   useEffect(() => {
     setRows((current) => current.map((row) => {
