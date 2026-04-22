@@ -66,13 +66,15 @@ const property = {
 
 type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" };
 type InsuranceState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
-type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; activeMonth: number };
+type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
+type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; activeMonth: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
 const defaultInsurance: InsuranceState = { amount: 189, frequency: "monthly" };
+const defaultLandTax: LandTaxState = { amount: 0, frequency: "annual" };
 
 const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   try {
@@ -92,6 +94,7 @@ const CashflowTracker = () => {
   const [propertyDetails, setPropertyDetails] = useState(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.propertyDetails ?? property);
   const [councilRates, setCouncilRates] = useState<CouncilRatesState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.councilRates ?? defaultCouncilRates);
   const [insurance, setInsurance] = useState<InsuranceState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.insurance ?? defaultInsurance);
+  const [landTax, setLandTax] = useState<LandTaxState>(() => getSavedCashflowScenarios().find((scenario) => scenario.id === localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY))?.state.landTax ?? defaultLandTax);
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
