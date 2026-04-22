@@ -8,7 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import AddressSearchInput from "@/components/AddressSearchInput";
-import type { ExistingProperty } from "@/types/property";
+import OwnershipToggle from "@/components/OwnershipToggle";
+import { InvestmentTypeIcon, getInvestmentTypeLabel, investmentTypes } from "@/components/InvestmentTypeIcon";
+import type { ExistingProperty, InvestmentType } from "@/types/property";
 import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
 import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
@@ -70,6 +72,9 @@ const property = {
   interestRate: INITIAL_INTEREST_RATE,
   loanAmount: INITIAL_LOAN_AMOUNT,
   manager: "",
+  investmentType: "house" as InvestmentType,
+  ownership: "personal" as "trust" | "personal",
+  trustName: "",
 };
 
 type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
@@ -78,7 +83,7 @@ type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "month
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
-type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType };
+type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -113,6 +118,9 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       interestRate: item.loan?.interestRate || 0,
       loanAmount: item.loanSplits?.length ? item.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : item.loanBalance || 0,
       propertyType: item.id === "ppor" ? "ppor" : item.ownership === "trust" ? "smsf" : "investment",
+      investmentType: item.investmentType || "house",
+      ownership: item.ownership,
+      trustName: item.trustName || "",
     }));
   } catch {
     return [];
@@ -200,6 +208,9 @@ const CashflowTracker = () => {
         weeklyRent: ppor?.rental?.weeklyRent || 0,
         interestRate: ppor?.loan?.interestRate || 0,
         loanAmount: ppor?.loanSplits?.length ? ppor.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : ppor?.loanBalance || 0,
+        investmentType: ppor?.investmentType || "house",
+        ownership: ppor?.ownership || "personal",
+        trustName: ppor?.trustName || "",
       },
     });
     const nextContext = { clientId: active.clientId, scenarioId: active.id, propertyId: ppor?.id || "ppor", propertyType: "ppor" as CashflowPropertyType, financialYear };
@@ -337,6 +348,9 @@ const CashflowTracker = () => {
       weeklyRent: selected.weeklyRent,
       interestRate: selected.interestRate,
       loanAmount: selected.loanAmount,
+      investmentType: selected.investmentType,
+      ownership: selected.ownership,
+      trustName: selected.trustName || "",
     }));
     toast.success(`Linked ${selected.label}`);
   };
@@ -351,8 +365,9 @@ const CashflowTracker = () => {
       loanBalance: propertyDetails.loanAmount || 0,
       earmarked: false,
       sellInYears: 0,
-      ownership: "personal",
-      investmentType: "house",
+      ownership: propertyDetails.ownership,
+      trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
+      investmentType: propertyDetails.investmentType,
       loan: { ...defaultLoanDetails, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
       rental: { ...defaultRentalDetails, weeklyRent: propertyDetails.weeklyRent },
       purchase: { ...defaultPurchaseDetails },
@@ -387,6 +402,9 @@ const CashflowTracker = () => {
         ...item,
         nickname: propertyDetails.nickname || item.nickname,
         address: propertyDetails.address,
+        ownership: propertyDetails.ownership,
+        trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
+        investmentType: propertyDetails.investmentType,
         loanBalance: propertyDetails.loanAmount || item.loanBalance,
         loan: { ...item.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
         rental: { ...item.rental, weeklyRent: propertyDetails.weeklyRent },
@@ -402,6 +420,9 @@ const CashflowTracker = () => {
           ...ppor,
           nickname: propertyDetails.nickname || ppor.nickname,
           address: propertyDetails.address,
+          ownership: propertyDetails.ownership,
+          trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
+          investmentType: propertyDetails.investmentType,
           loanBalance: propertyDetails.loanAmount || ppor.loanBalance,
           loan: { ...ppor.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
           rental: { ...ppor.rental, weeklyRent: propertyDetails.weeklyRent },
@@ -650,24 +671,28 @@ const CashflowTracker = () => {
           </div>
         </section>
         <section className="grid items-start gap-4 lg:grid-cols-4 xl:grid-cols-5">
-          <div className="rounded-xl border border-border bg-card p-3 shadow-sm lg:col-span-2">
-            <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <button onClick={() => openPropertyDetailsSheet("current")} className="rounded-xl border border-border bg-card p-3 text-left shadow-sm transition-all hover:border-accent/50 hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:col-span-2" aria-label="Edit property details">
+            <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={() => openPropertyDetailsSheet("current")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Link2 size={16} /> Manage property</button>
-              </div>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent"><Link2 size={14} /> Manage</span>
             </div>
             <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <button onClick={() => openPropertyDetailsSheet("current")} className="w-full text-left" aria-label="Edit property details">
-                <p className="truncate text-base font-bold text-foreground">{propertyDetails.nickname || "Property nickname"}</p>
-                <p className="mt-1 truncate text-sm text-muted-foreground">{propertyDetails.address || "No address added"}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <span className="truncate">Owner: <strong className="text-foreground">{propertyDetails.owner || "—"}</strong></span>
-                  <span className="truncate">Bank: <strong className="text-foreground">{propertyDetails.bank || "—"}</strong></span>
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                  <InvestmentTypeIcon type={propertyDetails.investmentType} size={20} />
                 </div>
-              </button>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-base font-bold text-foreground">{propertyDetails.nickname || "Property nickname"}</p>
+                  <p className="mt-1 truncate text-sm text-muted-foreground">{propertyDetails.address || "No address added"}</p>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    <span className="truncate">Type: <strong className="text-foreground">{getInvestmentTypeLabel(propertyDetails.investmentType)}</strong></span>
+                    <span className="truncate">Owner: <strong className="text-foreground">{propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}</strong></span>
+                    <span className="truncate">Bank: <strong className="text-foreground">{propertyDetails.bank || "—"}</strong></span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          </button>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
           <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
           <Metric label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
@@ -704,14 +729,33 @@ const CashflowTracker = () => {
 
               <div className="space-y-4">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Property Details</h3>
+                <PropertySheetField label="Investment Type">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {investmentTypes.map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setPropertyDetails((current) => ({ ...current, investmentType: type }))}
+                        className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border text-sm font-semibold transition-colors ${propertyDetails.investmentType === type ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground hover:border-accent/50 hover:text-foreground"}`}
+                      >
+                        <InvestmentTypeIcon type={type} size={20} />
+                        {getInvestmentTypeLabel(type)}
+                      </button>
+                    ))}
+                  </div>
+                </PropertySheetField>
+                <PropertySheetField label="Ownership Structure">
+                  <OwnershipToggle
+                    value={propertyDetails.ownership}
+                    onChange={(ownership) => setPropertyDetails((current) => ({ ...current, ownership, owner: ownership === "trust" ? current.trustName || "Trust" : "Personal" }))}
+                    trustName={propertyDetails.trustName}
+                    onTrustNameChange={(trustName) => setPropertyDetails((current) => ({ ...current, trustName, owner: trustName || "Trust" }))}
+                  />
+                </PropertySheetField>
                 <PropertySheetField label="Property Nickname">
                   <Input value={propertyDetails.nickname} onChange={(event) => setPropertyDetails((current) => ({ ...current, nickname: event.target.value }))} placeholder="e.g. Brisbane townhouse" className="h-10" />
                 </PropertySheetField>
                 <PropertySheetField label="Full Address (Optional)">
                   <AddressSearchInput value={propertyDetails.address} onChange={(value) => setPropertyDetails((current) => ({ ...current, address: value }))} placeholder="Search address or enter manually" className="h-10" />
-                </PropertySheetField>
-                <PropertySheetField label="Ownership / Entity">
-                  <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} placeholder="Personal, trust, SMSF" className="h-10" />
                 </PropertySheetField>
               </div>
               <div className="space-y-4 border-t border-border pt-6">
