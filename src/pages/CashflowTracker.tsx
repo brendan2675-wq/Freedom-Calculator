@@ -177,6 +177,7 @@ const CashflowTracker = () => {
   const [portfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
+  const [showLinkExisting, setShowLinkExisting] = useState(false);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
@@ -189,7 +190,8 @@ const CashflowTracker = () => {
     const fallback = normalizeCashflowState({
       propertyDetails: {
         ...property,
-        address: ppor?.nickname || active.state.pporSuburb || "",
+          nickname: ppor?.nickname || active.state.pporSuburb || "",
+          address: ppor?.address || "",
         owner: ppor?.ownership === "trust" ? ppor.trustName || "Trust" : "Personal",
         bank: ppor?.loan?.lenderName || "",
         weeklyRent: ppor?.rental?.weeklyRent || 0,
@@ -324,7 +326,7 @@ const CashflowTracker = () => {
     }
     setPropertyDetails((current) => ({
       ...current,
-      address: selected.label,
+      nickname: selected.label,
       owner: selected.owner,
       bank: selected.bank,
       weeklyRent: selected.weeklyRent,
@@ -332,6 +334,34 @@ const CashflowTracker = () => {
       loanAmount: selected.loanAmount,
     }));
     toast.success(`Linked ${selected.label}`);
+  };
+
+  const addNewPortfolioProperty = () => {
+    const propertyId = crypto.randomUUID();
+    const newProperty: ExistingProperty = {
+      id: propertyId,
+      nickname: propertyDetails.nickname || "New property",
+      address: propertyDetails.address,
+      estimatedValue: 0,
+      loanBalance: propertyDetails.loanAmount || 0,
+      earmarked: false,
+      sellInYears: 0,
+      ownership: "personal",
+      investmentType: "house",
+      loan: { ...defaultLoanDetails, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
+      rental: { ...defaultRentalDetails, weeklyRent: propertyDetails.weeklyRent },
+      purchase: { ...defaultPurchaseDetails },
+    };
+    const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
+    localStorage.setItem("portfolio-properties", JSON.stringify([...existing, newProperty]));
+    const scenario = getActiveScenario();
+    if (scenario) {
+      const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId, propertyType: "investment" as CashflowPropertyType, financialYear };
+      setActiveCashflowContext(nextContext);
+      setCashflowContextState(nextContext);
+    }
+    setPropertyDetails((current) => ({ ...current, nickname: newProperty.nickname }));
+    toast.success("Added new portfolio property");
   };
 
   const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
@@ -357,7 +387,7 @@ const CashflowTracker = () => {
 
   const updateActiveCashflowScenario = () => {
     if (cashflowContext) {
-      const saved = saveCashflowForProperty({ ...cashflowContext, financialYear }, currentCashflowState(), `${propertyDetails.address || "Property"} ${financialYear}`);
+      const saved = saveCashflowForProperty({ ...cashflowContext, financialYear }, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${financialYear}`);
       setCashflowContextState(saved);
       toast.success(`Saved ${financialYear} cashflow`);
       return;
@@ -377,7 +407,7 @@ const CashflowTracker = () => {
     const nextYear = window.prompt("Financial year", financialYear === "FY2027" ? "FY2028" : financialYear);
     if (!nextYear) return;
     const nextContext = { ...cashflowContext, financialYear: nextYear };
-    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.address || "Property"} ${nextYear}`);
+    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${nextYear}`);
     setFinancialYear(nextYear);
     setCashflowContextState(saved);
     toast.success(`Saved as ${nextYear}`);
