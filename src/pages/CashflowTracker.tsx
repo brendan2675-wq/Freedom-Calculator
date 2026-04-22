@@ -303,6 +303,35 @@ const CashflowTracker = () => {
         </section>
 
         <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-foreground">Save cashflow scenario</h2>
+              <p className="text-sm text-muted-foreground">Save the current property details, assumptions, council rates and worksheet values locally.</p>
+            </div>
+            <div className="flex w-full flex-col gap-2 md:w-auto md:min-w-96">
+              <div className="flex gap-2">
+                <Input value={saveName} onChange={(event) => setSaveName(event.target.value)} onKeyDown={(event) => event.key === "Enter" && saveCashflowScenario()} placeholder="Scenario name..." className="h-11" />
+                <button onClick={saveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save</button>
+                <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><RefreshCw size={16} /> Update</button>
+              </div>
+              {savedScenarios.length > 0 ? (
+                <div className="max-h-44 space-y-2 overflow-y-auto scrollbar-thin">
+                  {savedScenarios.map((scenario) => (
+                    <div key={scenario.id} className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${scenario.id === activeScenarioId ? "border-accent bg-accent/5" : "border-border bg-muted/40"}`}>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-foreground">{scenario.name}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(scenario.savedAt).toLocaleDateString()} {new Date(scenario.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                      </div>
+                      <button onClick={() => loadCashflowScenario(scenario)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-card"><Download size={16} /> Load</button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
           <div className="mb-4">
             <h2 className="text-xl font-bold text-foreground">Council rates</h2>
             <p className="text-sm text-muted-foreground">Enter an annual amount to spread monthly, or a quarterly amount to post every three months.</p>
