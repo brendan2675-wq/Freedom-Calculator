@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import AddressSearchInput from "@/components/AddressSearchInput";
 import type { ExistingProperty } from "@/types/property";
@@ -175,10 +176,12 @@ const CashflowTracker = () => {
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
-  const [portfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
+  const [portfolioProperties, setPortfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
   const [showLinkExisting, setShowLinkExisting] = useState(false);
+  const [propertySheetOpen, setPropertySheetOpen] = useState(false);
+  const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
@@ -356,6 +359,7 @@ const CashflowTracker = () => {
     };
     const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
     localStorage.setItem("portfolio-properties", JSON.stringify([...existing, newProperty]));
+    setPortfolioProperties(getPortfolioPropertyOptions());
     const scenario = getActiveScenario();
     if (scenario) {
       const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId, propertyType: "investment" as CashflowPropertyType, financialYear };
@@ -364,6 +368,51 @@ const CashflowTracker = () => {
     }
     setPropertyDetails((current) => ({ ...current, nickname: newProperty.nickname }));
     toast.success("Added new portfolio property");
+  };
+
+  const openPropertyDetailsSheet = (mode: "current" | "new") => {
+    setPropertySheetMode(mode);
+    if (mode === "new") {
+      setPropertyDetails((current) => ({ ...property, ...current, nickname: current.nickname || "New property" }));
+    }
+    setPropertySheetOpen(true);
+  };
+
+  const savePropertyDetailsFromSheet = () => {
+    const linkedId = cashflowContext?.propertyId;
+    const isLinkedPortfolioProperty = linkedId && linkedId !== "ppor" && propertySheetMode === "current";
+    if (isLinkedPortfolioProperty) {
+      const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
+      const updated = existing.map((item) => item.id === linkedId ? {
+        ...item,
+        nickname: propertyDetails.nickname || item.nickname,
+        address: propertyDetails.address,
+        loanBalance: propertyDetails.loanAmount || item.loanBalance,
+        loan: { ...item.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
+        rental: { ...item.rental, weeklyRent: propertyDetails.weeklyRent },
+      } : item);
+      localStorage.setItem("portfolio-properties", JSON.stringify(updated));
+      setPortfolioProperties(getPortfolioPropertyOptions());
+      toast.success("Property details updated");
+    } else if (linkedId === "ppor" && propertySheetMode === "current") {
+      const stored = localStorage.getItem("portfolio-ppor");
+      if (stored) {
+        const ppor = JSON.parse(stored) as ExistingProperty;
+        localStorage.setItem("portfolio-ppor", JSON.stringify({
+          ...ppor,
+          nickname: propertyDetails.nickname || ppor.nickname,
+          address: propertyDetails.address,
+          loanBalance: propertyDetails.loanAmount || ppor.loanBalance,
+          loan: { ...ppor.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
+          rental: { ...ppor.rental, weeklyRent: propertyDetails.weeklyRent },
+        }));
+        setPortfolioProperties(getPortfolioPropertyOptions());
+        toast.success("Property details updated");
+      }
+    } else {
+      addNewPortfolioProperty();
+    }
+    setPropertySheetOpen(false);
   };
 
   const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
@@ -606,7 +655,7 @@ const CashflowTracker = () => {
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
               <div className="flex flex-wrap gap-2">
                 <button onClick={() => setShowLinkExisting((current) => !current)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Link2 size={16} /> Link existing property</button>
-                <button onClick={addNewPortfolioProperty} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add new property</button>
+                <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add new property</button>
               </div>
             </div>
             {showLinkExisting && (
@@ -615,22 +664,67 @@ const CashflowTracker = () => {
                 {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
               </select>
             )}
-            <div className="grid gap-1.5 xl:grid-cols-[1.15fr_1fr]">
-              <div className="space-y-1.5">
-                <Input value={propertyDetails.nickname} onChange={(event) => setPropertyDetails((current) => ({ ...current, nickname: event.target.value }))} placeholder="Property nickname" className="h-9 text-sm font-bold" />
-                <AddressSearchInput value={propertyDetails.address} onChange={(value) => setPropertyDetails((current) => ({ ...current, address: value }))} placeholder="Optional address search" className="h-9 text-sm font-semibold" />
-                <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="h-9 text-sm font-semibold" />
-              </div>
-              <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-1">
-                <EditableInfo icon={Building2} label="Manager" value={propertyDetails.manager} onChange={(value) => setPropertyDetails((current) => ({ ...current, manager: value }))} />
-                <EditableInfo icon={Banknote} label="Bank" value={propertyDetails.bank} onChange={(value) => setPropertyDetails((current) => ({ ...current, bank: value }))} />
-              </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <button onClick={() => openPropertyDetailsSheet("current")} className="w-full text-left" aria-label="Edit property details">
+                <p className="truncate text-base font-bold text-foreground">{propertyDetails.nickname || "Property nickname"}</p>
+                <p className="mt-1 truncate text-sm text-muted-foreground">{propertyDetails.address || "No address added"}</p>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <span className="truncate">Owner: <strong className="text-foreground">{propertyDetails.owner || "—"}</strong></span>
+                  <span className="truncate">Bank: <strong className="text-foreground">{propertyDetails.bank || "—"}</strong></span>
+                </div>
+              </button>
             </div>
           </div>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
           <Metric label="Total expenses" value={formatCurrency(totals.expenses)} icon={TrendingDown} />
           <Metric label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} icon={CalendarDays} highlight={totals.holdingCost > 0} />
         </section>
+
+        <Sheet open={propertySheetOpen} onOpenChange={setPropertySheetOpen}>
+          <SheetContent className="w-full overflow-y-auto bg-card sm:max-w-lg">
+            <SheetHeader className="border-b border-border pb-4">
+              <div className="flex items-center gap-2">
+                <Home size={20} className="text-accent" />
+                <SheetTitle>{propertySheetMode === "new" ? "Add property" : "Property details"}</SheetTitle>
+              </div>
+            </SheetHeader>
+            <div className="space-y-6 pt-6">
+              <div className="space-y-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Property Details</h3>
+                <PropertySheetField label="Property Nickname">
+                  <Input value={propertyDetails.nickname} onChange={(event) => setPropertyDetails((current) => ({ ...current, nickname: event.target.value }))} placeholder="e.g. Brisbane townhouse" className="h-10" />
+                </PropertySheetField>
+                <PropertySheetField label="Full Address (Optional)">
+                  <AddressSearchInput value={propertyDetails.address} onChange={(value) => setPropertyDetails((current) => ({ ...current, address: value }))} placeholder="Search address or enter manually" className="h-10" />
+                </PropertySheetField>
+                <PropertySheetField label="Ownership / Entity">
+                  <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} placeholder="Personal, trust, SMSF" className="h-10" />
+                </PropertySheetField>
+              </div>
+              <div className="space-y-4 border-t border-border pt-6">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Loan & Rental Details</h3>
+                <PropertySheetField label="Total Loan Amount">
+                  <Input type="number" min="0" value={propertyDetails.loanAmount || ""} onChange={(event) => updateLoanAmount(Number(event.target.value) || 0)} className="h-10" />
+                </PropertySheetField>
+                <PropertySheetField label="Interest Rate">
+                  <Input type="number" min="0" step="0.01" value={propertyDetails.interestRate || ""} onChange={(event) => updateInterestRate(Number(event.target.value) || 0)} className="h-10" />
+                </PropertySheetField>
+                <PropertySheetField label="Lender / Bank">
+                  <Input value={propertyDetails.bank} onChange={(event) => setPropertyDetails((current) => ({ ...current, bank: event.target.value }))} className="h-10" />
+                </PropertySheetField>
+                <PropertySheetField label="Weekly Rent">
+                  <Input type="number" min="0" value={propertyDetails.weeklyRent || ""} onChange={(event) => updatePropertyWeeklyRent(Number(event.target.value) || 0)} className="h-10" />
+                </PropertySheetField>
+                <PropertySheetField label="Property Manager">
+                  <Input value={propertyDetails.manager} onChange={(event) => setPropertyDetails((current) => ({ ...current, manager: event.target.value }))} className="h-10" />
+                </PropertySheetField>
+              </div>
+              <button onClick={savePropertyDetailsFromSheet} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90">
+                <Save size={16} /> {propertySheetMode === "new" ? "Add and link property" : "Save property details"}
+              </button>
+            </div>
+          </SheetContent>
+        </Sheet>
 
         <section className="mt-4 grid items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
           <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
@@ -701,6 +795,13 @@ const CashflowTracker = () => {
 };
 
 type ExpenseFrequency = "annual" | "quarterly" | "monthly";
+
+const PropertySheetField = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div>
+    <label className="mb-1 block text-xs font-medium text-muted-foreground">{label}</label>
+    {children}
+  </div>
+);
 
 const ExpenseControl = ({
   label,
