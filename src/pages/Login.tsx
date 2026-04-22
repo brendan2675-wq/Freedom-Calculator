@@ -4,7 +4,9 @@ import { Lock, Mail, Shield, User, Briefcase, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { setSession, landingFor, type Role } from "@/lib/auth";
+import { setSession, landingFor, type AuthUser, type Role } from "@/lib/auth";
+import { listClients } from "@/lib/clients";
+import { getScenario } from "@/lib/scenarioManager";
 
 const ROLE_OPTIONS: { value: Role; label: string; desc: string; icon: typeof User }[] = [
   { value: "client", label: "Client", desc: "Manage your own portfolio & goals", icon: User },
@@ -16,6 +18,26 @@ const DEFAULT_NAMES: Record<Role, string> = {
   client: "Sam Client",
   adviser: "Alex Adviser",
   agent: "Jordan Agent",
+};
+
+const clearStaleRoleContext = (user: AuthUser) => {
+  if (user.role !== "adviser") localStorage.removeItem("adviser-acting-as");
+  const activeId = localStorage.getItem("active-scenario-id");
+  if (!activeId) return;
+  const scenario = getScenario(activeId);
+  const client = scenario?.clientId ? listClients().find((c) => c.id === scenario.clientId) : undefined;
+  const canUseActiveScenario = user.role === "adviser" ||
+    (user.role === "client" && scenario && (
+      scenario.ownerId === user.id ||
+      !scenario.ownerId && !scenario.clientId ||
+      client?.email?.toLowerCase() === user.email.toLowerCase() ||
+      client?.name === user.name
+    ));
+  if (!canUseActiveScenario) {
+    localStorage.removeItem("active-scenario-id");
+    localStorage.removeItem("active-scenario-loaded-version");
+    localStorage.removeItem("cashflow-active-context");
+  }
 };
 
 const Login = () => {
@@ -35,12 +57,14 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
-      setSession({
+      const nextUser = {
         id: `${role}-${email.toLowerCase()}`,
         name: name.trim() || DEFAULT_NAMES[role],
         email: email.trim(),
         role,
-      });
+      };
+      clearStaleRoleContext(nextUser);
+      setSession(nextUser);
       navigate(landingFor(role), { replace: true });
     }, 500);
   };

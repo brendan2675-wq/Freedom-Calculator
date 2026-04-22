@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Eye, Save, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { getActiveScenario, saveActiveScenarioFromWorkingState } from "@/lib/scenarioManager";
-import { getRole } from "@/lib/auth";
+import { getRole, getUser } from "@/lib/auth";
 import { getClient } from "@/lib/clients";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +19,7 @@ const formatSaved = (iso?: string) => {
 const ScenarioContextBanner = ({ readOnly = false, compact = false }: ScenarioContextBannerProps) => {
   const [scenario, setScenario] = useState(() => getActiveScenario());
   const role = getRole();
+  const user = getUser();
 
   useEffect(() => {
     const sync = () => setScenario(getActiveScenario());
@@ -33,6 +34,8 @@ const ScenarioContextBanner = ({ readOnly = false, compact = false }: ScenarioCo
   const clientName = useMemo(() => scenario?.clientId ? getClient(scenario.clientId)?.name : scenario?.state.clientName, [scenario]);
 
   if (!scenario) return null;
+  const ownsOrMatchesClient = role === "adviser" || role === "agent" || !scenario.clientId || !clientName || clientName === user?.name;
+  if (role === "client" && !ownsOrMatchesClient && scenario.ownerId !== user?.id) return null;
 
   const handleSave = () => {
     if (readOnly || role === "agent") return;
@@ -49,7 +52,7 @@ const ScenarioContextBanner = ({ readOnly = false, compact = false }: ScenarioCo
         <div className="min-w-0">
           <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {readOnly || role === "agent" ? <Eye size={14} className="text-accent" /> : <ShieldCheck size={14} className="text-accent" />}
-            {readOnly || role === "agent" ? "Read-only scenario" : "You are editing"}
+            {readOnly || role === "agent" ? "Read-only scenario" : role === "adviser" ? "Adviser editing" : "Current scenario"}
           </div>
           <h2 className="truncate text-lg font-bold text-foreground">{scenario.name}</h2>
           <p className="text-sm text-muted-foreground">
