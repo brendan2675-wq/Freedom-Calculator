@@ -3,6 +3,7 @@ import { Home, Info, Plus, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ExistingProperty, LoanSplit } from "@/types/property";
+import AddressSearchInput from "@/components/AddressSearchInput";
 
 function DecimalInput({ value, onChange, className }: { value: number; onChange: (v: number) => void; className?: string }) {
   const [raw, setRaw] = useState(value ? String(value) : "");
@@ -128,13 +129,25 @@ const PporDetailSheet = ({
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Property Details</h3>
             <div className="space-y-4">
               <div>
-                <label className="text-xs text-muted-foreground font-medium block mb-1">Suburb</label>
+                <label className="text-xs text-muted-foreground font-medium block mb-1">Property Nickname</label>
                 <input
                   type="text"
-                  value={suburb}
-                  onChange={(e) => setSuburb(e.target.value)}
-                  placeholder="e.g. Paddington"
+                  value={ppor.nickname || suburb}
+                  onChange={(e) => {
+                    setSuburb(e.target.value);
+                    setPpor({ ...ppor, nickname: e.target.value });
+                  }}
+                  placeholder="e.g. Family home"
                   className="w-full py-2 px-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground font-medium block mb-1">Full Address (Optional)</label>
+                <AddressSearchInput
+                  value={ppor.address || ""}
+                  onChange={(value) => setPpor({ ...ppor, address: value })}
+                  placeholder="Search address or enter manually"
+                  className="h-10 text-sm"
                 />
               </div>
             </div>
