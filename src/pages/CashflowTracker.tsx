@@ -1,33 +1,44 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Banknote, Building2, CalendarDays, ExternalLink, Home, Percent, TrendingDown } from "lucide-react";
+import { ArrowLeft, Banknote, Building2, CalendarDays, ExternalLink, Home, Percent, Plus, Trash2, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
 import UserMenu from "@/components/UserMenu";
+import { Input } from "@/components/ui/input";
 
 const months = ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"];
 
-const rows = [
-  { label: "Rental income", type: "income", values: [429, 2700, 2700, 2700, 1200, 2400, 2722, 2400, 0, 0, 0, 0] },
-  { label: "Advertising for tenants", type: "expense", values: Array(12).fill(0) },
-  { label: "Bank fees", type: "expense", values: Array(12).fill(0) },
-  { label: "Body corporate fees", type: "expense", values: Array(12).fill(0) },
-  { label: "Borrowing expenses", type: "expense", values: Array(12).fill(0) },
-  { label: "Cleaning", type: "expense", values: Array(12).fill(0) },
-  { label: "Council rates", type: "expense", values: Array(12).fill(0) },
-  { label: "Depreciation on plant", type: "expense", values: Array(12).fill(0) },
-  { label: "Gardening / lawn mowing", type: "expense", values: Array(12).fill(0) },
-  { label: "Insurance", type: "expense", values: [189, 189, 189, 189, 189, 189, 189, 189, 0, 0, 0, 0] },
-  { label: "Interest on Bluebay loan", type: "expense", values: [0, 2722, 2688, 2533, 2616, 2529, 3002, 0, 0, 0, 0, 0] },
-  { label: "Land tax", type: "expense", values: Array(12).fill(0) },
-  { label: "Legal fees", type: "expense", values: Array(12).fill(0) },
-  { label: "Pest control", type: "expense", values: Array(12).fill(0) },
-  { label: "Property agent fees / commission", type: "expense", values: [429, 282, 282, 282, 125, 251, 251, 251, 0, 0, 0, 0] },
-  { label: "Repairs and maintenance", type: "expense", values: [0, 0, 0, 0, 0, 275, 0, 2750, 0, 0, 0, 0] },
-  { label: "Capital works deductions", type: "expense", values: Array(12).fill(0) },
-  { label: "Stationery, telephone and postage", type: "expense", values: Array(12).fill(0) },
-  { label: "Travel expenses", type: "expense", values: Array(12).fill(0) },
-  { label: "Water charges", type: "expense", values: [0, 0, 285, 0, 0, 856, 0, 0, 0, 0, 0, 0] },
-  { label: "Sundry expenses", type: "expense", values: Array(12).fill(0) },
+type CashflowRow = {
+  id: string;
+  label: string;
+  type: "income" | "expense";
+  values: number[];
+  weeklyRent?: number;
+};
+
+const monthlyRentFromWeekly = (weeklyRent: number) => Math.round((weeklyRent * 52) / 12);
+
+const initialRows: CashflowRow[] = [
+  { id: "rental-income", label: "Rental income", type: "income", weeklyRent: 600, values: Array(12).fill(monthlyRentFromWeekly(600)) },
+  { id: "advertising", label: "Advertising for tenants", type: "expense", values: Array(12).fill(0) },
+  { id: "bank-fees", label: "Bank fees", type: "expense", values: Array(12).fill(0) },
+  { id: "body-corporate", label: "Body corporate fees", type: "expense", values: Array(12).fill(0) },
+  { id: "borrowing", label: "Borrowing expenses", type: "expense", values: Array(12).fill(0) },
+  { id: "cleaning", label: "Cleaning", type: "expense", values: Array(12).fill(0) },
+  { id: "council", label: "Council rates", type: "expense", values: Array(12).fill(0) },
+  { id: "depreciation", label: "Depreciation on plant", type: "expense", values: Array(12).fill(0) },
+  { id: "gardening", label: "Gardening / lawn mowing", type: "expense", values: Array(12).fill(0) },
+  { id: "insurance", label: "Insurance", type: "expense", values: [189, 189, 189, 189, 189, 189, 189, 189, 0, 0, 0, 0] },
+  { id: "interest", label: "Interest on Bluebay loan", type: "expense", values: [0, 2722, 2688, 2533, 2616, 2529, 3002, 0, 0, 0, 0, 0] },
+  { id: "land-tax", label: "Land tax", type: "expense", values: Array(12).fill(0) },
+  { id: "legal", label: "Legal fees", type: "expense", values: Array(12).fill(0) },
+  { id: "pest", label: "Pest control", type: "expense", values: Array(12).fill(0) },
+  { id: "agent-fees", label: "Property agent fees / commission", type: "expense", values: [429, 282, 282, 282, 125, 251, 251, 251, 0, 0, 0, 0] },
+  { id: "repairs", label: "Repairs and maintenance", type: "expense", values: [0, 0, 0, 0, 0, 275, 0, 2750, 0, 0, 0, 0] },
+  { id: "capital-works", label: "Capital works deductions", type: "expense", values: Array(12).fill(0) },
+  { id: "stationery", label: "Stationery, telephone and postage", type: "expense", values: Array(12).fill(0) },
+  { id: "travel", label: "Travel expenses", type: "expense", values: Array(12).fill(0) },
+  { id: "water", label: "Water charges", type: "expense", values: [0, 0, 285, 0, 0, 856, 0, 0, 0, 0, 0, 0] },
+  { id: "sundry", label: "Sundry expenses", type: "expense", values: Array(12).fill(0) },
 ];
 
 const property = {
@@ -46,6 +57,7 @@ const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${
 const CashflowTracker = () => {
   const navigate = useNavigate();
   const [activeMonth, setActiveMonth] = useState(7);
+  const [rows, setRows] = useState<CashflowRow[]>(initialRows);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
@@ -53,7 +65,32 @@ const CashflowTracker = () => {
     const incomeByMonth = rows.find((r) => r.type === "income")?.values || [];
     const expenses = expensesByMonth.reduce((a, b) => a + b, 0);
     return { income, expenses, net: income - expenses, incomeByMonth, expensesByMonth };
-  }, []);
+  }, [rows]);
+
+  const updateRow = (rowId: string, updates: Partial<CashflowRow>) => {
+    setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...updates } : row)));
+  };
+
+  const updateValue = (rowId: string, monthIndex: number, value: number) => {
+    setRows((current) => current.map((row) => {
+      if (row.id !== rowId) return row;
+      const nextValues = [...row.values];
+      nextValues[monthIndex] = value;
+      return { ...row, values: nextValues };
+    }));
+  };
+
+  const updateWeeklyRent = (rowId: string, weeklyRent: number) => {
+    updateRow(rowId, { weeklyRent, values: Array(12).fill(monthlyRentFromWeekly(weeklyRent)) });
+  };
+
+  const addRow = (type: CashflowRow["type"]) => {
+    setRows((current) => [...current, { id: `${type}-${Date.now()}`, label: type === "income" ? "New income" : "New expense", type, values: Array(12).fill(0), ...(type === "income" ? { weeklyRent: 0 } : {}) }]);
+  };
+
+  const removeRow = (rowId: string) => {
+    setRows((current) => current.filter((row) => row.id !== rowId));
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,15 +139,20 @@ const CashflowTracker = () => {
           <div className="flex flex-col gap-2 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-xl font-bold text-foreground">Monthly cashflow worksheet</h2>
-              <p className="text-sm text-muted-foreground">Tap a month to highlight the active reporting column.</p>
+              <p className="text-sm text-muted-foreground">Edit weekly rents, row labels and monthly values directly in the worksheet.</p>
             </div>
-            <div className="text-sm font-semibold text-accent">Net YTD {formatCurrency(totals.net)}</div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button onClick={() => addRow("income")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Income row</button>
+              <button onClick={() => addRow("expense")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Expense row</button>
+              <div className="text-sm font-semibold text-accent">Net YTD {formatCurrency(totals.net)}</div>
+            </div>
           </div>
           <div className="overflow-x-auto scrollbar-thin">
-            <table className="w-full min-w-[1180px] border-collapse text-sm">
+            <table className="w-full min-w-[1400px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                  <th className="sticky left-0 z-10 bg-muted px-4 py-3 text-left font-bold text-foreground">Month</th>
+                   <th className="sticky left-0 z-10 bg-muted px-4 py-3 text-left font-bold text-foreground">Cashflow item</th>
+                  <th className="bg-muted px-3 py-3 text-right font-bold text-foreground">Weekly</th>
                   {months.map((month, i) => (
                     <th key={month} className="px-3 py-3 text-right">
                       <button onClick={() => setActiveMonth(i)} className={`min-h-11 rounded-lg px-3 text-sm font-bold transition-colors ${activeMonth === i ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent/10"}`}>
@@ -119,16 +161,27 @@ const CashflowTracker = () => {
                     </th>
                   ))}
                   <th className="px-4 py-3 text-right font-bold text-foreground">Total</th>
+                  <th className="px-3 py-3 text-right font-bold text-foreground">Remove</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.label} className="border-b border-border/70 hover:bg-muted/30">
-                    <td className="sticky left-0 z-10 bg-card px-4 py-3 font-medium text-foreground">{row.label}</td>
+                    <td className="sticky left-0 z-10 bg-card px-4 py-3 font-medium text-foreground">
+                      <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-9 min-w-56 bg-card font-semibold" />
+                    </td>
+                    <td className="px-3 py-3 text-right">
+                      {row.type === "income" ? <Input type="number" min="0" value={row.weeklyRent ?? 0} onChange={(event) => updateWeeklyRent(row.id, Number(event.target.value) || 0)} className="ml-auto h-9 w-24 text-right tabular-nums" /> : <span className="text-muted-foreground">—</span>}
+                    </td>
                     {row.values.map((value, i) => (
-                      <td key={i} className={`px-3 py-3 text-right tabular-nums ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>{value ? formatCurrency(value) : ""}</td>
+                      <td key={i} className={`px-3 py-3 text-right tabular-nums ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>
+                        <Input type="number" min="0" value={value || ""} onChange={(event) => updateValue(row.id, i, Number(event.target.value) || 0)} className="ml-auto h-9 w-24 text-right tabular-nums" />
+                      </td>
                     ))}
                     <td className="px-4 py-3 text-right font-bold tabular-nums text-foreground">{formatCurrency(row.values.reduce((a, b) => a + b, 0))}</td>
+                    <td className="px-3 py-3 text-right">
+                      <button onClick={() => removeRow(row.id)} className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" aria-label={`Remove ${row.label}`}><Trash2 size={16} /></button>
+                    </td>
                   </tr>
                 ))}
                 <SummaryRow label="Total Expenses" values={totals.expensesByMonth} total={totals.expenses} />
@@ -160,8 +213,10 @@ const Metric = ({ icon: Icon, label, value, highlight = false }: { icon: typeof 
 const SummaryRow = ({ label, values, total }: { label: string; values: number[]; total: number }) => (
   <tr className="border-t-2 border-border bg-accent/10 font-bold">
     <td className="sticky left-0 z-10 bg-accent/10 px-4 py-3 text-foreground">{label}</td>
+    <td className="px-3 py-3 text-right text-muted-foreground">—</td>
     {values.map((value, i) => <td key={i} className="px-3 py-3 text-right tabular-nums text-foreground">{formatCurrency(value)}</td>)}
     <td className="px-4 py-3 text-right tabular-nums text-foreground">{formatCurrency(total)}</td>
+    <td className="px-3 py-3" />
   </tr>
 );
 
