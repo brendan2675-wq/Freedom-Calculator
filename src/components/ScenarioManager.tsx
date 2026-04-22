@@ -58,7 +58,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
       if (updated) {
         refresh();
         setActiveScenarioId(existing.id);
-        localStorage.setItem("active-scenario-id", existing.id);
+        setActiveScenario(existing.id);
         setSaveName("");
         toast.success(`Updated "${name}"`);
         return;
@@ -74,7 +74,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
     localStorage.removeItem("new-scenario-type");
     setScenarios([...scenarios, saved]);
     setActiveScenarioId(saved.id);
-    localStorage.setItem("active-scenario-id", saved.id);
+    setActiveScenario(saved.id);
     setSaveName("");
     toast.success(`Saved "${name}"`);
     if (isAdviser) {
@@ -95,7 +95,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
   const handleLoad = (scenario: SavedScenario) => {
     loadState(scenario.state);
     setActiveScenarioId(scenario.id);
-    localStorage.setItem("active-scenario-id", scenario.id);
+    setActiveScenario(scenario.id);
     setOpen(false);
     toast.success(`Loaded "${scenario.name}"`);
   };
