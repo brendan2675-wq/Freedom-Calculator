@@ -179,7 +179,6 @@ const CashflowTracker = () => {
   const [portfolioProperties, setPortfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
-  const [showLinkExisting, setShowLinkExisting] = useState(false);
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
@@ -309,6 +308,7 @@ const CashflowTracker = () => {
   const linkPortfolioProperty = (propertyId: string) => {
     const selected = portfolioProperties.find((item) => item.id === propertyId);
     if (!selected) return;
+    setPropertySheetMode("current");
     const scenario = getActiveScenario();
     if (scenario) {
       const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
@@ -373,7 +373,7 @@ const CashflowTracker = () => {
   const openPropertyDetailsSheet = (mode: "current" | "new") => {
     setPropertySheetMode(mode);
     if (mode === "new") {
-      setPropertyDetails((current) => ({ ...property, ...current, nickname: current.nickname || "New property" }));
+      setPropertyDetails({ ...property, nickname: "New property" });
     }
     setPropertySheetOpen(true);
   };
@@ -654,16 +654,9 @@ const CashflowTracker = () => {
             <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
               <div className="flex flex-wrap gap-2">
-                <button onClick={() => setShowLinkExisting((current) => !current)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Link2 size={16} /> Link existing property</button>
-                <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add new property</button>
+                <button onClick={() => openPropertyDetailsSheet("current")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Link2 size={16} /> Manage property</button>
               </div>
             </div>
-            {showLinkExisting && (
-              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="mb-3 h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                <option value="" disabled>Select existing portfolio property</option>
-                {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-              </select>
-            )}
             <div className="rounded-lg border border-border bg-muted/30 p-3">
               <button onClick={() => openPropertyDetailsSheet("current")} className="w-full text-left" aria-label="Edit property details">
                 <p className="truncate text-base font-bold text-foreground">{propertyDetails.nickname || "Property nickname"}</p>
@@ -689,6 +682,26 @@ const CashflowTracker = () => {
               </div>
             </SheetHeader>
             <div className="space-y-6 pt-6">
+              <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-muted/30 p-1">
+                <button onClick={() => setPropertySheetMode("current")} className={`min-h-11 rounded-md px-3 text-sm font-semibold transition-colors ${propertySheetMode === "current" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60"}`}>
+                  Use existing
+                </button>
+                <button onClick={() => openPropertyDetailsSheet("new")} className={`min-h-11 rounded-md px-3 text-sm font-semibold transition-colors ${propertySheetMode === "new" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60"}`}>
+                  Add new
+                </button>
+              </div>
+
+              {propertySheetMode === "current" && (
+                <div className="space-y-2 rounded-lg border border-border p-3">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Link Existing Property</label>
+                  <select onChange={(event) => linkPortfolioProperty(event.target.value)} value={cashflowContext?.propertyId || ""} className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                    <option value="" disabled>Select existing portfolio property</option>
+                    {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                  </select>
+                  <p className="text-xs text-muted-foreground">Shared fields below are prefilled from the selected property and can be reviewed before saving.</p>
+                </div>
+              )}
+
               <div className="space-y-4">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Property Details</h3>
                 <PropertySheetField label="Property Nickname">
