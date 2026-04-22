@@ -24,6 +24,7 @@ import { setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashf
 import ShareWithAgentsDialog from "@/components/ShareWithAgentsDialog";
 import NewScenarioDialog from "@/components/NewScenarioDialog";
 import { setActingAs } from "@/components/AdviserActingBanner";
+import { clearActiveCashflowContext } from "@/lib/cashflowManager";
 import { seedDemoData, clearDemoData } from "@/lib/demoData";
 import { toast } from "sonner";
 
@@ -114,6 +115,9 @@ const AdviserHome = () => {
   const openScenario = (s: SavedScenario) => {
     applyScenarioToStorage(s.state);
     setActiveScenario(s.id);
+    clearActiveCashflowContext();
+    localStorage.removeItem("cashflow-working-state");
+    localStorage.removeItem("active-cashflow-scenario-id");
     const client = clients.find((c) => c.id === s.clientId);
     setActingAs({
       clientId: s.clientId || "",
