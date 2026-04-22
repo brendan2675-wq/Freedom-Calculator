@@ -77,7 +77,7 @@ type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "month
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
-type PortfolioPropertyOption = { id: string; label: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType };
+type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -105,6 +105,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
     return [ppor, ...properties].filter((item): item is ExistingProperty => Boolean(item)).map((item) => ({
       id: item.id,
       label: item.nickname || "Portfolio property",
+      address: item.address || "",
       owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
       bank: item.loan?.lenderName || "",
       weeklyRent: item.rental?.weeklyRent || 0,
@@ -327,6 +328,7 @@ const CashflowTracker = () => {
     setPropertyDetails((current) => ({
       ...current,
       nickname: selected.label,
+      address: selected.address,
       owner: selected.owner,
       bank: selected.bank,
       weeklyRent: selected.weeklyRent,
