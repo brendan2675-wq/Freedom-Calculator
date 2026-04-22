@@ -6,6 +6,7 @@ import AdviserActingBanner from "@/components/AdviserActingBanner";
 import UserMenu from "@/components/UserMenu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import type { ExistingProperty } from "@/types/property";
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
 
@@ -71,6 +72,7 @@ type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "month
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
+type PortfolioPropertyOption = { id: string; label: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -84,6 +86,26 @@ const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   try {
     const stored = localStorage.getItem(CASHFLOW_SCENARIOS_KEY);
     return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
+  try {
+    const storedPpor = localStorage.getItem("portfolio-ppor");
+    const storedProperties = localStorage.getItem("portfolio-properties");
+    const ppor = storedPpor ? JSON.parse(storedPpor) as ExistingProperty : null;
+    const properties = storedProperties ? JSON.parse(storedProperties) as ExistingProperty[] : [];
+    return [ppor, ...properties].filter(Boolean).map((item) => ({
+      id: item.id,
+      label: item.nickname || "Portfolio property",
+      owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
+      bank: item.loan?.lenderName || "",
+      weeklyRent: item.rental?.weeklyRent || 0,
+      interestRate: item.loan?.interestRate || 0,
+      loanAmount: item.loanSplits?.length ? item.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : item.loanBalance || 0,
+    }));
   } catch {
     return [];
   }
