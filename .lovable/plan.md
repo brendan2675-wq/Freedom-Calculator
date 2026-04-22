@@ -1,60 +1,55 @@
 
-Implement the Cashflow property details tile simplification, excluding bank/lender from the tile because that belongs in the interest rate details tile.
+Implement the Cashflow worksheet responsive table changes, including desktop fit, sticky key columns, and both top and bottom horizontal scrolling.
 
-## Changes to make
+## What will change
 
-1. **Make the whole property details tile the sidebar trigger**
-   - Keep the entire Cashflow property details tile clickable.
-   - Clicking anywhere on the tile opens the existing property details sidebar.
-   - Preserve the current sidebar workflow:
-     - Use existing property
-     - Add new property
-     - Edit property nickname
-     - Optional address search
-     - Property type
-     - Personal / Trust ownership
+1. **Fit July to June on desktop**
+   - Replace the current wide `min-w-[1400px]` table with responsive table sizing.
+   - Use compact month columns and narrower monthly inputs so all 12 months, plus Total and Remove, can fit at desktop widths like the current preview.
+   - Keep the month headers readable by using shorter padding and compact button styling.
 
-2. **Remove the address fallback**
-   - Remove the current “No address added” fallback text.
-   - If an address exists, it can remain secondary and subtle.
-   - If no address exists, show nothing instead of placeholder copy.
-   - The property nickname becomes the main identity for the tile.
+2. **Freeze important columns**
+   - Keep **Cashflow item** sticky on the left.
+   - Make **Total** sticky on the right, immediately before Remove.
+   - Make **Remove** sticky on the far right.
+   - Apply this consistently to:
+     - Header row
+     - Editable cashflow rows
+     - Summary rows
 
-3. **Match Portfolio / PPOR property tile pattern**
-   - Use the existing `InvestmentTypeIcon` as the primary visual identifier.
-   - Use the same clean property-card style language:
-     - `border-2`
-     - `rounded-xl`
-     - `bg-card`
-     - accent hover border
-     - subtle hover/active state
-   - Avoid a form-summary look; make it feel like a property card.
+3. **Add top and bottom horizontal scrolling**
+   - Add a synchronized top horizontal scrollbar above the worksheet.
+   - Keep the existing bottom horizontal scrollbar on the table container.
+   - Synchronize both scroll positions so dragging either scrollbar moves the same table.
+   - Use React refs and a small `onScroll` guard to avoid scroll event loops.
 
-4. **Simplify visible metadata**
-   - Show:
-     - Property nickname
-     - Property type icon
-     - Optional property type label if useful for clarity
-     - Ownership structure:
-       - `Personal`
-       - Trust name when ownership is Trust
-   - Do not show:
-     - “No address added”
-     - Bank/lender
-     - Empty placeholders such as `—`
+4. **Mobile and tablet behaviour**
+   - Preserve horizontal scrolling on smaller screens instead of forcing 12 months into an unreadable layout.
+   - Keep the sticky left item column and sticky Total/Remove columns active on mobile where practical.
+   - Reduce sticky column widths on mobile so the visible month area is not overly cramped.
+   - Ensure touch targets remain at least 44px for editable inputs and delete buttons, matching the project mobile rule.
 
-5. **Move bank/lender out of this tile**
-   - Do not display bank/lender in the Cashflow property details tile.
-   - Leave bank/lender information to be handled in the interest rate / loan details tile instead.
+5. **Visual polish**
+   - Use solid `bg-card` / `bg-muted` backgrounds on sticky cells so content does not bleed through while scrolling.
+   - Add subtle left/right shadows on sticky columns to show they are fixed.
+   - Keep active-month highlighting intact.
+   - Keep the `scrollbar-thin` style for both scroll areas.
 
 ## Technical implementation
 
 - Update `src/pages/CashflowTracker.tsx`.
-- Refactor the current property details button/card rendering.
-- Reuse existing imports and helpers:
-  - `InvestmentTypeIcon`
-  - `getInvestmentTypeLabel`
-  - `openPropertyDetailsSheet("current")`
-- Keep the existing property details data model and sidebar state intact.
-- Only adjust the tile presentation and conditional rendering.
-- After implementation, run a build to confirm the Cashflow page compiles successfully.
+- Add refs for the top scrollbar, bottom table scroll container, and table width spacer.
+- Add a scroll synchronization handler.
+- Update table sizing classes:
+  - Desktop: compact fixed-style layout that fits the year.
+  - Mobile/tablet: sensible minimum width with horizontal scroll fallback.
+- Reduce month header/input sizing from the current wide `w-24` pattern.
+- Add right sticky offsets for:
+  - Remove column: `right-0`
+  - Total column: offset by the Remove column width
+- Update `SummaryRow` to support sticky Total and Remove cells.
+- Run a build after implementation to confirm the Cashflow page compiles.
+
+## Expected result
+
+On desktop, the worksheet shows the full financial year from **July to June** in one view, with **Total** and **Remove** always visible. On mobile and tablet, the worksheet remains usable with synchronized top and bottom horizontal scrolling and sticky key columns.
