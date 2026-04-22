@@ -23,9 +23,8 @@ type CashflowRow = {
 const monthlyRentFromWeekly = (weeklyRent: number) => Math.round((weeklyRent * 52) / 12);
 const monthlyInterestOnlyCost = (loanAmount: number, interestRate: number) => Math.round((loanAmount * (interestRate / 100)) / 12);
 const monthlyAgentFee = (weeklyRent: number) => Math.round(monthlyRentFromWeekly(weeklyRent) * 0.06);
-const councilRatesValues = (amount: number, frequency: "annual" | "quarterly") => frequency === "annual" ? Array(12).fill(Math.round(amount / 12)) : months.map((_, index) => index % 3 === 0 ? amount : 0);
 const scheduledExpenseValues = (amount: number, frequency: "annual" | "quarterly" | "monthly") => {
-  if (frequency === "annual") return Array(12).fill(Math.round(amount / 12));
+  if (frequency === "annual") return months.map((_, index) => index === 11 ? amount : 0);
   if (frequency === "quarterly") return months.map((_, index) => index % 3 === 0 ? amount : 0);
   return Array(12).fill(amount);
 };
@@ -40,7 +39,7 @@ const initialRows: CashflowRow[] = [
   { id: "council", label: "Council rates", type: "expense", values: Array(12).fill(0) },
   { id: "depreciation", label: "Depreciation on plant", type: "expense", values: Array(12).fill(0) },
   { id: "gardening", label: "Gardening / lawn mowing", type: "expense", values: Array(12).fill(0) },
-  { id: "insurance", label: "Insurance", type: "expense", values: scheduledExpenseValues(189, "monthly") },
+  { id: "insurance", label: "Insurance", type: "expense", values: Array(12).fill(0) },
   { id: "interest", label: "Interest on loan", type: "expense", values: Array(12).fill(monthlyInterestOnlyCost(INITIAL_LOAN_AMOUNT, INITIAL_INTEREST_RATE)) },
   { id: "land-tax", label: "Land tax", type: "expense", values: Array(12).fill(0) },
   { id: "legal", label: "Legal fees", type: "expense", values: Array(12).fill(0) },
@@ -75,7 +74,7 @@ const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
 const CASHFLOW_WORKING_STATE_KEY = "cashflow-working-state";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
-const defaultInsurance: InsuranceState = { amount: 189, frequency: "monthly" };
+const defaultInsurance: InsuranceState = { amount: 0, frequency: "monthly" };
 const defaultLandTax: LandTaxState = { amount: 0, frequency: "annual" };
 const defaultWater: WaterState = { amount: 0, frequency: "annual" };
 
