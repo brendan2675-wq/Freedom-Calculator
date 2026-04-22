@@ -179,7 +179,6 @@ const CashflowTracker = () => {
   const [portfolioProperties, setPortfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
-  const [showLinkExisting, setShowLinkExisting] = useState(false);
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
@@ -309,6 +308,7 @@ const CashflowTracker = () => {
   const linkPortfolioProperty = (propertyId: string) => {
     const selected = portfolioProperties.find((item) => item.id === propertyId);
     if (!selected) return;
+    setPropertySheetMode("current");
     const scenario = getActiveScenario();
     if (scenario) {
       const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
@@ -373,7 +373,7 @@ const CashflowTracker = () => {
   const openPropertyDetailsSheet = (mode: "current" | "new") => {
     setPropertySheetMode(mode);
     if (mode === "new") {
-      setPropertyDetails((current) => ({ ...property, ...current, nickname: current.nickname || "New property" }));
+      setPropertyDetails({ ...property, nickname: "New property" });
     }
     setPropertySheetOpen(true);
   };
