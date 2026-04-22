@@ -654,16 +654,9 @@ const CashflowTracker = () => {
             <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
               <div className="flex flex-wrap gap-2">
-                <button onClick={() => setShowLinkExisting((current) => !current)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Link2 size={16} /> Link existing property</button>
-                <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add new property</button>
+                <button onClick={() => openPropertyDetailsSheet("current")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Link2 size={16} /> Manage property</button>
               </div>
             </div>
-            {showLinkExisting && (
-              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="mb-3 h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                <option value="" disabled>Select existing portfolio property</option>
-                {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-              </select>
-            )}
             <div className="rounded-lg border border-border bg-muted/30 p-3">
               <button onClick={() => openPropertyDetailsSheet("current")} className="w-full text-left" aria-label="Edit property details">
                 <p className="truncate text-base font-bold text-foreground">{propertyDetails.nickname || "Property nickname"}</p>
