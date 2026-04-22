@@ -571,7 +571,7 @@ const CashflowTracker = () => {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Linked property</p>
-              <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.address || "Choose a property"}</h2>
+              <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.nickname || propertyDetails.address || "Choose a property"}</h2>
               <p className="text-sm text-muted-foreground">
                 {linkedScenario?.name || "No active scenario"} · {cashflowContext?.propertyType || "property"} · {financialYear}
                 {linkedRecord?.lastEditedByName && ` · Last updated by ${linkedRecord.lastEditedByName}`}
@@ -602,14 +602,21 @@ const CashflowTracker = () => {
           <div className="rounded-xl border border-border bg-card p-3 shadow-sm md:col-span-2">
             <div className="mb-1.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
-              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="h-9 rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                <option value="" disabled>Link portfolio property</option>
+              <div className="flex flex-wrap gap-2">
+                <button onClick={() => setShowLinkExisting((current) => !current)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Link2 size={16} /> Link existing property</button>
+                <button onClick={addNewPortfolioProperty} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add new property</button>
+              </div>
+            </div>
+            {showLinkExisting && (
+              <select onChange={(event) => linkPortfolioProperty(event.target.value)} defaultValue="" className="mb-3 h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                <option value="" disabled>Select existing portfolio property</option>
                 {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
               </select>
-            </div>
+            )}
             <div className="grid gap-1.5 lg:grid-cols-[1.15fr_1fr]">
               <div className="space-y-1.5">
-                <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-9 text-sm font-bold" />
+                <Input value={propertyDetails.nickname} onChange={(event) => setPropertyDetails((current) => ({ ...current, nickname: event.target.value }))} placeholder="Property nickname" className="h-9 text-sm font-bold" />
+                <AddressSearchInput value={propertyDetails.address} onChange={(value) => setPropertyDetails((current) => ({ ...current, address: value }))} placeholder="Optional address search" className="h-9 text-sm font-semibold" />
                 <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="h-9 text-sm font-semibold" />
               </div>
               <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
