@@ -684,7 +684,7 @@ const CashflowTracker = () => {
               <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
                 <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
                 <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
-                <SummaryMeasure icon={CalendarDays} label="Cashflow over the year" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
+                 <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
               </div>
               <div className="flex flex-wrap items-center gap-1.5 border-t border-border/70 pt-2">
                 <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
