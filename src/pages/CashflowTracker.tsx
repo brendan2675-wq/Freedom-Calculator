@@ -139,15 +139,20 @@ const CashflowTracker = () => {
           <div className="flex flex-col gap-2 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-xl font-bold text-foreground">Monthly cashflow worksheet</h2>
-              <p className="text-sm text-muted-foreground">Tap a month to highlight the active reporting column.</p>
+              <p className="text-sm text-muted-foreground">Edit weekly rents, row labels and monthly values directly in the worksheet.</p>
             </div>
-            <div className="text-sm font-semibold text-accent">Net YTD {formatCurrency(totals.net)}</div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button onClick={() => addRow("income")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Income row</button>
+              <button onClick={() => addRow("expense")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Expense row</button>
+              <div className="text-sm font-semibold text-accent">Net YTD {formatCurrency(totals.net)}</div>
+            </div>
           </div>
           <div className="overflow-x-auto scrollbar-thin">
             <table className="w-full min-w-[1180px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                  <th className="sticky left-0 z-10 bg-muted px-4 py-3 text-left font-bold text-foreground">Month</th>
+                   <th className="sticky left-0 z-10 bg-muted px-4 py-3 text-left font-bold text-foreground">Cashflow item</th>
+                  <th className="bg-muted px-3 py-3 text-right font-bold text-foreground">Weekly</th>
                   {months.map((month, i) => (
                     <th key={month} className="px-3 py-3 text-right">
                       <button onClick={() => setActiveMonth(i)} className={`min-h-11 rounded-lg px-3 text-sm font-bold transition-colors ${activeMonth === i ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent/10"}`}>
@@ -161,11 +166,21 @@ const CashflowTracker = () => {
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.label} className="border-b border-border/70 hover:bg-muted/30">
-                    <td className="sticky left-0 z-10 bg-card px-4 py-3 font-medium text-foreground">{row.label}</td>
+                    <td className="sticky left-0 z-10 bg-card px-4 py-3 font-medium text-foreground">
+                      <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-9 min-w-56 bg-card font-semibold" />
+                    </td>
+                    <td className="px-3 py-3 text-right">
+                      {row.type === "income" ? <Input type="number" min="0" value={row.weeklyRent ?? 0} onChange={(event) => updateWeeklyRent(row.id, Number(event.target.value) || 0)} className="ml-auto h-9 w-24 text-right tabular-nums" /> : <span className="text-muted-foreground">—</span>}
+                    </td>
                     {row.values.map((value, i) => (
-                      <td key={i} className={`px-3 py-3 text-right tabular-nums ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>{value ? formatCurrency(value) : ""}</td>
+                      <td key={i} className={`px-3 py-3 text-right tabular-nums ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>
+                        <Input type="number" min="0" value={value || ""} onChange={(event) => updateValue(row.id, i, Number(event.target.value) || 0)} className="ml-auto h-9 w-24 text-right tabular-nums" />
+                      </td>
                     ))}
                     <td className="px-4 py-3 text-right font-bold tabular-nums text-foreground">{formatCurrency(row.values.reduce((a, b) => a + b, 0))}</td>
+                    <td className="px-3 py-3 text-right">
+                      <button onClick={() => removeRow(row.id)} className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" aria-label={`Remove ${row.label}`}><Trash2 size={16} /></button>
+                    </td>
                   </tr>
                 ))}
                 <SummaryRow label="Total Expenses" values={totals.expensesByMonth} total={totals.expenses} />
