@@ -207,7 +207,7 @@ const CashflowTracker = () => {
     setRows((current) => current.filter((row) => row.id !== rowId));
   };
 
-  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, activeMonth });
+  const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth });
 
   const saveCashflowScenario = () => {
     const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
