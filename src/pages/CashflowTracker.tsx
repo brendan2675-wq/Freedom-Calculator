@@ -97,7 +97,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
     const storedProperties = localStorage.getItem("portfolio-properties");
     const ppor = storedPpor ? JSON.parse(storedPpor) as ExistingProperty : null;
     const properties = storedProperties ? JSON.parse(storedProperties) as ExistingProperty[] : [];
-    return [ppor, ...properties].filter(Boolean).map((item) => ({
+    return [ppor, ...properties].filter((item): item is ExistingProperty => Boolean(item)).map((item) => ({
       id: item.id,
       label: item.nickname || "Portfolio property",
       owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
@@ -452,7 +452,7 @@ const CashflowTracker = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6 md:py-10">
-        <section className="grid gap-4 md:grid-cols-4">
+        <section className="grid items-start gap-4 md:grid-cols-4">
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm md:col-span-2">
             <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground"><Home size={16} /> Property details</div>
