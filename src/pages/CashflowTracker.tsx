@@ -149,8 +149,17 @@ const CashflowTracker = () => {
   }, [propertyDetails.weeklyRent, propertyDetails.loanAmount, propertyDetails.interestRate]);
 
   useEffect(() => {
-    localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(currentCashflowState()));
-  }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth]);
+    const state = currentCashflowState();
+    localStorage.setItem(CASHFLOW_WORKING_STATE_KEY, JSON.stringify(state));
+
+    if (!activeScenarioId) return;
+
+    setSavedScenarios((current) => {
+      const nextScenarios = current.map((scenario) => scenario.id === activeScenarioId ? { ...scenario, state } : scenario);
+      localStorage.setItem(CASHFLOW_SCENARIOS_KEY, JSON.stringify(nextScenarios));
+      return nextScenarios;
+    });
+  }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, activeScenarioId]);
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
