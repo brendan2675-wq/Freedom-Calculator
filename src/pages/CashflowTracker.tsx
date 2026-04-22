@@ -161,7 +161,7 @@ const CashflowTracker = () => {
             <table className="w-full min-w-[1400px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                   <th className="sticky left-0 z-10 bg-muted px-4 py-3 text-left font-bold text-foreground">Cashflow item</th>
+                   <th className="sticky left-0 z-20 min-w-72 bg-muted px-4 py-3 text-left font-bold text-foreground shadow-sm">Cashflow item</th>
                   {months.map((month, i) => (
                     <th key={month} className="px-3 py-3 text-right">
                       <button onClick={() => setActiveMonth(i)} className={`min-h-11 rounded-lg px-3 text-sm font-bold transition-colors ${activeMonth === i ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent/10"}`}>
@@ -176,7 +176,7 @@ const CashflowTracker = () => {
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.id} className="border-b border-border/70 hover:bg-muted/30">
-                    <td className="sticky left-0 z-10 bg-card px-4 py-3 font-medium text-foreground">
+                    <td className="sticky left-0 z-20 min-w-72 bg-card px-4 py-3 font-medium text-foreground shadow-sm">
                       <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-9 min-w-56 bg-card font-semibold" />
                     </td>
                     {row.values.map((value, i) => (
