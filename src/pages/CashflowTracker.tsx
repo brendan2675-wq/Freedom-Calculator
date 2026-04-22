@@ -461,11 +461,15 @@ const CashflowTracker = () => {
                 {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
               </select>
             </div>
-            <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-11 text-lg font-bold" />
-            <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="mt-2 h-10 text-sm font-semibold" />
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <EditableInfo icon={Building2} label="Manager" value={propertyDetails.manager} onChange={(value) => setPropertyDetails((current) => ({ ...current, manager: value }))} />
-              <EditableInfo icon={Banknote} label="Bank" value={propertyDetails.bank} onChange={(value) => setPropertyDetails((current) => ({ ...current, bank: value }))} />
+            <div className="grid gap-3 lg:grid-cols-[1.15fr_1fr]">
+              <div className="space-y-2">
+                <Input value={propertyDetails.address} onChange={(event) => setPropertyDetails((current) => ({ ...current, address: event.target.value }))} className="h-11 text-lg font-bold" />
+                <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} className="h-10 text-sm font-semibold" />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <EditableInfo icon={Building2} label="Manager" value={propertyDetails.manager} onChange={(value) => setPropertyDetails((current) => ({ ...current, manager: value }))} />
+                <EditableInfo icon={Banknote} label="Bank" value={propertyDetails.bank} onChange={(value) => setPropertyDetails((current) => ({ ...current, bank: value }))} />
+              </div>
             </div>
           </div>
           <Metric label="Rental income" value={formatCurrency(totals.income)} icon={Banknote} />
