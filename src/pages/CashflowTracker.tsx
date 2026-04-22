@@ -729,14 +729,33 @@ const CashflowTracker = () => {
 
               <div className="space-y-4">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Property Details</h3>
+                <PropertySheetField label="Investment Type">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {investmentTypes.map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setPropertyDetails((current) => ({ ...current, investmentType: type }))}
+                        className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border text-sm font-semibold transition-colors ${propertyDetails.investmentType === type ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground hover:border-accent/50 hover:text-foreground"}`}
+                      >
+                        <InvestmentTypeIcon type={type} size={20} />
+                        {getInvestmentTypeLabel(type)}
+                      </button>
+                    ))}
+                  </div>
+                </PropertySheetField>
+                <PropertySheetField label="Ownership Structure">
+                  <OwnershipToggle
+                    value={propertyDetails.ownership}
+                    onChange={(ownership) => setPropertyDetails((current) => ({ ...current, ownership, owner: ownership === "trust" ? current.trustName || "Trust" : "Personal" }))}
+                    trustName={propertyDetails.trustName}
+                    onTrustNameChange={(trustName) => setPropertyDetails((current) => ({ ...current, trustName, owner: trustName || "Trust" }))}
+                  />
+                </PropertySheetField>
                 <PropertySheetField label="Property Nickname">
                   <Input value={propertyDetails.nickname} onChange={(event) => setPropertyDetails((current) => ({ ...current, nickname: event.target.value }))} placeholder="e.g. Brisbane townhouse" className="h-10" />
                 </PropertySheetField>
                 <PropertySheetField label="Full Address (Optional)">
                   <AddressSearchInput value={propertyDetails.address} onChange={(value) => setPropertyDetails((current) => ({ ...current, address: value }))} placeholder="Search address or enter manually" className="h-10" />
-                </PropertySheetField>
-                <PropertySheetField label="Ownership / Entity">
-                  <Input value={propertyDetails.owner} onChange={(event) => setPropertyDetails((current) => ({ ...current, owner: event.target.value }))} placeholder="Personal, trust, SMSF" className="h-10" />
                 </PropertySheetField>
               </div>
               <div className="space-y-4 border-t border-border pt-6">
