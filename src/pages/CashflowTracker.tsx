@@ -957,8 +957,8 @@ const SummaryRow = ({ label, values, total }: { label: string; values: number[];
   <tr className="border-t-2 border-border bg-accent/10 font-bold">
     <td className="sticky left-0 z-20 bg-card px-2 py-2 text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">{label}</td>
     {values.map((value, i) => <td key={i} className="px-1 py-2 text-right tabular-nums text-foreground lg:px-1.5">{formatCurrency(value)}</td>)}
-    <td className="sticky right-14 z-20 bg-card px-2 py-2 text-right tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[4.2%]">{formatCurrency(total)}</td>
-    <td className="sticky right-0 z-20 bg-card px-1 py-2" />
+    <td className="sticky right-[4.5rem] z-20 bg-card px-2 py-2 text-right tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[5.4%]">{formatCurrency(total)}</td>
+    <td className="sticky right-0 z-20 bg-card px-2 py-2" />
   </tr>
 );
 
