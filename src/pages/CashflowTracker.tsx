@@ -67,7 +67,8 @@ const property = {
 type CouncilRatesState = { amount: number; frequency: "annual" | "quarterly" };
 type InsuranceState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
-type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; activeMonth: number };
+type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
+type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
