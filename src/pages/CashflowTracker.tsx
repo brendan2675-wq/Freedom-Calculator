@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Banknote, Building2, CalendarDays, Download, Home, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown } from "lucide-react";
+import { ArrowLeft, Banknote, Building2, CalendarDays, Download, FolderOpen, Home, Percent, Plus, RefreshCw, Save, Trash2, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import AdviserActingBanner from "@/components/AdviserActingBanner";
 import UserMenu from "@/components/UserMenu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
@@ -138,6 +139,7 @@ const CashflowTracker = () => {
   const [saveName, setSaveName] = useState("");
   const [savedScenarios, setSavedScenarios] = useState<SavedCashflowScenario[]>(getSavedCashflowScenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(() => localStorage.getItem(ACTIVE_CASHFLOW_SCENARIO_KEY));
+  const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
 
   useEffect(() => {
     setRows((current) => current.map((row) => {
@@ -340,7 +342,50 @@ const CashflowTracker = () => {
             <button onClick={() => navigate("/dashboard")} className="flex min-h-11 items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-accent/80">
               <ArrowLeft size={18} /> Dashboard
             </button>
-            <UserMenu />
+            <div className="flex items-center gap-2 md:gap-4">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="flex min-h-11 items-center gap-1.5 rounded-lg border border-accent/20 px-3 text-xs font-medium text-accent/70 transition-all hover:bg-accent/10 hover:text-accent" aria-label="Cashflow scenarios">
+                    <FolderOpen size={14} /> Scenarios
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle>Cashflow scenarios</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    {activeScenario && (
+                      <div className="flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/5 p-2.5">
+                        <span className="text-xs text-muted-foreground">Active:</span>
+                        <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{activeScenario.name}</span>
+                        <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-1 rounded-lg border border-border px-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted"><RefreshCw size={12} /> Update</button>
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <Input value={saveName} onChange={(event) => setSaveName(event.target.value)} onKeyDown={(event) => event.key === "Enter" && saveCashflowScenario()} placeholder="Scenario name..." className="h-11" />
+                      <button onClick={saveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save</button>
+                    </div>
+                    {savedScenarios.length > 0 ? (
+                      <div className="space-y-2 border-t border-border pt-3">
+                        <p className="text-sm font-medium text-foreground">Saved scenarios</p>
+                        <div className="max-h-60 space-y-2 overflow-y-auto scrollbar-thin">
+                          {savedScenarios.map((scenario) => (
+                            <div key={scenario.id} className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${scenario.id === activeScenarioId ? "border-accent bg-accent/5" : "border-border bg-muted/50"}`}>
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-semibold text-foreground">{scenario.name}</p>
+                                <p className="text-xs text-muted-foreground">{new Date(scenario.savedAt).toLocaleDateString()} {new Date(scenario.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                              </div>
+                              <button onClick={() => loadCashflowScenario(scenario)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Download size={16} /> Load</button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : <p className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">No cashflow scenarios saved yet.</p>}
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <UserMenu />
+            </div>
           </div>
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
@@ -424,38 +469,6 @@ const CashflowTracker = () => {
                 <SummaryRow label="Net Profit / (Loss)" values={totals.incomeByMonth.map((v, i) => v - totals.expensesByMonth[i])} total={totals.net} />
               </tbody>
             </table>
-          </div>
-        </section>
-
-        <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-foreground">Cashflow scenarios</h2>
-              <p className="text-sm text-muted-foreground">Save, update and load your locally saved cashflow tracker scenarios.</p>
-            </div>
-            <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-[32rem]">
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Input value={saveName} onChange={(event) => setSaveName(event.target.value)} onKeyDown={(event) => event.key === "Enter" && saveCashflowScenario()} placeholder="Scenario name..." className="h-11" />
-                <button onClick={saveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Save size={16} /> Save new</button>
-                <button onClick={updateActiveCashflowScenario} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><RefreshCw size={16} /> Update current</button>
-              </div>
-              {savedScenarios.length > 0 ? (
-                <div className="rounded-lg border border-border bg-muted/30 p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Saved scenarios</p>
-                  <div className="max-h-56 space-y-2 overflow-y-auto scrollbar-thin">
-                    {savedScenarios.map((scenario) => (
-                      <div key={scenario.id} className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${scenario.id === activeScenarioId ? "border-accent bg-accent/5" : "border-border bg-card"}`}>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-foreground">{scenario.name}</p>
-                          <p className="text-xs text-muted-foreground">{new Date(scenario.savedAt).toLocaleDateString()} {new Date(scenario.savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
-                        </div>
-                        <button onClick={() => loadCashflowScenario(scenario)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Download size={16} /> Load</button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : <p className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">No cashflow scenarios saved yet.</p>}
-            </div>
           </div>
         </section>
 
