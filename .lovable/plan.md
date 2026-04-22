@@ -1,507 +1,254 @@
 
-## Updated plan: shared scenarios, role-safe editing, and property-linked cashflow
+## Plan: remove the adviser top banner and add adviser “build first, assign later” mode
 
-Build the next version around one shared scenario that clients and advisers both edit, while agents remain read-only reviewers.
+### 1. Remove the orange adviser editing banner after a scenario is loaded
 
-```text
-Client
-└── Shared scenario / strategy plan
-    ├── Dashboard
-    ├── PPOR / Freedom Calculator
-    ├── Portfolio
-    └── Property-linked Cashflow Trackers
-        ├── Property A — FY2027
-        └── Property B — FY2027
-```
+The current orange/white floating banner is `AdviserActingBanner`. It is helpful for confirming that an adviser opened a client scenario, but once the scenario is loaded it is taking too much space and duplicating the scenario context already shown elsewhere.
 
-## 1. Scenario loading rules
-
-Create a consistent loading model used by Dashboard, PPOR, Portfolio, and Cashflow:
-
-- A single `active-scenario-id` controls the current working scenario.
-- Loading a scenario always:
-  - applies the scenario state to working localStorage
-  - sets `active-scenario-id`
-  - sets role/context metadata
-  - refreshes or updates the page state consistently
-- Cashflow adds one more layer:
-  - `cashflow-active-context = scenarioId + propertyId + financialYear`
-
-This avoids each page loading its own disconnected state.
-
-## 2. Scenario save/update rules
-
-Update scenario saving so all pages behave the same way:
-
-- **Save as new scenario**
-  - creates a new shared scenario
-  - records creator role/name
-  - assigns client if adviser is creating on behalf of a client
-
-- **Update active scenario**
-  - updates the current shared scenario
-  - records who last edited it
-  - updates `savedAt`
-  - keeps the same `clientId`, agent sharing, and scenario type
-
-- **Cashflow save**
-  - updates the property-linked cashflow worksheet
-  - records `lastEditedByRole` and `lastEditedByName`
-  - does not create a floating generic cashflow unless no property context exists
-
-## 3. Scenario metadata to add
-
-Extend saved scenarios with collaboration metadata:
-
-```ts
-SavedScenario {
-  id
-  name
-  savedAt
-  state
-  clientId
-  ownerId
-  ownerRole
-  sharedAgentIds
-  type
-
-  lastEditedById
-  lastEditedByName
-  lastEditedByRole
-  lastOpenedAt
-  version
-}
-```
-
-Add cashflow records:
-
-```ts
-CashflowRecord {
-  id
-  clientId
-  scenarioId
-  propertyId
-  propertyType
-  financialYear
-  name
-  state
-  savedAt
-  lastEditedById
-  lastEditedByName
-  lastEditedByRole
-  version
-}
-```
-
-The `version` field gives the prototype a basic conflict-warning system and mirrors what a backend would later use.
-
-## 4. Role access model
-
-### Client
-
-Clients can:
-
-- open scenarios assigned to them
-- open scenarios they created
-- edit Dashboard, PPOR, Portfolio, and Cashflow
-- save/update the active scenario
-- create their own scenario/playground copy if they want to experiment
-
-Clients should see:
-
-```text
-You are editing
-The Nguyens' Plan
-
-Last updated by Alex Adviser · 22 Apr 2026
-Shared with your adviser
-[Open portfolio] [Open PPOR] [Open cashflow]
-```
-
-### Adviser
-
-Advisers can:
-
-- see all adviser-managed scenarios
-- assign scenarios to clients
-- open a scenario as the client
-- edit the same Dashboard, PPOR, Portfolio, and Cashflow views
-- build cashflow worksheets for individual properties
-- share scenarios with agents as read-only
-
-Advisers should see the existing acting-as banner, expanded slightly:
-
-```text
-Editing Dennis & Jane Nguyen's scenario — The Nguyens' Plan
-Last updated by Dennis Nguyen · 22 Apr 2026
-[Save changes] [Exit to adviser dashboard]
-```
-
-### Agent
-
-Agents can:
-
-- only see scenarios explicitly shared with them
-- open shared scenarios in read-only mode
-- view Portfolio and summary information
-- not save, update, delete, reset, or edit fields
-
-Agents should see:
-
-```text
-Read-only view — shared by Atelier Wealth
-You can review this scenario but cannot make changes.
-```
-
-## 5. Prevent role clashes and bad edits
-
-Add UI controls to stop confusion when different roles are working with the same scenario.
-
-### A. Active scenario banner/panel
-
-Add a reusable `ScenarioContextBanner` component used on:
+I will remove it from the main working pages:
 
 - Dashboard
-- PPOR
+- PPOR Goal
 - Portfolio
-- Cashflow
+- Cashflow Tracker
 
-It displays:
-
-- scenario name
-- client name
-- current role mode
-- last edited by
-- last saved time
-- read-only status if applicable
-
-### B. Unsaved changes warning
-
-Track whether the working page has changes since the scenario was loaded or saved.
-
-Show warning before:
-
-- loading another scenario
-- resetting data
-- exiting adviser acting-as mode
-- navigating away from a property-linked cashflow worksheet
-
-Example:
+This means advisers will no longer see the persistent top banner saying:
 
 ```text
-You have unsaved changes to The Nguyens' Plan.
-[Save changes] [Discard and continue] [Cancel]
+Editing Noah and Ava Murphy's scenario — The Murphys' Plan
+[Save changes] [Exit]
 ```
 
-### C. Scenario version warning
+### 2. Keep the important controls, but move them into less obtrusive places
 
-When saving, compare the loaded `version` with the stored scenario `version`.
+Because the banner currently contains “Save changes” and “Exit”, I will keep those actions available elsewhere.
 
-If the stored version has changed since the user loaded it, show:
+For advisers, the existing `ScenarioContextBanner` will become the primary lightweight scenario identity panel. It will show:
 
 ```text
-This scenario was updated by Dennis Nguyen after you opened it.
+Adviser editing
+The Murphys' Plan
+Noah and Ava Murphy · Last updated by Alex Adviser
 
-[Review latest version] [Overwrite anyway] [Save as copy]
+[Update scenario] [Adviser dashboard]
 ```
 
-For the current localStorage prototype this mainly protects multiple tabs or role switching in the same browser. Later it maps directly to backend conflict handling.
+Changes:
 
-### D. Role-aware controls
+- Add an optional “Adviser dashboard” / “Exit adviser mode” button inside `ScenarioContextBanner` when the current user is an adviser.
+- Keep the existing “Update scenario” button there.
+- Ensure this panel stays inside page content, not sticky across the top.
+- Use compact styling on pages where vertical space matters.
 
-Hide or disable controls by role:
+This gives advisers a clear way back without the top banner being constantly visible.
 
-- Agents:
-  - no Save
-  - no Update
-  - no Delete
-  - no Reset
-  - no editable fields
-  - no upload button
-- Clients:
-  - Save/update their accessible scenarios
-  - no agent sharing controls
-  - no client assignment controls
-- Advisers:
-  - assignment and agent sharing controls visible
-  - acting-as banner visible
-  - can save client scenarios
+### 3. Preserve adviser acting context internally
 
-## 6. Scenario Manager changes
+Even though the visible banner will be removed, I will keep the underlying `adviser-acting-as` context because it is still useful for:
 
-Update `ScenarioManager` so the same component works clearly across roles.
+- knowing which client/scenario the adviser opened
+- saving the right active scenario
+- cashflow context linking
+- future backend migration
 
-### Client view
-
-Label it as:
+The key change is:
 
 ```text
-My scenarios
+Keep the context.
+Remove the persistent visual banner.
+Move actions into page-level context controls.
 ```
 
-Show:
+### 4. Add adviser “build first, assign later” mode
 
-- scenario name
-- active indicator
-- last edited by
-- last saved date
-- Update active scenario
-- Save as new scenario
-- Load
+Advisers should be able to open the app, start building a strategy immediately, and assign it to a client later.
 
-Do not show:
-
-- assign client
-- share with agents
-
-### Adviser view
-
-Label it as:
+I will update the adviser dashboard flow so advisers can choose:
 
 ```text
-Client scenarios
+New scenario
+├── Assign to existing client
+├── Create new client
+└── Build first, assign later
 ```
 
-Show:
-
-- client name
-- scenario name
-- module icons
-- last edited by
-- assigned agents count
-- Open as client
-- Assign client
-- Share with agents
-- Delete
-
-### Agent view
-
-Label it as:
-
-```text
-Shared scenarios
-```
-
-Show:
-
-- scenario name
-- client name
-- last updated
-- read-only badge
-- View only
-
-Do not show save/load language that implies editing.
-
-## 7. Adviser dashboard changes
-
-Add a direct property/cashflow picker from each scenario.
-
-Flow:
-
-```text
-Adviser dashboard
-→ Client scenario
-→ Select property for cashflow
-→ Cashflow tracker opens with linked property context
-```
-
-The picker groups properties by:
-
-- Owner occupied / PPOR
-- Investment properties
-- Trust-owned properties
-- SMSF properties
-- Proposed purchases later if required
-
-On selection:
-
-1. apply the selected scenario to working state
-2. set `active-scenario-id`
-3. set adviser acting-as context
-4. set property cashflow context
-5. navigate to `/cashflow`
-
-## 8. Client dashboard changes
-
-Add a current scenario panel near the top of the dashboard.
-
-If a scenario is active:
-
-```text
-Current scenario
-The Nguyens' Plan
-Last updated by Alex Adviser
-
-[Portfolio] [PPOR] [Cashflow]
-```
-
-If no scenario is active:
-
-```text
-Start your plan
-Create or load a scenario before editing your portfolio and cashflow.
-```
-
-This helps clients understand they are editing a shared strategy, not disconnected tools.
-
-## 9. Portfolio page changes
-
-Add property-level cashflow actions.
-
-Each relevant property card should expose:
-
-```text
-[Open cashflow]
-```
-
-When clicked:
-
-- set active cashflow context
-- pre-fill the cashflow tracker from that property
-- load existing worksheet if it exists
-- otherwise create a blank worksheet for the selected financial year
-
-For agents, show cashflow availability as read-only later, but do not allow edits.
-
-## 10. Cashflow tracker changes
-
-Replace the current generic cashflow scenario system with property-linked records while preserving backwards compatibility.
-
-The Cashflow page should load in this order:
-
-1. active property-linked cashflow context
-2. existing generic cashflow working state, for old prototype data
-3. blank worksheet
-
-Add a context panel:
-
-```text
-Linked property
-Dennis & Jane Nguyen
-The Nguyens' Plan
-Bondi IP1 — Investment property
-FY2027
-
-Last updated by Alex Adviser
-[Change property] [Change year] [Save cashflow]
-```
-
-Keep:
-
-- prominent upload button near the top
-- editable rows
-- deletable rows
-- zero defaults
-- export summary
-
-Add:
-
-- Save cashflow
-- Save as new financial year
-- Change property
-- Change year
-- last edited metadata
-
-## 11. PPOR and Portfolio save consistency
-
-PPOR and Portfolio currently write directly to localStorage. Keep that for the prototype, but add a shared save/update helper so the active scenario can be updated consistently from any page.
-
-Recommended helper:
+The new unassigned option will create a scenario with:
 
 ```ts
-saveActiveScenarioFromWorkingState()
+clientId: undefined
+ownerId: adviserUserId
+ownerRole: "adviser"
+state.clientName: "Unassigned client"
+name: adviser-entered scenario name
 ```
 
-It should:
+Suggested default name:
 
-- read current working state
-- update the active scenario
-- preserve assignment/share metadata
-- stamp last edited metadata
-- increment version
-- show success/failure toast
+```text
+Working Scenario
+```
 
-Use this from:
+or, if the adviser enters one:
 
-- adviser acting-as banner
-- ScenarioManager update button
-- Dashboard current scenario panel
-- future explicit save buttons
+```text
+Strategy draft
+```
 
-## 12. Read-only enforcement for agents
+### 5. Adviser dashboard UI changes
 
-Strengthen agent read-only mode:
+On the adviser dashboard, I will adjust the action cards so the workflow is clearer:
 
-- route agents only to allowed read-only pages
-- keep `/cashflow` adviser/client only for now
-- ensure Portfolio read-only mode hides/disables:
-  - ScenarioManager save/update
-  - reset
-  - editable property sheets
-  - drag/drop
-  - delete/add buttons
-- keep `ReadOnlyBanner` visible
+Current:
 
-Important: this remains UI-only in the localStorage prototype. A backend version must enforce permissions server-side.
+```text
+Individual Scenario
+Previous Scenario
+```
 
-## 13. Files to update
+Updated:
 
-- `src/lib/scenarioManager.ts`
-  - add metadata fields
-  - add versioning
-  - add active scenario helpers
-  - preserve old scenarios via safe defaults
+```text
+Build scenario
+Start from a clean slate. Assign to a client now or later.
 
-- `src/lib/cashflowManager.ts`
-  - new helper for property-linked cashflow records and active cashflow context
+Previous scenario
+Resume your latest saved scenario.
+```
 
-- `src/components/ScenarioManager.tsx`
-  - role-aware labels and controls
-  - last edited display
-  - conflict warning support
+Inside the “Build scenario” dialog:
 
-- `src/components/ScenarioContextBanner.tsx`
-  - new shared scenario context panel/banner
+- Existing client search remains.
+- New client creation remains.
+- Add a new “Build without client” option.
+- Make it clear this can be assigned later.
+
+Example copy:
+
+```text
+Not ready to link this to a client?
+Start an unassigned working scenario and assign it later from your scenario list.
+```
+
+### 6. Scenario list support for unassigned adviser scenarios
+
+The adviser scenario list already has assignment controls, but I will make unassigned scenarios more obvious.
+
+For adviser scenarios with no `clientId`, display:
+
+```text
+Unassigned draft
+```
+
+or a badge:
+
+```text
+Needs client
+```
+
+Each unassigned row will keep the existing assign button, so the adviser can later choose:
+
+- client
+- scenario type
+- shared agents
+
+### 7. Scenario saving behaviour for unassigned drafts
+
+When advisers save a new scenario from inside the app:
+
+- If it was created as an unassigned draft, it should stay unassigned.
+- Do not force the assign-client dialog immediately.
+- Show a clear toast:
+
+```text
+Saved draft. You can assign it to a client later from Adviser Home.
+```
+
+For assigned scenarios, keep the current shared scenario behaviour.
+
+### 8. Loading behaviour for unassigned drafts
+
+When an adviser opens an unassigned draft:
+
+- Load it exactly like any other scenario.
+- Set it as the active scenario.
+- Do not show the top adviser acting banner.
+- Show scenario context as:
+
+```text
+Adviser editing
+Working Scenario
+Unassigned client · Last updated by Alex Adviser
+
+[Update scenario] [Adviser dashboard]
+```
+
+This lets advisers freely use Dashboard, PPOR, Portfolio, and Cashflow without needing a client first.
+
+### 9. Assign later workflow
+
+When the adviser later assigns the draft to a client:
+
+- Update `clientId`
+- Update `state.clientName`
+- Preserve all built scenario data
+- Preserve scenario ID so existing links and cashflow records remain connected
+- Update the display from “Unassigned draft” to the selected client name
+
+If there are property-linked cashflow records already attached to the unassigned scenario, they will continue to belong to the same `scenarioId`, and the client relationship will be added through the scenario metadata.
+
+### 10. Files to update
 
 - `src/components/AdviserActingBanner.tsx`
-  - include last edited details
-  - use shared active scenario save helper
-
-- `src/pages/AdviserHome.tsx`
-  - property/cashflow picker
-  - clearer client/scenario metadata
-  - direct open-as-client flow
+  - Either remove visual rendering or leave only helper functions/context exports.
+  - Keep `getActingAs`, `setActingAs`, and `clearActingAs` for internal context.
 
 - `src/pages/Home.tsx`
-  - current scenario panel for clients and advisers
-
-- `src/pages/Portfolio.tsx`
-  - property-level cashflow actions
-  - stronger agent read-only control handling
+  - Remove visible `AdviserActingBanner`.
 
 - `src/pages/Index.tsx`
-  - use shared scenario context display
-  - keep PPOR saves aligned with active scenario
+  - Remove visible `AdviserActingBanner`.
+
+- `src/pages/Portfolio.tsx`
+  - Remove visible `AdviserActingBanner`.
 
 - `src/pages/CashflowTracker.tsx`
-  - property-linked cashflow loading/saving
-  - context panel
-  - change property/year workflow
-  - role-aware controls
+  - Remove visible `AdviserActingBanner`.
 
-## 14. Recommended first implementation pass
+- `src/components/ScenarioContextBanner.tsx`
+  - Add adviser dashboard / exit control.
+  - Improve display for unassigned scenarios.
+  - Keep update/save controls.
 
-Implement in this order:
+- `src/components/NewScenarioDialog.tsx`
+  - Add “Build without client” mode.
+  - Allow creating a scenario without a client.
 
-1. Scenario metadata/versioning helpers
-2. Shared scenario context banner
-3. Role-aware ScenarioManager updates
-4. Client dashboard current scenario panel
-5. Property-linked cashflow manager
-6. Adviser property-to-cashflow picker
-7. Portfolio property cashflow actions
-8. Cashflow tracker context/save/load refactor
-9. Agent read-only hardening
-10. Unsaved-change and version-conflict warnings
+- `src/pages/AdviserHome.tsx`
+  - Update create-scenario handler to accept optional client.
+  - Create clean unassigned drafts.
+  - Improve action card copy.
+  - Display unassigned scenario badges.
 
-This keeps the client, adviser, and agent experiences aligned while preserving the current localStorage prototype and preparing the app for a future backend.
+- `src/components/ScenarioManager.tsx`
+  - Avoid forcing assign-client dialog after adviser saves an unassigned draft.
+  - Show better labels for unassigned adviser drafts.
+
+- `src/lib/scenarioManager.ts`
+  - Ensure scenario metadata safely supports `clientId: undefined`.
+  - Add helper/default handling for unassigned adviser drafts if needed.
+
+### 11. Resulting adviser experience
+
+The new flow will feel like this:
+
+```text
+Adviser logs in
+→ Clicks Build scenario
+→ Chooses Build without client
+→ Lands on Dashboard with clean slate
+→ Builds PPOR / Portfolio / Cashflow
+→ Saves draft
+→ Later assigns the draft to Noah and Ava Murphy
+```
+
+And the persistent top banner will be gone once the scenario is loaded.
