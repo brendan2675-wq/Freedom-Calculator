@@ -50,7 +50,7 @@ const initialRows: CashflowRow[] = [
   { id: "capital-works", label: "Capital works deductions", type: "expense", values: Array(12).fill(0) },
   { id: "stationery", label: "Stationery, telephone and postage", type: "expense", values: Array(12).fill(0) },
   { id: "travel", label: "Travel expenses", type: "expense", values: Array(12).fill(0) },
-  { id: "water", label: "Water charges", type: "expense", values: [0, 0, 285, 0, 0, 856, 0, 0, 0, 0, 0, 0] },
+  { id: "water", label: "Water charges", type: "expense", values: Array(12).fill(0) },
   { id: "sundry", label: "Sundry expenses", type: "expense", values: Array(12).fill(0) },
 ];
 
