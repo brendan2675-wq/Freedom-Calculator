@@ -262,6 +262,41 @@ const CashflowTracker = () => {
     updateRow("land-tax", { values: scheduledExpenseValues(next.amount, next.frequency) });
   };
 
+  const exportCashflowSummary = () => {
+    const populatedPropertyFields = [
+      ["Owner", propertyDetails.owner],
+      ["Address", propertyDetails.address],
+      ["Manager", propertyDetails.manager],
+      ["Bank", propertyDetails.bank],
+      ["Loan Amount", propertyDetails.loanAmount ? formatCurrency(propertyDetails.loanAmount) : ""],
+      ["Interest Rate", propertyDetails.interestRate ? `${propertyDetails.interestRate}%` : ""],
+      ["Weekly Rent", propertyDetails.weeklyRent ? formatCurrency(propertyDetails.weeklyRent) : ""],
+    ].filter(([, value]) => String(value).trim() !== "");
+    const populatedRows = rows.filter((row) => row.label.trim() && row.values.some((value) => value > 0));
+    const csvRows = [
+      ["Property details", "Value"],
+      ...populatedPropertyFields,
+      [],
+      ["Totals", "Amount"],
+      ["Annual Income", formatCurrency(totals.income)],
+      ["Rental Expenses", formatCurrency(totals.expenses)],
+      ["Cashflow end of year", formatCurrency(totals.net)],
+      [],
+      ["Detailed Breakdown", ...months, "Subtotal"],
+      ...populatedRows.map((row) => [row.label, ...row.values.map(formatCurrency), formatCurrency(row.values.reduce((sum, value) => sum + value, 0))]),
+      ["Total Income", ...totals.incomeByMonth.map(formatCurrency), formatCurrency(totals.income)],
+      ["Total Expenses", ...totals.expensesByMonth.map(formatCurrency), formatCurrency(totals.expenses)],
+      ["Net Profit / (Loss)", ...totals.incomeByMonth.map((value, index) => formatCurrency(value - totals.expensesByMonth[index])), formatCurrency(totals.net)],
+    ];
+    const csv = csvRows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+    link.download = `cashflow-summary-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast.success("Cashflow summary exported");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AdviserActingBanner />
@@ -312,6 +347,7 @@ const CashflowTracker = () => {
               <p className="text-sm text-muted-foreground">Edit weekly rents, row labels and monthly values directly in the worksheet.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Download size={16} /> Export summary</button>
               <button onClick={() => addRow("income")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Income row</button>
               <button onClick={() => addRow("expense")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Expense row</button>
               <div className="text-sm font-semibold text-accent">Net YTD {formatCurrency(totals.net)}</div>
