@@ -1,192 +1,99 @@
 
-Update the `FY & Docs` tile so it feels purposeful, removes unnecessary autosave noise, and makes the copy action clearer.
+Update the main property summary tile on the Cashflow Tracker so it follows the sketch layout more clearly and uses a cleaner 3-column structure.
 
-## Recommendation
+## Layout changes
 
-### 1. Remove the persistent `Saved` label
+Rework the property tile in `src/pages/CashflowTracker.tsx` into three aligned columns.
 
-I agree: `Saved` does not add much value here, especially in a compact tile.
+### Top control row
 
-Most modern apps handle autosave like this:
-
-```text
-Google Docs: subtle "Saving..." / "Saved to Drive" near document title
-Notion: mostly invisible, only shows errors or sync issues
-Airtable: no prominent saved label during normal use
-Xero/MYOB-style tools: usually confirm after explicit actions, not constant autosave status
-```
-
-For this app, the best fit is:
+Place the controls into the same column rhythm as the metrics:
 
 ```text
-Only show autosave status when something is happening or wrong.
+[ Property name ] [ Select property dropdown ] [ New property button ]
 ```
 
-So the tile should normally show nothing. If saving is active, briefly show:
+This means:
+
+- the property dropdown will line up with the metrics column beneath it
+- the new property button will line up with the next metrics column
+- the controls will feel intentionally placed instead of floating on the right
+
+On mobile, this will collapse into a single-column stacked layout so the controls remain easy to tap.
+
+## Metric rows
+
+Reorder the summary metrics to match the sketch:
 
 ```text
-Saving...
+[ Interest rate ]      [ Weekly rent ]       [ Total expenses ]
+[ Total loan amount ]  [ Rental income ]     [ Yearly cashflow ]
 ```
 
-If save fails in future, show an error/toast. Do not show `Saved` permanently.
+This is a clearer grouping because:
 
-## 2. Make the copy action explicit
+- rate/rent/expenses are the operating assumptions
+- loan/income/cashflow are the resulting financial outputs
 
-The current `Copy FY` label is too vague, and the behaviour is surprising because it silently copies to the other available year.
+The existing values and calculations will not change.
 
-Instead of:
+## Bottom tag row
+
+Replace the current single ownership pill with a full tag row:
 
 ```text
-Copy FY
+[ Personal / Trust ]   [ Bank: ... ]   [ Property Manager: ... ]
 ```
 
-Use a contextual label:
+Implementation detail:
+
+- ownership tag remains based on `propertyDetails.ownership` and `propertyDetails.trustName`
+- bank tag uses `propertyDetails.bank`
+- property manager tag uses `propertyDetails.manager`
+- if Bank or Property Manager are blank, show a muted placeholder such as:
 
 ```text
-Copy to FY 2026
+Bank: Not set
+Property Manager: Not set
 ```
 
-or, in compact form:
+This keeps the row visually balanced and prompts the user to complete the details.
 
-```text
-Copy → FY 2026
-```
+## Styling approach
 
-When the current selected year is `FY 2026`, the button should become:
+Use the existing Atelier Wealth styling:
 
-```text
-Copy → FY 2027
-```
+- rounded pill tags
+- muted background for secondary tags
+- orange accent icons where already used
+- consistent `border-t` separator above the bottom tags
+- minimum 44px tap targets for dropdown and button
+- no new colours or design system changes
 
-This makes the action clear without needing a dialog.
-
-## 3. Do not switch years after copying
-
-Currently, clicking copy changes the selected financial year after copying. That can feel like the app unexpectedly navigated away.
-
-Change the behaviour so:
-
-- the current FY data is copied to the target FY
-- the user stays on the current FY
-- a toast confirms the action
-
-Example:
-
-```text
-Copied FY 2027 data to FY 2026
-```
-
-This is safer and easier to understand.
-
-## 4. Optional future functionality for this tile
-
-The `FY & Docs` tile could eventually include:
-
-```text
-FY selector
-Upload docs
-Document count
-Copy to FY XXXX
-Export FY summary
-```
-
-Recommended compact version for now:
-
-```text
-FY & Docs
-FY 2027
-Upload docs
-Copy → FY 2026
-```
-
-Optional future enhancement:
-
-```text
-3 docs uploaded
-```
-
-This would make the upload function feel more useful, but only if uploaded documents are actually tracked/persisted.
-
-## Implementation plan
-
-### 1. Remove the normal `Saved` display
-
-In `src/pages/CashflowTracker.tsx`:
-
-- remove the always-visible autosave label from the `FY & Docs` tile
-- keep autosave logic intact
-- render only a small `Saving...` line when `autosaveStatus === "saving"`
-
-Result:
-
-```text
-Saving...
-```
-
-appears only during active autosave, then disappears.
-
-### 2. Replace `Copy FY` with a contextual target label
-
-Add a helper that determines the target financial year:
-
-```text
-Current FY 2027 → target FY 2026
-Current FY 2026 → target FY 2027
-```
-
-Then display:
-
-```text
-Copy → FY 2026
-```
-
-or:
-
-```text
-Copy → FY 2027
-```
-
-### 3. Update the copy behaviour
-
-Modify the existing `saveAsNewPeriod` function so it:
-
-- copies the current cashflow state to the target FY
-- does not call `setFinancialYear(targetYear)`
-- does not switch the active tile/dropdown to the target year
-- shows a confirmation toast
-
-Example toast:
-
-```text
-Copied FY 2027 to FY 2026
-```
-
-### 4. Preserve existing functionality
+## Preserve existing behaviour
 
 No changes to:
 
-- financial year dropdown state
-- upload accepted file types
+- property linking logic
+- new property creation logic
 - cashflow calculations
-- Utilities & Charges
-- property details
-- localStorage-based save structure
+- autosave
+- FY Docs tile
+- Utilities & Charges tile
+- export/copy functionality
 
 ## Expected result
 
-The compact tile becomes cleaner:
+The property tile becomes:
 
 ```text
-FY & Docs
-FY 2027
-Upload docs
-Copy → FY 2026
+[ St Kilda ]           [ St Kilda dropdown ]       [ + New property ]
+
+[ Interest rate ]      [ Weekly rent ]             [ Total expenses ]
+[ 6.25% ]              [ $0 ]                       [ $71,760 ]
+
+[ Total loan amount ]  [ Rental income ]           [ Yearly cashflow ]
+[ $1,148,227 ]         [ $0 ]                       [ $71,760 ]
+
+[ Personal ]           [ Bank: Not set ]            [ Property Manager: Not set ]
 ```
-
-During autosave only:
-
-```text
-Saving...
-```
-
-No permanent `Saved` label is shown.
