@@ -681,12 +681,31 @@ const CashflowTracker = () => {
           </div>
         </section>
         <section className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-5">
-          <button onClick={() => openPropertyDetailsSheet("current")} className="group w-full rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-2" aria-label="Edit property details">
-              <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-3">
+          <div
+            onClick={() => openPropertyDetailsSheet("current")}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openPropertyDetailsSheet("current");
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            className="group w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-2"
+            aria-label="Edit property details"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex min-w-0 items-center gap-2">
                   <InvestmentTypeIcon type={propertyDetails.investmentType} size={18} className="shrink-0 text-accent" />
                   <p className="truncate text-base font-semibold text-foreground">{propertyDetails.nickname || "Untitled property"}</p>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-[minmax(0,180px)_auto]" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                  <select value={cashflowContext?.propertyId || selectedPortfolioProperty?.id || ""} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                    <option value="" disabled>Select property</option>
+                    {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                  </select>
+                  <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> New property</button>
                 </div>
               </div>
               {propertyDetails.address && <p className="truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
@@ -701,7 +720,7 @@ const CashflowTracker = () => {
                 </span>
               </div>
             </div>
-          </button>
+          </div>
           <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
           <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
           <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
