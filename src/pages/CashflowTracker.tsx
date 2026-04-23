@@ -235,7 +235,6 @@ const CashflowTracker = () => {
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved">("idle");
-  const [lastAutosavedAt, setLastAutosavedAt] = useState<Date | null>(null);
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
   const topScrollRef = useRef<HTMLDivElement>(null);
@@ -253,12 +252,8 @@ const CashflowTracker = () => {
   const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId)
     || portfolioProperties.find((item) => item.label === propertyDetails.nickname && (!propertyDetails.address || item.address === propertyDetails.address));
   const selectedPropertyId = cashflowContext?.propertyId || selectedPortfolioProperty?.id || "";
-  const autosaveLabel = autosaveStatus === "saving"
-    ? "Saving…"
-    : lastAutosavedAt
-      ? "Saved"
-      : "Saved";
   const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || financialPeriods[0];
+  const copyTargetPeriod = financialPeriods.find((period) => period.financialYear !== financialYear) || selectedFinancialPeriod;
   const displayMonths = selectedFinancialPeriod.months;
 
   const syncHorizontalScroll = (source: "top" | "table") => {
@@ -347,7 +342,6 @@ const CashflowTracker = () => {
     autosaveTimerRef.current = setTimeout(() => {
       const saved = saveCashflowForProperty({ ...cashflowContext, financialYear }, state, `${propertyDetails.nickname || propertyDetails.address || "Property"} ${financialYear}`);
       setCashflowContextState(saved);
-      setLastAutosavedAt(new Date(saved.savedAt));
       setAutosaveStatus("saved");
     }, 800);
 
@@ -596,11 +590,9 @@ const CashflowTracker = () => {
       setLandTax(normalized.landTax);
       setWater(normalized.water);
       setActiveMonth(normalized.activeMonth);
-      setLastAutosavedAt(new Date(record.savedAt));
       setAutosaveStatus("saved");
       return;
     }
-    setLastAutosavedAt(null);
     setAutosaveStatus("idle");
   };
 
@@ -637,12 +629,9 @@ const CashflowTracker = () => {
 
   const saveAsNewPeriod = () => {
     if (!cashflowContext) return updateActiveCashflowScenario();
-    const nextPeriod = financialPeriods.find((period) => period.financialYear !== financialYear)?.financialYear || financialYear;
-    const nextContext = { ...cashflowContext, financialYear: nextPeriod };
-    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${nextPeriod}`);
-    setFinancialYear(nextPeriod);
-    setCashflowContextState(saved);
-    toast.success(`Copied to ${financialPeriods.find((period) => period.financialYear === nextPeriod)?.label || nextPeriod}`);
+    const nextContext = { ...cashflowContext, financialYear: copyTargetPeriod.financialYear };
+    saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${copyTargetPeriod.financialYear}`);
+    toast.success(`Copied ${selectedFinancialPeriod.label} to ${copyTargetPeriod.label}`);
   };
 
   const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
@@ -813,8 +802,8 @@ const CashflowTracker = () => {
               {showScenarioStatus && (
                 <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
               )}
-              <p className="font-semibold text-accent">{autosaveLabel}</p>
-              <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy FY</button>
+              {autosaveStatus === "saving" && <p className="font-semibold text-accent">Saving…</p>}
+              <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy → {copyTargetPeriod.label}</button>
             </div>
           </div>
           <div className="order-2 flex h-full flex-col rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-2">
