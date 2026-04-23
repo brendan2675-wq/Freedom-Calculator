@@ -1,99 +1,107 @@
 
-Update the main property summary tile on the Cashflow Tracker so it follows the sketch layout more clearly and uses a cleaner 3-column structure.
+## Plan: FY Docs upload UI with cloud-service placeholders
 
-## Layout changes
+### Scope
+Implement the FY Docs frontend workflow only. Uploaded documents will not be retained, and there will be no backend/Supabase extraction integration in this step.
 
-Rework the property tile in `src/pages/CashflowTracker.tsx` into three aligned columns.
+### What will be built
 
-### Top control row
+1. Replace the current prototype upload toast
+- Keep the existing multi-file device upload input.
+- Change the behaviour from “future release” toast to an in-memory import flow.
+- Show selected files inside the FY Docs tile with basic statuses such as:
+  - Ready for review
+  - Needs backend extraction
+  - Unsupported file type
+- Clear the file input after selection so users can reselect the same file if needed.
 
-Place the controls into the same column rhythm as the metrics:
+2. Add cloud-service placeholders
+- Add disabled/placeholder buttons for:
+  - Google Drive
+  - OneDrive
+- These will be clearly labelled as “coming soon” or “backend required”.
+- Clicking them can show a short toast explaining that cloud import will be connected later by the backend/cloud auth work.
+- No OAuth, connectors, tokens, or cloud API calls will be added.
 
-```text
-[ Property name ] [ Select property dropdown ] [ New property button ]
+3. Add a review/apply UI scaffold
+- Add a review dialog or drawer for document-derived cashflow items.
+- For now, because there is no backend extraction, uploaded files will create review rows that need manual completion.
+- The review row fields will support the future backend response shape:
+  - File name
+  - Supplier
+  - Month
+  - Category
+  - Amount
+  - Recurring yes/no
+  - Frequency
+
+4. Add frontend extraction contract
+- Add a small typed model, likely in `src/lib/documentExtraction.ts`, for the backend developer to connect later.
+- The frontend will expect future extracted items in a stable shape, for example:
+
+```ts
+type ExtractedCashflowItem = {
+  id: string;
+  fileName: string;
+  supplier?: string;
+  monthIndex?: number;
+  amount?: number;
+  category:
+    | "council"
+    | "insurance"
+    | "land-tax"
+    | "water"
+    | "repairs"
+    | "body-corporate"
+    | "legal"
+    | "pest"
+    | "cleaning"
+    | "gardening"
+    | "sundry";
+  confidence?: number;
+  recurring?: {
+    isRecurring: boolean;
+    frequency?: "monthly" | "quarterly" | "annual";
+  };
+  status: "needs-review" | "ready" | "failed";
+};
 ```
 
-This means:
+5. Apply reviewed items to cashflow
+- Once a row has category, month, and amount, the user can apply it.
+- One-off items will add into the matching worksheet row/month.
+- If the same cell already has a value, the imported amount will be added to the existing value.
+- Recurring utility items will update existing Utilities & Charges controls:
+  - Council rates
+  - Insurance
+  - Land tax
+  - Water charges
+- The existing autosave/localStorage flow will persist only the approved cashflow values, not the source documents.
 
-- the property dropdown will line up with the metrics column beneath it
-- the new property button will line up with the next metrics column
-- the controls will feel intentionally placed instead of floating on the right
-
-On mobile, this will collapse into a single-column stacked layout so the controls remain easy to tap.
-
-## Metric rows
-
-Reorder the summary metrics to match the sketch:
-
+### Files likely to change
 ```text
-[ Interest rate ]      [ Weekly rent ]       [ Total expenses ]
-[ Total loan amount ]  [ Rental income ]     [ Yearly cashflow ]
+src/pages/CashflowTracker.tsx
+src/lib/documentExtraction.ts
 ```
 
-This is a clearer grouping because:
-
-- rate/rent/expenses are the operating assumptions
-- loan/income/cashflow are the resulting financial outputs
-
-The existing values and calculations will not change.
-
-## Bottom tag row
-
-Replace the current single ownership pill with a full tag row:
-
+Potentially add:
 ```text
-[ Personal / Trust ]   [ Bank: ... ]   [ Property Manager: ... ]
+src/components/FyDocsReviewDialog.tsx
 ```
 
-Implementation detail:
+### Safety and privacy
+- No uploaded document files will be stored in localStorage.
+- No uploaded document files will be stored in Supabase.
+- No raw OCR text will be persisted.
+- Only user-approved cashflow amounts/categories/months will be saved through the existing cashflow state.
 
-- ownership tag remains based on `propertyDetails.ownership` and `propertyDetails.trustName`
-- bank tag uses `propertyDetails.bank`
-- property manager tag uses `propertyDetails.manager`
-- if Bank or Property Manager are blank, show a muted placeholder such as:
-
-```text
-Bank: Not set
-Property Manager: Not set
-```
-
-This keeps the row visually balanced and prompts the user to complete the details.
-
-## Styling approach
-
-Use the existing Atelier Wealth styling:
-
-- rounded pill tags
-- muted background for secondary tags
-- orange accent icons where already used
-- consistent `border-t` separator above the bottom tags
-- minimum 44px tap targets for dropdown and button
-- no new colours or design system changes
-
-## Preserve existing behaviour
-
-No changes to:
-
-- property linking logic
-- new property creation logic
-- cashflow calculations
-- autosave
-- FY Docs tile
-- Utilities & Charges tile
-- export/copy functionality
-
-## Expected result
-
-The property tile becomes:
-
-```text
-[ St Kilda ]           [ St Kilda dropdown ]       [ + New property ]
-
-[ Interest rate ]      [ Weekly rent ]             [ Total expenses ]
-[ 6.25% ]              [ $0 ]                       [ $71,760 ]
-
-[ Total loan amount ]  [ Rental income ]           [ Yearly cashflow ]
-[ $1,148,227 ]         [ $0 ]                       [ $71,760 ]
-
-[ Personal ]           [ Bank: Not set ]            [ Property Manager: Not set ]
-```
+### Testing after implementation
+- Select one file and confirm it appears in the FY Docs import list.
+- Select multiple files and confirm each is listed.
+- Confirm unsupported file handling is clear.
+- Confirm Google Drive and OneDrive show as placeholders only.
+- Confirm review dialog fields can be edited.
+- Confirm applying an item updates the correct cashflow row/month.
+- Confirm duplicate row/month imports add to the existing cell.
+- Confirm recurring utility imports update the matching utility schedule.
+- Confirm uploaded files are not persisted after refresh.
