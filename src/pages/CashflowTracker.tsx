@@ -1211,7 +1211,7 @@ const CashflowTracker = () => {
 
 type ExpenseFrequency = "annual" | "quarterly" | "monthly";
 
-const OverallCashflowView = ({ rows, totals, financialYear, financialPeriods, taxSettings, onFinancialYearChange, onTaxSettingsChange, onOpenDetail }: { rows: CashflowOverviewRow[]; totals: { income: number; expenses: number; net: number; taxBenefit: number; afterTax: number }; financialYear: string; financialPeriods: typeof financialPeriods; taxSettings: CashflowTaxSettings; onFinancialYearChange: (year: string) => void; onTaxSettingsChange: (updates: Partial<CashflowTaxSettings>) => void; onOpenDetail: (propertyId: string) => void }) => (
+const OverallCashflowView = ({ rows, totals, financialYear, financialPeriods, taxSettings, onFinancialYearChange, onTaxSettingsChange, onOpenDetail }: { rows: CashflowOverviewRow[]; totals: { income: number; expenses: number; net: number; taxBenefit: number; afterTax: number }; financialYear: string; financialPeriods: FinancialPeriodOption[]; taxSettings: CashflowTaxSettings; onFinancialYearChange: (year: string) => void; onTaxSettingsChange: (updates: Partial<CashflowTaxSettings>) => void; onOpenDetail: (propertyId: string) => void }) => (
   <section className="space-y-4">
     <div className="grid gap-4 md:grid-cols-3">
       <SummaryPanel label="Portfolio before tax" value={formatCurrency(totals.net)} />
