@@ -822,7 +822,7 @@ const CashflowTracker = () => {
                 {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
               </select>
             </div>
-            <div className="mt-4 space-y-2 border-t border-border/70 pt-4 text-sm">
+            <div className="mt-4 space-y-2 text-sm">
               {showScenarioStatus && (
                 <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
               )}
