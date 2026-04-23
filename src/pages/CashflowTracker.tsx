@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, Building2, CalendarDays, Download, Home, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload } from "lucide-react";
+import { Banknote, CalendarDays, Download, Home, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
@@ -15,6 +15,10 @@ import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
 import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
+const financialPeriods = [
+  { financialYear: "FY2027", label: "Period ended 30 June 2027", months },
+  { financialYear: "FY2026", label: "Period ended 30 June 2026", months: ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"] },
+];
 
 const CASHFLOW_TEMPLATE_VERSION = 2;
 const INITIAL_WEEKLY_RENT = 0;
@@ -204,6 +208,8 @@ const CashflowTracker = () => {
     : lastAutosavedAt
       ? `Autosaved ${lastAutosavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
       : "Autosave ready";
+  const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || financialPeriods[0];
+  const displayMonths = selectedFinancialPeriod.months;
 
   const syncHorizontalScroll = (source: "top" | "table") => {
     if (syncingScrollRef.current) return;
@@ -285,11 +291,11 @@ const CashflowTracker = () => {
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
-    const expensesByMonth = months.map((_, i) => rows.filter((r) => r.type === "expense").reduce((sum, row) => sum + row.values[i], 0));
+    const expensesByMonth = displayMonths.map((_, i) => rows.filter((r) => r.type === "expense").reduce((sum, row) => sum + row.values[i], 0));
     const incomeByMonth = rows.find((r) => r.type === "income")?.values || [];
     const expenses = expensesByMonth.reduce((a, b) => a + b, 0);
     return { income, expenses, net: income - expenses, holdingCost: Math.max(expenses - income, 0), incomeByMonth, expensesByMonth };
-  }, [rows]);
+  }, [rows, displayMonths]);
 
   const updateRow = (rowId: string, updates: Partial<CashflowRow>) => {
     setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...updates } : row)));
@@ -484,6 +490,31 @@ const CashflowTracker = () => {
     toast.info(`${files.length} file${files.length === 1 ? "" : "s"} queued. Receipt scanning will populate totals in a future release.`);
   };
 
+  const handlePeriodChange = (nextYear: string) => {
+    setFinancialYear(nextYear);
+    if (!cashflowContext) return;
+    skipNextAutosaveRef.current = true;
+    const nextContext = { ...cashflowContext, financialYear: nextYear };
+    setActiveCashflowContext(nextContext);
+    setCashflowContextState(nextContext);
+    const record = getCashflowForProperty<CashflowState>(nextContext);
+    if (record?.state) {
+      const normalized = normalizeCashflowState(record.state);
+      setRows(normalized.rows);
+      setPropertyDetails(normalized.propertyDetails);
+      setCouncilRates(normalized.councilRates);
+      setInsurance(normalized.insurance);
+      setLandTax(normalized.landTax);
+      setWater(normalized.water);
+      setActiveMonth(normalized.activeMonth);
+      setLastAutosavedAt(new Date(record.savedAt));
+      setAutosaveStatus("saved");
+      return;
+    }
+    setLastAutosavedAt(null);
+    setAutosaveStatus("idle");
+  };
+
   const saveCashflowScenario = () => {
     const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
     const existing = savedScenarios.find((scenario) => scenario.name.toLowerCase() === name.toLowerCase());
@@ -515,15 +546,14 @@ const CashflowTracker = () => {
     toast.success(`Updated "${active.name}"`);
   };
 
-  const saveAsNewYear = () => {
+  const saveAsNewPeriod = () => {
     if (!cashflowContext) return updateActiveCashflowScenario();
-    const nextYear = window.prompt("Financial year", financialYear === "FY2027" ? "FY2028" : financialYear);
-    if (!nextYear) return;
-    const nextContext = { ...cashflowContext, financialYear: nextYear };
-    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${nextYear}`);
-    setFinancialYear(nextYear);
+    const nextPeriod = financialPeriods.find((period) => period.financialYear !== financialYear)?.financialYear || financialYear;
+    const nextContext = { ...cashflowContext, financialYear: nextPeriod };
+    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${nextPeriod}`);
+    setFinancialYear(nextPeriod);
     setCashflowContextState(saved);
-    toast.success(`Saved as ${nextYear}`);
+    toast.success(`Copied to ${financialPeriods.find((period) => period.financialYear === nextPeriod)?.label || nextPeriod}`);
   };
 
   const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
@@ -585,7 +615,7 @@ const CashflowTracker = () => {
       ["Rental Expenses", formatCurrency(totals.expenses)],
       ["Cashflow end of year", formatCurrency(totals.net)],
       [],
-      ["Detailed Breakdown", ...months, "Subtotal"],
+      ["Detailed Breakdown", ...displayMonths, "Subtotal"],
       ...populatedRows.map((row) => [row.label, ...row.values.map(formatCurrency), formatCurrency(row.values.reduce((sum, value) => sum + value, 0))]),
       ["Total Income", ...totals.incomeByMonth.map(formatCurrency), formatCurrency(totals.income)],
       ["Total Expenses", ...totals.expensesByMonth.map(formatCurrency), formatCurrency(totals.expenses)],
@@ -622,15 +652,6 @@ const CashflowTracker = () => {
               <h1 className="mb-1 text-xl font-bold md:mb-3 md:text-5xl">Cashflow Tracker</h1>
               <p className="max-w-2xl text-sm font-light text-accent md:text-xl">Track your properties on-going expenses and income</p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row md:items-center">
-              <label className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent/90">
-                <Upload size={18} /> Upload invoices / receipts
-                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
-              </label>
-              <div className="rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent">
-                Period ended 30th June 2027
-              </div>
-            </div>
           </div>
         </div>
       </header>
@@ -640,70 +661,51 @@ const CashflowTracker = () => {
           <ScenarioContextBanner compact />
         </div>
         <section className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="space-y-4">
-            <div className="flex flex-col gap-1 md:flex-row md:items-start md:justify-between">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Property cashflow</p>
-                <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.nickname || propertyDetails.address || "Choose a property"}</h2>
-                <p className="text-sm text-muted-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
-              </div>
-              <p className="text-sm font-semibold text-accent">{autosaveLabel}</p>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="grid gap-2 sm:grid-cols-[minmax(0,280px)_auto]">
+              <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
+              </select>
+              <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
+                <Upload size={16} /> Upload invoices / receipts
+                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
+              </label>
             </div>
-            {portfolioProperties.length > 0 ? (
-              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto]">
-                <select value={cashflowContext?.propertyId || selectedPortfolioProperty?.id || ""} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
-                  <option value="" disabled>Select property</option>
-                  {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-                </select>
-                <select
-                  value={financialYear}
-                  onChange={(event) => {
-                    const nextYear = event.target.value;
-                    setFinancialYear(nextYear);
-                    if (cashflowContext) {
-                      skipNextAutosaveRef.current = true;
-                      const nextContext = { ...cashflowContext, financialYear: nextYear };
-                      setActiveCashflowContext(nextContext);
-                      setCashflowContextState(nextContext);
-                      const record = getCashflowForProperty<CashflowState>(nextContext);
-                      if (record?.state) {
-                        const normalized = normalizeCashflowState(record.state);
-                        setRows(normalized.rows);
-                        setPropertyDetails(normalized.propertyDetails);
-                        setCouncilRates(normalized.councilRates);
-                        setInsurance(normalized.insurance);
-                        setLandTax(normalized.landTax);
-                        setWater(normalized.water);
-                        setActiveMonth(normalized.activeMonth);
-                        setLastAutosavedAt(new Date(record.savedAt));
-                        setAutosaveStatus("saved");
-                      } else {
-                        setLastAutosavedAt(null);
-                        setAutosaveStatus("idle");
-                      }
-                    }
-                  }}
-                  className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
-                >
-                  {['FY2027', 'FY2028', 'FY2029', 'FY2030'].map((year) => <option key={year} value={year}>{year}</option>)}
-                </select>
-                <button onClick={saveAsNewYear} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Copy to another year</button>
+            <div className="flex flex-col gap-1 text-sm lg:items-end">
+              <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="font-semibold text-accent">{autosaveLabel}</p>
+                <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy to another period</button>
               </div>
-            ) : (
-              <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm font-medium text-muted-foreground">No portfolio properties yet</p>
-                <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add property</button>
-              </div>
-            )}
+            </div>
           </div>
         </section>
         <section className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-5">
-          <button onClick={() => openPropertyDetailsSheet("current")} className="group w-full rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-2" aria-label="Edit property details">
-              <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-3">
+          <div
+            onClick={() => openPropertyDetailsSheet("current")}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openPropertyDetailsSheet("current");
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            className="group w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-2"
+            aria-label="Edit property details"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex min-w-0 items-center gap-2">
                   <InvestmentTypeIcon type={propertyDetails.investmentType} size={18} className="shrink-0 text-accent" />
                   <p className="truncate text-base font-semibold text-foreground">{propertyDetails.nickname || "Untitled property"}</p>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-[minmax(0,180px)_auto]" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                  <select value={cashflowContext?.propertyId || selectedPortfolioProperty?.id || ""} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                    <option value="" disabled>Select property</option>
+                    {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                  </select>
+                  <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> New property</button>
                 </div>
               </div>
               {propertyDetails.address && <p className="truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
@@ -718,7 +720,7 @@ const CashflowTracker = () => {
                 </span>
               </div>
             </div>
-          </button>
+          </div>
           <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
           <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
           <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
@@ -835,14 +837,14 @@ const CashflowTracker = () => {
             <table className="w-full min-w-[1120px] table-fixed border-collapse text-xs lg:min-w-0 lg:text-sm">
               <colgroup>
                 <col className="w-[168px] sm:w-[210px] lg:w-[18%]" />
-                {months.map((month) => <col key={month} className="w-[70px] lg:w-[5.8%]" />)}
+                {displayMonths.map((month) => <col key={month} className="w-[70px] lg:w-[5.8%]" />)}
                 <col className="w-[88px] lg:w-[7.2%]" />
                 <col className="w-[72px] lg:w-[5.4%]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-border bg-muted/40">
                    <th className="sticky left-0 z-30 bg-muted px-2 py-2 text-left font-bold text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">Cashflow item</th>
-                  {months.map((month, i) => (
+                  {displayMonths.map((month, i) => (
                     <th key={month} className="px-1 py-2 text-right lg:px-1.5">
                       <button onClick={() => setActiveMonth(i)} className={`min-h-11 w-full rounded-lg px-1 text-xs font-bold transition-colors lg:text-sm ${activeMonth === i ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent/10"}`}>
                         {month}
