@@ -15,11 +15,19 @@ import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
 import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 
-const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
+const createFinancialYearMonths = (endYear: number) => {
+  const priorYear = String(endYear - 1).slice(-2);
+  const currentYear = String(endYear).slice(-2);
+  return [`Jul-${priorYear}`, `Aug-${priorYear}`, `Sep-${priorYear}`, `Oct-${priorYear}`, `Nov-${priorYear}`, `Dec-${priorYear}`, `Jan-${currentYear}`, `Feb-${currentYear}`, `Mar-${currentYear}`, `Apr-${currentYear}`, `May-${currentYear}`, `Jun-${currentYear}`];
+};
+const months = createFinancialYearMonths(2027);
 const financialPeriods = [
+  { financialYear: "FY2028", label: "FY 2028", months: createFinancialYearMonths(2028) },
   { financialYear: "FY2027", label: "FY 2027", months },
-  { financialYear: "FY2026", label: "FY 2026", months: ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"] },
+  { financialYear: "FY2026", label: "FY 2026", months: createFinancialYearMonths(2026) },
 ];
+const getFinancialYearNumber = (financialYear: string) => Number(financialYear.replace(/\D/g, "")) || 2027;
+const getFinancialPeriod = (endYear: number) => ({ financialYear: `FY${endYear}`, label: `FY ${endYear}`, months: createFinancialYearMonths(endYear) });
 
 const CASHFLOW_TEMPLATE_VERSION = 2;
 const INITIAL_WEEKLY_RENT = 0;
@@ -252,10 +260,10 @@ const CashflowTracker = () => {
   const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId)
     || portfolioProperties.find((item) => item.label === propertyDetails.nickname && (!propertyDetails.address || item.address === propertyDetails.address));
   const selectedPropertyId = cashflowContext?.propertyId || selectedPortfolioProperty?.id || "";
-  const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || financialPeriods[0];
-  const copyTargetPeriod = financialPeriods.find((period) => period.financialYear !== financialYear) || selectedFinancialPeriod;
-  const selectedPeriodIndex = financialPeriods.findIndex((period) => period.financialYear === financialYear);
-  const previousFinancialPeriod = selectedPeriodIndex >= 0 ? financialPeriods[selectedPeriodIndex + 1] : undefined;
+  const selectedFinancialYearNumber = getFinancialYearNumber(financialYear);
+  const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || getFinancialPeriod(selectedFinancialYearNumber);
+  const copyTargetPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber + 1}`) || getFinancialPeriod(selectedFinancialYearNumber + 1);
+  const previousFinancialPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber - 1}`) || getFinancialPeriod(selectedFinancialYearNumber - 1);
   const displayMonths = selectedFinancialPeriod.months;
 
   const syncHorizontalScroll = (source: "top" | "table") => {
@@ -847,11 +855,11 @@ const CashflowTracker = () => {
               {autosaveStatus === "saving" && <p className="font-semibold text-accent">Saving…</p>}
               <div className="grid gap-2">
                 <div className="grid grid-cols-2 gap-2">
-                <button onClick={copyFromPreviousPeriod} disabled={!previousFinancialPeriod} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-50">
-                  <Copy size={16} /> Copy from prior FY
+                <button onClick={copyFromPreviousPeriod} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-50">
+                  <Copy size={16} /> Copy from {previousFinancialPeriod.label.replace(" ", "")}
                 </button>
                 <button onClick={saveAsNewPeriod} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-foreground transition-colors hover:bg-muted">
-                  <Copy size={16} /> Copy → {copyTargetPeriod.label}
+                  <Copy size={16} /> Copy → {copyTargetPeriod.label.replace(" ", "")}
                 </button>
                 </div>
                 <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90">
