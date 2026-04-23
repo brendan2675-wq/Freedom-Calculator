@@ -77,24 +77,6 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
     let standardPIPayment = 0;
     let acceleratedPIPayment = 0;
 
-    const pAndIMonthsRemaining = (() => {
-      if (loanBalance <= 0) return 0;
-      const totalMonths = Math.max(1, totalLoanMonths);
-      const payment = calcPIPayment(loanBalance, totalMonths);
-      let balance = loanBalance;
-      let months = 0;
-
-      while (balance > 0 && months < totalMonths + 1) {
-        const interest = balance * monthlyRate;
-        const principal = payment - interest;
-        if (principal <= 0) return totalMonths;
-        balance = Math.max(0, balance - principal);
-        months += 1;
-      }
-
-      return months;
-    })();
-
     for (let i = 0; i <= years; i++) {
       const year = startYear + i;
 
@@ -149,12 +131,11 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         }
       }
     }
-    return { points, surplus, pAndIYearsRemaining: pAndIMonthsRemaining / 12 };
+    return { points, surplus };
   }, [loanBalance, targetYear, interestRate, sellDownEvents, repaymentType, loanTermYears, loanTermMonths, ioPeriodYears]);
 
   const data = chartResult.points;
   const surplusProfit = chartResult.surplus;
-  const pAndIYearsRemaining = chartResult.pAndIYearsRemaining;
 
   const hasSellDowns = sellDownEvents.length > 0;
 
@@ -442,18 +423,6 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       </div>
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
-      <div className="mb-4 rounded-xl bg-secondary/60 border border-border px-5 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div className="flex items-center gap-3">
-          <Clock size={18} className="text-accent shrink-0" />
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">Years remaining</p>
-            <p className="text-sm text-foreground">At the current rate with principal & interest repayments</p>
-          </div>
-        </div>
-        <p className="text-2xl font-bold text-accent sm:text-right">
-          {pAndIYearsRemaining.toFixed(1)} yrs
-        </p>
-      </div>
       {timeSaved && (
         <div className="mb-4 rounded-xl bg-accent/8 border border-accent/20 px-5 py-3.5 flex items-center gap-3">
           <Clock size={18} className="text-accent shrink-0" />
