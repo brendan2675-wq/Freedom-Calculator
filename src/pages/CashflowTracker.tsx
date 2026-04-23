@@ -817,9 +817,11 @@ const CashflowTracker = () => {
                   )}
                 </div>
                 <div className="flex items-center">
-                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                    Property Manager: {propertyDetails.manager || "Not set"}
-                  </span>
+                  {propertyDetails.manager && (
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                      Property Manager: {propertyDetails.manager}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
