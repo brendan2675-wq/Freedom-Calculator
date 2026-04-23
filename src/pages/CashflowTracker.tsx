@@ -1210,6 +1210,70 @@ const CashflowTracker = () => {
 
 type ExpenseFrequency = "annual" | "quarterly" | "monthly";
 
+const OverallCashflowView = ({ rows, totals, financialYear, financialPeriods, taxSettings, onFinancialYearChange, onTaxSettingsChange, onOpenDetail }: { rows: CashflowOverviewRow[]; totals: { income: number; expenses: number; net: number; taxBenefit: number; afterTax: number }; financialYear: string; financialPeriods: typeof financialPeriods; taxSettings: CashflowTaxSettings; onFinancialYearChange: (year: string) => void; onTaxSettingsChange: (updates: Partial<CashflowTaxSettings>) => void; onOpenDetail: (propertyId: string) => void }) => (
+  <section className="space-y-4">
+    <div className="grid gap-4 md:grid-cols-3">
+      <SummaryPanel label="Portfolio before tax" value={formatCurrency(totals.net)} />
+      <SummaryPanel label="Estimated negative gearing benefit" value={formatCurrency(totals.taxBenefit)} />
+      <SummaryPanel label="After-tax cashflow estimate" value={formatCurrency(totals.afterTax)} />
+    </div>
+
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="rounded-xl border border-border bg-card shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-foreground">Overall cashflow</h2>
+            <p className="text-sm text-muted-foreground">Annual property comparison for the selected financial year.</p>
+          </div>
+          <select value={financialYear} onChange={(event) => onFinancialYearChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+            {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
+          </select>
+        </div>
+        <div className="overflow-x-auto scrollbar-thin">
+          <table className="w-full min-w-[1040px] text-sm">
+            <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+              <tr>
+                {['Property', 'Value', 'Loan', 'Weekly rent', 'Income p.a.', 'Expenses p.a.', 'Net p.a.', 'Holding cost', 'Rental yield', 'Tax benefit', 'After-tax p.a.', 'Status', ''].map((heading) => <th key={heading} className="px-3 py-3 text-left font-bold">{heading}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => <tr key={row.id} className="border-b border-border/70">
+                <td className="px-3 py-3"><p className="font-bold text-foreground">{row.label}</p><p className="text-xs text-muted-foreground">{row.owner}{!row.hasWorksheet ? ' · No worksheet yet' : ''}{row.taxOwnership !== 'personal' && row.net < 0 ? ' · Tax varies' : ''}</p></td>
+                <td className="px-3 py-3 font-semibold text-foreground">{formatCurrency(row.estimatedValue)}</td>
+                <td className="px-3 py-3 font-semibold text-foreground">{formatCurrency(row.loanAmount)}</td>
+                <td className="px-3 py-3 font-semibold text-foreground">{formatCurrency(row.weeklyRent)}</td>
+                <td className="px-3 py-3 font-semibold text-foreground">{row.hasWorksheet ? formatCurrency(row.income) : '—'}</td>
+                <td className="px-3 py-3 font-semibold text-foreground">{row.hasWorksheet ? formatCurrency(row.expenses) : '—'}</td>
+                <td className="px-3 py-3 font-bold text-foreground">{row.hasWorksheet ? formatCurrency(row.net) : '—'}</td>
+                <td className="px-3 py-3 font-semibold text-foreground">{row.hasWorksheet ? formatCurrency(row.holdingCost) : '—'}</td>
+                <td className="px-3 py-3 font-semibold text-foreground">{formatPercent(row.rentalYield)}</td>
+                <td className="px-3 py-3 font-semibold text-foreground">{row.estimatedTaxBenefit ? formatCurrency(row.estimatedTaxBenefit) : '—'}</td>
+                <td className="px-3 py-3 font-bold text-foreground">{row.hasWorksheet ? formatCurrency(row.afterTaxCashflow) : '—'}</td>
+                <td className="px-3 py-3"><StatusBadge value={row.net} hasWorksheet={row.hasWorksheet} /></td>
+                <td className="px-3 py-3"><button onClick={() => onOpenDetail(row.id)} className="min-h-11 rounded-lg border border-border px-3 text-xs font-bold text-foreground transition-colors hover:bg-muted">Open detail</button></td>
+              </tr>)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside className="rounded-xl border border-border bg-card p-4 shadow-sm">
+        <h2 className="text-lg font-bold text-foreground">Income & tax estimate</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Estimate only, not tax advice.</p>
+        <div className="mt-4 space-y-3">
+          <PropertySheetField label="Your taxable income"><CurrencyEntryField value={taxSettings.primaryIncome} onChange={(primaryIncome) => onTaxSettingsChange({ primaryIncome })} /></PropertySheetField>
+          <label className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border px-3 text-sm font-semibold text-foreground"><span>Include partner</span><input type="checkbox" checked={taxSettings.includePartner} onChange={(event) => onTaxSettingsChange({ includePartner: event.target.checked })} /></label>
+          {taxSettings.includePartner && <PropertySheetField label="Partner taxable income"><CurrencyEntryField value={taxSettings.partnerIncome} onChange={(partnerIncome) => onTaxSettingsChange({ partnerIncome })} /></PropertySheetField>}
+          <label className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border px-3 text-sm font-semibold text-foreground"><span>Include Medicare levy</span><input type="checkbox" checked={taxSettings.includeMedicare} onChange={(event) => onTaxSettingsChange({ includeMedicare: event.target.checked })} /></label>
+        </div>
+      </aside>
+    </div>
+  </section>
+);
+
+const SummaryPanel = ({ label, value }: { label: string; value: string }) => <div className="rounded-xl border border-border bg-card p-4 shadow-sm"><p className="text-sm font-semibold text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-bold text-foreground">{value}</p></div>;
+const StatusBadge = ({ value, hasWorksheet }: { value: number; hasWorksheet: boolean }) => <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${!hasWorksheet ? "bg-muted text-muted-foreground" : value > 0 ? "bg-primary/10 text-primary" : value < 0 ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>{!hasWorksheet ? "No worksheet" : value > 0 ? "Positive" : value < 0 ? "Negative" : "Neutral"}</span>;
+
 const PropertySheetField = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
     <label className="mb-1 block text-xs font-medium text-muted-foreground">{label}</label>
