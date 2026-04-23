@@ -93,6 +93,7 @@ type PortfolioPropertyOption = { id: string; label: string; address: string; own
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
 const CASHFLOW_WORKING_STATE_KEY = "cashflow-working-state";
+const CURRENT_CASHFLOW_PLAN_ID = "current-cashflow-plan";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
 const defaultInsurance: InsuranceState = { amount: 0, frequency: "monthly" };
 const defaultLandTax: LandTaxState = { amount: 0, frequency: "annual" };
@@ -208,7 +209,9 @@ const CashflowTracker = () => {
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
   const userRole = getRole();
   const showScenarioStatus = Boolean(linkedScenario) || userRole === "adviser" || userRole === "agent";
-  const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId);
+  const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId)
+    || portfolioProperties.find((item) => item.label === propertyDetails.nickname && (!propertyDetails.address || item.address === propertyDetails.address));
+  const selectedPropertyId = cashflowContext?.propertyId || selectedPortfolioProperty?.id || "";
   const autosaveLabel = autosaveStatus === "saving"
     ? "Saving…"
     : lastAutosavedAt
@@ -344,7 +347,7 @@ const CashflowTracker = () => {
   };
 
   const syncLinkedPortfolioProperty = (updates: { loanAmount?: number; interestRate?: number; weeklyRent?: number }) => {
-    const linkedId = cashflowContext?.propertyId;
+    const linkedId = selectedPropertyId;
     if (!linkedId) return;
     const applyUpdates = (item: ExistingProperty): ExistingProperty => {
       const nextLoanBalance = updates.loanAmount ?? item.loanBalance;
@@ -401,25 +404,23 @@ const CashflowTracker = () => {
     setPropertySheetMode("current");
     skipNextAutosaveRef.current = true;
     const scenario = getActiveScenario();
-    if (scenario) {
-      const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
-      setActiveCashflowContext(nextContext);
-      setCashflowContextState(nextContext);
-      const record = getCashflowForProperty<CashflowState>(nextContext);
-      if (record?.state) {
-        const normalized = normalizeCashflowState(record.state);
-        setRows(normalized.rows);
-        setPropertyDetails(normalized.propertyDetails);
-        setCouncilRates(normalized.councilRates);
-        setInsurance(normalized.insurance);
-        setLandTax(normalized.landTax);
-        setWater(normalized.water);
-        setActiveMonth(normalized.activeMonth);
-        setLastAutosavedAt(new Date(record.savedAt));
-        setAutosaveStatus("saved");
-        toast.success(`Loaded ${selected.label} cashflow`);
-        return;
-      }
+    const nextContext = { clientId: scenario?.clientId, scenarioId: scenario?.id || CURRENT_CASHFLOW_PLAN_ID, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
+    setActiveCashflowContext(nextContext);
+    setCashflowContextState(nextContext);
+    const record = getCashflowForProperty<CashflowState>(nextContext);
+    if (record?.state) {
+      const normalized = normalizeCashflowState(record.state);
+      setRows(normalized.rows);
+      setPropertyDetails(normalized.propertyDetails);
+      setCouncilRates(normalized.councilRates);
+      setInsurance(normalized.insurance);
+      setLandTax(normalized.landTax);
+      setWater(normalized.water);
+      setActiveMonth(normalized.activeMonth);
+      setLastAutosavedAt(new Date(record.savedAt));
+      setAutosaveStatus("saved");
+      toast.success(`Loaded ${selected.label} cashflow`);
+      return;
     }
     setPropertyDetails((current) => ({
       ...current,
@@ -478,7 +479,7 @@ const CashflowTracker = () => {
   };
 
   const savePropertyDetailsFromSheet = () => {
-    const linkedId = cashflowContext?.propertyId;
+    const linkedId = selectedPropertyId;
     const isLinkedPortfolioProperty = linkedId && linkedId !== "ppor" && propertySheetMode === "current";
     if (isLinkedPortfolioProperty) {
       const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
@@ -720,7 +721,7 @@ const CashflowTracker = () => {
                   <p className="truncate text-base font-semibold text-foreground">{propertyDetails.nickname || "Untitled property"}</p>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-[minmax(0,180px)_auto]" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                  <select value={cashflowContext?.propertyId || selectedPortfolioProperty?.id || ""} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                  <select value={selectedPropertyId} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
                     <option value="" disabled>Select property</option>
                     {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                   </select>
@@ -789,7 +790,7 @@ const CashflowTracker = () => {
 
               {propertySheetMode === "current" && (
                 <div className="space-y-2 rounded-lg border border-border p-3">
-                  <select onChange={(event) => linkPortfolioProperty(event.target.value)} value={cashflowContext?.propertyId || ""} className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                  <select onChange={(event) => linkPortfolioProperty(event.target.value)} value={selectedPropertyId} className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                     <option value="" disabled>Select existing portfolio property</option>
                     {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                   </select>
