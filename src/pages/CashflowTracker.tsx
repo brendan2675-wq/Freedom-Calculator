@@ -850,6 +850,11 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
+        <div className="mb-6 flex w-full rounded-lg border border-border bg-muted/40 p-1 sm:w-fit">
+          <button onClick={() => updateCashflowView("detail")} className={`min-h-11 flex-1 rounded-md px-4 text-sm font-bold transition-colors sm:flex-none ${cashflowView === "detail" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60 hover:text-foreground"}`}>Detail view</button>
+          <button onClick={() => updateCashflowView("overall")} className={`min-h-11 flex-1 rounded-md px-4 text-sm font-bold transition-colors sm:flex-none ${cashflowView === "overall" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60 hover:text-foreground"}`}>Overall view</button>
+        </div>
+        {cashflowView === "detail" ? <>
         <section className="grid items-stretch gap-4 xl:grid-cols-8">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
@@ -1155,6 +1160,19 @@ const CashflowTracker = () => {
             </table>
           </div>
         </section>
+        </> : (
+          <OverallCashflowView
+            financialYear={financialYear}
+            periods={financialPeriods}
+            onFinancialYearChange={handlePeriodChange}
+            rows={overallRows}
+            totals={overallTotals}
+            onOpenDetail={(propertyId) => {
+              linkPortfolioProperty(propertyId);
+              updateCashflowView("detail");
+            }}
+          />
+        )}
 
       </main>
     </div>
