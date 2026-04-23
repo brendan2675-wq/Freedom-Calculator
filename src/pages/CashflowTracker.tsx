@@ -819,7 +819,10 @@ const CashflowTracker = () => {
           </div>
           <div className="order-2 flex h-full flex-col rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-3">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <h2 className="truncate text-sm font-bold text-foreground">Utilities & Charges</h2>
+              <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground">
+                <Banknote size={16} className="shrink-0 text-accent" />
+                <span className="truncate">Utilities & Charges</span>
+              </h2>
               <button onClick={() => addRow("expense")} className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-md border border-border px-2 text-xs font-semibold text-foreground transition-colors hover:bg-muted" aria-label="Add charge">
                 <Plus size={14} /> Add
               </button>
@@ -1107,7 +1110,10 @@ const ExpenseControl = ({
 }) => (
   <div className="grid min-h-0 grid-cols-[minmax(4.75rem,1fr)_minmax(4.5rem,0.8fr)_5.75rem] items-center gap-2 border-b border-border/70 py-1.5 last:border-b-0">
     <p className="truncate text-xs font-semibold text-muted-foreground">{label}</p>
-    <Input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="h-8 min-w-0 px-2 text-sm font-bold tabular-nums" />
+    <div className="flex h-8 min-w-0 items-center rounded-md border border-input bg-background px-2 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+      <span className="text-xs font-bold text-accent">$</span>
+      <input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="min-w-0 flex-1 bg-transparent pl-1 text-sm font-bold text-foreground outline-none tabular-nums" />
+    </div>
     <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-8 min-w-0 rounded-md border border-input bg-background px-2 text-xs font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
         <option value="annual">Annual</option>
         <option value="quarterly">Quarterly</option>
