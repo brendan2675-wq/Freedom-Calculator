@@ -285,7 +285,6 @@ const CashflowTracker = () => {
   const previousFinancialPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber - 1}`) || getFinancialPeriod(selectedFinancialYearNumber - 1);
   const displayMonths = selectedFinancialPeriod.months;
   const propertyRentalYield = selectedPortfolioProperty?.estimatedValue ? ((propertyDetails.weeklyRent * 52) / selectedPortfolioProperty.estimatedValue) * 100 : 0;
-  const averageMonthlyExpenses = Math.round(totals.expenses / 12);
   const monthlyLoanRepayment = monthlyInterestOnlyCost(propertyDetails.loanAmount, propertyDetails.interestRate);
 
   const syncHorizontalScroll = (source: "top" | "table") => {
@@ -388,6 +387,7 @@ const CashflowTracker = () => {
     const incomeByMonth = rows.find((r) => r.type === "income")?.values || [];
     return { ...annualTotals, incomeByMonth, expensesByMonth };
   }, [rows, displayMonths]);
+  const averageMonthlyExpenses = Math.round(totals.expenses / 12);
 
   const overallRows = useMemo(() => {
     const activeScenarioIdForRecords = getActiveScenario()?.id || cashflowContext?.scenarioId || CURRENT_CASHFLOW_PLAN_ID;
