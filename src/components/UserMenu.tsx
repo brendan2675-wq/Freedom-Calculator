@@ -49,9 +49,6 @@ const UserMenu = ({ variant = "header" }: UserMenuProps) => {
           <span className={cn(variant === "tab" ? "block text-[11px] leading-none" : "hidden sm:inline text-xs md:text-sm font-medium max-w-[140px] truncate")}>
             {variant === "tab" ? "Account" : displayName}
           </span>
-          <span className="hidden sm:inline text-xs md:text-sm font-medium max-w-[140px] truncate">
-            {displayName}
-          </span>
           <ChevronDown size={14} className={cn("hidden opacity-70", variant === "header" && "sm:inline")} />
         </button>
       </DropdownMenuTrigger>
