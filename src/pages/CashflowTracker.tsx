@@ -247,6 +247,8 @@ const CashflowTracker = () => {
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
+  const [fyDocItems, setFyDocItems] = useState<ExtractedCashflowItem[]>([]);
+  const [fyDocsReviewOpen, setFyDocsReviewOpen] = useState(false);
   const topScrollRef = useRef<HTMLDivElement>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const syncingScrollRef = useRef(false);
@@ -577,9 +579,49 @@ const CashflowTracker = () => {
 
   const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
 
-  const handlePrototypeUpload = (files: FileList | null) => {
+  const handleFyDocsUpload = (files: FileList | null, input?: HTMLInputElement) => {
     if (!files?.length) return;
-    toast.info(`${files.length} file${files.length === 1 ? "" : "s"} queued. Receipt scanning will populate totals in a future release.`);
+    const nextItems = createCashflowDocumentPlaceholders(Array.from(files));
+    setFyDocItems((current) => [...current, ...nextItems]);
+    setFyDocsReviewOpen(true);
+    if (input) input.value = "";
+    const failedCount = nextItems.filter((item) => item.status === "failed").length;
+    toast.info(`${nextItems.length - failedCount} document${nextItems.length - failedCount === 1 ? "" : "s"} ready for review${failedCount ? `, ${failedCount} unsupported` : ""}.`);
+  };
+
+  const updateRecurringUtility = (category: ExtractedCashflowItem["category"], amount: number, frequency: CashflowDocumentFrequency) => {
+    if (category === "council") return updateCouncilRates({ amount, frequency });
+    if (category === "insurance") return updateInsurance({ amount, frequency });
+    if (category === "land-tax") return updateLandTax({ amount, frequency });
+    if (category === "water") return updateWater({ amount, frequency });
+  };
+
+  const applyReviewedFyDocs = (itemsToApply: ExtractedCashflowItem[]) => {
+    const recurringUtilityIds = new Set<string>();
+    itemsToApply.forEach((item) => {
+      if (item.recurring?.isRecurring && item.recurring.frequency && ["council", "insurance", "land-tax", "water"].includes(item.category)) {
+        updateRecurringUtility(item.category, item.amount || 0, item.recurring.frequency);
+        recurringUtilityIds.add(item.id);
+      }
+    });
+
+    setRows((current) => current.map((row) => {
+      const matchingItems = itemsToApply.filter((item) => !recurringUtilityIds.has(item.id) && item.category === row.id && item.monthIndex !== undefined && item.amount);
+      if (matchingItems.length === 0) return row;
+      const nextValues = [...row.values];
+      matchingItems.forEach((item) => {
+        nextValues[item.monthIndex!] = (nextValues[item.monthIndex!] || 0) + (item.amount || 0);
+      });
+      return { ...row, values: nextValues };
+    }));
+
+    setFyDocItems((current) => current.filter((item) => !itemsToApply.some((applied) => applied.id === item.id)));
+    setFyDocsReviewOpen(false);
+    toast.success(`${itemsToApply.length} document item${itemsToApply.length === 1 ? "" : "s"} applied to cashflow`);
+  };
+
+  const showCloudImportPlaceholder = (service: string) => {
+    toast.info(`${service} import will be connected with the backend cloud auth work.`);
   };
 
   const handlePeriodChange = (nextYear: string) => {
