@@ -811,16 +811,16 @@ const CashflowTracker = () => {
           <div className="order-3 h-full rounded-xl border border-border bg-card p-4 shadow-sm xl:col-span-2">
             <div className="mb-4 flex items-center gap-2">
               <CalendarDays size={18} className="text-accent" />
-              <h2 className="text-base font-bold text-foreground">FY & Docs</h2>
+              <h2 className="text-base font-bold text-foreground">FY Docs</h2>
             </div>
             <div className="grid gap-3">
-              <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
-                {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
-              </select>
               <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
                 <Upload size={16} /> Upload docs
                 <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
               </label>
+              <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
+              </select>
             </div>
             <div className="mt-4 space-y-2 border-t border-border/70 pt-4 text-sm">
               {showScenarioStatus && (
