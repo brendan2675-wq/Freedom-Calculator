@@ -208,6 +208,8 @@ const CashflowTracker = () => {
     : lastAutosavedAt
       ? `Autosaved ${lastAutosavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
       : "Autosave ready";
+  const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || financialPeriods[0];
+  const displayMonths = selectedFinancialPeriod.months;
 
   const syncHorizontalScroll = (source: "top" | "table") => {
     if (syncingScrollRef.current) return;
@@ -289,11 +291,11 @@ const CashflowTracker = () => {
 
   const totals = useMemo(() => {
     const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
-    const expensesByMonth = months.map((_, i) => rows.filter((r) => r.type === "expense").reduce((sum, row) => sum + row.values[i], 0));
+    const expensesByMonth = displayMonths.map((_, i) => rows.filter((r) => r.type === "expense").reduce((sum, row) => sum + row.values[i], 0));
     const incomeByMonth = rows.find((r) => r.type === "income")?.values || [];
     const expenses = expensesByMonth.reduce((a, b) => a + b, 0);
     return { income, expenses, net: income - expenses, holdingCost: Math.max(expenses - income, 0), incomeByMonth, expensesByMonth };
-  }, [rows]);
+  }, [rows, displayMonths]);
 
   const updateRow = (rowId: string, updates: Partial<CashflowRow>) => {
     setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...updates } : row)));
