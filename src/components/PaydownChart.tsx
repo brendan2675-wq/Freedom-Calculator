@@ -439,7 +439,7 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
         <h3 className="text-lg font-semibold text-foreground">Paydown Projection</h3>
         <p className="text-sm text-muted-foreground">
-          Years remaining with P&amp;I: <span className="font-semibold text-accent">{formatYearsRemaining(piYearsRemaining)}</span>
+          Years remaining: <span className="font-semibold text-accent">{formatYearsRemaining(piYearsRemaining)}</span>
         </p>
       </div>
       {timeSaved && (
