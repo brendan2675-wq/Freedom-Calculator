@@ -347,7 +347,7 @@ const CashflowTracker = () => {
   };
 
   const syncLinkedPortfolioProperty = (updates: { loanAmount?: number; interestRate?: number; weeklyRent?: number }) => {
-    const linkedId = cashflowContext?.propertyId;
+    const linkedId = selectedPropertyId;
     if (!linkedId) return;
     const applyUpdates = (item: ExistingProperty): ExistingProperty => {
       const nextLoanBalance = updates.loanAmount ?? item.loanBalance;
@@ -721,7 +721,7 @@ const CashflowTracker = () => {
                   <p className="truncate text-base font-semibold text-foreground">{propertyDetails.nickname || "Untitled property"}</p>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-[minmax(0,180px)_auto]" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                  <select value={cashflowContext?.propertyId || selectedPortfolioProperty?.id || ""} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                  <select value={selectedPropertyId} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
                     <option value="" disabled>Select property</option>
                     {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                   </select>
@@ -790,7 +790,7 @@ const CashflowTracker = () => {
 
               {propertySheetMode === "current" && (
                 <div className="space-y-2 rounded-lg border border-border p-3">
-                  <select onChange={(event) => linkPortfolioProperty(event.target.value)} value={cashflowContext?.propertyId || ""} className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                  <select onChange={(event) => linkPortfolioProperty(event.target.value)} value={selectedPropertyId} className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                     <option value="" disabled>Select existing portfolio property</option>
                     {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                   </select>
