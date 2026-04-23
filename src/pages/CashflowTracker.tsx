@@ -339,11 +339,40 @@ const CashflowTracker = () => {
     }
   };
 
+  const syncLinkedPortfolioProperty = (updates: { loanAmount?: number; interestRate?: number; weeklyRent?: number }) => {
+    const linkedId = cashflowContext?.propertyId;
+    if (!linkedId) return;
+    const applyUpdates = (item: ExistingProperty): ExistingProperty => {
+      const nextLoanBalance = updates.loanAmount ?? item.loanBalance;
+      const hasLoanSplits = Boolean(item.loanSplits?.length);
+      const nextLoanSplits = updates.loanAmount !== undefined && hasLoanSplits
+        ? item.loanSplits?.map((split, index) => index === 0 ? { ...split, amount: updates.loanAmount ?? split.amount } : { ...split, amount: 0 })
+        : item.loanSplits;
+      return {
+        ...item,
+        loanBalance: nextLoanBalance,
+        loanSplits: nextLoanSplits,
+        loan: { ...item.loan, interestRate: updates.interestRate ?? item.loan.interestRate },
+        rental: { ...item.rental, weeklyRent: updates.weeklyRent ?? item.rental.weeklyRent },
+      };
+    };
+
+    if (linkedId === "ppor") {
+      const stored = localStorage.getItem("portfolio-ppor");
+      if (stored) localStorage.setItem("portfolio-ppor", JSON.stringify(applyUpdates(JSON.parse(stored) as ExistingProperty)));
+    } else {
+      const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
+      localStorage.setItem("portfolio-properties", JSON.stringify(existing.map((item) => item.id === linkedId ? applyUpdates(item) : item)));
+    }
+    setPortfolioProperties(getPortfolioPropertyOptions());
+  };
+
   const updateLoanAmount = (loanAmount: number) => {
     setPropertyDetails((current) => {
       updateInterestRow(loanAmount, current.interestRate);
       return { ...current, loanAmount };
     });
+    syncLinkedPortfolioProperty({ loanAmount });
   };
 
   const updateInterestRate = (interestRate: number) => {
@@ -351,6 +380,7 @@ const CashflowTracker = () => {
       updateInterestRow(current.loanAmount, interestRate);
       return { ...current, interestRate };
     });
+    syncLinkedPortfolioProperty({ interestRate });
   };
 
   const addRow = (type: CashflowRow["type"]) => {
