@@ -15,7 +15,7 @@ import type { ExistingProperty, InvestmentType, LoanSplit } from "@/types/proper
 import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
 import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
-import { estimateNegativeGearingBenefit, getActiveCashflowContext, getAnnualCashflowSummary, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowAnnualSummary, type CashflowPropertyType, type CashflowTaxSettings } from "@/lib/cashflowManager";
+import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 import { createCashflowDocumentPlaceholders, type CashflowDocumentFrequency, type ExtractedCashflowItem } from "@/lib/documentExtraction";
 
 const createFinancialYearMonths = (endYear: number) => {
@@ -101,16 +101,11 @@ type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
 type CashflowPropertyDetails = typeof property;
-type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; estimatedValue: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
-type CashflowViewMode = "detail" | "overall";
-type CashflowOverviewRow = PortfolioPropertyOption & CashflowAnnualSummary & { hasWorksheet: boolean; estimatedTaxBenefit: number; afterTaxCashflow: number; rentalYield: number; taxOwnership: "personal" | "trust" | "smsf" };
-type FinancialPeriodOption = { financialYear: string; label: string; months: string[] };
+type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
 const CASHFLOW_WORKING_STATE_KEY = "cashflow-working-state";
-const CASHFLOW_VIEW_KEY = "cashflow-view-mode";
-const CASHFLOW_TAX_SETTINGS_KEY = "cashflow-tax-settings";
 const CURRENT_CASHFLOW_PLAN_ID = "current-cashflow-plan";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
 const defaultInsurance: InsuranceState = { amount: 0, frequency: "monthly" };
@@ -177,7 +172,6 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       weeklyRent: item.rental?.weeklyRent || 0,
       interestRate: getLinkedInterestRate(item),
       loanAmount: getLoanBalance(item),
-      estimatedValue: item.estimatedValue || 0,
       loanSplits: item.loanSplits || [],
       propertyType: item.id === "ppor" ? "ppor" : item.ownership === "trust" ? "smsf" : "investment",
       investmentType: item.investmentType || "house",
@@ -232,19 +226,9 @@ const getInitialCashflowState = (): CashflowState => {
   }
 };
 
-const getInitialCashflowView = (): CashflowViewMode => localStorage.getItem(CASHFLOW_VIEW_KEY) === "overall" ? "overall" : "detail";
-const getInitialTaxSettings = (): CashflowTaxSettings => {
-  try {
-    return { primaryIncome: 0, partnerIncome: 0, includePartner: false, includeMedicare: true, ...(JSON.parse(localStorage.getItem(CASHFLOW_TAX_SETTINGS_KEY) || "{}") as Partial<CashflowTaxSettings>) };
-  } catch {
-    return { primaryIncome: 0, partnerIncome: 0, includePartner: false, includeMedicare: true };
-  }
-};
-
 const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`;
 const parseCurrencyValue = (value: string) => Number(value.replace(/[^0-9]/g, "")) || 0;
 const formatInterestRate = (value: number) => `${value.toFixed(2)}%`;
-const formatPercent = (value: number) => `${value.toFixed(2)}%`;
 
 const CashflowTracker = () => {
   const navigate = useNavigate();
@@ -261,8 +245,6 @@ const CashflowTracker = () => {
   const [portfolioProperties, setPortfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
-  const [cashflowView, setCashflowView] = useState<CashflowViewMode>(getInitialCashflowView);
-  const [taxSettings, setTaxSettings] = useState<CashflowTaxSettings>(getInitialTaxSettings);
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
@@ -291,38 +273,6 @@ const CashflowTracker = () => {
   const copyTargetPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber + 1}`) || getFinancialPeriod(selectedFinancialYearNumber + 1);
   const previousFinancialPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber - 1}`) || getFinancialPeriod(selectedFinancialYearNumber - 1);
   const displayMonths = selectedFinancialPeriod.months;
-
-  const switchCashflowView = (view: CashflowViewMode) => {
-    setCashflowView(view);
-    localStorage.setItem(CASHFLOW_VIEW_KEY, view);
-  };
-
-  const updateTaxSettings = (updates: Partial<CashflowTaxSettings>) => {
-    setTaxSettings((current) => {
-      const next = { ...current, ...updates };
-      localStorage.setItem(CASHFLOW_TAX_SETTINGS_KEY, JSON.stringify(next));
-      return next;
-    });
-  };
-
-  const overallRows = useMemo(() => portfolioProperties.map((item) => {
-    const context = { clientId: cashflowContext?.clientId, scenarioId: cashflowContext?.scenarioId || getActiveScenario()?.id || CURRENT_CASHFLOW_PLAN_ID, propertyId: item.id, propertyType: item.propertyType, financialYear };
-    const record = getCashflowForProperty<CashflowState>(context);
-    const summary = record?.state ? getAnnualCashflowSummary(record.state) : { income: 0, expenses: 0, net: 0, holdingCost: 0 };
-    const taxOwnership: "personal" | "trust" | "smsf" = item.propertyType === "smsf" ? "smsf" : item.ownership;
-    const estimatedTaxBenefit = estimateNegativeGearingBenefit(summary.net, taxSettings, taxOwnership);
-    const afterTaxCashflow = summary.net + estimatedTaxBenefit;
-    const rentalYield = item.estimatedValue > 0 ? ((item.weeklyRent * 52) / item.estimatedValue) * 100 : 0;
-    return { ...item, hasWorksheet: Boolean(record?.state), ...summary, estimatedTaxBenefit, afterTaxCashflow, rentalYield, taxOwnership };
-  }), [portfolioProperties, cashflowContext?.clientId, cashflowContext?.scenarioId, financialYear, taxSettings]);
-
-  const overallTotals = useMemo(() => overallRows.reduce((acc, row) => ({
-    income: acc.income + row.income,
-    expenses: acc.expenses + row.expenses,
-    net: acc.net + row.net,
-    taxBenefit: acc.taxBenefit + row.estimatedTaxBenefit,
-    afterTax: acc.afterTax + row.afterTaxCashflow,
-  }), { income: 0, expenses: 0, net: 0, taxBenefit: 0, afterTax: 0 }), [overallRows]);
 
   const syncHorizontalScroll = (source: "top" | "table") => {
     if (syncingScrollRef.current) return;
@@ -804,27 +754,6 @@ const CashflowTracker = () => {
   };
 
   const exportCashflowSummary = () => {
-    if (cashflowView === "overall") {
-      const csvRows = [
-        ["Overall cashflow", selectedFinancialPeriod.label],
-        [],
-        ["Property", "Ownership", "Current Value", "Current Loan", "Weekly Rent", "Annual Rental Income", "Annual Expenses", "Net Annual Cashflow", "Holding Cost", "Rental Yield", "Estimated Tax Benefit", "After-tax Annual Cashflow", "Status"],
-        ...overallRows.map((row) => [row.label, row.owner, formatCurrency(row.estimatedValue), formatCurrency(row.loanAmount), formatCurrency(row.weeklyRent), formatCurrency(row.income), formatCurrency(row.expenses), formatCurrency(row.net), formatCurrency(row.holdingCost), formatPercent(row.rentalYield), formatCurrency(row.estimatedTaxBenefit), formatCurrency(row.afterTaxCashflow), row.net > 0 ? "Positive" : row.net < 0 ? "Negative" : "Neutral"]),
-        [],
-        ["Portfolio before tax", formatCurrency(overallTotals.net)],
-        ["Estimated negative gearing benefit", formatCurrency(overallTotals.taxBenefit)],
-        ["After-tax cashflow estimate", formatCurrency(overallTotals.afterTax)],
-      ];
-      const csv = csvRows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
-      link.download = `cashflow-overall-${new Date().toISOString().slice(0, 10)}.csv`;
-      link.click();
-      URL.revokeObjectURL(link.href);
-      toast.success("Overall cashflow summary exported");
-      return;
-    }
-
     const populatedPropertyFields = [
       ["Owner", propertyDetails.owner],
       ["Address", propertyDetails.address],
@@ -889,19 +818,6 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="inline-grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted/30 p-1">
-            {(["detail", "overall"] as CashflowViewMode[]).map((view) => (
-              <button key={view} onClick={() => switchCashflowView(view)} className={`min-h-11 rounded-md px-4 text-sm font-bold transition-colors ${cashflowView === view ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60"}`}>
-                {view === "detail" ? "Detail view" : "Overall view"}
-              </button>
-            ))}
-          </div>
-          <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90">
-            <Download size={16} /> Export summary
-          </button>
-        </div>
-        {cashflowView === "detail" ? <>
         <section className="grid items-stretch gap-4 xl:grid-cols-8">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
@@ -1207,7 +1123,6 @@ const CashflowTracker = () => {
             </table>
           </div>
         </section>
-        </> : <OverallCashflowView rows={overallRows} totals={overallTotals} financialYear={financialYear} financialPeriods={financialPeriods} taxSettings={taxSettings} onFinancialYearChange={handlePeriodChange} onTaxSettingsChange={updateTaxSettings} onOpenDetail={(propertyId) => { linkPortfolioProperty(propertyId); switchCashflowView("detail"); }} />}
 
       </main>
     </div>
@@ -1215,70 +1130,6 @@ const CashflowTracker = () => {
 };
 
 type ExpenseFrequency = "annual" | "quarterly" | "monthly";
-
-const OverallCashflowView = ({ rows, totals, financialYear, financialPeriods, taxSettings, onFinancialYearChange, onTaxSettingsChange, onOpenDetail }: { rows: CashflowOverviewRow[]; totals: { income: number; expenses: number; net: number; taxBenefit: number; afterTax: number }; financialYear: string; financialPeriods: FinancialPeriodOption[]; taxSettings: CashflowTaxSettings; onFinancialYearChange: (year: string) => void; onTaxSettingsChange: (updates: Partial<CashflowTaxSettings>) => void; onOpenDetail: (propertyId: string) => void }) => (
-  <section className="space-y-4">
-    <div className="grid gap-4 md:grid-cols-3">
-      <SummaryPanel label="Portfolio before tax" value={formatCurrency(totals.net)} />
-      <SummaryPanel label="Estimated negative gearing benefit" value={formatCurrency(totals.taxBenefit)} />
-      <SummaryPanel label="After-tax cashflow estimate" value={formatCurrency(totals.afterTax)} />
-    </div>
-
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="rounded-xl border border-border bg-card shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-foreground">Overall cashflow</h2>
-            <p className="text-sm text-muted-foreground">Annual property comparison for the selected financial year.</p>
-          </div>
-          <select value={financialYear} onChange={(event) => onFinancialYearChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
-            {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
-          </select>
-        </div>
-        <div className="overflow-x-auto scrollbar-thin">
-          <table className="w-full min-w-[1040px] text-sm">
-            <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-              <tr>
-                {['Property', 'Value', 'Loan', 'Weekly rent', 'Income p.a.', 'Expenses p.a.', 'Net p.a.', 'Holding cost', 'Rental yield', 'Tax benefit', 'After-tax p.a.', 'Status', ''].map((heading) => <th key={heading} className="px-3 py-3 text-left font-bold">{heading}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => <tr key={row.id} className="border-b border-border/70">
-                <td className="px-3 py-3"><p className="font-bold text-foreground">{row.label}</p><p className="text-xs text-muted-foreground">{row.owner}{!row.hasWorksheet ? ' · No worksheet yet' : ''}{row.taxOwnership !== 'personal' && row.net < 0 ? ' · Tax varies' : ''}</p></td>
-                <td className="px-3 py-3 font-semibold text-foreground">{formatCurrency(row.estimatedValue)}</td>
-                <td className="px-3 py-3 font-semibold text-foreground">{formatCurrency(row.loanAmount)}</td>
-                <td className="px-3 py-3 font-semibold text-foreground">{formatCurrency(row.weeklyRent)}</td>
-                <td className="px-3 py-3 font-semibold text-foreground">{row.hasWorksheet ? formatCurrency(row.income) : '—'}</td>
-                <td className="px-3 py-3 font-semibold text-foreground">{row.hasWorksheet ? formatCurrency(row.expenses) : '—'}</td>
-                <td className="px-3 py-3 font-bold text-foreground">{row.hasWorksheet ? formatCurrency(row.net) : '—'}</td>
-                <td className="px-3 py-3 font-semibold text-foreground">{row.hasWorksheet ? formatCurrency(row.holdingCost) : '—'}</td>
-                <td className="px-3 py-3 font-semibold text-foreground">{formatPercent(row.rentalYield)}</td>
-                <td className="px-3 py-3 font-semibold text-foreground">{row.estimatedTaxBenefit ? formatCurrency(row.estimatedTaxBenefit) : '—'}</td>
-                <td className="px-3 py-3 font-bold text-foreground">{row.hasWorksheet ? formatCurrency(row.afterTaxCashflow) : '—'}</td>
-                <td className="px-3 py-3"><StatusBadge value={row.net} hasWorksheet={row.hasWorksheet} /></td>
-                <td className="px-3 py-3"><button onClick={() => onOpenDetail(row.id)} className="min-h-11 rounded-lg border border-border px-3 text-xs font-bold text-foreground transition-colors hover:bg-muted">Open detail</button></td>
-              </tr>)}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <aside className="rounded-xl border border-border bg-card p-4 shadow-sm">
-        <h2 className="text-lg font-bold text-foreground">Income & tax estimate</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Estimate only, not tax advice.</p>
-        <div className="mt-4 space-y-3">
-          <PropertySheetField label="Your taxable income"><CurrencyEntryField value={taxSettings.primaryIncome} onChange={(primaryIncome) => onTaxSettingsChange({ primaryIncome })} ariaLabel="Your taxable income" /></PropertySheetField>
-          <label className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border px-3 text-sm font-semibold text-foreground"><span>Include partner</span><input type="checkbox" checked={taxSettings.includePartner} onChange={(event) => onTaxSettingsChange({ includePartner: event.target.checked })} /></label>
-          {taxSettings.includePartner && <PropertySheetField label="Partner taxable income"><CurrencyEntryField value={taxSettings.partnerIncome} onChange={(partnerIncome) => onTaxSettingsChange({ partnerIncome })} ariaLabel="Partner taxable income" /></PropertySheetField>}
-          <label className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border px-3 text-sm font-semibold text-foreground"><span>Include Medicare levy</span><input type="checkbox" checked={taxSettings.includeMedicare} onChange={(event) => onTaxSettingsChange({ includeMedicare: event.target.checked })} /></label>
-        </div>
-      </aside>
-    </div>
-  </section>
-);
-
-const SummaryPanel = ({ label, value }: { label: string; value: string }) => <div className="rounded-xl border border-border bg-card p-4 shadow-sm"><p className="text-sm font-semibold text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-bold text-foreground">{value}</p></div>;
-const StatusBadge = ({ value, hasWorksheet }: { value: number; hasWorksheet: boolean }) => <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${!hasWorksheet ? "bg-muted text-muted-foreground" : value > 0 ? "bg-primary/10 text-primary" : value < 0 ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>{!hasWorksheet ? "No worksheet" : value > 0 ? "Positive" : value < 0 ? "Negative" : "Neutral"}</span>;
 
 const PropertySheetField = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
@@ -1444,12 +1295,11 @@ const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon:
   </div>
 );
 
-const CurrencyEntryField = ({ value, onChange, compact = false, inputRef, highlight = false, ariaLabel }: { value: number; onChange: (value: number) => void; compact?: boolean; inputRef?: React.Ref<HTMLInputElement>; highlight?: boolean; ariaLabel?: string }) => (
+const CurrencyEntryField = ({ value, onChange, compact = false, inputRef, highlight = false }: { value: number; onChange: (value: number) => void; compact?: boolean; inputRef?: React.Ref<HTMLInputElement>; highlight?: boolean }) => (
   <div className={`flex items-center gap-1 rounded-md border bg-background ring-offset-background transition-all focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ${compact ? "h-8 min-w-0 flex-[2] px-1" : "h-10 px-3"} ${highlight ? "border-destructive ring-2 ring-destructive/30" : "border-input"}`}>
     <span className="text-sm font-medium text-muted-foreground">$</span>
     <input
       ref={inputRef}
-      aria-label={ariaLabel}
       inputMode="numeric"
       value={value ? value.toLocaleString() : ""}
       onChange={(event) => onChange(parseCurrencyValue(event.target.value))}
