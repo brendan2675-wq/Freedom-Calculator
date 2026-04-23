@@ -953,6 +953,14 @@ const CashflowTracker = () => {
           </div>
         </section>
 
+        <FyDocsUploadSourceDialog
+          open={fyDocsSourceOpen}
+          onOpenChange={setFyDocsSourceOpen}
+          onDeviceUpload={() => deviceUploadRef.current?.click()}
+          onPhoneUpload={() => phoneUploadRef.current?.click()}
+          onCloudPlaceholder={showCloudImportPlaceholder}
+        />
+
         <FyDocsReviewDialog
           open={fyDocsReviewOpen}
           onOpenChange={setFyDocsReviewOpen}
