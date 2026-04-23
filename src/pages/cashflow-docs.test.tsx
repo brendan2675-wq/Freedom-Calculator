@@ -15,7 +15,10 @@ const renderTracker = () => render(<BrowserRouter><CashflowTracker /></BrowserRo
 
 const file = (name: string, type: string) => new File(["sample bill content"], name, { type });
 
-const getReviewRow = (fileName: string) => screen.getByText(fileName).closest("div.grid") as HTMLElement;
+const getReviewRow = (fileName: string) => {
+  const reviewFileName = screen.getAllByText(fileName).find((element) => element.tagName.toLowerCase() === "p");
+  return reviewFileName?.closest("div.grid") as HTMLElement;
+};
 
 const completeReviewRow = (fileName: string, { monthIndex, category, amount, recurring = false, frequency = "monthly" }: { monthIndex: number; category: string; amount: number; recurring?: boolean; frequency?: string }) => {
   const row = getReviewRow(fileName);
@@ -52,11 +55,11 @@ describe("FY Docs upload workflow", () => {
     fireEvent.change(uploadInput, { target: { files } });
 
     expect(screen.getByText("Review FY documents")).toBeInTheDocument();
-    expect(screen.getByText("council-rates-fy2027.pdf")).toBeInTheDocument();
-    expect(screen.getByText("water-bill-fy2027.pdf")).toBeInTheDocument();
-    expect(screen.getByText("landlord-insurance-fy2027.pdf")).toBeInTheDocument();
-    expect(screen.getByText("bunnings-repair-receipt-fy2027.jpg")).toBeInTheDocument();
-    expect(screen.getByText("notes.txt")).toBeInTheDocument();
+    expect(screen.getAllByText("council-rates-fy2027.pdf").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("water-bill-fy2027.pdf").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("landlord-insurance-fy2027.pdf").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("bunnings-repair-receipt-fy2027.jpg").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("notes.txt").length).toBeGreaterThan(0);
     expect(screen.getByText("Unsupported file type.")).toBeInTheDocument();
     expect(localStorage.getItem("cashflow-working-state") || "").not.toContain("council-rates-fy2027.pdf");
   });
