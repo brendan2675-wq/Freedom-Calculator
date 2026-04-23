@@ -699,7 +699,7 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
-        <section className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
+        <section className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
             onKeyDown={(event) => {
@@ -710,7 +710,7 @@ const CashflowTracker = () => {
             }}
             role="button"
             tabIndex={0}
-            className="group w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="group h-full w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Edit property details"
           >
             <div className="flex flex-col gap-4">
@@ -745,7 +745,7 @@ const CashflowTracker = () => {
               </div>
             </div>
           </div>
-          <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="h-full rounded-xl border border-border bg-card p-4 shadow-sm">
             <div className="mb-4 flex items-center gap-2">
               <CalendarDays size={18} className="text-accent" />
               <h2 className="text-base font-bold text-foreground">Period & documents</h2>
