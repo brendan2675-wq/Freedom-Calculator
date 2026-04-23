@@ -992,18 +992,44 @@ const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon:
   </div>
 );
 
-const AssumptionInput = ({ icon: Icon, label, value, onChange, suffix, step = "1" }: { icon: typeof Home; label: string; value: number; onChange: (value: number) => void; suffix?: string; step?: string }) => (
-  <div className="rounded-lg bg-muted/30 p-3">
-    <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-      <Icon size={14} className="shrink-0 text-accent" />
-      <span className="truncate">{label}</span>
-    </div>
-    <div className="flex items-center gap-2">
-      <Input type="number" min="0" step={step} value={value === 0 ? "" : value} onChange={(event) => onChange(Number(event.target.value) || 0)} className="h-11 bg-background text-base font-bold tabular-nums" />
-      {suffix ? <span className="text-base font-bold text-muted-foreground">{suffix}</span> : null}
-    </div>
+const CurrencyEntryField = ({ value, onChange }: { value: number; onChange: (value: number) => void }) => (
+  <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+    <span className="text-sm font-medium text-muted-foreground">$</span>
+    <input
+      inputMode="numeric"
+      value={value ? value.toLocaleString() : ""}
+      onChange={(event) => onChange(parseCurrencyValue(event.target.value))}
+      className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none tabular-nums"
+    />
   </div>
 );
+
+const RateEntryField = ({ value, onChange }: { value: number; onChange: (value: number) => void }) => {
+  const [raw, setRaw] = useState(value ? value.toFixed(2) : "");
+
+  useEffect(() => {
+    setRaw(value ? value.toFixed(2) : "");
+  }, [value]);
+
+  return (
+    <div className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+      <input
+        inputMode="decimal"
+        value={raw}
+        onChange={(event) => {
+          const next = event.target.value;
+          if (next === "" || /^[0-9]*\.?[0-9]{0,2}$/.test(next)) {
+            setRaw(next);
+            onChange(next === "" ? 0 : Number(next) || 0);
+          }
+        }}
+        onBlur={() => setRaw(raw ? (Number(raw) || 0).toFixed(2) : "")}
+        className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none tabular-nums"
+      />
+      <span className="text-sm font-semibold text-muted-foreground">%</span>
+    </div>
+  );
+};
 
 const SummaryRow = ({ label, values, total }: { label: string; values: number[]; total: number }) => (
   <tr className="border-t-2 border-border bg-accent/10 font-bold">
