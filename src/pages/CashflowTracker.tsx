@@ -784,7 +784,7 @@ const CashflowTracker = () => {
             className="group h-full min-h-full w-full cursor-pointer self-stretch rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-4"
             aria-label="Edit property details"
           >
-            <div className="flex h-full flex-col gap-4">
+            <div className="flex h-full flex-col justify-between gap-4">
               <div className="grid gap-3 sm:grid-cols-3 sm:items-start">
                 <div className="flex min-h-11 min-w-0 flex-col justify-center">
                   <div className="flex min-w-0 items-center gap-2">
@@ -811,7 +811,7 @@ const CashflowTracker = () => {
                 <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
                 <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
               </div>
-              <div className="mt-1 grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-3">
+              <div className="grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-3">
                 <div className="flex items-center">
                   <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                     {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
