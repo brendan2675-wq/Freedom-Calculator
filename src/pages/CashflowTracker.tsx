@@ -802,6 +802,27 @@ const CashflowTracker = () => {
   };
 
   const exportCashflowSummary = () => {
+    if (cashflowView === "overall") {
+      const csvRows = [
+        ["Overall cashflow", selectedFinancialPeriod.label],
+        [],
+        ["Property", "Ownership", "Current Value", "Current Loan", "Weekly Rent", "Annual Rental Income", "Annual Expenses", "Net Annual Cashflow", "Holding Cost", "Rental Yield", "Estimated Tax Benefit", "After-tax Annual Cashflow", "Status"],
+        ...overallRows.map((row) => [row.label, row.owner, formatCurrency(row.estimatedValue), formatCurrency(row.loanAmount), formatCurrency(row.weeklyRent), formatCurrency(row.income), formatCurrency(row.expenses), formatCurrency(row.net), formatCurrency(row.holdingCost), formatPercent(row.rentalYield), formatCurrency(row.estimatedTaxBenefit), formatCurrency(row.afterTaxCashflow), row.net > 0 ? "Positive" : row.net < 0 ? "Negative" : "Neutral"]),
+        [],
+        ["Portfolio before tax", formatCurrency(overallTotals.net)],
+        ["Estimated negative gearing benefit", formatCurrency(overallTotals.taxBenefit)],
+        ["After-tax cashflow estimate", formatCurrency(overallTotals.afterTax)],
+      ];
+      const csv = csvRows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+      link.download = `cashflow-overall-${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      toast.success("Overall cashflow summary exported");
+      return;
+    }
+
     const populatedPropertyFields = [
       ["Owner", propertyDetails.owner],
       ["Address", propertyDetails.address],
