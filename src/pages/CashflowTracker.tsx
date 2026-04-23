@@ -749,7 +749,7 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
-        <section className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
+        <section className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.72fr)_minmax(280px,0.62fr)]">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
             onKeyDown={(event) => {
@@ -816,6 +816,12 @@ const CashflowTracker = () => {
               <p className="font-semibold text-accent">{autosaveLabel}</p>
               <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy to another period</button>
             </div>
+          </div>
+          <div className="grid h-full grid-rows-4 rounded-xl border border-border bg-card p-3 shadow-sm">
+            <ExpenseControl label="Council rates" value={councilRates.amount} frequency={councilRates.frequency} onAmountChange={(amount) => updateCouncilRates({ amount })} onFrequencyChange={(frequency) => updateCouncilRates({ frequency })} />
+            <ExpenseControl label="Insurance" value={insurance.amount} frequency={insurance.frequency} onAmountChange={(amount) => updateInsurance({ amount })} onFrequencyChange={(frequency) => updateInsurance({ frequency })} />
+            <ExpenseControl label="Land tax" value={landTax.amount} frequency={landTax.frequency} onAmountChange={(amount) => updateLandTax({ amount })} onFrequencyChange={(frequency) => updateLandTax({ frequency })} />
+            <ExpenseControl label="Water charges" value={water.amount} frequency={water.frequency} onAmountChange={(amount) => updateWater({ amount })} onFrequencyChange={(frequency) => updateWater({ frequency })} />
           </div>
         </section>
 
@@ -907,13 +913,6 @@ const CashflowTracker = () => {
             </div>
           </SheetContent>
         </Sheet>
-
-        <section className="mt-4 grid items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <ExpenseControl label="Council rates" value={councilRates.amount} frequency={councilRates.frequency} onAmountChange={(amount) => updateCouncilRates({ amount })} onFrequencyChange={(frequency) => updateCouncilRates({ frequency })} />
-          <ExpenseControl label="Insurance" value={insurance.amount} frequency={insurance.frequency} onAmountChange={(amount) => updateInsurance({ amount })} onFrequencyChange={(frequency) => updateInsurance({ frequency })} />
-          <ExpenseControl label="Land tax" value={landTax.amount} frequency={landTax.frequency} onAmountChange={(amount) => updateLandTax({ amount })} onFrequencyChange={(frequency) => updateLandTax({ frequency })} />
-          <ExpenseControl label="Water charges" value={water.amount} frequency={water.frequency} onAmountChange={(amount) => updateWater({ amount })} onFrequencyChange={(frequency) => updateWater({ frequency })} />
-        </section>
 
         <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
           <div className="flex flex-col gap-2 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
@@ -1099,16 +1098,14 @@ const ExpenseControl = ({
   onAmountChange: (value: number) => void;
   onFrequencyChange: (value: ExpenseFrequency) => void;
 }) => (
-  <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-    <p className="text-sm font-medium text-muted-foreground">{label}</p>
-    <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto]">
-      <Input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="h-11 text-lg font-bold tabular-nums" />
-      <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-11 rounded-md border border-input bg-background px-3 text-sm font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+  <div className="flex min-h-0 items-center gap-2 border-b border-border/70 py-1.5 last:border-b-0">
+    <p className="min-w-[6.5rem] flex-1 truncate text-xs font-semibold text-muted-foreground">{label}</p>
+    <Input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="h-9 w-24 text-sm font-bold tabular-nums" />
+    <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-9 w-28 rounded-md border border-input bg-background px-2 text-xs font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
         <option value="annual">Annual</option>
         <option value="quarterly">Quarterly</option>
         <option value="monthly">Monthly</option>
       </select>
-    </div>
   </div>
 );
 
