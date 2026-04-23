@@ -1267,9 +1267,9 @@ const OverallCashflowView = ({ rows, totals, financialYear, financialPeriods, ta
         <h2 className="text-lg font-bold text-foreground">Income & tax estimate</h2>
         <p className="mt-1 text-sm text-muted-foreground">Estimate only, not tax advice.</p>
         <div className="mt-4 space-y-3">
-          <PropertySheetField label="Your taxable income"><CurrencyEntryField value={taxSettings.primaryIncome} onChange={(primaryIncome) => onTaxSettingsChange({ primaryIncome })} /></PropertySheetField>
+          <PropertySheetField label="Your taxable income"><CurrencyEntryField value={taxSettings.primaryIncome} onChange={(primaryIncome) => onTaxSettingsChange({ primaryIncome })} ariaLabel="Your taxable income" /></PropertySheetField>
           <label className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border px-3 text-sm font-semibold text-foreground"><span>Include partner</span><input type="checkbox" checked={taxSettings.includePartner} onChange={(event) => onTaxSettingsChange({ includePartner: event.target.checked })} /></label>
-          {taxSettings.includePartner && <PropertySheetField label="Partner taxable income"><CurrencyEntryField value={taxSettings.partnerIncome} onChange={(partnerIncome) => onTaxSettingsChange({ partnerIncome })} /></PropertySheetField>}
+          {taxSettings.includePartner && <PropertySheetField label="Partner taxable income"><CurrencyEntryField value={taxSettings.partnerIncome} onChange={(partnerIncome) => onTaxSettingsChange({ partnerIncome })} ariaLabel="Partner taxable income" /></PropertySheetField>}
           <label className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border px-3 text-sm font-semibold text-foreground"><span>Include Medicare levy</span><input type="checkbox" checked={taxSettings.includeMedicare} onChange={(event) => onTaxSettingsChange({ includeMedicare: event.target.checked })} /></label>
         </div>
       </aside>
@@ -1444,11 +1444,12 @@ const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon:
   </div>
 );
 
-const CurrencyEntryField = ({ value, onChange, compact = false, inputRef, highlight = false }: { value: number; onChange: (value: number) => void; compact?: boolean; inputRef?: React.Ref<HTMLInputElement>; highlight?: boolean }) => (
+const CurrencyEntryField = ({ value, onChange, compact = false, inputRef, highlight = false, ariaLabel }: { value: number; onChange: (value: number) => void; compact?: boolean; inputRef?: React.Ref<HTMLInputElement>; highlight?: boolean; ariaLabel?: string }) => (
   <div className={`flex items-center gap-1 rounded-md border bg-background ring-offset-background transition-all focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ${compact ? "h-8 min-w-0 flex-[2] px-1" : "h-10 px-3"} ${highlight ? "border-destructive ring-2 ring-destructive/30" : "border-input"}`}>
     <span className="text-sm font-medium text-muted-foreground">$</span>
     <input
       ref={inputRef}
+      aria-label={ariaLabel}
       inputMode="numeric"
       value={value ? value.toLocaleString() : ""}
       onChange={(event) => onChange(parseCurrencyValue(event.target.value))}
