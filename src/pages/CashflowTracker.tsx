@@ -855,11 +855,11 @@ const CashflowTracker = () => {
               {autosaveStatus === "saving" && <p className="font-semibold text-accent">Saving…</p>}
               <div className="grid gap-2">
                 <div className="grid grid-cols-2 gap-2">
-                <button onClick={copyFromPreviousPeriod} disabled={!previousFinancialPeriod} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-50">
-                  <Copy size={16} /> Copy from prior FY
+                <button onClick={copyFromPreviousPeriod} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-50">
+                  <Copy size={16} /> Copy from {previousFinancialPeriod.label.replace(" ", "")}
                 </button>
                 <button onClick={saveAsNewPeriod} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-foreground transition-colors hover:bg-muted">
-                  <Copy size={16} /> Copy → {copyTargetPeriod.label}
+                  <Copy size={16} /> Copy → {copyTargetPeriod.label.replace(" ", "")}
                 </button>
                 </div>
                 <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90">
