@@ -379,12 +379,34 @@ const CashflowTracker = () => {
   }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, cashflowContext?.propertyId, cashflowContext?.scenarioId, financialYear]);
 
   const totals = useMemo(() => {
-    const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
+    const annualTotals = annualTotalsFromRows(rows);
     const expensesByMonth = displayMonths.map((_, i) => rows.filter((r) => r.type === "expense").reduce((sum, row) => sum + row.values[i], 0));
     const incomeByMonth = rows.find((r) => r.type === "income")?.values || [];
-    const expenses = expensesByMonth.reduce((a, b) => a + b, 0);
-    return { income, expenses, net: income - expenses, holdingCost: Math.max(expenses - income, 0), incomeByMonth, expensesByMonth };
+    return { ...annualTotals, incomeByMonth, expensesByMonth };
   }, [rows, displayMonths]);
+
+  const overallRows = useMemo(() => {
+    const activeScenarioIdForRecords = getActiveScenario()?.id || cashflowContext?.scenarioId || CURRENT_CASHFLOW_PLAN_ID;
+    const records = getCashflowRecords<CashflowState>();
+    return portfolioProperties.map((item) => {
+      const record = records.find((entry) => entry.propertyId === item.id && entry.financialYear === financialYear && entry.scenarioId === activeScenarioIdForRecords);
+      const annualTotals = record?.state ? annualTotalsFromRows(normalizeCashflowState(record.state).rows) : null;
+      const rentalYield = item.estimatedValue > 0 ? ((item.weeklyRent * 52) / item.estimatedValue) * 100 : 0;
+      return { ...item, record, annualTotals, rentalYield };
+    });
+  }, [portfolioProperties, financialYear, cashflowContext?.scenarioId]);
+
+  const overallTotals = useMemo(() => overallRows.reduce((acc, item) => ({
+    income: acc.income + (item.annualTotals?.income || 0),
+    expenses: acc.expenses + (item.annualTotals?.expenses || 0),
+    net: acc.net + (item.annualTotals?.net || 0),
+    holdingCost: acc.holdingCost + (item.annualTotals?.holdingCost || 0),
+  }), { income: 0, expenses: 0, net: 0, holdingCost: 0 }), [overallRows]);
+
+  const updateCashflowView = (nextView: CashflowView) => {
+    setCashflowView(nextView);
+    localStorage.setItem(CASHFLOW_VIEW_KEY, nextView);
+  };
 
   const updateRow = (rowId: string, updates: Partial<CashflowRow>) => {
     setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...updates } : row)));
