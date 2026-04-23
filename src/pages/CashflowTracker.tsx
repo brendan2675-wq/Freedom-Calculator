@@ -803,16 +803,24 @@ const CashflowTracker = () => {
                 <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
                 <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
               </div>
-              <div className="flex flex-wrap items-center gap-2 border-t border-border/70 pt-3">
-                <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                  {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
-                </span>
-                <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                  Bank: {propertyDetails.bank || "Not set"}
-                </span>
-                <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                  Property Manager: {propertyDetails.manager || "Not set"}
-                </span>
+              <div className="grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-3">
+                <div className="flex items-center">
+                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                    {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  {propertyDetails.bank && (
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                      Bank: {propertyDetails.bank}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center">
+                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                    Property Manager: {propertyDetails.manager || "Not set"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
