@@ -803,7 +803,7 @@ const CashflowTracker = () => {
                   <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> New property</button>
                 </div>
               </div>
-              <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
+              <div className="grid content-start gap-x-3 gap-y-4 border-t border-border/70 pt-4 sm:grid-cols-3">
                 <SummaryMeasure icon={Percent} label="Interest rate" value={formatInterestRate(propertyDetails.interestRate)} />
                 <SummaryMeasure icon={Home} label="Weekly rent" value={formatCurrency(propertyDetails.weeklyRent)} />
                 <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
@@ -811,7 +811,7 @@ const CashflowTracker = () => {
                 <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
                 <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
               </div>
-              <div className="mt-auto grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-3">
+              <div className="mt-1 grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-3">
                 <div className="flex items-center">
                   <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                     {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
