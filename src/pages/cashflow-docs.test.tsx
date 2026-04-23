@@ -3,6 +3,8 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { toast } from "sonner";
 import CashflowTracker from "@/pages/CashflowTracker";
+import { saveCashflowForProperty } from "@/lib/cashflowManager";
+import type { ExistingProperty } from "@/types/property";
 
 vi.mock("sonner", () => ({
   toast: {
@@ -14,6 +16,20 @@ vi.mock("sonner", () => ({
 const renderTracker = () => render(<BrowserRouter><CashflowTracker /></BrowserRouter>);
 
 const file = (name: string, type: string) => new File(["sample bill content"], name, { type });
+const propertyFixture = (id: string, nickname: string, weeklyRent: number): ExistingProperty => ({
+  id,
+  nickname,
+  address: `${nickname} Street`,
+  estimatedValue: 650000,
+  loanBalance: 420000,
+  earmarked: false,
+  sellInYears: 0,
+  ownership: "personal",
+  investmentType: "house",
+  loan: { interestRate: 6.2, interestOnlyPeriodYears: 0, loanTermYears: 30, lenderName: "", offsetBalance: 0 },
+  rental: { weeklyRent, vacancyRatePercent: 0, propertyManagerFeePercent: 0 },
+  purchase: { purchaseDate: "", purchasePrice: 0, stampDuty: 0, settlementDate: "" },
+});
 
 const getReviewRow = (fileName: string) => {
   const reviewFileName = screen.getAllByText(fileName).find((element) => element.tagName.toLowerCase() === "p");
@@ -126,5 +142,49 @@ describe("FY Docs upload workflow", () => {
 
     expect(toast.info).toHaveBeenCalledWith("Google Drive import will be connected with the backend cloud auth work.");
     expect(toast.info).toHaveBeenCalledWith("OneDrive import will be connected with the backend cloud auth work.");
+  });
+});
+
+describe("Cashflow overall view", () => {
+  it("switches to an annual overall view using saved worksheets without monthly cashflow or cashflow yield", () => {
+    localStorage.setItem("portfolio-properties", JSON.stringify([
+      propertyFixture("property-1", "Brisbane Unit", 600),
+      propertyFixture("property-2", "Perth House", 700),
+    ]));
+    saveCashflowForProperty({ scenarioId: "current-cashflow-plan", propertyId: "property-1", propertyType: "investment", financialYear: "FY2027" }, {
+      rows: [
+        { id: "rental-income", label: "Rental income", type: "income", values: Array(12).fill(2600) },
+        { id: "interest", label: "Interest", type: "expense", values: Array(12).fill(3200) },
+      ],
+    });
+
+    renderTracker();
+    fireEvent.click(screen.getByRole("button", { name: /overall view/i }));
+
+    expect(screen.getByText("Overall cashflow")).toBeInTheDocument();
+    expect(screen.getByText("Brisbane Unit")).toBeInTheDocument();
+    expect(screen.getByText("Perth House")).toBeInTheDocument();
+    expect(screen.getByText("No worksheet yet")).toBeInTheDocument();
+    expect(screen.getByText("-$7,200")).toBeInTheDocument();
+    expect(screen.queryByText(/monthly cashflow worksheet/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/cashflow yield/i)).not.toBeInTheDocument();
+  });
+
+  it("updates negative gearing estimate when partner income is included", () => {
+    localStorage.setItem("portfolio-properties", JSON.stringify([propertyFixture("property-1", "Brisbane Unit", 600)]));
+    saveCashflowForProperty({ scenarioId: "current-cashflow-plan", propertyId: "property-1", propertyType: "investment", financialYear: "FY2027" }, {
+      rows: [
+        { id: "rental-income", label: "Rental income", type: "income", values: Array(12).fill(2500) },
+        { id: "interest", label: "Interest", type: "expense", values: Array(12).fill(3500) },
+      ],
+    });
+
+    renderTracker();
+    fireEvent.click(screen.getByRole("button", { name: /overall view/i }));
+    fireEvent.change(screen.getByLabelText(/your taxable income/i).querySelector("input") as HTMLInputElement, { target: { value: "180000" } });
+    fireEvent.click(screen.getByLabelText(/include partner/i));
+    fireEvent.change(screen.getByLabelText(/partner taxable income/i).querySelector("input") as HTMLInputElement, { target: { value: "120000" } });
+
+    expect(screen.getAllByText("$4,140").length).toBeGreaterThan(0);
   });
 });
