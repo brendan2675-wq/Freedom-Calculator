@@ -725,10 +725,10 @@ const CashflowTracker = () => {
                 </div>
               </div>
               {propertyDetails.address && <p className="truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
-              <div className="grid gap-3 border-t border-border/70 pt-3 sm:grid-cols-3" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                <AssumptionInput label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
-                <AssumptionInput label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
-                <AssumptionInput label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
+              <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
+                <SummaryMeasure icon={Banknote} label="Total loan amount" value={formatCurrency(propertyDetails.loanAmount)} />
+                <SummaryMeasure icon={Percent} label="Interest rate" value={formatInterestRate(propertyDetails.interestRate)} />
+                <SummaryMeasure icon={Home} label="Weekly rent" value={formatCurrency(propertyDetails.weeklyRent)} />
               </div>
               <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
                 <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
@@ -826,16 +826,16 @@ const CashflowTracker = () => {
               <div className="space-y-4 border-t border-border pt-6">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Loan & Rental Details</h3>
                 <PropertySheetField label="Total Loan Amount">
-                  <Input type="number" min="0" value={propertyDetails.loanAmount || ""} onChange={(event) => updateLoanAmount(Number(event.target.value) || 0)} className="h-10" />
+                  <CurrencyEntryField value={propertyDetails.loanAmount} onChange={updateLoanAmount} />
                 </PropertySheetField>
                 <PropertySheetField label="Interest Rate">
-                  <Input type="number" min="0" step="0.01" value={propertyDetails.interestRate || ""} onChange={(event) => updateInterestRate(Number(event.target.value) || 0)} className="h-10" />
+                  <RateEntryField value={propertyDetails.interestRate} onChange={updateInterestRate} />
                 </PropertySheetField>
                 <PropertySheetField label="Lender / Bank">
                   <Input value={propertyDetails.bank} onChange={(event) => setPropertyDetails((current) => ({ ...current, bank: event.target.value }))} className="h-10" />
                 </PropertySheetField>
                 <PropertySheetField label="Weekly Rent">
-                  <Input type="number" min="0" value={propertyDetails.weeklyRent || ""} onChange={(event) => updatePropertyWeeklyRent(Number(event.target.value) || 0)} className="h-10" />
+                  <CurrencyEntryField value={propertyDetails.weeklyRent} onChange={updatePropertyWeeklyRent} />
                 </PropertySheetField>
                 <PropertySheetField label="Property Manager">
                   <Input value={propertyDetails.manager} onChange={(event) => setPropertyDetails((current) => ({ ...current, manager: event.target.value }))} className="h-10" />
