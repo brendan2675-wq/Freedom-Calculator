@@ -886,8 +886,33 @@ const CashflowTracker = () => {
             <div className="grid gap-3">
               <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
                 <Upload size={16} /> Upload docs
-                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
+                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handleFyDocsUpload(event.target.files, event.currentTarget)} />
               </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => showCloudImportPlaceholder("Google Drive")} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted">
+                  <Cloud size={15} /> Google Drive
+                </button>
+                <button onClick={() => showCloudImportPlaceholder("OneDrive")} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted">
+                  <Cloud size={15} /> OneDrive
+                </button>
+              </div>
+              {fyDocItems.length > 0 && (
+                <div className="rounded-lg border border-border bg-muted/30 p-2">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <p className="text-xs font-bold text-foreground">{fyDocItems.length} document{fyDocItems.length === 1 ? "" : "s"}</p>
+                    <button onClick={() => setFyDocsReviewOpen(true)} className="text-xs font-bold text-accent hover:underline">Review</button>
+                  </div>
+                  <div className="max-h-28 space-y-1 overflow-y-auto scrollbar-thin">
+                    {fyDocItems.map((item) => (
+                      <div key={item.id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <FileText size={13} className="shrink-0 text-accent" />
+                        <span className="min-w-0 flex-1 truncate">{item.fileName}</span>
+                        <span className={item.status === "failed" ? "font-semibold text-destructive" : "font-semibold text-muted-foreground"}>{item.status === "failed" ? "Unsupported" : "Needs review"}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
                 {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
               </select>
@@ -930,6 +955,15 @@ const CashflowTracker = () => {
             </div>
           </div>
         </section>
+
+        <FyDocsReviewDialog
+          open={fyDocsReviewOpen}
+          onOpenChange={setFyDocsReviewOpen}
+          items={fyDocItems}
+          months={displayMonths}
+          onItemsChange={setFyDocItems}
+          onApply={applyReviewedFyDocs}
+        />
 
         <Sheet open={propertySheetOpen} onOpenChange={setPropertySheetOpen}>
           <SheetContent className="w-full overflow-y-auto bg-card sm:max-w-lg">
