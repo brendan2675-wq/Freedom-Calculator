@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, CalendarDays, Cloud, Copy, Download, FileText, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
+import { Banknote, CalendarDays, Copy, Download, FileText, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
 import FyDocsReviewDialog from "@/components/FyDocsReviewDialog";
+import FyDocsUploadSourceDialog from "@/components/FyDocsUploadSourceDialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import AddressSearchInput from "@/components/AddressSearchInput";
@@ -249,6 +250,9 @@ const CashflowTracker = () => {
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
   const [fyDocItems, setFyDocItems] = useState<ExtractedCashflowItem[]>([]);
   const [fyDocsReviewOpen, setFyDocsReviewOpen] = useState(false);
+  const [fyDocsSourceOpen, setFyDocsSourceOpen] = useState(false);
+  const deviceUploadRef = useRef<HTMLInputElement>(null);
+  const phoneUploadRef = useRef<HTMLInputElement>(null);
   const topScrollRef = useRef<HTMLDivElement>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const syncingScrollRef = useRef(false);
