@@ -41,6 +41,18 @@ beforeEach(() => {
 });
 
 describe("FY Docs upload workflow", () => {
+  it("opens a source picker from Upload docs with device, phone and cloud choices", () => {
+    renderTracker();
+
+    fireEvent.click(screen.getByRole("button", { name: /upload docs/i }));
+
+    expect(screen.getByText("Choose document source")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /computer or device/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /phone camera or files/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /google drive/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /onedrive/i })).toBeInTheDocument();
+  });
+
   it("queues relevant utility bills and receipts for manual review without retaining document files", () => {
     const { container } = renderTracker();
     const uploadInput = container.querySelector('input[type="file"]') as HTMLInputElement;
@@ -107,7 +119,9 @@ describe("FY Docs upload workflow", () => {
   it("shows placeholder feedback for Google Drive and OneDrive imports", () => {
     renderTracker();
 
+    fireEvent.click(screen.getByRole("button", { name: /upload docs/i }));
     fireEvent.click(screen.getByRole("button", { name: /google drive/i }));
+    fireEvent.click(screen.getByRole("button", { name: /upload docs/i }));
     fireEvent.click(screen.getByRole("button", { name: /onedrive/i }));
 
     expect(toast.info).toHaveBeenCalledWith("Google Drive import will be connected with the backend cloud auth work.");
