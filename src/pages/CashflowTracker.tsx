@@ -15,7 +15,7 @@ import type { ExistingProperty, InvestmentType, LoanSplit } from "@/types/proper
 import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
 import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
-import { estimateNegativeGearingBenefit, getActiveCashflowContext, getAnnualCashflowSummary, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType, type CashflowTaxSettings } from "@/lib/cashflowManager";
+import { estimateNegativeGearingBenefit, getActiveCashflowContext, getAnnualCashflowSummary, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowAnnualSummary, type CashflowPropertyType, type CashflowTaxSettings } from "@/lib/cashflowManager";
 import { createCashflowDocumentPlaceholders, type CashflowDocumentFrequency, type ExtractedCashflowItem } from "@/lib/documentExtraction";
 
 const createFinancialYearMonths = (endYear: number) => {
@@ -103,6 +103,7 @@ type SavedCashflowScenario = { id: string; name: string; savedAt: string; state:
 type CashflowPropertyDetails = typeof property;
 type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; estimatedValue: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
 type CashflowViewMode = "detail" | "overall";
+type CashflowOverviewRow = PortfolioPropertyOption & CashflowAnnualSummary & { hasWorksheet: boolean; estimatedTaxBenefit: number; afterTaxCashflow: number; rentalYield: number; taxOwnership: "personal" | "trust" | "smsf" };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
