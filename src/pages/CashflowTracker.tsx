@@ -887,6 +887,14 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
+        <div className="mb-4 inline-grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted/30 p-1">
+          {(["detail", "overall"] as CashflowViewMode[]).map((view) => (
+            <button key={view} onClick={() => switchCashflowView(view)} className={`min-h-11 rounded-md px-4 text-sm font-bold transition-colors ${cashflowView === view ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60"}`}>
+              {view === "detail" ? "Detail view" : "Overall view"}
+            </button>
+          ))}
+        </div>
+        {cashflowView === "detail" ? <>
         <section className="grid items-stretch gap-4 xl:grid-cols-8">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
@@ -1192,6 +1200,7 @@ const CashflowTracker = () => {
             </table>
           </div>
         </section>
+        </> : <OverallCashflowView rows={overallRows} totals={overallTotals} financialYear={financialYear} financialPeriods={financialPeriods} taxSettings={taxSettings} onFinancialYearChange={handlePeriodChange} onTaxSettingsChange={updateTaxSettings} onOpenDetail={(propertyId) => { linkPortfolioProperty(propertyId); switchCashflowView("detail"); }} />}
 
       </main>
     </div>
