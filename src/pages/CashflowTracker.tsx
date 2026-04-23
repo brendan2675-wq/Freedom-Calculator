@@ -660,27 +660,7 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
-        <section className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="grid gap-2 sm:grid-cols-[minmax(0,280px)_auto]">
-              <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
-                {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
-              </select>
-              <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
-                <Upload size={16} /> Upload invoices / receipts
-                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
-              </label>
-            </div>
-            <div className="flex flex-col gap-1 text-sm lg:items-end">
-              <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
-              <div className="flex flex-wrap items-center gap-3">
-                <p className="font-semibold text-accent">{autosaveLabel}</p>
-                <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy to another period</button>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <section className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
             onKeyDown={(event) => {
@@ -691,7 +671,7 @@ const CashflowTracker = () => {
             }}
             role="button"
             tabIndex={0}
-            className="group w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-2"
+            className="group w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Edit property details"
           >
             <div className="flex flex-col gap-4">
@@ -709,6 +689,11 @@ const CashflowTracker = () => {
                 </div>
               </div>
               {propertyDetails.address && <p className="truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
+              <div className="grid gap-3 border-t border-border/70 pt-3 sm:grid-cols-3" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                <AssumptionInput label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
+                <AssumptionInput label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
+                <AssumptionInput label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
+              </div>
               <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
                 <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
                 <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
@@ -721,9 +706,26 @@ const CashflowTracker = () => {
               </div>
             </div>
           </div>
-          <EditableMetric label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
-          <EditableMetric label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
-          <EditableMetric label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
+          <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <CalendarDays size={18} className="text-accent" />
+              <h2 className="text-base font-bold text-foreground">Period & documents</h2>
+            </div>
+            <div className="grid gap-3">
+              <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
+              </select>
+              <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
+                <Upload size={16} /> Upload invoices / receipts
+                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
+              </label>
+            </div>
+            <div className="mt-4 space-y-2 border-t border-border/70 pt-4 text-sm">
+              <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
+              <p className="font-semibold text-accent">{autosaveLabel}</p>
+              <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy to another period</button>
+            </div>
+          </div>
         </section>
 
         <Sheet open={propertySheetOpen} onOpenChange={setPropertySheetOpen}>
