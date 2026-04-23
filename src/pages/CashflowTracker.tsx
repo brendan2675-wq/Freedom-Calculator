@@ -15,11 +15,19 @@ import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
 import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 
-const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
+const createFinancialYearMonths = (endYear: number) => {
+  const priorYear = String(endYear - 1).slice(-2);
+  const currentYear = String(endYear).slice(-2);
+  return [`Jul-${priorYear}`, `Aug-${priorYear}`, `Sep-${priorYear}`, `Oct-${priorYear}`, `Nov-${priorYear}`, `Dec-${priorYear}`, `Jan-${currentYear}`, `Feb-${currentYear}`, `Mar-${currentYear}`, `Apr-${currentYear}`, `May-${currentYear}`, `Jun-${currentYear}`];
+};
+const months = createFinancialYearMonths(2027);
 const financialPeriods = [
+  { financialYear: "FY2028", label: "FY 2028", months: createFinancialYearMonths(2028) },
   { financialYear: "FY2027", label: "FY 2027", months },
-  { financialYear: "FY2026", label: "FY 2026", months: ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"] },
+  { financialYear: "FY2026", label: "FY 2026", months: createFinancialYearMonths(2026) },
 ];
+const getFinancialYearNumber = (financialYear: string) => Number(financialYear.replace(/\D/g, "")) || 2027;
+const getFinancialPeriod = (endYear: number) => ({ financialYear: `FY${endYear}`, label: `FY ${endYear}`, months: createFinancialYearMonths(endYear) });
 
 const CASHFLOW_TEMPLATE_VERSION = 2;
 const INITIAL_WEEKLY_RENT = 0;
