@@ -795,17 +795,17 @@ const CashflowTracker = () => {
               </div>
             </div>
           </div>
-          <div className="order-3 h-full rounded-xl border border-border bg-card p-4 shadow-sm xl:col-span-1">
+          <div className="order-3 h-full rounded-xl border border-border bg-card p-4 shadow-sm xl:col-span-2">
             <div className="mb-4 flex items-center gap-2">
               <CalendarDays size={18} className="text-accent" />
-              <h2 className="text-base font-bold text-foreground">Period & documents</h2>
+              <h2 className="text-base font-bold text-foreground">FY & Docs</h2>
             </div>
             <div className="grid gap-3">
               <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
                 {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
               </select>
               <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
-                <Upload size={16} /> Upload invoices / receipts
+                <Upload size={16} /> Upload docs
                 <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
               </label>
             </div>
@@ -814,10 +814,10 @@ const CashflowTracker = () => {
                 <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
               )}
               <p className="font-semibold text-accent">{autosaveLabel}</p>
-              <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy to another period</button>
+              <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy FY</button>
             </div>
           </div>
-          <div className="order-2 flex h-full flex-col rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-3">
+          <div className="order-2 flex h-full flex-col rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-2">
             <div className="mb-2 flex items-center justify-between gap-2">
               <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground">
                 <Banknote size={16} className="shrink-0 text-accent" />
