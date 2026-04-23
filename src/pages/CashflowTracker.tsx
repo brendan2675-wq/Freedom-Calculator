@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, CalendarDays, Copy, Download, FileText, Home, Info as InfoIcon, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
+import { Banknote, CalendarDays, Copy, Download, FileText, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import AppNavigation from "@/components/AppNavigation";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
 import FyDocsReviewDialog from "@/components/FyDocsReviewDialog";
@@ -231,6 +231,7 @@ const parseCurrencyValue = (value: string) => Number(value.replace(/[^0-9]/g, ""
 const formatInterestRate = (value: number) => `${value.toFixed(2)}%`;
 
 const CashflowTracker = () => {
+  const navigate = useNavigate();
   const [activeMonth, setActiveMonth] = useState(() => getInitialCashflowState().activeMonth);
   const [rows, setRows] = useState<CashflowRow[]>(() => getInitialCashflowState().rows);
   const [propertyDetails, setPropertyDetails] = useState(() => getInitialCashflowState().propertyDetails);
@@ -792,8 +793,14 @@ const CashflowTracker = () => {
       <header className="bg-header text-primary-foreground">
         <div className="container mx-auto px-4 py-5 md:py-12">
           <div className="mb-3 flex items-center justify-between gap-4 md:mb-5">
-            <p className="text-sm tracking-wider text-accent md:text-lg">Atelier Wealth</p>
-            <AppNavigation />
+            <button
+              onClick={() => navigate("/")}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 border-accent/30 bg-accent/15 text-accent transition-all hover:border-accent/50 hover:bg-accent/25 md:h-14 md:w-14"
+              aria-label="Back to Dashboard"
+            >
+              <LayoutDashboard size={22} className="md:hidden" />
+              <LayoutDashboard size={32} className="hidden md:block" />
+            </button>
             <div className="flex items-center gap-2 md:gap-4">
               <UserMenu />
             </div>
@@ -807,7 +814,7 @@ const CashflowTracker = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 pb-24 md:py-10">
+      <main className="container mx-auto px-4 py-6 md:py-10">
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>

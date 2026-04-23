@@ -3,7 +3,6 @@ import { Home, DollarSign, TrendingUp, BarChart3, Building2, ArrowUpRight, Landm
 import { useState, useMemo, useEffect } from "react";
 import ScenarioManager from "@/components/ScenarioManager";
 import UserMenu from "@/components/UserMenu";
-import AppNavigation from "@/components/AppNavigation";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import WelcomeDialog from "@/components/WelcomeDialog";
 import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
@@ -92,8 +91,7 @@ const HomePage = () => {
           {/* Top bar: brand + actions */}
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <p className="text-accent text-lg tracking-wider">Atelier Wealth - Freedom Calculator</p>
-            <AppNavigation />
-            <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
               <ScenarioManager
                 getCurrentState={buildScenarioFromStorage}
                 loadState={(s) => {
@@ -130,7 +128,7 @@ const HomePage = () => {
       </header>
 
       {/* Tiles */}
-        <main className="container mx-auto px-4 py-6 pb-24 md:py-12">
+      <main className="container mx-auto px-4 py-6 md:py-12">
         {/* Welcome guidance is now delivered via a 3-part toast on first visit */}
         <div className="max-w-5xl mx-auto mb-4 md:mb-6">
           <ScenarioContextBanner />

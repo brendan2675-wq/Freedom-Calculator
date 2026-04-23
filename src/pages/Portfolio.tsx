@@ -1,7 +1,6 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Building2, Landmark, TrendingUp, Home, Plus, RotateCcw, ArrowUpRight, ArrowDownRight, DollarSign, Activity } from "lucide-react";
+import { LayoutDashboard, Building2, Landmark, TrendingUp, Home, Plus, RotateCcw, ArrowUpRight, ArrowDownRight, DollarSign, Activity } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import AppNavigation from "@/components/AppNavigation";
 import UserMenu from "@/components/UserMenu";
 import ExistingProperties from "@/components/ExistingProperties";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
@@ -185,8 +184,15 @@ const Portfolio = () => {
       <header className="bg-header text-primary-foreground">
         <div className="container mx-auto px-4 py-6 md:py-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4 md:gap-6">
+            <button
+              onClick={() => navigate("/")}
+              className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-accent/15 border-2 border-accent/30 flex items-center justify-center text-accent hover:bg-accent/25 hover:border-accent/50 transition-all shrink-0"
+              aria-label="Back to Dashboard"
+            >
+              <LayoutDashboard size={24} className="sm:hidden" />
+              <LayoutDashboard size={32} className="hidden sm:block" />
+            </button>
             <div>
-              <p className="mb-2 text-sm tracking-wider text-accent md:text-lg">Atelier Wealth</p>
               <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-1 sm:mb-3">Your Portfolio</h1>
               <p className="text-accent text-sm sm:text-lg md:text-xl font-light">
                 View and manage your full property portfolio
@@ -194,7 +200,6 @@ const Portfolio = () => {
             </div>
           </div>
           <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0 self-end sm:self-auto">
-            <AppNavigation />
             {!isReadOnly && <ScenarioManager
               getCurrentState={buildScenarioFromStorage}
               loadState={(s) => {
@@ -222,7 +227,7 @@ const Portfolio = () => {
         </div>
       </header>
 
-      <main className={`container mx-auto px-4 py-12 pb-24 space-y-10 md:pb-12 ${isReadOnly ? "pointer-events-none select-none opacity-95" : ""}`}>
+      <main className={`container mx-auto px-4 py-12 space-y-10 ${isReadOnly ? "pointer-events-none select-none opacity-95" : ""}`}>
         <ScenarioContextBanner readOnly={isReadOnly} />
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
