@@ -17,8 +17,8 @@ import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProper
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
 const financialPeriods = [
-  { financialYear: "FY2027", label: "Period ended 30 June 2027", months },
-  { financialYear: "FY2026", label: "Period ended 30 June 2026", months: ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"] },
+  { financialYear: "FY2027", label: "FY 2027", months },
+  { financialYear: "FY2026", label: "FY 2026", months: ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"] },
 ];
 
 const CASHFLOW_TEMPLATE_VERSION = 2;
@@ -256,8 +256,8 @@ const CashflowTracker = () => {
   const autosaveLabel = autosaveStatus === "saving"
     ? "Saving…"
     : lastAutosavedAt
-      ? `Autosaved ${lastAutosavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-      : "Autosave ready";
+      ? "Saved"
+      : "Saved";
   const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || financialPeriods[0];
   const displayMonths = selectedFinancialPeriod.months;
 
