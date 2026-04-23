@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, CalendarDays, Copy, Download, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
+import { Banknote, CalendarDays, Cloud, Copy, Download, FileText, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
+import FyDocsReviewDialog from "@/components/FyDocsReviewDialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import AddressSearchInput from "@/components/AddressSearchInput";
@@ -14,6 +15,7 @@ import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from
 import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
 import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
+import { createCashflowDocumentPlaceholders, type CashflowDocumentFrequency, type ExtractedCashflowItem } from "@/lib/documentExtraction";
 
 const createFinancialYearMonths = (endYear: number) => {
   const priorYear = String(endYear - 1).slice(-2);
@@ -245,6 +247,8 @@ const CashflowTracker = () => {
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
+  const [fyDocItems, setFyDocItems] = useState<ExtractedCashflowItem[]>([]);
+  const [fyDocsReviewOpen, setFyDocsReviewOpen] = useState(false);
   const topScrollRef = useRef<HTMLDivElement>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const syncingScrollRef = useRef(false);
@@ -575,9 +579,49 @@ const CashflowTracker = () => {
 
   const currentCashflowState = (): CashflowState => ({ rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, templateVersion: CASHFLOW_TEMPLATE_VERSION });
 
-  const handlePrototypeUpload = (files: FileList | null) => {
+  const handleFyDocsUpload = (files: FileList | null, input?: HTMLInputElement) => {
     if (!files?.length) return;
-    toast.info(`${files.length} file${files.length === 1 ? "" : "s"} queued. Receipt scanning will populate totals in a future release.`);
+    const nextItems = createCashflowDocumentPlaceholders(Array.from(files));
+    setFyDocItems((current) => [...current, ...nextItems]);
+    setFyDocsReviewOpen(true);
+    if (input) input.value = "";
+    const failedCount = nextItems.filter((item) => item.status === "failed").length;
+    toast.info(`${nextItems.length - failedCount} document${nextItems.length - failedCount === 1 ? "" : "s"} ready for review${failedCount ? `, ${failedCount} unsupported` : ""}.`);
+  };
+
+  const updateRecurringUtility = (category: ExtractedCashflowItem["category"], amount: number, frequency: CashflowDocumentFrequency) => {
+    if (category === "council") return updateCouncilRates({ amount, frequency });
+    if (category === "insurance") return updateInsurance({ amount, frequency });
+    if (category === "land-tax") return updateLandTax({ amount, frequency });
+    if (category === "water") return updateWater({ amount, frequency });
+  };
+
+  const applyReviewedFyDocs = (itemsToApply: ExtractedCashflowItem[]) => {
+    const recurringUtilityIds = new Set<string>();
+    itemsToApply.forEach((item) => {
+      if (item.recurring?.isRecurring && item.recurring.frequency && ["council", "insurance", "land-tax", "water"].includes(item.category)) {
+        updateRecurringUtility(item.category, item.amount || 0, item.recurring.frequency);
+        recurringUtilityIds.add(item.id);
+      }
+    });
+
+    setRows((current) => current.map((row) => {
+      const matchingItems = itemsToApply.filter((item) => !recurringUtilityIds.has(item.id) && item.category === row.id && item.monthIndex !== undefined && item.amount);
+      if (matchingItems.length === 0) return row;
+      const nextValues = [...row.values];
+      matchingItems.forEach((item) => {
+        nextValues[item.monthIndex!] = (nextValues[item.monthIndex!] || 0) + (item.amount || 0);
+      });
+      return { ...row, values: nextValues };
+    }));
+
+    setFyDocItems((current) => current.filter((item) => !itemsToApply.some((applied) => applied.id === item.id)));
+    setFyDocsReviewOpen(false);
+    toast.success(`${itemsToApply.length} document item${itemsToApply.length === 1 ? "" : "s"} applied to cashflow`);
+  };
+
+  const showCloudImportPlaceholder = (service: string) => {
+    toast.info(`${service} import will be connected with the backend cloud auth work.`);
   };
 
   const handlePeriodChange = (nextYear: string) => {
@@ -842,8 +886,33 @@ const CashflowTracker = () => {
             <div className="grid gap-3">
               <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
                 <Upload size={16} /> Upload docs
-                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
+                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handleFyDocsUpload(event.target.files, event.currentTarget)} />
               </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => showCloudImportPlaceholder("Google Drive")} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted">
+                  <Cloud size={15} /> Google Drive
+                </button>
+                <button onClick={() => showCloudImportPlaceholder("OneDrive")} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted">
+                  <Cloud size={15} /> OneDrive
+                </button>
+              </div>
+              {fyDocItems.length > 0 && (
+                <div className="rounded-lg border border-border bg-muted/30 p-2">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <p className="text-xs font-bold text-foreground">{fyDocItems.length} document{fyDocItems.length === 1 ? "" : "s"}</p>
+                    <button onClick={() => setFyDocsReviewOpen(true)} className="text-xs font-bold text-accent hover:underline">Review</button>
+                  </div>
+                  <div className="max-h-28 space-y-1 overflow-y-auto scrollbar-thin">
+                    {fyDocItems.map((item) => (
+                      <div key={item.id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <FileText size={13} className="shrink-0 text-accent" />
+                        <span className="min-w-0 flex-1 truncate">{item.fileName}</span>
+                        <span className={item.status === "failed" ? "font-semibold text-destructive" : "font-semibold text-muted-foreground"}>{item.status === "failed" ? "Unsupported" : "Needs review"}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
                 {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
               </select>
@@ -886,6 +955,15 @@ const CashflowTracker = () => {
             </div>
           </div>
         </section>
+
+        <FyDocsReviewDialog
+          open={fyDocsReviewOpen}
+          onOpenChange={setFyDocsReviewOpen}
+          items={fyDocItems}
+          months={displayMonths}
+          onItemsChange={setFyDocItems}
+          onApply={applyReviewedFyDocs}
+        />
 
         <Sheet open={propertySheetOpen} onOpenChange={setPropertySheetOpen}>
           <SheetContent className="w-full overflow-y-auto bg-card sm:max-w-lg">
