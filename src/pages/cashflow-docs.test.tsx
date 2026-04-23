@@ -80,8 +80,8 @@ describe("FY Docs upload workflow", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /apply 3 to cashflow/i }));
 
-    expect(screen.getByDisplayValue("420")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("180")).toBeInTheDocument();
+    expect(screen.getAllByDisplayValue("420").length).toBeGreaterThanOrEqual(4);
+    expect(screen.getAllByDisplayValue("180").length).toBeGreaterThanOrEqual(4);
     expect(screen.getByDisplayValue("275")).toBeInTheDocument();
     expect(toast.success).toHaveBeenCalledWith("3 document items applied to cashflow");
   });
