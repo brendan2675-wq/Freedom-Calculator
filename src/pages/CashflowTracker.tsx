@@ -15,7 +15,7 @@ import type { ExistingProperty, InvestmentType, LoanSplit } from "@/types/proper
 import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
 import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
-import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
+import { getActiveCashflowContext, getCashflowForProperty, getCashflowRecords, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 import { createCashflowDocumentPlaceholders, type CashflowDocumentFrequency, type ExtractedCashflowItem } from "@/lib/documentExtraction";
 
 const createFinancialYearMonths = (endYear: number) => {
@@ -101,11 +101,13 @@ type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
 type CashflowPropertyDetails = typeof property;
-type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
+type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; estimatedValue: number; interestRate: number; loanAmount: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
+type CashflowView = "detail" | "overall";
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
 const CASHFLOW_WORKING_STATE_KEY = "cashflow-working-state";
+const CASHFLOW_VIEW_KEY = "cashflow-tracker-view";
 const CURRENT_CASHFLOW_PLAN_ID = "current-cashflow-plan";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
 const defaultInsurance: InsuranceState = { amount: 0, frequency: "monthly" };
@@ -170,6 +172,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
       bank: item.loan?.lenderName || "",
       weeklyRent: item.rental?.weeklyRent || 0,
+      estimatedValue: item.estimatedValue || item.purchase?.purchasePrice || 0,
       interestRate: getLinkedInterestRate(item),
       loanAmount: getLoanBalance(item),
       loanSplits: item.loanSplits || [],
