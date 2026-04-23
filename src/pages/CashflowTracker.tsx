@@ -232,6 +232,12 @@ const getInitialCashflowState = (): CashflowState => {
 const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`;
 const parseCurrencyValue = (value: string) => Number(value.replace(/[^0-9]/g, "")) || 0;
 const formatInterestRate = (value: number) => `${value.toFixed(2)}%`;
+const annualTotalsFromRows = (cashflowRows: CashflowRow[]) => {
+  const income = cashflowRows.filter((row) => row.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
+  const expenses = cashflowRows.filter((row) => row.type === "expense").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
+  return { income, expenses, net: income - expenses, holdingCost: Math.max(expenses - income, 0) };
+};
+const getInitialCashflowView = (): CashflowView => localStorage.getItem(CASHFLOW_VIEW_KEY) === "overall" ? "overall" : "detail";
 
 const CashflowTracker = () => {
   const navigate = useNavigate();
@@ -248,6 +254,7 @@ const CashflowTracker = () => {
   const [portfolioProperties, setPortfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
+  const [cashflowView, setCashflowView] = useState<CashflowView>(getInitialCashflowView);
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
