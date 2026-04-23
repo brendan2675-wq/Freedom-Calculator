@@ -1012,7 +1012,10 @@ const CashflowTracker = () => {
                     </td>
                     {row.values.map((value, i) => (
                       <td key={i} className={`px-1 py-2 text-right tabular-nums lg:px-1.5 ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>
-                        <Input inputMode="numeric" value={value || ""} onChange={(event) => updateValue(row.id, i, parseCurrencyValue(event.target.value))} className="ml-auto h-11 w-full px-1 text-right text-xs tabular-nums lg:h-10 lg:px-2 lg:text-sm" />
+                        <div className="flex h-11 items-center rounded-md border border-input bg-background px-1 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 lg:h-10 lg:px-2">
+                          <span className="text-xs font-bold text-accent">$</span>
+                          <input inputMode="numeric" value={value || ""} onChange={(event) => updateValue(row.id, i, parseCurrencyValue(event.target.value))} className="min-w-0 flex-1 bg-transparent pl-1 text-right text-xs text-foreground outline-none tabular-nums lg:text-sm" />
+                        </div>
                       </td>
                     ))}
                     <td className="sticky right-[4.5rem] z-20 bg-card px-2 py-2 text-right font-bold tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[5.4%]">{formatCurrency(row.values.reduce((a, b) => a + b, 0))}</td>
