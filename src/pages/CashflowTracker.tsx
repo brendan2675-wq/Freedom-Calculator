@@ -497,7 +497,6 @@ const CashflowTracker = () => {
       setLandTax(normalized.landTax);
       setWater(normalized.water);
       setActiveMonth(normalized.activeMonth);
-      setLastAutosavedAt(new Date(record.savedAt));
       setAutosaveStatus("saved");
       toast.success(`Loaded ${selected.label} cashflow`);
       return;
@@ -506,7 +505,6 @@ const CashflowTracker = () => {
       ...current,
       ...syncPropertyDetailsFromLinkedProperty(current, getLinkedProperty(selected.id)),
     }));
-    setLastAutosavedAt(null);
     setAutosaveStatus("idle");
     toast.success(`Loaded ${selected.label}`);
   };
