@@ -284,7 +284,9 @@ const CashflowTracker = () => {
   const copyTargetPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber + 1}`) || getFinancialPeriod(selectedFinancialYearNumber + 1);
   const previousFinancialPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber - 1}`) || getFinancialPeriod(selectedFinancialYearNumber - 1);
   const displayMonths = selectedFinancialPeriod.months;
-  const propertyRentalYield = selectedPortfolioProperty?.estimatedValue ? ((propertyDetails.weeklyRent * 52) / selectedPortfolioProperty.estimatedValue) * 100 : 0;
+  const linkedPropertyForYield = getLinkedProperty(selectedPropertyId);
+  const propertyValueForYield = selectedPortfolioProperty?.estimatedValue || linkedPropertyForYield?.estimatedValue || linkedPropertyForYield?.purchase?.purchasePrice || 0;
+  const propertyRentalYield = propertyValueForYield > 0 ? ((propertyDetails.weeklyRent * 52) / propertyValueForYield) * 100 : 0;
   const monthlyLoanRepayment = monthlyInterestOnlyCost(propertyDetails.loanAmount, propertyDetails.interestRate);
 
   const syncHorizontalScroll = (source: "top" | "table") => {
