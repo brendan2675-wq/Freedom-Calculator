@@ -699,13 +699,12 @@ const CashflowTracker = () => {
         </section>
         <section className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-5">
           <button onClick={() => openPropertyDetailsSheet("current")} className="group w-full rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-2" aria-label="Edit property details">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-4">
+              <div className="flex items-start gap-3">
                 <div className="flex min-w-0 items-center gap-2">
                   <InvestmentTypeIcon type={propertyDetails.investmentType} size={18} className="shrink-0 text-accent" />
                   <p className="truncate text-base font-semibold text-foreground">{propertyDetails.nickname || "Untitled property"}</p>
                 </div>
-                <span className="shrink-0 text-xs font-semibold text-accent opacity-80 transition-opacity group-hover:opacity-100">Manage</span>
               </div>
               {propertyDetails.address && <p className="truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
               <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
