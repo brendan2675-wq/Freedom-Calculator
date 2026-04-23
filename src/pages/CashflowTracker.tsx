@@ -1147,19 +1147,20 @@ const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon:
   </div>
 );
 
-const CurrencyEntryField = ({ value, onChange }: { value: number; onChange: (value: number) => void }) => (
-  <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+const CurrencyEntryField = ({ value, onChange, compact = false, inputRef, highlight = false }: { value: number; onChange: (value: number) => void; compact?: boolean; inputRef?: React.Ref<HTMLInputElement>; highlight?: boolean }) => (
+  <div className={`flex items-center gap-1 rounded-md border bg-background ring-offset-background transition-all focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ${compact ? "h-8 min-w-0 flex-[2] px-1" : "h-10 px-3"} ${highlight ? "border-destructive ring-2 ring-destructive/30" : "border-input"}`}>
     <span className="text-sm font-medium text-muted-foreground">$</span>
     <input
+      ref={inputRef}
       inputMode="numeric"
       value={value ? value.toLocaleString() : ""}
       onChange={(event) => onChange(parseCurrencyValue(event.target.value))}
-      className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none tabular-nums"
+      className={`min-w-0 flex-1 bg-transparent font-semibold text-foreground outline-none tabular-nums ${compact ? "text-[10px]" : "text-sm"}`}
     />
   </div>
 );
 
-const RateEntryField = ({ value, onChange }: { value: number; onChange: (value: number) => void }) => {
+const RateEntryField = ({ value, onChange, compact = false }: { value: number; onChange: (value: number) => void; compact?: boolean }) => {
   const [raw, setRaw] = useState(value ? value.toFixed(2) : "");
 
   useEffect(() => {
@@ -1167,7 +1168,7 @@ const RateEntryField = ({ value, onChange }: { value: number; onChange: (value: 
   }, [value]);
 
   return (
-    <div className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+    <div className={`flex items-center gap-2 rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ${compact ? "h-8 min-w-0 flex-[1.2] px-1" : "h-10 px-3"}`}>
       <input
         inputMode="decimal"
         value={raw}
@@ -1179,9 +1180,9 @@ const RateEntryField = ({ value, onChange }: { value: number; onChange: (value: 
           }
         }}
         onBlur={() => setRaw(raw ? (Number(raw) || 0).toFixed(2) : "")}
-        className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none tabular-nums"
+        className={`min-w-0 flex-1 bg-transparent font-semibold text-foreground outline-none tabular-nums ${compact ? "text-[10px]" : "text-sm"}`}
       />
-      <span className="text-sm font-semibold text-muted-foreground">%</span>
+      <span className={`${compact ? "text-[10px]" : "text-sm"} font-semibold text-muted-foreground`}>%</span>
     </div>
   );
 };
