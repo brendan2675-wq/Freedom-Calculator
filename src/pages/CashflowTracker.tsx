@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, CalendarDays, Download, Home, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload } from "lucide-react";
+import { Banknote, CalendarDays, Download, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import AddressSearchInput from "@/components/AddressSearchInput";
 import OwnershipToggle from "@/components/OwnershipToggle";
 import { InvestmentTypeIcon, getInvestmentTypeLabel, investmentTypes } from "@/components/InvestmentTypeIcon";
-import type { ExistingProperty, InvestmentType } from "@/types/property";
+import type { ExistingProperty, InvestmentType, LoanSplit } from "@/types/property";
 import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
 import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
@@ -76,6 +76,7 @@ const property = {
   weeklyRent: INITIAL_WEEKLY_RENT,
   interestRate: INITIAL_INTEREST_RATE,
   loanAmount: INITIAL_LOAN_AMOUNT,
+  loanSplits: [] as LoanSplit[],
   manager: "",
   investmentType: "house" as InvestmentType,
   ownership: "personal" as "trust" | "personal",
@@ -88,7 +89,8 @@ type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "month
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
-type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
+type CashflowPropertyDetails = typeof property;
+type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -108,6 +110,42 @@ const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   }
 };
 
+const getLinkedProperty = (propertyId?: string | null): ExistingProperty | null => {
+  if (!propertyId) return null;
+  try {
+    if (propertyId === "ppor") {
+      const stored = localStorage.getItem("portfolio-ppor");
+      return stored ? JSON.parse(stored) as ExistingProperty : null;
+    }
+    const properties = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
+    return properties.find((item) => item.id === propertyId) || null;
+  } catch {
+    return null;
+  }
+};
+
+const getLinkedLoanBalance = (item?: ExistingProperty | null) => item ? getLoanBalance(item) : 0;
+const getLinkedInterestRate = (item?: ExistingProperty | null) => item?.loanSplits?.find((split) => split.interestRate !== undefined)?.interestRate ?? item?.loan?.interestRate ?? 0;
+
+const syncPropertyDetailsFromLinkedProperty = (current: CashflowPropertyDetails, item?: ExistingProperty | null): CashflowPropertyDetails => {
+  if (!item) return current;
+  const interestRate = getLinkedInterestRate(item);
+  return {
+    ...current,
+    nickname: item.nickname || "Portfolio property",
+    address: item.address || "",
+    owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
+    bank: item.loan?.lenderName || "",
+    weeklyRent: item.rental?.weeklyRent || 0,
+    interestRate,
+    loanAmount: getLinkedLoanBalance(item),
+    loanSplits: item.loanSplits || [],
+    investmentType: item.investmentType || "house",
+    ownership: item.ownership,
+    trustName: item.trustName || "",
+  };
+};
+
 const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
   try {
     const storedPpor = localStorage.getItem("portfolio-ppor");
@@ -121,8 +159,9 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
       bank: item.loan?.lenderName || "",
       weeklyRent: item.rental?.weeklyRent || 0,
-      interestRate: item.loan?.interestRate || 0,
+      interestRate: getLinkedInterestRate(item),
       loanAmount: getLoanBalance(item),
+      loanSplits: item.loanSplits || [],
       propertyType: item.id === "ppor" ? "ppor" : item.ownership === "trust" ? "smsf" : "investment",
       investmentType: item.investmentType || "house",
       ownership: item.ownership,
