@@ -284,6 +284,8 @@ const CashflowTracker = () => {
   const copyTargetPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber + 1}`) || getFinancialPeriod(selectedFinancialYearNumber + 1);
   const previousFinancialPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber - 1}`) || getFinancialPeriod(selectedFinancialYearNumber - 1);
   const displayMonths = selectedFinancialPeriod.months;
+  const propertyRentalYield = selectedPortfolioProperty?.estimatedValue ? ((propertyDetails.weeklyRent * 52) / selectedPortfolioProperty.estimatedValue) * 100 : 0;
+  const monthlyLoanRepayment = monthlyInterestOnlyCost(propertyDetails.loanAmount, propertyDetails.interestRate);
 
   const syncHorizontalScroll = (source: "top" | "table") => {
     if (syncingScrollRef.current) return;
@@ -385,6 +387,7 @@ const CashflowTracker = () => {
     const incomeByMonth = rows.find((r) => r.type === "income")?.values || [];
     return { ...annualTotals, incomeByMonth, expensesByMonth };
   }, [rows, displayMonths]);
+  const averageMonthlyExpenses = Math.round(totals.expenses / 12);
 
   const overallRows = useMemo(() => {
     const activeScenarioIdForRecords = getActiveScenario()?.id || cashflowContext?.scenarioId || CURRENT_CASHFLOW_PLAN_ID;
@@ -892,9 +895,12 @@ const CashflowTracker = () => {
               <div className="grid content-start gap-x-3 gap-y-4 border-t border-border/70 pt-4 sm:grid-cols-3">
                 <SummaryMeasure icon={Percent} label="Interest rate" value={formatInterestRate(propertyDetails.interestRate)} />
                 <SummaryMeasure icon={Home} label="Weekly rent" value={formatCurrency(propertyDetails.weeklyRent)} />
-                <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
-                <SummaryMeasure icon={Banknote} label="Total loan amount" value={formatCurrency(propertyDetails.loanAmount)} />
+                <SummaryMeasure icon={Percent} label="Yield" value={propertyRentalYield ? `${propertyRentalYield.toFixed(2)}%` : "—"} />
                 <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
+                <SummaryMeasure icon={TrendingDown} label="Average monthly expenses" value={formatCurrency(averageMonthlyExpenses)} />
+                <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
+                <SummaryMeasure icon={Banknote} label="Monthly loan repayment" value={formatCurrency(monthlyLoanRepayment)} />
+                <SummaryMeasure icon={Banknote} label="Total loan amount" value={formatCurrency(propertyDetails.loanAmount)} />
                 <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
               </div>
               <div className="grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-3">
