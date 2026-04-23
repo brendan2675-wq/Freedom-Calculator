@@ -777,33 +777,41 @@ const CashflowTracker = () => {
             aria-label="Edit property details"
           >
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="flex min-w-0 items-center gap-2">
-                  <InvestmentTypeIcon type={propertyDetails.investmentType} size={18} className="shrink-0 text-accent" />
-                  <p className="truncate text-base font-semibold text-foreground">{propertyDetails.nickname || "Untitled property"}</p>
+              <div className="grid gap-3 sm:grid-cols-3 sm:items-start">
+                <div className="min-w-0">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <InvestmentTypeIcon type={propertyDetails.investmentType} size={18} className="shrink-0 text-accent" />
+                    <p className="truncate text-base font-semibold text-foreground">{propertyDetails.nickname || "Untitled property"}</p>
+                  </div>
+                  {propertyDetails.address && <p className="mt-1 truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
                 </div>
-                <div className="grid gap-2 sm:grid-cols-[minmax(0,180px)_auto]" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                  <select value={selectedPropertyId} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                  <select value={selectedPropertyId} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
                     <option value="" disabled>Select property</option>
                     {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                   </select>
-                  <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> New property</button>
+                </div>
+                <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                  <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> New property</button>
                 </div>
               </div>
-              {propertyDetails.address && <p className="truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
               <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
-                <SummaryMeasure icon={Banknote} label="Total loan amount" value={formatCurrency(propertyDetails.loanAmount)} />
                 <SummaryMeasure icon={Percent} label="Interest rate" value={formatInterestRate(propertyDetails.interestRate)} />
                 <SummaryMeasure icon={Home} label="Weekly rent" value={formatCurrency(propertyDetails.weeklyRent)} />
-              </div>
-              <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
-                <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
                 <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
-                 <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
+                <SummaryMeasure icon={Banknote} label="Total loan amount" value={formatCurrency(propertyDetails.loanAmount)} />
+                <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
+                <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 border-t border-border/70 pt-2">
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2 border-t border-border/70 pt-3">
+                <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                   {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
+                </span>
+                <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                  Bank: {propertyDetails.bank || "Not set"}
+                </span>
+                <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                  Property Manager: {propertyDetails.manager || "Not set"}
                 </span>
               </div>
             </div>
