@@ -888,18 +888,11 @@ const CashflowTracker = () => {
               <h2 className="text-base font-bold text-foreground">FY Docs</h2>
             </div>
             <div className="grid gap-3">
-              <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
+              <button onClick={() => setFyDocsSourceOpen(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
                 <Upload size={16} /> Upload docs
-                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handleFyDocsUpload(event.target.files, event.currentTarget)} />
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => showCloudImportPlaceholder("Google Drive")} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted">
-                  <Cloud size={15} /> Google Drive
-                </button>
-                <button onClick={() => showCloudImportPlaceholder("OneDrive")} className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border px-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted">
-                  <Cloud size={15} /> OneDrive
-                </button>
-              </div>
+              </button>
+              <input ref={deviceUploadRef} type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handleFyDocsUpload(event.target.files, event.currentTarget)} />
+              <input ref={phoneUploadRef} type="file" multiple accept="image/*,.pdf" capture="environment" className="sr-only" onChange={(event) => handleFyDocsUpload(event.target.files, event.currentTarget)} />
               {fyDocItems.length > 0 && (
                 <div className="rounded-lg border border-border bg-muted/30 p-2">
                   <div className="mb-2 flex items-center justify-between gap-2">
