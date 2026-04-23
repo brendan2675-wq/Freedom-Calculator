@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, CalendarDays, Copy, Download, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
+import { Banknote, CalendarDays, Cloud, Copy, Download, FileText, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
+import FyDocsReviewDialog from "@/components/FyDocsReviewDialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import AddressSearchInput from "@/components/AddressSearchInput";
@@ -14,6 +15,7 @@ import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from
 import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
 import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
+import { createCashflowDocumentPlaceholders, type CashflowDocumentFrequency, type ExtractedCashflowItem } from "@/lib/documentExtraction";
 
 const createFinancialYearMonths = (endYear: number) => {
   const priorYear = String(endYear - 1).slice(-2);
