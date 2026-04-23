@@ -1180,6 +1180,87 @@ const CashflowTracker = () => {
   );
 };
 
+const OverallCashflowView = ({
+  financialYear,
+  periods,
+  onFinancialYearChange,
+  rows,
+  totals,
+  onOpenDetail,
+}: {
+  financialYear: string;
+  periods: typeof financialPeriods;
+  onFinancialYearChange: (value: string) => void;
+  rows: OverallCashflowRow[];
+  totals: ReturnType<typeof annualTotalsFromRows>;
+  onOpenDetail: (propertyId: string) => void;
+}) => (
+  <section className="rounded-xl border border-border bg-card shadow-sm">
+    <div className="flex flex-col gap-3 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Overall cashflow</h2>
+        <p className="text-sm text-muted-foreground">Compare annual property income, expenses and net position side-by-side.</p>
+      </div>
+      <select value={financialYear} onChange={(event) => onFinancialYearChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+        {periods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
+      </select>
+    </div>
+    <div className="grid gap-3 border-b border-border p-4 md:grid-cols-4">
+      <SummaryTotal label="Annual income" value={formatCurrency(totals.income)} />
+      <SummaryTotal label="Annual expenses" value={formatCurrency(totals.expenses)} />
+      <SummaryTotal label="Net p.a." value={formatCurrency(totals.net)} highlight={totals.net < 0} />
+      <SummaryTotal label="Holding cost" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
+    </div>
+    <div className="overflow-x-auto scrollbar-thin">
+      <table className="w-full min-w-[980px] table-fixed text-sm">
+        <thead>
+          <tr className="border-b border-border bg-muted/40 text-left text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            <th className="px-4 py-3">Property</th>
+            <th className="px-4 py-3 text-right">Current value</th>
+            <th className="px-4 py-3 text-right">Current loan</th>
+            <th className="px-4 py-3 text-right">Weekly rent</th>
+            <th className="px-4 py-3 text-right">Rental yield</th>
+            <th className="px-4 py-3 text-right">Income p.a.</th>
+            <th className="px-4 py-3 text-right">Expenses p.a.</th>
+            <th className="px-4 py-3 text-right">Net p.a.</th>
+            <th className="px-4 py-3 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => {
+            const status = !row.annualTotals ? "No worksheet" : row.annualTotals.net > 0 ? "Positive" : row.annualTotals.net < 0 ? "Negative" : "Neutral";
+            return (
+              <tr key={row.id} className="border-b border-border/70 text-foreground hover:bg-muted/30">
+                <td className="px-4 py-4">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <button onClick={() => onOpenDetail(row.id)} className="w-fit max-w-full truncate text-left font-bold text-accent hover:underline">{row.label}</button>
+                    <span className="truncate text-xs text-muted-foreground">{row.owner}{row.address ? ` · ${row.address}` : ""}</span>
+                  </div>
+                </td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{formatCurrency(row.estimatedValue)}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{formatCurrency(row.loanAmount)}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{formatCurrency(row.weeklyRent)}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{row.rentalYield ? `${row.rentalYield.toFixed(2)}%` : "—"}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{row.annualTotals ? formatCurrency(row.annualTotals.income) : "—"}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{row.annualTotals ? formatCurrency(row.annualTotals.expenses) : "—"}</td>
+                <td className={`px-4 py-4 text-right font-bold tabular-nums ${row.annualTotals?.net && row.annualTotals.net < 0 ? "text-destructive" : "text-foreground"}`}>{row.annualTotals ? formatCurrency(row.annualTotals.net) : "—"}</td>
+                <td className="px-4 py-4 text-center"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${status === "Negative" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>{status}</span></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </section>
+);
+
+const SummaryTotal = ({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) => (
+  <div className="rounded-lg border border-border bg-background p-3">
+    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+    <p className={`mt-1 text-xl font-bold tabular-nums ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
+  </div>
+);
+
 type ExpenseFrequency = "annual" | "quarterly" | "monthly";
 
 const PropertySheetField = ({ label, children }: { label: string; children: React.ReactNode }) => (
