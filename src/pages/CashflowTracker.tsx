@@ -104,6 +104,7 @@ type CashflowPropertyDetails = typeof property;
 type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; estimatedValue: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
 type CashflowViewMode = "detail" | "overall";
 type CashflowOverviewRow = PortfolioPropertyOption & CashflowAnnualSummary & { hasWorksheet: boolean; estimatedTaxBenefit: number; afterTaxCashflow: number; rentalYield: number; taxOwnership: "personal" | "trust" | "smsf" };
+type FinancialPeriodOption = { financialYear: string; label: string; months: string[] };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -308,7 +309,7 @@ const CashflowTracker = () => {
     const context = { clientId: cashflowContext?.clientId, scenarioId: cashflowContext?.scenarioId || getActiveScenario()?.id || CURRENT_CASHFLOW_PLAN_ID, propertyId: item.id, propertyType: item.propertyType, financialYear };
     const record = getCashflowForProperty<CashflowState>(context);
     const summary = record?.state ? getAnnualCashflowSummary(record.state) : { income: 0, expenses: 0, net: 0, holdingCost: 0 };
-    const taxOwnership = item.propertyType === "smsf" ? "smsf" : item.ownership;
+    const taxOwnership: "personal" | "trust" | "smsf" = item.propertyType === "smsf" ? "smsf" : item.ownership;
     const estimatedTaxBenefit = estimateNegativeGearingBenefit(summary.net, taxSettings, taxOwnership);
     const afterTaxCashflow = summary.net + estimatedTaxBenefit;
     const rentalYield = item.estimatedValue > 0 ? ((item.weeklyRent * 52) / item.estimatedValue) * 100 : 0;
