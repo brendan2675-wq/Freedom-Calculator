@@ -375,6 +375,11 @@ const CashflowTracker = () => {
     const expenses = expensesByMonth.reduce((a, b) => a + b, 0);
     return { income, expenses, net: income - expenses, holdingCost: Math.max(expenses - income, 0), incomeByMonth, expensesByMonth };
   }, [rows, displayMonths]);
+  const incomeRows = rows.filter((row) => row.type === "income");
+  const expenseRows = rows.filter((row) => row.type === "expense");
+  const activeMonthIncome = incomeRows.reduce((sum, row) => sum + (row.values[activeMonth] || 0), 0);
+  const activeMonthExpenses = expenseRows.reduce((sum, row) => sum + (row.values[activeMonth] || 0), 0);
+  const activeMonthNet = activeMonthIncome - activeMonthExpenses;
 
   const updateRow = (rowId: string, updates: Partial<CashflowRow>) => {
     setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...updates } : row)));
@@ -1060,67 +1065,39 @@ const CashflowTracker = () => {
         </Sheet>
 
         <section className="mt-6 rounded-xl border border-border bg-card shadow-sm">
-          <div className="flex flex-col gap-2 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-3 border-b border-border p-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
-              <h2 className="text-xl font-bold text-foreground">Monthly cashflow worksheet</h2>
-              <p className="text-sm text-muted-foreground">Edit weekly rents, row labels and monthly values directly in the worksheet.</p>
+              <h2 className="text-xl font-bold text-foreground">Monthly cashflow board</h2>
+              <p className="text-sm text-muted-foreground">Review one month at a time, then adjust the categories that matter.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button onClick={() => addRow("income")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Income row</button>
               <button onClick={() => addRow("expense")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Expense row</button>
             </div>
           </div>
-          <div ref={topScrollRef} onScroll={() => syncHorizontalScroll("top")} className="overflow-x-auto border-b border-border bg-muted/20 scrollbar-thin">
-            <div className="h-3 min-w-[1120px] lg:min-w-full" />
-          </div>
-          <div ref={tableScrollRef} onScroll={() => syncHorizontalScroll("table")} className="overflow-x-auto scrollbar-thin">
-            <table className="w-full min-w-[1120px] table-fixed border-collapse text-xs lg:min-w-0 lg:text-sm">
-              <colgroup>
-                <col className="w-[168px] sm:w-[210px] lg:w-[18%]" />
-                {displayMonths.map((month) => <col key={month} className="w-[70px] lg:w-[5.8%]" />)}
-                <col className="w-[88px] lg:w-[7.2%]" />
-                <col className="w-[72px] lg:w-[5.4%]" />
-              </colgroup>
-              <thead>
-                <tr className="border-b border-border bg-muted/40">
-                   <th className="sticky left-0 z-30 bg-muted px-2 py-2 text-left font-bold text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">Cashflow item</th>
-                  {displayMonths.map((month, i) => (
-                    <th key={month} className="px-1 py-2 text-right lg:px-1.5">
-                      <button onClick={() => setActiveMonth(i)} className={`min-h-11 w-full rounded-lg px-1 text-xs font-bold transition-colors lg:text-sm ${activeMonth === i ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent/10"}`}>
-                        {month}
-                      </button>
-                    </th>
-                  ))}
-                  <th className="sticky right-[4.5rem] z-30 bg-muted px-2 py-2 text-right font-bold text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[5.4%]">Total</th>
-                  <th className="sticky right-0 z-30 bg-muted px-2 py-2 text-center font-bold text-foreground">Remove</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.id} className="border-b border-border/70 hover:bg-muted/30">
-                    <td className="sticky left-0 z-20 bg-card px-2 py-2 font-medium text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">
-                      <div className="flex items-center gap-2">
-                        <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-11 bg-card px-2 text-xs font-semibold lg:h-10 lg:text-sm" />
-                        <span className="shrink-0 text-sm font-bold text-accent">$</span>
-                      </div>
-                    </td>
-                    {row.values.map((value, i) => (
-                      <td key={i} className={`px-1 py-2 text-right tabular-nums lg:px-1.5 ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>
-                        <div className="flex h-11 items-center rounded-md border border-input bg-background px-1 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 lg:h-10 lg:px-2">
-                          <input inputMode="numeric" value={value || ""} onChange={(event) => updateValue(row.id, i, parseCurrencyValue(event.target.value))} className="min-w-0 flex-1 bg-transparent text-right text-xs text-foreground outline-none tabular-nums lg:text-sm" />
-                        </div>
-                      </td>
-                    ))}
-                    <td className="sticky right-[4.5rem] z-20 bg-card px-2 py-2 text-right font-bold tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[5.4%]">{formatCurrency(row.values.reduce((a, b) => a + b, 0))}</td>
-                    <td className="sticky right-0 z-20 bg-card px-2 py-2 text-center">
-                      <button onClick={() => removeRow(row.id)} className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" aria-label={`Remove ${row.label}`}><Trash2 size={16} /></button>
-                    </td>
-                  </tr>
-                ))}
-                <SummaryRow label="Total Expenses" values={totals.expensesByMonth} total={totals.expenses} />
-                <SummaryRow label="Net Profit / (Loss)" values={totals.incomeByMonth.map((v, i) => v - totals.expensesByMonth[i])} total={totals.net} />
-              </tbody>
-            </table>
+          <div className="space-y-4 p-4">
+            <div className="overflow-x-auto scrollbar-thin">
+              <div className="flex min-w-max gap-2 pb-1">
+                {displayMonths.map((month, i) => {
+                  const monthNet = (totals.incomeByMonth[i] || 0) - (totals.expensesByMonth[i] || 0);
+                  return (
+                    <button key={month} onClick={() => setActiveMonth(i)} className={`min-h-16 w-28 rounded-lg border px-3 py-2 text-left transition-colors ${activeMonth === i ? "border-accent bg-accent text-accent-foreground" : "border-border bg-background text-foreground hover:bg-muted"}`}>
+                      <span className="block text-xs font-bold">{month}</span>
+                      <span className="mt-1 block text-sm font-bold tabular-nums">{formatCurrency(monthNet)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              <Metric icon={Banknote} label={`${displayMonths[activeMonth]} income`} value={formatCurrency(activeMonthIncome)} />
+              <Metric icon={TrendingDown} label={`${displayMonths[activeMonth]} expenses`} value={formatCurrency(activeMonthExpenses)} />
+              <Metric icon={CalendarDays} label="Monthly net position" value={formatCurrency(activeMonthNet)} highlight={activeMonthNet < 0} />
+            </div>
+            <div className="grid gap-4 xl:grid-cols-[0.8fr_1.2fr]">
+              <CashflowBoardGroup title="Income" rows={incomeRows} activeMonth={activeMonth} onLabelChange={updateRow} onValueChange={updateValue} onRemove={removeRow} />
+              <CashflowBoardGroup title="Expenses" rows={expenseRows} activeMonth={activeMonth} onLabelChange={updateRow} onValueChange={updateValue} onRemove={removeRow} />
+            </div>
           </div>
         </section>
 
@@ -1292,6 +1269,27 @@ const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon:
       <span className="truncate">{label}</span>
     </div>
     <p className={`truncate text-base font-bold tabular-nums ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
+  </div>
+);
+
+const CashflowBoardGroup = ({ title, rows, activeMonth, onLabelChange, onValueChange, onRemove }: { title: string; rows: CashflowRow[]; activeMonth: number; onLabelChange: (rowId: string, updates: Partial<CashflowRow>) => void; onValueChange: (rowId: string, monthIndex: number, value: number) => void; onRemove: (rowId: string) => void }) => (
+  <div className="rounded-xl border border-border bg-background p-3">
+    <div className="mb-3 flex items-center justify-between gap-2">
+      <h3 className="text-sm font-bold text-foreground">{title}</h3>
+      <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">{rows.length}</span>
+    </div>
+    <div className="max-h-[30rem] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
+      {rows.map((row) => (
+        <div key={row.id} className="grid gap-2 rounded-lg border border-border bg-card p-3 sm:grid-cols-[minmax(0,1fr)_9rem_2.75rem] sm:items-center">
+          <Input value={row.label} onChange={(event) => onLabelChange(row.id, { label: event.target.value })} className="h-11 bg-card text-sm font-semibold" />
+          <div className="flex h-11 items-center rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+            <span className="text-sm font-bold text-accent">$</span>
+            <input inputMode="numeric" value={row.values[activeMonth] || ""} onChange={(event) => onValueChange(row.id, activeMonth, parseCurrencyValue(event.target.value))} className="min-w-0 flex-1 bg-transparent pl-1 text-right text-sm font-bold text-foreground outline-none tabular-nums" />
+          </div>
+          <button onClick={() => onRemove(row.id)} className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" aria-label={`Remove ${row.label}`}><Trash2 size={16} /></button>
+        </div>
+      ))}
+    </div>
   </div>
 );
 
