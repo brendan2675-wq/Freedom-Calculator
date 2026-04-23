@@ -253,7 +253,6 @@ const CashflowTracker = () => {
   const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId)
     || portfolioProperties.find((item) => item.label === propertyDetails.nickname && (!propertyDetails.address || item.address === propertyDetails.address));
   const selectedPropertyId = cashflowContext?.propertyId || selectedPortfolioProperty?.id || "";
-  const selectedLinkedProperty = getLinkedProperty(selectedPropertyId);
   const autosaveLabel = autosaveStatus === "saving"
     ? "Saving…"
     : lastAutosavedAt
@@ -855,7 +854,7 @@ const CashflowTracker = () => {
                     {investmentTypes.map((type) => (
                       <button
                         key={type}
-                        onClick={() => setPropertyDetails((current) => ({ ...current, investmentType: type }))}
+                        onClick={() => updatePropertyIdentity({ investmentType: type })}
                         className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border text-sm font-semibold transition-colors ${propertyDetails.investmentType === type ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground hover:border-accent/50 hover:text-foreground"}`}
                       >
                         <InvestmentTypeIcon type={type} size={20} />
@@ -867,28 +866,33 @@ const CashflowTracker = () => {
                 <PropertySheetField label="Ownership Structure">
                   <OwnershipToggle
                     value={propertyDetails.ownership}
-                    onChange={(ownership) => setPropertyDetails((current) => ({ ...current, ownership, owner: ownership === "trust" ? current.trustName || "Trust" : "Personal" }))}
+                    onChange={(ownership) => updatePropertyIdentity({ ownership, owner: ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal" })}
                     trustName={propertyDetails.trustName}
-                    onTrustNameChange={(trustName) => setPropertyDetails((current) => ({ ...current, trustName, owner: trustName || "Trust" }))}
+                    onTrustNameChange={(trustName) => updatePropertyIdentity({ trustName, owner: trustName || "Trust" })}
                   />
                 </PropertySheetField>
                 <PropertySheetField label="Property Nickname">
-                  <Input value={propertyDetails.nickname} onChange={(event) => setPropertyDetails((current) => ({ ...current, nickname: event.target.value }))} placeholder="e.g. Brisbane townhouse" className="h-10" />
+                  <Input value={propertyDetails.nickname} onChange={(event) => updatePropertyIdentity({ nickname: event.target.value })} placeholder="e.g. Brisbane townhouse" className="h-10" />
                 </PropertySheetField>
                 <PropertySheetField label="Full Address (Optional)">
-                  <AddressSearchInput value={propertyDetails.address} onChange={(value) => setPropertyDetails((current) => ({ ...current, address: value }))} placeholder="Search address or enter manually" className="h-10" />
+                  <AddressSearchInput value={propertyDetails.address} onChange={(value) => updatePropertyIdentity({ address: value })} placeholder="Search address or enter manually" className="h-10" />
                 </PropertySheetField>
               </div>
               <div className="space-y-4 border-t border-border pt-6">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Loan & Rental Details</h3>
-                <PropertySheetField label="Total Loan Amount">
-                  <CurrencyEntryField value={propertyDetails.loanAmount} onChange={updateLoanAmount} />
-                </PropertySheetField>
-                <PropertySheetField label="Interest Rate">
-                  <RateEntryField value={propertyDetails.interestRate} onChange={updateInterestRate} />
-                </PropertySheetField>
+                <LoanSplitsEditor
+                  loanAmount={propertyDetails.loanAmount}
+                  interestRate={propertyDetails.interestRate}
+                  loanSplits={propertyDetails.loanSplits}
+                  nickname={propertyDetails.nickname}
+                  highlightFirstSplit={highlightFirstSplit}
+                  firstSplitAmountRef={firstSplitAmountRef}
+                  onFocusFirstSplit={() => setHighlightFirstSplit(true)}
+                  onCreateFirstSplit={() => updateLoanSplits([{ id: crypto.randomUUID(), label: propertyDetails.nickname || "Primary Loan", amount: propertyDetails.loanAmount, interestRate: propertyDetails.interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 }])}
+                  onChange={updateLoanSplits}
+                />
                 <PropertySheetField label="Lender / Bank">
-                  <Input value={propertyDetails.bank} onChange={(event) => setPropertyDetails((current) => ({ ...current, bank: event.target.value }))} className="h-10" />
+                  <Input value={propertyDetails.bank} onChange={(event) => updatePropertyIdentity({ bank: event.target.value })} className="h-10" />
                 </PropertySheetField>
                 <PropertySheetField label="Weekly Rent">
                   <CurrencyEntryField value={propertyDetails.weeklyRent} onChange={updatePropertyWeeklyRent} />
