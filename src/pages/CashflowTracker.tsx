@@ -615,7 +615,7 @@ const CashflowTracker = () => {
       ["Rental Expenses", formatCurrency(totals.expenses)],
       ["Cashflow end of year", formatCurrency(totals.net)],
       [],
-      ["Detailed Breakdown", ...months, "Subtotal"],
+      ["Detailed Breakdown", ...displayMonths, "Subtotal"],
       ...populatedRows.map((row) => [row.label, ...row.values.map(formatCurrency), formatCurrency(row.values.reduce((sum, value) => sum + value, 0))]),
       ["Total Income", ...totals.incomeByMonth.map(formatCurrency), formatCurrency(totals.income)],
       ["Total Expenses", ...totals.expensesByMonth.map(formatCurrency), formatCurrency(totals.expenses)],
@@ -837,14 +837,14 @@ const CashflowTracker = () => {
             <table className="w-full min-w-[1120px] table-fixed border-collapse text-xs lg:min-w-0 lg:text-sm">
               <colgroup>
                 <col className="w-[168px] sm:w-[210px] lg:w-[18%]" />
-                {months.map((month) => <col key={month} className="w-[70px] lg:w-[5.8%]" />)}
+                {displayMonths.map((month) => <col key={month} className="w-[70px] lg:w-[5.8%]" />)}
                 <col className="w-[88px] lg:w-[7.2%]" />
                 <col className="w-[72px] lg:w-[5.4%]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-border bg-muted/40">
                    <th className="sticky left-0 z-30 bg-muted px-2 py-2 text-left font-bold text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">Cashflow item</th>
-                  {months.map((month, i) => (
+                  {displayMonths.map((month, i) => (
                     <th key={month} className="px-1 py-2 text-right lg:px-1.5">
                       <button onClick={() => setActiveMonth(i)} className={`min-h-11 w-full rounded-lg px-1 text-xs font-bold transition-colors lg:text-sm ${activeMonth === i ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-accent/10"}`}>
                         {month}
