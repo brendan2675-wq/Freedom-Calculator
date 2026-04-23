@@ -15,7 +15,7 @@ import type { ExistingProperty, InvestmentType, LoanSplit } from "@/types/proper
 import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
 import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
-import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
+import { getActiveCashflowContext, getCashflowForProperty, getCashflowRecords, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 import { createCashflowDocumentPlaceholders, type CashflowDocumentFrequency, type ExtractedCashflowItem } from "@/lib/documentExtraction";
 
 const createFinancialYearMonths = (endYear: number) => {
@@ -101,11 +101,14 @@ type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
 type CashflowPropertyDetails = typeof property;
-type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
+type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; estimatedValue: number; interestRate: number; loanAmount: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
+type CashflowView = "detail" | "overall";
+type OverallCashflowRow = PortfolioPropertyOption & { annualTotals: ReturnType<typeof annualTotalsFromRows> | null; rentalYield: number };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
 const CASHFLOW_WORKING_STATE_KEY = "cashflow-working-state";
+const CASHFLOW_VIEW_KEY = "cashflow-tracker-view";
 const CURRENT_CASHFLOW_PLAN_ID = "current-cashflow-plan";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
 const defaultInsurance: InsuranceState = { amount: 0, frequency: "monthly" };
@@ -170,6 +173,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
       bank: item.loan?.lenderName || "",
       weeklyRent: item.rental?.weeklyRent || 0,
+      estimatedValue: item.estimatedValue || item.purchase?.purchasePrice || 0,
       interestRate: getLinkedInterestRate(item),
       loanAmount: getLoanBalance(item),
       loanSplits: item.loanSplits || [],
@@ -229,6 +233,12 @@ const getInitialCashflowState = (): CashflowState => {
 const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`;
 const parseCurrencyValue = (value: string) => Number(value.replace(/[^0-9]/g, "")) || 0;
 const formatInterestRate = (value: number) => `${value.toFixed(2)}%`;
+const annualTotalsFromRows = (cashflowRows: CashflowRow[]) => {
+  const income = cashflowRows.filter((row) => row.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
+  const expenses = cashflowRows.filter((row) => row.type === "expense").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
+  return { income, expenses, net: income - expenses, holdingCost: Math.max(expenses - income, 0) };
+};
+const getInitialCashflowView = (): CashflowView => localStorage.getItem(CASHFLOW_VIEW_KEY) === "overall" ? "overall" : "detail";
 
 const CashflowTracker = () => {
   const navigate = useNavigate();
@@ -245,6 +255,7 @@ const CashflowTracker = () => {
   const [portfolioProperties, setPortfolioProperties] = useState<PortfolioPropertyOption[]>(getPortfolioPropertyOptions);
   const [cashflowContext, setCashflowContextState] = useState(() => getActiveCashflowContext());
   const [financialYear, setFinancialYear] = useState(() => getActiveCashflowContext()?.financialYear || "FY2027");
+  const [cashflowView, setCashflowView] = useState<CashflowView>(getInitialCashflowView);
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [propertySheetOpen, setPropertySheetOpen] = useState(false);
   const [propertySheetMode, setPropertySheetMode] = useState<"current" | "new">("current");
@@ -369,12 +380,34 @@ const CashflowTracker = () => {
   }, [rows, propertyDetails, councilRates, insurance, landTax, water, activeMonth, cashflowContext?.propertyId, cashflowContext?.scenarioId, financialYear]);
 
   const totals = useMemo(() => {
-    const income = rows.filter((r) => r.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
+    const annualTotals = annualTotalsFromRows(rows);
     const expensesByMonth = displayMonths.map((_, i) => rows.filter((r) => r.type === "expense").reduce((sum, row) => sum + row.values[i], 0));
     const incomeByMonth = rows.find((r) => r.type === "income")?.values || [];
-    const expenses = expensesByMonth.reduce((a, b) => a + b, 0);
-    return { income, expenses, net: income - expenses, holdingCost: Math.max(expenses - income, 0), incomeByMonth, expensesByMonth };
+    return { ...annualTotals, incomeByMonth, expensesByMonth };
   }, [rows, displayMonths]);
+
+  const overallRows = useMemo(() => {
+    const activeScenarioIdForRecords = getActiveScenario()?.id || cashflowContext?.scenarioId || CURRENT_CASHFLOW_PLAN_ID;
+    const records = getCashflowRecords<CashflowState>();
+    return portfolioProperties.map((item) => {
+      const record = records.find((entry) => entry.propertyId === item.id && entry.financialYear === financialYear && entry.scenarioId === activeScenarioIdForRecords);
+      const annualTotals = record?.state ? annualTotalsFromRows(normalizeCashflowState(record.state).rows) : null;
+      const rentalYield = item.estimatedValue > 0 ? ((item.weeklyRent * 52) / item.estimatedValue) * 100 : 0;
+      return { ...item, record, annualTotals, rentalYield };
+    });
+  }, [portfolioProperties, financialYear, cashflowContext?.scenarioId]);
+
+  const overallTotals = useMemo(() => overallRows.reduce((acc, item) => ({
+    income: acc.income + (item.annualTotals?.income || 0),
+    expenses: acc.expenses + (item.annualTotals?.expenses || 0),
+    net: acc.net + (item.annualTotals?.net || 0),
+    holdingCost: acc.holdingCost + (item.annualTotals?.holdingCost || 0),
+  }), { income: 0, expenses: 0, net: 0, holdingCost: 0 }), [overallRows]);
+
+  const updateCashflowView = (nextView: CashflowView) => {
+    setCashflowView(nextView);
+    localStorage.setItem(CASHFLOW_VIEW_KEY, nextView);
+  };
 
   const updateRow = (rowId: string, updates: Partial<CashflowRow>) => {
     setRows((current) => current.map((row) => (row.id === rowId ? { ...row, ...updates } : row)));
@@ -818,6 +851,11 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
+        <div className="mb-6 flex w-full rounded-lg border border-border bg-muted/40 p-1 sm:w-fit">
+          <button onClick={() => updateCashflowView("detail")} className={`min-h-11 flex-1 rounded-md px-4 text-sm font-bold transition-colors sm:flex-none ${cashflowView === "detail" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60 hover:text-foreground"}`}>Detail view</button>
+          <button onClick={() => updateCashflowView("overall")} className={`min-h-11 flex-1 rounded-md px-4 text-sm font-bold transition-colors sm:flex-none ${cashflowView === "overall" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60 hover:text-foreground"}`}>Overall view</button>
+        </div>
+        {cashflowView === "detail" ? <>
         <section className="grid items-stretch gap-4 xl:grid-cols-8">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
@@ -1123,11 +1161,105 @@ const CashflowTracker = () => {
             </table>
           </div>
         </section>
+        </> : (
+          <OverallCashflowView
+            financialYear={financialYear}
+            periods={financialPeriods}
+            onFinancialYearChange={handlePeriodChange}
+            rows={overallRows}
+            totals={overallTotals}
+            onOpenDetail={(propertyId) => {
+              linkPortfolioProperty(propertyId);
+              updateCashflowView("detail");
+            }}
+          />
+        )}
 
       </main>
     </div>
   );
 };
+
+const OverallCashflowView = ({
+  financialYear,
+  periods,
+  onFinancialYearChange,
+  rows,
+  totals,
+  onOpenDetail,
+}: {
+  financialYear: string;
+  periods: typeof financialPeriods;
+  onFinancialYearChange: (value: string) => void;
+  rows: OverallCashflowRow[];
+  totals: ReturnType<typeof annualTotalsFromRows>;
+  onOpenDetail: (propertyId: string) => void;
+}) => (
+  <section className="rounded-xl border border-border bg-card shadow-sm">
+    <div className="flex flex-col gap-3 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Overall cashflow</h2>
+        <p className="text-sm text-muted-foreground">Compare annual property income, expenses and net position side-by-side.</p>
+      </div>
+      <select value={financialYear} onChange={(event) => onFinancialYearChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+        {periods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
+      </select>
+    </div>
+    <div className="grid gap-3 border-b border-border p-4 md:grid-cols-4">
+      <SummaryTotal label="Annual income" value={formatCurrency(totals.income)} />
+      <SummaryTotal label="Annual expenses" value={formatCurrency(totals.expenses)} />
+      <SummaryTotal label="Net p.a." value={formatCurrency(totals.net)} highlight={totals.net < 0} />
+      <SummaryTotal label="Holding cost" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
+    </div>
+    <div className="overflow-x-auto scrollbar-thin">
+      <table className="w-full min-w-[980px] table-fixed text-sm">
+        <thead>
+          <tr className="border-b border-border bg-muted/40 text-left text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            <th className="px-4 py-3">Property</th>
+            <th className="px-4 py-3 text-right">Current value</th>
+            <th className="px-4 py-3 text-right">Current loan</th>
+            <th className="px-4 py-3 text-right">Weekly rent</th>
+            <th className="px-4 py-3 text-right">Rental yield</th>
+            <th className="px-4 py-3 text-right">Income p.a.</th>
+            <th className="px-4 py-3 text-right">Expenses p.a.</th>
+            <th className="px-4 py-3 text-right">Net p.a.</th>
+            <th className="px-4 py-3 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => {
+            const status = !row.annualTotals ? "No worksheet" : row.annualTotals.net > 0 ? "Positive" : row.annualTotals.net < 0 ? "Negative" : "Neutral";
+            return (
+              <tr key={row.id} className="border-b border-border/70 text-foreground hover:bg-muted/30">
+                <td className="px-4 py-4">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <button onClick={() => onOpenDetail(row.id)} className="w-fit max-w-full truncate text-left font-bold text-accent hover:underline">{row.label}</button>
+                    <span className="truncate text-xs text-muted-foreground">{row.owner}{row.address ? ` · ${row.address}` : ""}</span>
+                  </div>
+                </td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{formatCurrency(row.estimatedValue)}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{formatCurrency(row.loanAmount)}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{formatCurrency(row.weeklyRent)}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{row.rentalYield ? `${row.rentalYield.toFixed(2)}%` : "—"}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{row.annualTotals ? formatCurrency(row.annualTotals.income) : "—"}</td>
+                <td className="px-4 py-4 text-right font-semibold tabular-nums">{row.annualTotals ? formatCurrency(row.annualTotals.expenses) : "—"}</td>
+                <td className={`px-4 py-4 text-right font-bold tabular-nums ${row.annualTotals?.net && row.annualTotals.net < 0 ? "text-destructive" : "text-foreground"}`}>{row.annualTotals ? formatCurrency(row.annualTotals.net) : "—"}</td>
+                <td className="px-4 py-4 text-center"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${status === "Negative" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>{status}</span></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </section>
+);
+
+const SummaryTotal = ({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) => (
+  <div className="rounded-lg border border-border bg-background p-3">
+    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+    <p className={`mt-1 text-xl font-bold tabular-nums ${highlight ? "text-destructive" : "text-foreground"}`}>{value}</p>
+  </div>
+);
 
 type ExpenseFrequency = "annual" | "quarterly" | "monthly";
 
