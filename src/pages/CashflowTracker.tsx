@@ -175,6 +175,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       weeklyRent: item.rental?.weeklyRent || 0,
       interestRate: getLinkedInterestRate(item),
       loanAmount: getLoanBalance(item),
+      estimatedValue: item.estimatedValue || 0,
       loanSplits: item.loanSplits || [],
       propertyType: item.id === "ppor" ? "ppor" : item.ownership === "trust" ? "smsf" : "investment",
       investmentType: item.investmentType || "house",
