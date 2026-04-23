@@ -924,7 +924,6 @@ const CashflowTracker = () => {
               <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Download size={16} /> Export summary</button>
               <button onClick={() => addRow("income")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Income row</button>
               <button onClick={() => addRow("expense")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Expense row</button>
-              <div className="text-sm font-semibold text-accent">Net YTD {formatCurrency(totals.net)}</div>
             </div>
           </div>
           <div ref={topScrollRef} onScroll={() => syncHorizontalScroll("top")} className="overflow-x-auto border-b border-border bg-muted/20 scrollbar-thin">
@@ -960,7 +959,7 @@ const CashflowTracker = () => {
                     </td>
                     {row.values.map((value, i) => (
                       <td key={i} className={`px-1 py-2 text-right tabular-nums lg:px-1.5 ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>
-                        <Input type="number" min="0" value={value || ""} onChange={(event) => updateValue(row.id, i, Number(event.target.value) || 0)} className="ml-auto h-11 w-full px-1 text-right text-xs tabular-nums lg:h-10 lg:px-2 lg:text-sm" />
+                        <Input inputMode="numeric" value={value || ""} onChange={(event) => updateValue(row.id, i, parseCurrencyValue(event.target.value))} className="ml-auto h-11 w-full px-1 text-right text-xs tabular-nums lg:h-10 lg:px-2 lg:text-sm" />
                       </td>
                     ))}
                     <td className="sticky right-[4.5rem] z-20 bg-card px-2 py-2 text-right font-bold tabular-nums text-foreground shadow-[-6px_0_12px_-12px_hsl(var(--foreground))] lg:right-[5.4%]">{formatCurrency(row.values.reduce((a, b) => a + b, 0))}</td>
