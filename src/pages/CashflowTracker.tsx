@@ -260,10 +260,10 @@ const CashflowTracker = () => {
   const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId)
     || portfolioProperties.find((item) => item.label === propertyDetails.nickname && (!propertyDetails.address || item.address === propertyDetails.address));
   const selectedPropertyId = cashflowContext?.propertyId || selectedPortfolioProperty?.id || "";
-  const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || financialPeriods[0];
-  const copyTargetPeriod = financialPeriods.find((period) => period.financialYear !== financialYear) || selectedFinancialPeriod;
-  const selectedPeriodIndex = financialPeriods.findIndex((period) => period.financialYear === financialYear);
-  const previousFinancialPeriod = selectedPeriodIndex >= 0 ? financialPeriods[selectedPeriodIndex + 1] : undefined;
+  const selectedFinancialYearNumber = getFinancialYearNumber(financialYear);
+  const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || getFinancialPeriod(selectedFinancialYearNumber);
+  const copyTargetPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber + 1}`) || getFinancialPeriod(selectedFinancialYearNumber + 1);
+  const previousFinancialPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber - 1}`) || getFinancialPeriod(selectedFinancialYearNumber - 1);
   const displayMonths = selectedFinancialPeriod.months;
 
   const syncHorizontalScroll = (source: "top" | "table") => {
