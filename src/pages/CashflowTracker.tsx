@@ -1108,17 +1108,19 @@ const ExpenseControl = ({
   onAmountChange: (value: number) => void;
   onFrequencyChange: (value: ExpenseFrequency) => void;
 }) => (
-  <div className="grid min-h-0 grid-cols-[minmax(4.75rem,1fr)_minmax(4.5rem,0.8fr)_5.75rem] items-center gap-2 border-b border-border/70 py-1.5 last:border-b-0">
+  <div className="min-h-0 space-y-1.5 border-b border-border/70 py-1.5 last:border-b-0">
     <p className="truncate text-xs font-semibold text-muted-foreground">{label}</p>
-    <div className="flex h-8 min-w-0 items-center rounded-md border border-input bg-background px-2 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-      <span className="text-xs font-bold text-accent">$</span>
-      <input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="min-w-0 flex-1 bg-transparent pl-1 text-sm font-bold text-foreground outline-none tabular-nums" />
-    </div>
-    <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-8 min-w-0 rounded-md border border-input bg-background px-2 text-xs font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+    <div className="grid grid-cols-[minmax(0,1fr)_5.75rem] gap-2">
+      <div className="flex h-8 min-w-0 items-center rounded-md border border-input bg-background px-2 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <span className="text-xs font-bold text-accent">$</span>
+        <input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="min-w-0 flex-1 bg-transparent pl-1 text-sm font-bold text-foreground outline-none tabular-nums" />
+      </div>
+      <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-8 min-w-0 rounded-md border border-input bg-background px-2 text-xs font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
         <option value="annual">Annual</option>
         <option value="quarterly">Quarterly</option>
         <option value="monthly">Monthly</option>
       </select>
+    </div>
   </div>
 );
 
