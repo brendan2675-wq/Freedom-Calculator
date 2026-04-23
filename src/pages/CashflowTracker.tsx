@@ -243,6 +243,8 @@ const CashflowTracker = () => {
   const syncingScrollRef = useRef(false);
   const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skipNextAutosaveRef = useRef(true);
+  const [highlightFirstSplit, setHighlightFirstSplit] = useState(false);
+  const firstSplitAmountRef = useRef<HTMLInputElement>(null);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
@@ -313,6 +315,16 @@ const CashflowTracker = () => {
       return row;
     }));
   }, [propertyDetails.weeklyRent, propertyDetails.loanAmount, propertyDetails.interestRate]);
+
+  useEffect(() => {
+    if (highlightFirstSplit && firstSplitAmountRef.current) {
+      firstSplitAmountRef.current.focus();
+      const valueLength = firstSplitAmountRef.current.value.length;
+      firstSplitAmountRef.current.setSelectionRange(valueLength, valueLength);
+      const timer = setTimeout(() => setHighlightFirstSplit(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightFirstSplit, propertyDetails.loanSplits]);
 
   useEffect(() => {
     if (!selectedPropertyId) return;
@@ -484,8 +496,9 @@ const CashflowTracker = () => {
     const record = getCashflowForProperty<CashflowState>(nextContext);
     if (record?.state) {
       const normalized = normalizeCashflowState(record.state);
+      const linked = getLinkedProperty(selected.id);
       setRows(normalized.rows);
-      setPropertyDetails(normalized.propertyDetails);
+      setPropertyDetails(syncPropertyDetailsFromLinkedProperty(normalized.propertyDetails, linked));
       setCouncilRates(normalized.councilRates);
       setInsurance(normalized.insurance);
       setLandTax(normalized.landTax);
@@ -498,16 +511,7 @@ const CashflowTracker = () => {
     }
     setPropertyDetails((current) => ({
       ...current,
-      nickname: selected.label,
-      address: selected.address,
-      owner: selected.owner,
-      bank: selected.bank,
-      weeklyRent: selected.weeklyRent,
-      interestRate: selected.interestRate,
-      loanAmount: selected.loanAmount,
-      investmentType: selected.investmentType,
-      ownership: selected.ownership,
-      trustName: selected.trustName || "",
+      ...syncPropertyDetailsFromLinkedProperty(current, getLinkedProperty(selected.id)),
     }));
     setLastAutosavedAt(null);
     setAutosaveStatus("idle");
@@ -522,6 +526,7 @@ const CashflowTracker = () => {
       address: propertyDetails.address,
       estimatedValue: 0,
       loanBalance: propertyDetails.loanAmount || 0,
+      loanSplits: propertyDetails.loanSplits,
       earmarked: false,
       sellInYears: 0,
       ownership: propertyDetails.ownership,
@@ -556,41 +561,11 @@ const CashflowTracker = () => {
     const linkedId = selectedPropertyId;
     const isLinkedPortfolioProperty = linkedId && linkedId !== "ppor" && propertySheetMode === "current";
     if (isLinkedPortfolioProperty) {
-      const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
-      const updated = existing.map((item) => item.id === linkedId ? {
-        ...item,
-        nickname: propertyDetails.nickname || item.nickname,
-        address: propertyDetails.address,
-        ownership: propertyDetails.ownership,
-        trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
-        investmentType: propertyDetails.investmentType,
-        loanBalance: propertyDetails.loanAmount || item.loanBalance,
-        loanSplits: item.loanSplits?.length ? item.loanSplits.map((split, index) => index === 0 ? { ...split, amount: propertyDetails.loanAmount || split.amount, interestRate: propertyDetails.interestRate } : { ...split, amount: 0 }) : item.loanSplits,
-        loan: { ...item.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
-        rental: { ...item.rental, weeklyRent: propertyDetails.weeklyRent },
-      } : item);
-      localStorage.setItem("portfolio-properties", JSON.stringify(updated));
-      setPortfolioProperties(getPortfolioPropertyOptions());
+      syncLinkedPortfolioProperty(propertyDetails);
       toast.success("Property details updated");
     } else if (linkedId === "ppor" && propertySheetMode === "current") {
-      const stored = localStorage.getItem("portfolio-ppor");
-      if (stored) {
-        const ppor = JSON.parse(stored) as ExistingProperty;
-        localStorage.setItem("portfolio-ppor", JSON.stringify({
-          ...ppor,
-          nickname: propertyDetails.nickname || ppor.nickname,
-          address: propertyDetails.address,
-          ownership: propertyDetails.ownership,
-          trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
-          investmentType: propertyDetails.investmentType,
-          loanBalance: propertyDetails.loanAmount || ppor.loanBalance,
-          loanSplits: ppor.loanSplits?.length ? ppor.loanSplits.map((split, index) => index === 0 ? { ...split, amount: propertyDetails.loanAmount || split.amount, interestRate: propertyDetails.interestRate } : { ...split, amount: 0 }) : ppor.loanSplits,
-          loan: { ...ppor.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
-          rental: { ...ppor.rental, weeklyRent: propertyDetails.weeklyRent },
-        }));
-        setPortfolioProperties(getPortfolioPropertyOptions());
-        toast.success("Property details updated");
-      }
+      syncLinkedPortfolioProperty(propertyDetails);
+      toast.success("Property details updated");
     } else {
       addNewPortfolioProperty();
     }
@@ -614,8 +589,9 @@ const CashflowTracker = () => {
     const record = getCashflowForProperty<CashflowState>(nextContext);
     if (record?.state) {
       const normalized = normalizeCashflowState(record.state);
+      const linked = getLinkedProperty(nextContext.propertyId);
       setRows(normalized.rows);
-      setPropertyDetails(normalized.propertyDetails);
+      setPropertyDetails(syncPropertyDetailsFromLinkedProperty(normalized.propertyDetails, linked));
       setCouncilRates(normalized.councilRates);
       setInsurance(normalized.insurance);
       setLandTax(normalized.landTax);
