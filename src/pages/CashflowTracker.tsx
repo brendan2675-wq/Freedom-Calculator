@@ -749,7 +749,7 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
-        <section className="grid items-stretch gap-4 xl:grid-cols-4">
+        <section className="grid items-stretch gap-4 xl:grid-cols-8">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
             onKeyDown={(event) => {
@@ -760,7 +760,7 @@ const CashflowTracker = () => {
             }}
             role="button"
             tabIndex={0}
-            className="group h-full w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-2"
+            className="group h-full w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-4"
             aria-label="Edit property details"
           >
             <div className="flex flex-col gap-4">
@@ -795,7 +795,7 @@ const CashflowTracker = () => {
               </div>
             </div>
           </div>
-          <div className="h-full rounded-xl border border-border bg-card p-4 shadow-sm">
+          <div className="order-3 h-full rounded-xl border border-border bg-card p-4 shadow-sm xl:col-span-1">
             <div className="mb-4 flex items-center gap-2">
               <CalendarDays size={18} className="text-accent" />
               <h2 className="text-base font-bold text-foreground">Period & documents</h2>
@@ -817,11 +817,19 @@ const CashflowTracker = () => {
               <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy to another period</button>
             </div>
           </div>
-          <div className="grid h-full grid-rows-4 rounded-xl border border-border bg-card p-3 shadow-sm">
-            <ExpenseControl label="Council rates" value={councilRates.amount} frequency={councilRates.frequency} onAmountChange={(amount) => updateCouncilRates({ amount })} onFrequencyChange={(frequency) => updateCouncilRates({ frequency })} />
-            <ExpenseControl label="Insurance" value={insurance.amount} frequency={insurance.frequency} onAmountChange={(amount) => updateInsurance({ amount })} onFrequencyChange={(frequency) => updateInsurance({ frequency })} />
-            <ExpenseControl label="Land tax" value={landTax.amount} frequency={landTax.frequency} onAmountChange={(amount) => updateLandTax({ amount })} onFrequencyChange={(frequency) => updateLandTax({ frequency })} />
-            <ExpenseControl label="Water charges" value={water.amount} frequency={water.frequency} onAmountChange={(amount) => updateWater({ amount })} onFrequencyChange={(frequency) => updateWater({ frequency })} />
+          <div className="order-2 flex h-full flex-col rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-3">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h2 className="truncate text-sm font-bold text-foreground">Utilities & Charges</h2>
+              <button onClick={() => addRow("expense")} className="inline-flex h-8 shrink-0 items-center justify-center gap-1 rounded-md border border-border px-2 text-xs font-semibold text-foreground transition-colors hover:bg-muted" aria-label="Add charge">
+                <Plus size={14} /> Add
+              </button>
+            </div>
+            <div className="grid flex-1 grid-rows-4">
+              <ExpenseControl label="Council rates" value={councilRates.amount} frequency={councilRates.frequency} onAmountChange={(amount) => updateCouncilRates({ amount })} onFrequencyChange={(frequency) => updateCouncilRates({ frequency })} />
+              <ExpenseControl label="Insurance" value={insurance.amount} frequency={insurance.frequency} onAmountChange={(amount) => updateInsurance({ amount })} onFrequencyChange={(frequency) => updateInsurance({ frequency })} />
+              <ExpenseControl label="Land tax" value={landTax.amount} frequency={landTax.frequency} onAmountChange={(amount) => updateLandTax({ amount })} onFrequencyChange={(frequency) => updateLandTax({ frequency })} />
+              <ExpenseControl label="Water charges" value={water.amount} frequency={water.frequency} onAmountChange={(amount) => updateWater({ amount })} onFrequencyChange={(frequency) => updateWater({ frequency })} />
+            </div>
           </div>
         </section>
 
@@ -1097,10 +1105,10 @@ const ExpenseControl = ({
   onAmountChange: (value: number) => void;
   onFrequencyChange: (value: ExpenseFrequency) => void;
 }) => (
-  <div className="flex min-h-0 items-center gap-2 border-b border-border/70 py-1.5 last:border-b-0">
-    <p className="min-w-[6.5rem] flex-1 truncate text-xs font-semibold text-muted-foreground">{label}</p>
-    <Input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="h-9 w-24 text-sm font-bold tabular-nums" />
-    <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-9 w-28 rounded-md border border-input bg-background px-2 text-xs font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+  <div className="grid min-h-0 grid-cols-[minmax(4.75rem,1fr)_minmax(4.5rem,0.8fr)_5.75rem] items-center gap-2 border-b border-border/70 py-1.5 last:border-b-0">
+    <p className="truncate text-xs font-semibold text-muted-foreground">{label}</p>
+    <Input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="h-8 min-w-0 px-2 text-sm font-bold tabular-nums" />
+    <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-8 min-w-0 rounded-md border border-input bg-background px-2 text-xs font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
         <option value="annual">Annual</option>
         <option value="quarterly">Quarterly</option>
         <option value="monthly">Monthly</option>
