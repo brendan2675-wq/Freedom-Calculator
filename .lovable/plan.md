@@ -1,243 +1,196 @@
 
-Implement the Cashflow Tracker cleanup using Portfolio and PPOR as the lead source of truth, excluding the Valuation fields section.
+Update the Cashflow Tracker header layout as planned, but rename the compact “Period” tile to better capture both the financial year selection and document upload function.
 
-## Scope
+## Recommended tile name
 
-Do everything from the previous review except:
-
-- Do not add Estimated Value to Cashflow.
-- Do not add PPOR Purchase Price, Current Value, or Original Loan Amount to Cashflow.
-- Do not introduce a new Valuation section in the Cashflow sidebar.
-
-## Implementation plan
-
-### 1. Make linked Portfolio / PPOR property data the source of truth
-
-Update `src/pages/CashflowTracker.tsx` so linked Cashflow properties resolve from the live Portfolio records:
-
-- PPOR source: `portfolio-ppor`
-- Investment / SMSF source: `portfolio-properties`
-
-Add helper functions inside Cashflow Tracker:
-
-```ts
-getLinkedProperty()
-updateLinkedProperty()
-getLinkedLoanBalance()
-getLinkedInterestRate()
-syncPropertyDetailsFromLinkedProperty()
-```
-
-These will stop Cashflow relying on stale copied values when a property is linked.
-
-Shared fields will be pulled from the linked property whenever a property is selected or refreshed.
-
-### 2. Replace Cashflow-only loan amount with the Portfolio / PPOR split-loan pattern
-
-Remove the standalone editable `Total Loan Amount` field from the Cashflow sidebar.
-
-Replace it with the same pattern used in `PropertyDetailSheet.tsx` and `PporDetailSheet.tsx`:
+Use:
 
 ```text
-Current Loan Balance
-$1,200,000
-Click to set up loan details →
+FY & Docs
 ```
 
-Then show the split-loan editor:
+## Why
+
+`FY & Docs` is short enough to fit the narrower tile, but still communicates both key actions:
+
+- selecting the financial year / tax period
+- uploading invoices, receipts, and related documents
+
+It is punchier than `Period & Documents` and more descriptive than just `Period`.
+
+## Other naming options considered
 
 ```text
-Loan Details
-Label | Amt ($) | Rate (%) | IO | Term (yr) | Offset ($) | Remove
-+ add split
+Tax Year & Docs
 ```
 
-Behaviour:
-
-- If no loan splits exist:
-  - Clicking Current Loan Balance creates the first split using the current `loanBalance`.
-- If splits exist:
-  - Current Loan Balance is calculated from the split amounts.
-  - Clicking it focuses/highlights the first split amount field.
-- Split amount edits update `loanSplits`.
-- `loanBalance` is recalculated from:
-  ```ts
-  loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0)
-  ```
-- Interest rates allow two decimal places.
-- Do not flatten splits into one amount.
-- Do not zero out secondary splits.
-
-### 3. Remove bad sync logic that overwrites split loans
-
-Replace the current Cashflow sync behaviour that does this:
-
-```ts
-split 1 = total loan amount
-all other splits = 0
-```
-
-with:
-
-```ts
-loanSplits = preserve and update actual split rows
-loanBalance = sum of loanSplits
-```
-
-Only update `loanBalance` directly when no split loans exist.
-
-This applies to:
-
-- `syncLinkedPortfolioProperty`
-- `savePropertyDetailsFromSheet`
-- Property selection/loading logic
-- Any Cashflow property update that writes back to Portfolio or PPOR
-
-### 4. Sync shared property identity fields directly
-
-The Cashflow sidebar fields should update the linked Portfolio / PPOR property:
+Clear, but may wrap or feel too long in the compact tile.
 
 ```text
-Property nickname
-Full address
-Investment type
-Ownership structure
-Trust name
+FY Documents
 ```
 
-Expected behaviour:
-
-- Editing these fields in Cashflow updates the same linked property.
-- The top Property details tile updates immediately.
-- The sidebar selected property stays aligned with the top tile.
-- The Portfolio / PPOR sidebar shows the same values when opened later.
-
-### 5. Sync loan and rental fields directly
-
-The Cashflow sidebar should update the linked property for:
+Compact, but sounds more like a document archive than a period selector.
 
 ```text
-Loan splits
-Current loan balance
-Interest rate
-Lender / Bank
-Weekly rent
+Tax Docs
 ```
 
-Rules:
-
-- `Weekly Rent` writes to `property.rental.weeklyRent`.
-- `Lender / Bank` writes to `property.loan.lenderName`.
-- Interest rate writes to the linked property loan data and/or split rows using the same pattern as Portfolio / PPOR.
-- The top summary tile displays:
-  - Total loan amount from split total when splits exist
-  - Interest rate with two decimals
-  - Weekly rent with `$` formatting
-- The worksheet rental income row recalculates from weekly rent:
-  ```ts
-  weeklyRent * 52 / 12
-  ```
-- The worksheet interest row recalculates from linked loan balance and interest rate.
-
-### 6. Keep Cashflow-only fields separate
-
-These fields stay Cashflow-period-specific and should not sync back to Portfolio / PPOR:
+Very short, but underplays the financial year selector.
 
 ```text
-Financial year / period
-Uploaded invoices / receipts
-Autosave status
+Year & Docs
+```
+
+Simple, but less precise than `FY & Docs`.
+
+## Updated implementation plan
+
+### 1. Change the header grid sizing
+
+Update the Cashflow header grid so the top tiles align as:
+
+```text
+Property details       Utilities & Charges   FY & Docs
+2 columns wide         1 column wide         1 column wide
+```
+
+Technically, keep the existing 8-column grid and use:
+
+```text
+Property details:       xl:col-span-4
+Utilities & Charges:    xl:col-span-2
+FY & Docs:              xl:col-span-2
+```
+
+### 2. Set the tile order
+
+Use this order:
+
+```text
+Property details | Utilities & Charges | FY & Docs
+```
+
+This keeps the charge inputs near the property summary and places the compact financial-year/document controls on the right.
+
+### 3. Rename the Period tile
+
+Change the tile heading from:
+
+```text
+Period & documents
+```
+
+to:
+
+```text
+FY & Docs
+```
+
+Keep the calendar/upload-related visual treatment compact.
+
+### 4. Shorten the dropdown labels
+
+Change the financial year dropdown labels from:
+
+```text
+Period ended 30 June 2027
+Period ended 30 June 2026
+```
+
+to:
+
+```text
+FY 2027
+FY 2026
+```
+
+### 5. Shorten the upload button
+
+Change:
+
+```text
+Upload invoices / receipts
+```
+
+to:
+
+```text
+Upload docs
+```
+
+Keep the upload icon.
+
+### 6. Tighten the status and action labels
+
+Change:
+
+```text
+Autosave ready
 Copy to another period
-Monthly cashflow worksheet rows
+```
+
+to:
+
+```text
+Saved
+Copy FY
+```
+
+If autosave has multiple states, map them as:
+
+```text
+Autosave ready  → Saved
+Saving...       → Saving...
+Unsaved changes → Unsaved
+```
+
+### 7. Keep Utilities & Charges one-column wide
+
+Keep the `Utilities & Charges` tile one column wide and prevent dropdown overflow by using a compact stacked row layout:
+
+```text
 Council rates
+$ [ amount ]     [ Annual ]
+```
+
+Apply the same pattern to:
+
+```text
 Insurance
 Land tax
 Water charges
-Custom income rows
-Custom expense rows
-Property Manager
 ```
 
-`Property Manager` remains Cashflow-only for now because the shared Portfolio / PPOR property type does not currently have a matching field.
+Keep the `+ Add` button for extra custom charges.
 
-### 7. Remove separate Owner handling where it conflicts
+### 8. Preserve functionality
 
-Cashflow should stop treating `owner` as an independent property field.
+No calculation or data behaviour changes:
 
-Display ownership from the shared Portfolio / PPOR structure:
-
-```ts
-ownership === "trust" ? trustName : "Personal"
-```
-
-This avoids Cashflow showing a different owner from Portfolio / PPOR.
-
-### 8. Standardise formatting
-
-Make the Cashflow tile, sidebar, and export use the same formatting style as Portfolio / PPOR:
-
-```text
-Currency:      $1,234,567
-Weekly rent:   $650
-Interest rate: 6.20%
-Loan balance:  $1,200,000
-```
-
-Specific fixes:
-
-- Interest rate should always display with two decimal places.
-- Currency values should include `$` and comma separators.
-- Split-loan fields should use the same compact row pattern and spacing as Portfolio / PPOR.
-- Top tile values should match the sidebar and linked source property.
-
-### 9. Update export summary
-
-The Cashflow export should use synced linked-property values for:
-
-```text
-Owner / ownership
-Address
-Bank
-Loan Amount
-Interest Rate
-Weekly Rent
-```
-
-Interest rate should export as:
-
-```text
-6.20%
-```
-
-not:
-
-```text
-6.2%
-```
-
-### 10. Verification after implementation
-
-After the code changes:
-
-- Run the build.
-- Check that selecting a property in Cashflow loads the same shared fields as Portfolio / PPOR.
-- Check that editing Cashflow loan splits updates the linked Portfolio / PPOR property.
-- Check that editing weekly rent updates the Cashflow worksheet rental income row.
-- Check that interest expense recalculates from the linked loan balance and rate.
-- Check that opening the same property in Portfolio / PPOR shows the same split loans, rent, lender, ownership, and address.
-- Check that period-specific Cashflow rows remain separate by financial year.
-- Confirm no Valuation fields were added to Cashflow.
+- Council rates, Insurance, Land tax, and Water charges remain Cashflow-period-specific.
+- `+ Add` still adds a custom expense row.
+- Upload still accepts the same document types.
+- Financial year switching still uses the same state.
+- Copy functionality still copies the current financial year’s cashflow data.
+- No valuation fields are added.
 
 ## Expected result
 
-Cashflow will no longer have a separate property-entry model.
-
-The shared property fields will follow the same source and pattern everywhere:
+The header becomes:
 
 ```text
-Portfolio investment sidebar
-PPOR sidebar
-Cashflow sidebar
+[ Property details - 2 columns ] [ Utilities & Charges - 1 column ] [ FY & Docs - 1 column ]
 ```
 
-Cashflow will only manage the actual period-based worksheet and documents, while Portfolio / PPOR remain the lead source for property identity, ownership, loan, lender, and rental details.
+The compact right tile becomes:
+
+```text
+FY & Docs
+FY 2027
+Upload docs
+Saved
+Copy FY
+```
+
+This should fix the overflow while keeping the document upload purpose visible.
