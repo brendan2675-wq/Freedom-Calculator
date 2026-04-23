@@ -1,105 +1,93 @@
 
-Implement a more consolidated Cashflow Tracker layout by moving the loan/rent inputs into the Property details tile and placing the period/document/status controls beside it on the same row.
+Yes — for **clients**, the scenario control is becoming less relevant now that the tool is moving toward an autosaved, property/period-based workflow.
+
+The scenario concept is still useful for **advisers** because they manage multiple clients, drafts, assignments, and shared plans. But for a client, seeing **“Scenario: No active scenario”** creates confusion because they are usually just working on their own current plan.
+
+## Recommendation
+
+Refine scenario visibility by role:
+
+- **Clients:** hide or soften scenario controls unless there is an actual active scenario.
+- **Advisers:** keep scenario controls because they need save/load/client assignment.
+- **Agents:** keep read-only scenario context when viewing a shared plan.
 
 ## What will change
 
-1. **Merge loan/rent metric tiles into Property details**
-   - Remove the three standalone tiles:
-     - Total loan amount
-     - Interest rate
-     - Weekly rent
-   - Add these as compact editable fields inside the existing Property details tile.
-   - Keep their current behavior:
-     - Updating loan amount recalculates monthly interest.
-     - Updating interest rate recalculates monthly interest.
-     - Updating weekly rent recalculates rental income and agent fees.
-     - Autosave continues to pick up these changes.
-
-2. **Make Property details the main property + key assumptions card**
-   - The tile will contain:
-     - Property selector
-     - New property action
-     - Property name/address/ownership
-     - Editable key assumptions:
-       - Total loan amount
-       - Interest rate
-       - Weekly rent
-     - Summary figures:
-       - Rental income
-       - Total expenses
-       - Yearly cashflow
-   - The whole tile will still open the property details sheet when clicked.
-   - Inputs/selects inside the tile will stop click propagation so changing values does not accidentally open the side sheet.
-
-3. **Move the Period/Documents/Autosave card to the right**
-   - Place the current period/upload/status card to the right of the Property details tile on desktop.
-   - This creates one clear top row:
+1. **Remove “Scenario: No active scenario” for clients**
+   - In the Cashflow Tracker **Period & documents** card, do not show:
      ```text
-     [Property details + key assumptions]  [Period ended + Upload + Scenario + Autosave + Copy]
+     Scenario: No active scenario
      ```
-   - On desktop, use a two-column grid such as:
-     - Property details: larger left column
-     - Period/document controls: smaller right column
-
-4. **Mobile and tablet layout**
-   - Stack the cards vertically on smaller screens:
+   - If no scenario is active and the user is a client, replace it with a simpler status such as:
      ```text
-     Property details
-     Period & documents
-     Expense controls
-     Monthly worksheet
+     Current cashflow plan
      ```
-   - Keep all touch targets at least 44px high.
-   - Use compact two-column or single-column layouts inside the Property details tile depending on available width.
-   - Ensure the period selector and upload button remain full-width or easy to tap on mobile.
+     or omit the line entirely.
 
-5. **Visual hierarchy**
-   - Rename the right-hand card section to something like **Period & documents** or keep it label-free if the controls are self-explanatory.
-   - Make the Property details tile visually dominant because it is now the primary context for the worksheet.
-   - Use separators inside the property tile to distinguish:
-     - Property selection
-     - Key assumptions
-     - Cashflow summary
+2. **Only show scenario name when it adds value**
+   - If there is an active scenario, show:
+     ```text
+     Scenario: Sam Client Base Plan
+     ```
+   - If there is no active scenario:
+     - Client: hide/soften the scenario line.
+     - Adviser: keep a clear prompt/status because scenario assignment matters.
+     - Agent: keep read-only scenario context if available.
+
+3. **Review client-facing Scenario button usage**
+   - On pages where clients currently see the global **Scenarios** button, simplify it.
+   - Preferred client behaviour:
+     - Clients do not need a prominent scenario save/load button in the header.
+     - Their changes are autosaved/current-state based.
+     - Scenario management can be adviser-facing, not client-facing.
+
+4. **Keep adviser workflow intact**
+   - Do not remove scenario management for advisers.
+   - Advisers still need to:
+     - Save scenarios
+     - Load scenarios
+     - Assign to clients
+     - Share with agents
+     - Manage drafts
+
+5. **Update wording to match the new hierarchy**
+   - Cashflow page should feel like:
+     ```text
+     Property + Period + Autosave
+     ```
+   - Not:
+     ```text
+     Scenario + Save + Load
+     ```
+   - This keeps the client experience simpler and avoids exposing internal planning terminology unless useful.
 
 ## Technical implementation
 
 - Update `src/pages/CashflowTracker.tsx`.
-- Replace the current layout:
-  ```tsx
-  <section className="mb-4 ...">Period/upload/status card</section>
-  <section className="grid ...">
-    Property details tile
-    EditableMetric Total loan amount
-    EditableMetric Interest rate
-    EditableMetric Weekly rent
-  </section>
-  ```
-  with one combined top grid:
-  ```tsx
-  <section className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
-    Property details tile with embedded assumptions
-    Period/documents/status card
-  </section>
-  ```
-
-- Move the existing period selector, upload button, scenario label, autosave label, and **Copy to another period** action into the right-hand card.
-- Move the existing `EditableMetric` logic into a smaller inline component or inline JSX inside the Property details tile.
-- The existing `EditableMetric` component can be removed if no longer used.
-- Keep the existing functions unchanged where possible:
-  - `updateLoanAmount`
-  - `updateInterestRate`
-  - `updatePropertyWeeklyRent`
-  - `handlePeriodChange`
-  - `handlePrototypeUpload`
-  - `saveAsNewPeriod`
-- Add `onClick={(event) => event.stopPropagation()}` / `onKeyDown={(event) => event.stopPropagation()}` around embedded inputs and selectors inside the clickable Property details tile.
-- Run a build after implementation to confirm the Cashflow page compiles.
+- Import or use the current role from the existing auth helper.
+- Change the Period & documents status area so it conditionally renders:
+  - Active scenario name when present.
+  - Adviser/agent scenario status when relevant.
+  - No confusing **“No active scenario”** label for clients.
+- Review `ScenarioManager` usage in the main PPOR header.
+- If the current user role is `client`, hide the prominent **Scenarios** button or replace it with a less technical label only if needed later.
+- Keep scenario controls available for `adviser` and appropriate read-only context for `agent`.
+- Run a build after implementation.
 
 ## Expected result
 
-The top of the Cashflow Tracker will be cleaner and less repetitive:
+Clients see a cleaner experience:
 
-- Property selection, property details, loan amount, interest rate, and weekly rent are all managed in one Property details tile.
-- Period, upload, scenario, autosave, and copy-period controls sit beside it as a contextual control card.
-- The standalone metric tiles are removed.
-- Desktop gets a tighter same-line layout, while mobile remains stacked and easy to use.
+```text
+Period ended 30 June 2027
+Upload invoices / receipts
+Autosaved 2:14 PM
+```
+
+Instead of:
+
+```text
+Scenario: No active scenario
+```
+
+Advisers still retain the full scenario management workflow where it is actually needed.
