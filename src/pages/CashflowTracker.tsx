@@ -490,6 +490,31 @@ const CashflowTracker = () => {
     toast.info(`${files.length} file${files.length === 1 ? "" : "s"} queued. Receipt scanning will populate totals in a future release.`);
   };
 
+  const handlePeriodChange = (nextYear: string) => {
+    setFinancialYear(nextYear);
+    if (!cashflowContext) return;
+    skipNextAutosaveRef.current = true;
+    const nextContext = { ...cashflowContext, financialYear: nextYear };
+    setActiveCashflowContext(nextContext);
+    setCashflowContextState(nextContext);
+    const record = getCashflowForProperty<CashflowState>(nextContext);
+    if (record?.state) {
+      const normalized = normalizeCashflowState(record.state);
+      setRows(normalized.rows);
+      setPropertyDetails(normalized.propertyDetails);
+      setCouncilRates(normalized.councilRates);
+      setInsurance(normalized.insurance);
+      setLandTax(normalized.landTax);
+      setWater(normalized.water);
+      setActiveMonth(normalized.activeMonth);
+      setLastAutosavedAt(new Date(record.savedAt));
+      setAutosaveStatus("saved");
+      return;
+    }
+    setLastAutosavedAt(null);
+    setAutosaveStatus("idle");
+  };
+
   const saveCashflowScenario = () => {
     const name = saveName.trim() || `Cashflow ${savedScenarios.length + 1}`;
     const existing = savedScenarios.find((scenario) => scenario.name.toLowerCase() === name.toLowerCase());
@@ -521,15 +546,14 @@ const CashflowTracker = () => {
     toast.success(`Updated "${active.name}"`);
   };
 
-  const saveAsNewYear = () => {
+  const saveAsNewPeriod = () => {
     if (!cashflowContext) return updateActiveCashflowScenario();
-    const nextYear = window.prompt("Financial year", financialYear === "FY2027" ? "FY2028" : financialYear);
-    if (!nextYear) return;
-    const nextContext = { ...cashflowContext, financialYear: nextYear };
-    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${nextYear}`);
-    setFinancialYear(nextYear);
+    const nextPeriod = financialPeriods.find((period) => period.financialYear !== financialYear)?.financialYear || financialYear;
+    const nextContext = { ...cashflowContext, financialYear: nextPeriod };
+    const saved = saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${nextPeriod}`);
+    setFinancialYear(nextPeriod);
     setCashflowContextState(saved);
-    toast.success(`Saved as ${nextYear}`);
+    toast.success(`Copied to ${financialPeriods.find((period) => period.financialYear === nextPeriod)?.label || nextPeriod}`);
   };
 
   const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
