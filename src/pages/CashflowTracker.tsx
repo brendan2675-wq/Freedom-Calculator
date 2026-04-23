@@ -827,7 +827,17 @@ const CashflowTracker = () => {
                 <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
               )}
               {autosaveStatus === "saving" && <p className="font-semibold text-accent">Saving…</p>}
-              <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy → {copyTargetPeriod.label}</button>
+              <div className="grid gap-2">
+                <button onClick={copyFromPreviousPeriod} disabled={!previousFinancialPeriod} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-50">
+                  <Copy size={16} /> Copy from prior FY
+                </button>
+                <button onClick={saveAsNewPeriod} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
+                  <Copy size={16} /> Copy → {copyTargetPeriod.label}
+                </button>
+                <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90">
+                  <Download size={16} /> Export summary
+                </button>
+              </div>
             </div>
           </div>
           <div className="order-2 flex h-full flex-col rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-2">
@@ -945,7 +955,6 @@ const CashflowTracker = () => {
               <p className="text-sm text-muted-foreground">Edit weekly rents, row labels and monthly values directly in the worksheet.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Download size={16} /> Export summary</button>
               <button onClick={() => addRow("income")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Income row</button>
               <button onClick={() => addRow("expense")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Expense row</button>
             </div>
