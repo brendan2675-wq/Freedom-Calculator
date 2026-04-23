@@ -1272,6 +1272,27 @@ const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon:
   </div>
 );
 
+const CashflowBoardGroup = ({ title, rows, activeMonth, onLabelChange, onValueChange, onRemove }: { title: string; rows: CashflowRow[]; activeMonth: number; onLabelChange: (rowId: string, updates: Partial<CashflowRow>) => void; onValueChange: (rowId: string, monthIndex: number, value: number) => void; onRemove: (rowId: string) => void }) => (
+  <div className="rounded-xl border border-border bg-background p-3">
+    <div className="mb-3 flex items-center justify-between gap-2">
+      <h3 className="text-sm font-bold text-foreground">{title}</h3>
+      <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">{rows.length}</span>
+    </div>
+    <div className="max-h-[30rem] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
+      {rows.map((row) => (
+        <div key={row.id} className="grid gap-2 rounded-lg border border-border bg-card p-3 sm:grid-cols-[minmax(0,1fr)_9rem_2.75rem] sm:items-center">
+          <Input value={row.label} onChange={(event) => onLabelChange(row.id, { label: event.target.value })} className="h-11 bg-card text-sm font-semibold" />
+          <div className="flex h-11 items-center rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+            <span className="text-sm font-bold text-accent">$</span>
+            <input inputMode="numeric" value={row.values[activeMonth] || ""} onChange={(event) => onValueChange(row.id, activeMonth, parseCurrencyValue(event.target.value))} className="min-w-0 flex-1 bg-transparent pl-1 text-right text-sm font-bold text-foreground outline-none tabular-nums" />
+          </div>
+          <button onClick={() => onRemove(row.id)} className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" aria-label={`Remove ${row.label}`}><Trash2 size={16} /></button>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const CurrencyEntryField = ({ value, onChange, compact = false, inputRef, highlight = false }: { value: number; onChange: (value: number) => void; compact?: boolean; inputRef?: React.Ref<HTMLInputElement>; highlight?: boolean }) => (
   <div className={`flex items-center gap-1 rounded-md border bg-background ring-offset-background transition-all focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ${compact ? "h-8 min-w-0 flex-[2] px-1" : "h-10 px-3"} ${highlight ? "border-destructive ring-2 ring-destructive/30" : "border-input"}`}>
     <span className="text-sm font-medium text-muted-foreground">$</span>
