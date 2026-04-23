@@ -1,4 +1,4 @@
-import { UserCircle, LogOut, ChevronDown } from "lucide-react";
+import { UserCircle, LogOut, ChevronDown, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -28,6 +28,19 @@ const UserMenu = () => {
     navigate("/login");
   };
 
+  const handleResetData = () => {
+    if (
+      window.confirm(
+        "Clear all local demo data from this browser?\n\nThis will remove portfolio, PPOR, cashflow and onboarding data. Saved scenarios will be preserved. This cannot be undone."
+      )
+    ) {
+      const savedScenarios = localStorage.getItem("saved-scenarios");
+      localStorage.clear();
+      if (savedScenarios) localStorage.setItem("saved-scenarios", savedScenarios);
+      window.location.reload();
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -54,6 +67,11 @@ const UserMenu = () => {
             </span>
           )}
         </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleResetData} className="cursor-pointer text-destructive focus:text-destructive">
+          <RotateCcw size={14} className="mr-2" />
+          Clear local data
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           <LogOut size={14} className="mr-2" />

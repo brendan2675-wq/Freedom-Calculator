@@ -1,4 +1,4 @@
-import { LayoutDashboard, RotateCcw } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ScenarioManager from "@/components/ScenarioManager";
 import UserMenu from "@/components/UserMenu";
@@ -30,21 +30,6 @@ const Header = ({ getCurrentState, loadState }: HeaderProps) => {
             {role !== "client" && getCurrentState && loadState && (
               <ScenarioManager getCurrentState={getCurrentState} loadState={loadState} />
             )}
-            <button
-              onClick={() => {
-                if (window.confirm("Reset all data to defaults? This cannot be undone.\n\nSaved scenarios will be preserved.")) {
-                  const savedScenarios = localStorage.getItem("saved-scenarios");
-                  localStorage.clear();
-                  if (savedScenarios) localStorage.setItem("saved-scenarios", savedScenarios);
-                  window.location.reload();
-                }
-              }}
-              className="flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg text-xs font-medium text-accent/70 border border-accent/20 hover:bg-accent/10 hover:text-accent transition-all"
-              aria-label="Reset data"
-            >
-              <RotateCcw size={14} />
-              <span className="hidden sm:inline">Reset</span>
-            </button>
             <UserMenu />
           </div>
         </div>
