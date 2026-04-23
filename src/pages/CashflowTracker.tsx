@@ -652,15 +652,6 @@ const CashflowTracker = () => {
               <h1 className="mb-1 text-xl font-bold md:mb-3 md:text-5xl">Cashflow Tracker</h1>
               <p className="max-w-2xl text-sm font-light text-accent md:text-xl">Track your properties on-going expenses and income</p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row md:items-center">
-              <label className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground shadow-lg shadow-accent/20 transition-colors hover:bg-accent/90">
-                <Upload size={18} /> Upload invoices / receipts
-                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
-              </label>
-              <div className="rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent">
-                Period ended 30th June 2027
-              </div>
-            </div>
           </div>
         </div>
       </header>
@@ -670,61 +661,23 @@ const CashflowTracker = () => {
           <ScenarioContextBanner compact />
         </div>
         <section className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm">
-          <div className="space-y-4">
-            <div className="flex flex-col gap-1 md:flex-row md:items-start md:justify-between">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Property cashflow</p>
-                <h2 className="truncate text-lg font-bold text-foreground">{propertyDetails.nickname || propertyDetails.address || "Choose a property"}</h2>
-                <p className="text-sm text-muted-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
-              </div>
-              <p className="text-sm font-semibold text-accent">{autosaveLabel}</p>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="grid gap-2 sm:grid-cols-[minmax(0,280px)_auto]">
+              <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
+                {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
+              </select>
+              <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
+                <Upload size={16} /> Upload invoices / receipts
+                <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
+              </label>
             </div>
-            {portfolioProperties.length > 0 ? (
-              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto_auto]">
-                <select value={cashflowContext?.propertyId || selectedPortfolioProperty?.id || ""} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
-                  <option value="" disabled>Select property</option>
-                  {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-                </select>
-                <select
-                  value={financialYear}
-                  onChange={(event) => {
-                    const nextYear = event.target.value;
-                    setFinancialYear(nextYear);
-                    if (cashflowContext) {
-                      skipNextAutosaveRef.current = true;
-                      const nextContext = { ...cashflowContext, financialYear: nextYear };
-                      setActiveCashflowContext(nextContext);
-                      setCashflowContextState(nextContext);
-                      const record = getCashflowForProperty<CashflowState>(nextContext);
-                      if (record?.state) {
-                        const normalized = normalizeCashflowState(record.state);
-                        setRows(normalized.rows);
-                        setPropertyDetails(normalized.propertyDetails);
-                        setCouncilRates(normalized.councilRates);
-                        setInsurance(normalized.insurance);
-                        setLandTax(normalized.landTax);
-                        setWater(normalized.water);
-                        setActiveMonth(normalized.activeMonth);
-                        setLastAutosavedAt(new Date(record.savedAt));
-                        setAutosaveStatus("saved");
-                      } else {
-                        setLastAutosavedAt(null);
-                        setAutosaveStatus("idle");
-                      }
-                    }
-                  }}
-                  className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
-                >
-                  {['FY2027', 'FY2028', 'FY2029', 'FY2030'].map((year) => <option key={year} value={year}>{year}</option>)}
-                </select>
-                <button onClick={saveAsNewYear} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Copy to another year</button>
+            <div className="flex flex-col gap-1 text-sm lg:items-end">
+              <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="font-semibold text-accent">{autosaveLabel}</p>
+                <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy to another period</button>
               </div>
-            ) : (
-              <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm font-medium text-muted-foreground">No portfolio properties yet</p>
-                <button onClick={() => openPropertyDetailsSheet("new")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Plus size={16} /> Add property</button>
-              </div>
-            )}
+            </div>
           </div>
         </section>
         <section className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-5">
