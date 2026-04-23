@@ -290,6 +290,38 @@ const CashflowTracker = () => {
   const previousFinancialPeriod = financialPeriods.find((period) => period.financialYear === `FY${selectedFinancialYearNumber - 1}`) || getFinancialPeriod(selectedFinancialYearNumber - 1);
   const displayMonths = selectedFinancialPeriod.months;
 
+  const switchCashflowView = (view: CashflowViewMode) => {
+    setCashflowView(view);
+    localStorage.setItem(CASHFLOW_VIEW_KEY, view);
+  };
+
+  const updateTaxSettings = (updates: Partial<CashflowTaxSettings>) => {
+    setTaxSettings((current) => {
+      const next = { ...current, ...updates };
+      localStorage.setItem(CASHFLOW_TAX_SETTINGS_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const overallRows = useMemo(() => portfolioProperties.map((item) => {
+    const context = { clientId: cashflowContext?.clientId, scenarioId: cashflowContext?.scenarioId || getActiveScenario()?.id || CURRENT_CASHFLOW_PLAN_ID, propertyId: item.id, propertyType: item.propertyType, financialYear };
+    const record = getCashflowForProperty<CashflowState>(context);
+    const summary = record?.state ? getAnnualCashflowSummary(record.state) : { income: 0, expenses: 0, net: 0, holdingCost: 0 };
+    const taxOwnership = item.propertyType === "smsf" ? "smsf" : item.ownership;
+    const estimatedTaxBenefit = estimateNegativeGearingBenefit(summary.net, taxSettings, taxOwnership);
+    const afterTaxCashflow = summary.net + estimatedTaxBenefit;
+    const rentalYield = item.estimatedValue > 0 ? ((item.weeklyRent * 52) / item.estimatedValue) * 100 : 0;
+    return { ...item, hasWorksheet: Boolean(record?.state), ...summary, estimatedTaxBenefit, afterTaxCashflow, rentalYield, taxOwnership };
+  }), [portfolioProperties, cashflowContext?.clientId, cashflowContext?.scenarioId, financialYear, taxSettings]);
+
+  const overallTotals = useMemo(() => overallRows.reduce((acc, row) => ({
+    income: acc.income + row.income,
+    expenses: acc.expenses + row.expenses,
+    net: acc.net + row.net,
+    taxBenefit: acc.taxBenefit + row.estimatedTaxBenefit,
+    afterTax: acc.afterTax + row.afterTaxCashflow,
+  }), { income: 0, expenses: 0, net: 0, taxBenefit: 0, afterTax: 0 }), [overallRows]);
+
   const syncHorizontalScroll = (source: "top" | "table") => {
     if (syncingScrollRef.current) return;
     const from = source === "top" ? topScrollRef.current : tableScrollRef.current;
