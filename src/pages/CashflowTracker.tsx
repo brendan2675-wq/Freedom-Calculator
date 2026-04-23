@@ -749,7 +749,7 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
-        <section className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.72fr)_minmax(280px,0.62fr)]">
+        <section className="grid items-stretch gap-4 xl:grid-cols-4">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
             onKeyDown={(event) => {
@@ -760,7 +760,7 @@ const CashflowTracker = () => {
             }}
             role="button"
             tabIndex={0}
-            className="group h-full w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="group h-full w-full cursor-pointer rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-2"
             aria-label="Edit property details"
           >
             <div className="flex flex-col gap-4">
