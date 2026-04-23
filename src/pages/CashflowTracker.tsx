@@ -36,6 +36,7 @@ type CashflowRow = {
 const monthlyRentFromWeekly = (weeklyRent: number) => Math.round((weeklyRent * 52) / 12);
 const monthlyInterestOnlyCost = (loanAmount: number, interestRate: number) => Math.round((loanAmount * (interestRate / 100)) / 12);
 const monthlyAgentFee = (weeklyRent: number) => Math.round(monthlyRentFromWeekly(weeklyRent) * 0.06);
+const getLoanBalance = (item: ExistingProperty) => item.loanSplits?.length ? item.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : item.loanBalance || 0;
 const scheduledExpenseValues = (amount: number, frequency: "annual" | "quarterly" | "monthly") => {
   if (frequency === "annual") return months.map((_, index) => index === 11 ? amount : 0);
   if (frequency === "quarterly") return months.map((_, index) => index % 3 === 0 ? amount : 0);
@@ -119,7 +120,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       bank: item.loan?.lenderName || "",
       weeklyRent: item.rental?.weeklyRent || 0,
       interestRate: item.loan?.interestRate || 0,
-      loanAmount: item.loanSplits?.length ? item.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : item.loanBalance || 0,
+      loanAmount: getLoanBalance(item),
       propertyType: item.id === "ppor" ? "ppor" : item.ownership === "trust" ? "smsf" : "investment",
       investmentType: item.investmentType || "house",
       ownership: item.ownership,
@@ -174,6 +175,8 @@ const getInitialCashflowState = (): CashflowState => {
 };
 
 const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`;
+const parseCurrencyValue = (value: string) => Number(value.replace(/[^0-9]/g, "")) || 0;
+const formatInterestRate = (value: number) => `${value.toFixed(2)}%`;
 
 const CashflowTracker = () => {
   const navigate = useNavigate();
