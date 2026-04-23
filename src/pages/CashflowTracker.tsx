@@ -11,6 +11,7 @@ import OwnershipToggle from "@/components/OwnershipToggle";
 import { InvestmentTypeIcon, getInvestmentTypeLabel, investmentTypes } from "@/components/InvestmentTypeIcon";
 import type { ExistingProperty, InvestmentType } from "@/types/property";
 import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
+import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
 import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProperty, setActiveCashflowContext, type CashflowPropertyType } from "@/lib/cashflowManager";
 
@@ -205,6 +206,8 @@ const CashflowTracker = () => {
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
+  const userRole = getRole();
+  const showScenarioStatus = Boolean(linkedScenario) || userRole === "adviser" || userRole === "agent";
   const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId);
   const autosaveLabel = autosaveStatus === "saving"
     ? "Saving…"
@@ -757,7 +760,9 @@ const CashflowTracker = () => {
               </label>
             </div>
             <div className="mt-4 space-y-2 border-t border-border/70 pt-4 text-sm">
-              <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
+              {showScenarioStatus && (
+                <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
+              )}
               <p className="font-semibold text-accent">{autosaveLabel}</p>
               <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy to another period</button>
             </div>
