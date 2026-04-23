@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth, logout, type Role } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 const roleLabel: Record<Role, string> = {
   client: "Client",
@@ -15,7 +16,11 @@ const roleLabel: Record<Role, string> = {
   agent: "Agent",
 };
 
-const UserMenu = () => {
+type UserMenuProps = {
+  variant?: "header" | "tab";
+};
+
+const UserMenu = ({ variant = "header" }: UserMenuProps) => {
   const navigate = useNavigate();
   const { user, role } = useAuth();
 
@@ -32,14 +37,19 @@ const UserMenu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg text-accent border border-accent/20 hover:bg-accent/10 hover:border-accent/40 transition-all"
+          className={cn(
+            "transition-all",
+            variant === "tab"
+              ? "flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-2 text-xs font-medium text-muted-foreground hover:bg-accent/10 hover:text-accent"
+              : "flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg text-accent border border-accent/20 hover:bg-accent/10 hover:border-accent/40",
+          )}
           aria-label="Account menu"
         >
-          <UserCircle size={22} className="shrink-0" />
-          <span className="hidden sm:inline text-xs md:text-sm font-medium max-w-[140px] truncate">
-            {displayName}
+          <UserCircle size={variant === "tab" ? 19 : 22} className="shrink-0" />
+          <span className={cn(variant === "tab" ? "block text-[11px] leading-none" : "hidden sm:inline text-xs md:text-sm font-medium max-w-[140px] truncate")}>
+            {variant === "tab" ? "Account" : displayName}
           </span>
-          <ChevronDown size={14} className="hidden sm:inline opacity-70" />
+          <ChevronDown size={14} className={cn("hidden opacity-70", variant === "header" && "sm:inline")} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
