@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Home, DollarSign, TrendingUp, BarChart3, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, RotateCcw, Target, Sparkles } from "lucide-react";
+import { Home, DollarSign, TrendingUp, BarChart3, Building2, ArrowUpRight, Landmark, PieChart, MapPin, ChevronRight, Target, Sparkles } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import ScenarioManager from "@/components/ScenarioManager";
 import UserMenu from "@/components/UserMenu";
@@ -99,21 +99,6 @@ const HomePage = () => {
                   window.location.reload();
                 }}
               />
-              <button
-                onClick={() => {
-                  if (window.confirm("Reset all data to defaults? This cannot be undone.\n\nSaved scenarios will be preserved.")) {
-                    const savedScenarios = localStorage.getItem("saved-scenarios");
-                    localStorage.clear();
-                    if (savedScenarios) localStorage.setItem("saved-scenarios", savedScenarios);
-                    window.location.reload();
-                  }
-                }}
-                className="flex items-center gap-1.5 px-2 md:px-3 py-1.5 rounded-lg text-xs font-medium text-accent/70 border border-accent/20 hover:bg-accent/10 hover:text-accent transition-all"
-                aria-label="Reset data"
-              >
-                <RotateCcw size={14} />
-                <span className="hidden sm:inline">Reset</span>
-              </button>
               <UserMenu />
             </div>
           </div>
