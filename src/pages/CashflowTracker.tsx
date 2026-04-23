@@ -889,12 +889,17 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
-        <div className="mb-4 inline-grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted/30 p-1">
-          {(["detail", "overall"] as CashflowViewMode[]).map((view) => (
-            <button key={view} onClick={() => switchCashflowView(view)} className={`min-h-11 rounded-md px-4 text-sm font-bold transition-colors ${cashflowView === view ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60"}`}>
-              {view === "detail" ? "Detail view" : "Overall view"}
-            </button>
-          ))}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="inline-grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted/30 p-1">
+            {(["detail", "overall"] as CashflowViewMode[]).map((view) => (
+              <button key={view} onClick={() => switchCashflowView(view)} className={`min-h-11 rounded-md px-4 text-sm font-bold transition-colors ${cashflowView === view ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:bg-background/60"}`}>
+                {view === "detail" ? "Detail view" : "Overall view"}
+              </button>
+            ))}
+          </div>
+          <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90">
+            <Download size={16} /> Export summary
+          </button>
         </div>
         {cashflowView === "detail" ? <>
         <section className="grid items-stretch gap-4 xl:grid-cols-8">
