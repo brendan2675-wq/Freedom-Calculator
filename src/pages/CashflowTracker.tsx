@@ -230,9 +230,19 @@ const getInitialCashflowState = (): CashflowState => {
   }
 };
 
+const getInitialCashflowView = (): CashflowViewMode => localStorage.getItem(CASHFLOW_VIEW_KEY) === "overall" ? "overall" : "detail";
+const getInitialTaxSettings = (): CashflowTaxSettings => {
+  try {
+    return { primaryIncome: 0, partnerIncome: 0, includePartner: false, includeMedicare: true, ...(JSON.parse(localStorage.getItem(CASHFLOW_TAX_SETTINGS_KEY) || "{}") as Partial<CashflowTaxSettings>) };
+  } catch {
+    return { primaryIncome: 0, partnerIncome: 0, includePartner: false, includeMedicare: true };
+  }
+};
+
 const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`;
 const parseCurrencyValue = (value: string) => Number(value.replace(/[^0-9]/g, "")) || 0;
 const formatInterestRate = (value: number) => `${value.toFixed(2)}%`;
+const formatPercent = (value: number) => `${value.toFixed(2)}%`;
 
 const CashflowTracker = () => {
   const navigate = useNavigate();
