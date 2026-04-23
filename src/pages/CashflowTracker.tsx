@@ -770,7 +770,7 @@ const CashflowTracker = () => {
         <div className="mb-4">
           <ScenarioContextBanner compact />
         </div>
-        <section className="grid items-stretch gap-4 xl:grid-cols-8">
+        <section className="grid items-stretch gap-4 xl:grid-cols-3">
           <div
             onClick={() => openPropertyDetailsSheet("current")}
             onKeyDown={(event) => {
@@ -781,7 +781,7 @@ const CashflowTracker = () => {
             }}
             role="button"
             tabIndex={0}
-            className="group h-full min-h-full w-full cursor-pointer self-stretch rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 xl:col-span-4"
+            className="group h-full min-h-full w-full cursor-pointer self-stretch rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Edit property details"
           >
             <div className="flex h-full flex-col gap-4">
@@ -834,7 +834,7 @@ const CashflowTracker = () => {
               </div>
             </div>
           </div>
-          <div className="order-3 flex h-full min-h-full flex-col self-stretch rounded-xl border border-border bg-card p-4 shadow-sm xl:col-span-2">
+          <div className="order-3 flex h-full min-h-full flex-col self-stretch rounded-xl border border-border bg-card p-4 shadow-sm">
             <div className="mb-4 flex items-center gap-2">
               <CalendarDays size={18} className="text-accent" />
               <h2 className="text-base font-bold text-foreground">FY Docs</h2>
@@ -868,7 +868,7 @@ const CashflowTracker = () => {
               </div>
             </div>
           </div>
-          <div className="order-2 flex h-full min-h-full flex-col self-stretch rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-2">
+          <div className="order-2 flex h-full min-h-full flex-col self-stretch rounded-xl border border-border bg-card p-3 shadow-sm">
             <div className="mb-2 flex items-center justify-between gap-2">
               <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground">
                 <Banknote size={16} className="shrink-0 text-accent" />
