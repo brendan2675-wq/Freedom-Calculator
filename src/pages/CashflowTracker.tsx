@@ -956,13 +956,15 @@ const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon:
   </div>
 );
 
-const EditableMetric = ({ icon: Icon, label, value, onChange, suffix, step = "1" }: { icon: typeof Home; label: string; value: number; onChange: (value: number) => void; suffix?: string; step?: string }) => (
-  <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent"><Icon size={22} /></div>
-    <p className="text-sm font-medium text-muted-foreground">{label}</p>
-    <div className="mt-1 flex items-center gap-2">
-      <Input type="number" min="0" step={step} value={value === 0 ? "" : value} onChange={(event) => onChange(Number(event.target.value) || 0)} className="h-11 text-2xl font-bold tabular-nums" />
-      {suffix ? <span className="text-xl font-bold text-muted-foreground">{suffix}</span> : null}
+const AssumptionInput = ({ icon: Icon, label, value, onChange, suffix, step = "1" }: { icon: typeof Home; label: string; value: number; onChange: (value: number) => void; suffix?: string; step?: string }) => (
+  <div className="rounded-lg bg-muted/30 p-3">
+    <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+      <Icon size={14} className="shrink-0 text-accent" />
+      <span className="truncate">{label}</span>
+    </div>
+    <div className="flex items-center gap-2">
+      <Input type="number" min="0" step={step} value={value === 0 ? "" : value} onChange={(event) => onChange(Number(event.target.value) || 0)} className="h-11 bg-background text-base font-bold tabular-nums" />
+      {suffix ? <span className="text-base font-bold text-muted-foreground">{suffix}</span> : null}
     </div>
   </div>
 );
