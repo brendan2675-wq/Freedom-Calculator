@@ -337,6 +337,7 @@ const CashflowTracker = () => {
     if (rentalRow) {
       updateWeeklyRent(rentalRow.id, weeklyRent);
     }
+    syncLinkedPortfolioProperty({ weeklyRent });
   };
 
   const syncLinkedPortfolioProperty = (updates: { loanAmount?: number; interestRate?: number; weeklyRent?: number }) => {
@@ -486,6 +487,7 @@ const CashflowTracker = () => {
         trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
         investmentType: propertyDetails.investmentType,
         loanBalance: propertyDetails.loanAmount || item.loanBalance,
+        loanSplits: item.loanSplits?.length ? item.loanSplits.map((split, index) => index === 0 ? { ...split, amount: propertyDetails.loanAmount || split.amount, interestRate: propertyDetails.interestRate } : { ...split, amount: 0 }) : item.loanSplits,
         loan: { ...item.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
         rental: { ...item.rental, weeklyRent: propertyDetails.weeklyRent },
       } : item);
@@ -504,6 +506,7 @@ const CashflowTracker = () => {
           trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
           investmentType: propertyDetails.investmentType,
           loanBalance: propertyDetails.loanAmount || ppor.loanBalance,
+          loanSplits: ppor.loanSplits?.length ? ppor.loanSplits.map((split, index) => index === 0 ? { ...split, amount: propertyDetails.loanAmount || split.amount, interestRate: propertyDetails.interestRate } : { ...split, amount: 0 }) : ppor.loanSplits,
           loan: { ...ppor.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
           rental: { ...ppor.rental, weeklyRent: propertyDetails.weeklyRent },
         }));
