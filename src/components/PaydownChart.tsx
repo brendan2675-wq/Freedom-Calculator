@@ -48,9 +48,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   useEffect(() => { if (!growthFocused) setGrowthRateRaw(growthRate.toFixed(2)); }, [growthRate, growthFocused]);
   const chartResult = useMemo(() => {
     const startYear = new Date().getFullYear();
-    const totalLoanMonths = loanTermYears * 12 + loanTermMonths;
-    const years = Math.max(1, targetYear - startYear + 3, Math.ceil(totalLoanMonths / 12) + 1);
+    const years = Math.max(1, targetYear - startYear + 3);
     const monthlyRate = interestRate / 100 / 12;
+    const totalLoanMonths = loanTermYears * 12 + loanTermMonths;
     const ioMonths = repaymentType === "io" ? ioPeriodYears * 12 : 0;
     const piMonths = Math.max(1, totalLoanMonths - ioMonths);
 
@@ -436,11 +436,10 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
-      <div className="mb-4 rounded-xl bg-secondary/60 border border-border px-5 py-3.5 flex items-center gap-3">
-        <Clock size={18} className="text-accent shrink-0" />
-        <p className="text-sm text-foreground">
-          Years remaining at current rate with P&amp;I repayments: <span className="font-semibold text-accent">{formatYearsRemaining(piYearsRemaining)}</span>
+      <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+        <h3 className="text-lg font-semibold text-foreground">Paydown Projection</h3>
+        <p className="text-sm text-muted-foreground">
+          Years remaining with P&amp;I: <span className="font-semibold text-accent">{formatYearsRemaining(piYearsRemaining)}</span>
         </p>
       </div>
       {timeSaved && (
