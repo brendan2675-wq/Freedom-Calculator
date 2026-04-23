@@ -991,6 +991,101 @@ const PropertySheetField = ({ label, children }: { label: string; children: Reac
   </div>
 );
 
+const LoanSplitsEditor = ({
+  loanAmount,
+  interestRate,
+  loanSplits,
+  nickname,
+  highlightFirstSplit,
+  firstSplitAmountRef,
+  onFocusFirstSplit,
+  onCreateFirstSplit,
+  onChange,
+}: {
+  loanAmount: number;
+  interestRate: number;
+  loanSplits: LoanSplit[];
+  nickname: string;
+  highlightFirstSplit: boolean;
+  firstSplitAmountRef: React.RefObject<HTMLInputElement>;
+  onFocusFirstSplit: () => void;
+  onCreateFirstSplit: () => void;
+  onChange: (loanSplits: LoanSplit[]) => void;
+}) => {
+  const updateSplit = (index: number, patch: Partial<LoanSplit>) => {
+    const next = loanSplits.map((split, splitIndex) => splitIndex === index ? { ...split, ...patch } : split);
+    onChange(next);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="mb-1 block text-xs font-medium text-muted-foreground">Current Loan Balance</label>
+        {loanSplits.length === 0 ? (
+          <button
+            onClick={onCreateFirstSplit}
+            className="group flex w-full cursor-pointer items-center gap-2 rounded-lg border border-dashed border-accent/50 bg-accent/5 px-3 py-2.5 text-sm font-medium text-foreground transition-all hover:border-accent hover:bg-accent/10"
+          >
+            <span className="text-muted-foreground">$</span>
+            <span>{loanAmount.toLocaleString()}</span>
+            <span className="ml-auto text-[10px] font-normal text-accent group-hover:underline">Click to set up loan details →</span>
+          </button>
+        ) : (
+          <button
+            onClick={onFocusFirstSplit}
+            className="group flex w-full cursor-pointer items-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm font-medium text-foreground transition-all hover:border-accent/50"
+          >
+            <span className="text-muted-foreground">$</span>
+            <span>{loanAmount.toLocaleString()}</span>
+            <span className="ml-auto text-[10px] text-muted-foreground transition-colors group-hover:text-accent">Edit in splits below ↓</span>
+          </button>
+        )}
+        {loanSplits.length > 0 && <p className="mt-0.5 text-[10px] text-muted-foreground">Auto-calculated from loan splits below</p>}
+      </div>
+
+      <div className="space-y-2 border-l-2 border-accent/20 pl-2">
+        <div className="flex items-center justify-between">
+          <label className="flex cursor-help items-center gap-1 text-xs font-medium text-muted-foreground">
+            Loan Details <InfoIcon size={10} className="text-muted-foreground" />
+          </label>
+          <button
+            onClick={() => onChange([...loanSplits, { id: crypto.randomUUID(), label: loanSplits.length === 0 ? nickname || "Split 1" : `Split ${loanSplits.length + 1}`, amount: 0, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 }])}
+            className="p-0.5 text-accent transition-colors hover:text-accent/80"
+            aria-label="Add loan split"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+        {loanSplits.length > 0 && (
+          <div className="flex items-center gap-1 text-[8px] font-medium text-muted-foreground">
+            <span className="min-w-0 flex-[2]">Label</span>
+            <span className="min-w-0 flex-[2]">Amt ($)</span>
+            <span className="min-w-0 flex-[1.2]">Rate (%)</span>
+            <span className="min-w-0 flex-1">IO</span>
+            <span className="min-w-0 flex-[1.2]">Term (yr)</span>
+            <span className="min-w-0 flex-[2]">Offset ($)</span>
+            <span className="w-4" />
+          </div>
+        )}
+        {loanSplits.map((split, index) => (
+          <div key={split.id} className="flex items-center gap-1">
+            <Input value={split.label} onChange={(event) => updateSplit(index, { label: event.target.value })} className="h-8 min-w-0 flex-[2] px-1 text-[10px] font-medium" placeholder="Label" />
+            <CurrencyEntryField value={split.amount || 0} onChange={(amount) => updateSplit(index, { amount })} compact inputRef={index === 0 ? firstSplitAmountRef : undefined} highlight={index === 0 && highlightFirstSplit} />
+            <RateEntryField value={split.interestRate ?? interestRate} onChange={(rate) => updateSplit(index, { interestRate: rate })} compact />
+            <Input type="number" min={0} max={99} value={split.interestOnlyPeriodYears ?? 0} onChange={(event) => updateSplit(index, { interestOnlyPeriodYears: Math.min(99, Math.max(0, Number(event.target.value) || 0)) })} className="h-8 min-w-0 flex-1 px-1 text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+            <Input type="number" min={1} value={split.loanTermYears ?? 30} onChange={(event) => updateSplit(index, { loanTermYears: Number(event.target.value) || 0 })} className="h-8 min-w-0 flex-[1.2] px-1 text-[10px]" />
+            <CurrencyEntryField value={split.offsetBalance ?? 0} onChange={(offsetBalance) => updateSplit(index, { offsetBalance })} compact />
+            <button onClick={() => onChange(loanSplits.filter((_, splitIndex) => splitIndex !== index))} className="w-4 shrink-0 text-muted-foreground transition-colors hover:text-destructive" aria-label="Remove loan split">
+              <X size={10} />
+            </button>
+          </div>
+        ))}
+        {loanSplits.length > 0 && <p className="text-[10px] text-muted-foreground">Total: <span className="font-semibold text-foreground">{formatCurrency(loanAmount)}</span></p>}
+      </div>
+    </div>
+  );
+};
+
 const ExpenseControl = ({
   label,
   value,
