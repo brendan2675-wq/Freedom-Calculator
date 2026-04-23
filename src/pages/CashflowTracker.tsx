@@ -17,8 +17,8 @@ import { getActiveCashflowContext, getCashflowForProperty, saveCashflowForProper
 
 const months = ["Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26", "Jan-27", "Feb-27", "Mar-27", "Apr-27", "May-27", "Jun-27"];
 const financialPeriods = [
-  { financialYear: "FY2027", label: "Period ended 30 June 2027", months },
-  { financialYear: "FY2026", label: "Period ended 30 June 2026", months: ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"] },
+  { financialYear: "FY2027", label: "FY 2027", months },
+  { financialYear: "FY2026", label: "FY 2026", months: ["Jul-25", "Aug-25", "Sep-25", "Oct-25", "Nov-25", "Dec-25", "Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26"] },
 ];
 
 const CASHFLOW_TEMPLATE_VERSION = 2;
@@ -256,8 +256,8 @@ const CashflowTracker = () => {
   const autosaveLabel = autosaveStatus === "saving"
     ? "Saving…"
     : lastAutosavedAt
-      ? `Autosaved ${lastAutosavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-      : "Autosave ready";
+      ? "Saved"
+      : "Saved";
   const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || financialPeriods[0];
   const displayMonths = selectedFinancialPeriod.months;
 
@@ -795,17 +795,17 @@ const CashflowTracker = () => {
               </div>
             </div>
           </div>
-          <div className="order-3 h-full rounded-xl border border-border bg-card p-4 shadow-sm xl:col-span-1">
+          <div className="order-3 h-full rounded-xl border border-border bg-card p-4 shadow-sm xl:col-span-2">
             <div className="mb-4 flex items-center gap-2">
               <CalendarDays size={18} className="text-accent" />
-              <h2 className="text-base font-bold text-foreground">Period & documents</h2>
+              <h2 className="text-base font-bold text-foreground">FY & Docs</h2>
             </div>
             <div className="grid gap-3">
               <select value={financialYear} onChange={(event) => handlePeriodChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
                 {financialPeriods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
               </select>
               <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-colors hover:bg-accent/90">
-                <Upload size={16} /> Upload invoices / receipts
+                <Upload size={16} /> Upload docs
                 <input type="file" multiple accept="image/*,.pdf,.csv,.xlsx,.xls" className="sr-only" onChange={(event) => handlePrototypeUpload(event.target.files)} />
               </label>
             </div>
@@ -814,10 +814,10 @@ const CashflowTracker = () => {
                 <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
               )}
               <p className="font-semibold text-accent">{autosaveLabel}</p>
-              <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy to another period</button>
+              <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy FY</button>
             </div>
           </div>
-          <div className="order-2 flex h-full flex-col rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-3">
+          <div className="order-2 flex h-full flex-col rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-2">
             <div className="mb-2 flex items-center justify-between gap-2">
               <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground">
                 <Banknote size={16} className="shrink-0 text-accent" />
@@ -1108,17 +1108,19 @@ const ExpenseControl = ({
   onAmountChange: (value: number) => void;
   onFrequencyChange: (value: ExpenseFrequency) => void;
 }) => (
-  <div className="grid min-h-0 grid-cols-[minmax(4.75rem,1fr)_minmax(4.5rem,0.8fr)_5.75rem] items-center gap-2 border-b border-border/70 py-1.5 last:border-b-0">
+  <div className="min-h-0 space-y-1.5 border-b border-border/70 py-1.5 last:border-b-0">
     <p className="truncate text-xs font-semibold text-muted-foreground">{label}</p>
-    <div className="flex h-8 min-w-0 items-center rounded-md border border-input bg-background px-2 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-      <span className="text-xs font-bold text-accent">$</span>
-      <input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="min-w-0 flex-1 bg-transparent pl-1 text-sm font-bold text-foreground outline-none tabular-nums" />
-    </div>
-    <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-8 min-w-0 rounded-md border border-input bg-background px-2 text-xs font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+    <div className="grid grid-cols-[minmax(0,1fr)_5.75rem] gap-2">
+      <div className="flex h-8 min-w-0 items-center rounded-md border border-input bg-background px-2 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <span className="text-xs font-bold text-accent">$</span>
+        <input type="number" min="0" value={value === 0 ? "" : value} onChange={(event) => onAmountChange(Number(event.target.value) || 0)} className="min-w-0 flex-1 bg-transparent pl-1 text-sm font-bold text-foreground outline-none tabular-nums" />
+      </div>
+      <select value={frequency} onChange={(event) => onFrequencyChange(event.target.value as ExpenseFrequency)} className="h-8 min-w-0 rounded-md border border-input bg-background px-2 text-xs font-semibold capitalize text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
         <option value="annual">Annual</option>
         <option value="quarterly">Quarterly</option>
         <option value="monthly">Monthly</option>
       </select>
+    </div>
   </div>
 );
 
