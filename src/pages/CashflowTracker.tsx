@@ -251,6 +251,7 @@ const CashflowTracker = () => {
   const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId)
     || portfolioProperties.find((item) => item.label === propertyDetails.nickname && (!propertyDetails.address || item.address === propertyDetails.address));
   const selectedPropertyId = cashflowContext?.propertyId || selectedPortfolioProperty?.id || "";
+  const selectedLinkedProperty = getLinkedProperty(selectedPropertyId);
   const autosaveLabel = autosaveStatus === "saving"
     ? "Saving…"
     : lastAutosavedAt
@@ -312,6 +313,13 @@ const CashflowTracker = () => {
       return row;
     }));
   }, [propertyDetails.weeklyRent, propertyDetails.loanAmount, propertyDetails.interestRate]);
+
+  useEffect(() => {
+    if (!selectedPropertyId) return;
+    const linked = getLinkedProperty(selectedPropertyId);
+    if (!linked) return;
+    setPropertyDetails((current) => syncPropertyDetailsFromLinkedProperty(current, linked));
+  }, [selectedPropertyId, portfolioProperties]);
 
   useEffect(() => {
     const state = currentCashflowState();
@@ -385,32 +393,43 @@ const CashflowTracker = () => {
     syncLinkedPortfolioProperty({ weeklyRent });
   };
 
-  const syncLinkedPortfolioProperty = (updates: { loanAmount?: number; interestRate?: number; weeklyRent?: number }) => {
+  const updateLinkedPortfolioProperty = (updater: (item: ExistingProperty) => ExistingProperty) => {
     const linkedId = selectedPropertyId;
-    if (!linkedId) return;
-    const applyUpdates = (item: ExistingProperty): ExistingProperty => {
-      const nextLoanBalance = updates.loanAmount ?? item.loanBalance;
-      const hasLoanSplits = Boolean(item.loanSplits?.length);
-      const nextLoanSplits = updates.loanAmount !== undefined && hasLoanSplits
-        ? item.loanSplits?.map((split, index) => index === 0 ? { ...split, amount: updates.loanAmount ?? split.amount } : { ...split, amount: 0 })
-        : item.loanSplits;
-      return {
-        ...item,
-        loanBalance: nextLoanBalance,
-        loanSplits: nextLoanSplits,
-        loan: { ...item.loan, interestRate: updates.interestRate ?? item.loan.interestRate },
-        rental: { ...item.rental, weeklyRent: updates.weeklyRent ?? item.rental.weeklyRent },
-      };
-    };
+    if (!linkedId) return null;
+    let updatedProperty: ExistingProperty | null = null;
 
     if (linkedId === "ppor") {
       const stored = localStorage.getItem("portfolio-ppor");
-      if (stored) localStorage.setItem("portfolio-ppor", JSON.stringify(applyUpdates(JSON.parse(stored) as ExistingProperty)));
+      if (stored) {
+        updatedProperty = updater(JSON.parse(stored) as ExistingProperty);
+        localStorage.setItem("portfolio-ppor", JSON.stringify(updatedProperty));
+      }
     } else {
       const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
-      localStorage.setItem("portfolio-properties", JSON.stringify(existing.map((item) => item.id === linkedId ? applyUpdates(item) : item)));
+      localStorage.setItem("portfolio-properties", JSON.stringify(existing.map((item) => {
+        if (item.id !== linkedId) return item;
+        updatedProperty = updater(item);
+        return updatedProperty;
+      })));
     }
     setPortfolioProperties(getPortfolioPropertyOptions());
+    if (updatedProperty) setPropertyDetails((current) => syncPropertyDetailsFromLinkedProperty(current, updatedProperty));
+    return updatedProperty;
+  };
+
+  const syncLinkedPortfolioProperty = (updates: Partial<CashflowPropertyDetails>) => {
+    updateLinkedPortfolioProperty((item) => ({
+      ...item,
+      nickname: updates.nickname ?? item.nickname,
+      address: updates.address ?? item.address,
+      ownership: updates.ownership ?? item.ownership,
+      trustName: (updates.ownership ?? item.ownership) === "trust" ? updates.trustName ?? item.trustName : undefined,
+      investmentType: updates.investmentType ?? item.investmentType,
+      loanBalance: updates.loanAmount ?? item.loanBalance,
+      loanSplits: updates.loanSplits ?? item.loanSplits,
+      loan: { ...item.loan, lenderName: updates.bank ?? item.loan.lenderName, interestRate: updates.interestRate ?? item.loan.interestRate },
+      rental: { ...item.rental, weeklyRent: updates.weeklyRent ?? item.rental.weeklyRent },
+    }));
   };
 
   const updateLoanAmount = (loanAmount: number) => {
@@ -427,6 +446,22 @@ const CashflowTracker = () => {
       return { ...current, interestRate };
     });
     syncLinkedPortfolioProperty({ interestRate });
+  };
+
+  const updatePropertyIdentity = (updates: Partial<CashflowPropertyDetails>) => {
+    setPropertyDetails((current) => {
+      const next = { ...current, ...updates };
+      syncLinkedPortfolioProperty(next);
+      return next;
+    });
+  };
+
+  const updateLoanSplits = (loanSplits: LoanSplit[]) => {
+    const loanAmount = loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0);
+    const interestRate = loanSplits.find((split) => split.interestRate !== undefined)?.interestRate ?? propertyDetails.interestRate;
+    setPropertyDetails((current) => ({ ...current, loanSplits, loanAmount, interestRate }));
+    updateInterestRow(loanAmount, interestRate);
+    syncLinkedPortfolioProperty({ loanSplits, loanAmount, interestRate });
   };
 
   const addRow = (type: CashflowRow["type"]) => {
