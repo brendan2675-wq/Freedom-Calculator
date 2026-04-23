@@ -895,12 +895,12 @@ const CashflowTracker = () => {
               <div className="grid content-start gap-x-3 gap-y-4 border-t border-border/70 pt-4 sm:grid-cols-3">
                 <SummaryMeasure icon={Percent} label="Interest rate" value={formatInterestRate(propertyDetails.interestRate)} />
                 <SummaryMeasure icon={Home} label="Weekly rent" value={formatCurrency(propertyDetails.weeklyRent)} />
-                <SummaryMeasure icon={Percent} label="Yield" value={propertyRentalYield ? `${propertyRentalYield.toFixed(2)}%` : "—"} />
-                <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
                 <SummaryMeasure icon={TrendingDown} label="Average monthly expenses" value={formatCurrency(averageMonthlyExpenses)} />
-                <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
                 <SummaryMeasure icon={Banknote} label="Monthly loan repayment" value={formatCurrency(monthlyLoanRepayment)} />
+                <SummaryMeasure icon={Percent} label="Yield" value={propertyRentalYield ? `${propertyRentalYield.toFixed(2)}%` : "—"} />
+                <SummaryMeasure icon={TrendingDown} label="Total expenses" value={formatCurrency(totals.expenses)} />
                 <SummaryMeasure icon={Banknote} label="Total loan amount" value={formatCurrency(propertyDetails.loanAmount)} />
+                <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
                 <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
               </div>
               <div className="grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-3">
