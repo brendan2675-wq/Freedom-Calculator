@@ -187,6 +187,8 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
   }
 };
 
+const isCashflowSelectableProperty = (item: PortfolioPropertyOption) => item.propertyType !== "ppor";
+
 const defaultCashflowState: CashflowState = { rows: initialRows, propertyDetails: property, councilRates: defaultCouncilRates, insurance: defaultInsurance, landTax: defaultLandTax, water: defaultWater, activeMonth: 7, templateVersion: CASHFLOW_TEMPLATE_VERSION };
 
 const normalizeCashflowState = (state?: Partial<CashflowState>): CashflowState => {
@@ -394,7 +396,7 @@ const CashflowTracker = () => {
   const overallRows = useMemo(() => {
     const activeScenarioIdForRecords = getActiveScenario()?.id || cashflowContext?.scenarioId || CURRENT_CASHFLOW_PLAN_ID;
     const records = getCashflowRecords<CashflowState>();
-    return portfolioProperties.map((item) => {
+    return portfolioProperties.filter(isCashflowSelectableProperty).map((item) => {
       const record = records.find((entry) => entry.propertyId === item.id && entry.financialYear === financialYear && entry.scenarioId === activeScenarioIdForRecords);
       const annualTotals = record?.state ? annualTotalsFromRows(normalizeCashflowState(record.state).rows) : null;
       const rentalYield = item.estimatedValue > 0 ? ((item.weeklyRent * 52) / item.estimatedValue) * 100 : 0;
@@ -536,6 +538,10 @@ const CashflowTracker = () => {
   const linkPortfolioProperty = (propertyId: string) => {
     const selected = portfolioProperties.find((item) => item.id === propertyId);
     if (!selected) return;
+    if (!isCashflowSelectableProperty(selected)) {
+      toast.info("Owner occupier cashflow will be available in a separate detailed view.");
+      return;
+    }
     setPropertySheetMode("current");
     skipNextAutosaveRef.current = true;
     const scenario = getActiveScenario();
@@ -887,7 +893,7 @@ const CashflowTracker = () => {
                 <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
                   <select value={selectedPropertyId} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
                     <option value="" disabled>Select property</option>
-                    {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                    {portfolioProperties.map((item) => <option key={item.id} value={item.id} disabled={!isCashflowSelectableProperty(item)}>{item.label}{!isCashflowSelectableProperty(item) ? " — owner occupier" : ""}</option>)}
                   </select>
                 </div>
                 <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
@@ -1038,7 +1044,7 @@ const CashflowTracker = () => {
                 <div className="space-y-2 rounded-lg border border-border p-3">
                   <select onChange={(event) => linkPortfolioProperty(event.target.value)} value={selectedPropertyId} className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm font-semibold text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                     <option value="" disabled>Select existing portfolio property</option>
-                    {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                    {portfolioProperties.map((item) => <option key={item.id} value={item.id} disabled={!isCashflowSelectableProperty(item)}>{item.label}{!isCashflowSelectableProperty(item) ? " — owner occupier" : ""}</option>)}
                   </select>
                   <p className="text-xs text-muted-foreground">Shared fields below are prefilled from the selected property and can be reviewed before saving.</p>
                 </div>
