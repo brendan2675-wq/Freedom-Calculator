@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, CalendarDays, Download, Home, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload } from "lucide-react";
+import { Banknote, CalendarDays, Download, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import AddressSearchInput from "@/components/AddressSearchInput";
 import OwnershipToggle from "@/components/OwnershipToggle";
 import { InvestmentTypeIcon, getInvestmentTypeLabel, investmentTypes } from "@/components/InvestmentTypeIcon";
-import type { ExistingProperty, InvestmentType } from "@/types/property";
+import type { ExistingProperty, InvestmentType, LoanSplit } from "@/types/property";
 import { defaultLoanDetails, defaultPurchaseDetails, defaultRentalDetails } from "@/types/property";
 import { getRole } from "@/lib/auth";
 import { getActiveScenario, getScenario } from "@/lib/scenarioManager";
@@ -76,6 +76,7 @@ const property = {
   weeklyRent: INITIAL_WEEKLY_RENT,
   interestRate: INITIAL_INTEREST_RATE,
   loanAmount: INITIAL_LOAN_AMOUNT,
+  loanSplits: [] as LoanSplit[],
   manager: "",
   investmentType: "house" as InvestmentType,
   ownership: "personal" as "trust" | "personal",
@@ -88,7 +89,8 @@ type LandTaxState = { amount: number; frequency: "annual" | "quarterly" | "month
 type WaterState = { amount: number; frequency: "annual" | "quarterly" | "monthly" };
 type CashflowState = { rows: CashflowRow[]; propertyDetails: typeof property; councilRates: CouncilRatesState; insurance: InsuranceState; landTax: LandTaxState; water: WaterState; activeMonth: number; templateVersion: number };
 type SavedCashflowScenario = { id: string; name: string; savedAt: string; state: CashflowState };
-type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
+type CashflowPropertyDetails = typeof property;
+type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; interestRate: number; loanAmount: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
@@ -108,6 +110,42 @@ const getSavedCashflowScenarios = (): SavedCashflowScenario[] => {
   }
 };
 
+const getLinkedProperty = (propertyId?: string | null): ExistingProperty | null => {
+  if (!propertyId) return null;
+  try {
+    if (propertyId === "ppor") {
+      const stored = localStorage.getItem("portfolio-ppor");
+      return stored ? JSON.parse(stored) as ExistingProperty : null;
+    }
+    const properties = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
+    return properties.find((item) => item.id === propertyId) || null;
+  } catch {
+    return null;
+  }
+};
+
+const getLinkedLoanBalance = (item?: ExistingProperty | null) => item ? getLoanBalance(item) : 0;
+const getLinkedInterestRate = (item?: ExistingProperty | null) => item?.loanSplits?.find((split) => split.interestRate !== undefined)?.interestRate ?? item?.loan?.interestRate ?? 0;
+
+const syncPropertyDetailsFromLinkedProperty = (current: CashflowPropertyDetails, item?: ExistingProperty | null): CashflowPropertyDetails => {
+  if (!item) return current;
+  const interestRate = getLinkedInterestRate(item);
+  return {
+    ...current,
+    nickname: item.nickname || "Portfolio property",
+    address: item.address || "",
+    owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
+    bank: item.loan?.lenderName || "",
+    weeklyRent: item.rental?.weeklyRent || 0,
+    interestRate,
+    loanAmount: getLinkedLoanBalance(item),
+    loanSplits: item.loanSplits || [],
+    investmentType: item.investmentType || "house",
+    ownership: item.ownership,
+    trustName: item.trustName || "",
+  };
+};
+
 const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
   try {
     const storedPpor = localStorage.getItem("portfolio-ppor");
@@ -121,8 +159,9 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       owner: item.ownership === "trust" ? item.trustName || "Trust" : "Personal",
       bank: item.loan?.lenderName || "",
       weeklyRent: item.rental?.weeklyRent || 0,
-      interestRate: item.loan?.interestRate || 0,
+      interestRate: getLinkedInterestRate(item),
       loanAmount: getLoanBalance(item),
+      loanSplits: item.loanSplits || [],
       propertyType: item.id === "ppor" ? "ppor" : item.ownership === "trust" ? "smsf" : "investment",
       investmentType: item.investmentType || "house",
       ownership: item.ownership,
@@ -204,6 +243,8 @@ const CashflowTracker = () => {
   const syncingScrollRef = useRef(false);
   const autosaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skipNextAutosaveRef = useRef(true);
+  const [highlightFirstSplit, setHighlightFirstSplit] = useState(false);
+  const firstSplitAmountRef = useRef<HTMLInputElement>(null);
   const activeScenario = savedScenarios.find((scenario) => scenario.id === activeScenarioId);
   const linkedRecord = cashflowContext ? getCashflowForProperty<CashflowState>(cashflowContext) : undefined;
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
@@ -273,6 +314,23 @@ const CashflowTracker = () => {
       return row;
     }));
   }, [propertyDetails.weeklyRent, propertyDetails.loanAmount, propertyDetails.interestRate]);
+
+  useEffect(() => {
+    if (highlightFirstSplit && firstSplitAmountRef.current) {
+      firstSplitAmountRef.current.focus();
+      const valueLength = firstSplitAmountRef.current.value.length;
+      firstSplitAmountRef.current.setSelectionRange(valueLength, valueLength);
+      const timer = setTimeout(() => setHighlightFirstSplit(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightFirstSplit, propertyDetails.loanSplits]);
+
+  useEffect(() => {
+    if (!selectedPropertyId) return;
+    const linked = getLinkedProperty(selectedPropertyId);
+    if (!linked) return;
+    setPropertyDetails((current) => syncPropertyDetailsFromLinkedProperty(current, linked));
+  }, [selectedPropertyId, portfolioProperties]);
 
   useEffect(() => {
     const state = currentCashflowState();
@@ -346,32 +404,43 @@ const CashflowTracker = () => {
     syncLinkedPortfolioProperty({ weeklyRent });
   };
 
-  const syncLinkedPortfolioProperty = (updates: { loanAmount?: number; interestRate?: number; weeklyRent?: number }) => {
+  const updateLinkedPortfolioProperty = (updater: (item: ExistingProperty) => ExistingProperty) => {
     const linkedId = selectedPropertyId;
-    if (!linkedId) return;
-    const applyUpdates = (item: ExistingProperty): ExistingProperty => {
-      const nextLoanBalance = updates.loanAmount ?? item.loanBalance;
-      const hasLoanSplits = Boolean(item.loanSplits?.length);
-      const nextLoanSplits = updates.loanAmount !== undefined && hasLoanSplits
-        ? item.loanSplits?.map((split, index) => index === 0 ? { ...split, amount: updates.loanAmount ?? split.amount } : { ...split, amount: 0 })
-        : item.loanSplits;
-      return {
-        ...item,
-        loanBalance: nextLoanBalance,
-        loanSplits: nextLoanSplits,
-        loan: { ...item.loan, interestRate: updates.interestRate ?? item.loan.interestRate },
-        rental: { ...item.rental, weeklyRent: updates.weeklyRent ?? item.rental.weeklyRent },
-      };
-    };
+    if (!linkedId) return null;
+    let updatedProperty: ExistingProperty | null = null;
 
     if (linkedId === "ppor") {
       const stored = localStorage.getItem("portfolio-ppor");
-      if (stored) localStorage.setItem("portfolio-ppor", JSON.stringify(applyUpdates(JSON.parse(stored) as ExistingProperty)));
+      if (stored) {
+        updatedProperty = updater(JSON.parse(stored) as ExistingProperty);
+        localStorage.setItem("portfolio-ppor", JSON.stringify(updatedProperty));
+      }
     } else {
       const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
-      localStorage.setItem("portfolio-properties", JSON.stringify(existing.map((item) => item.id === linkedId ? applyUpdates(item) : item)));
+      localStorage.setItem("portfolio-properties", JSON.stringify(existing.map((item) => {
+        if (item.id !== linkedId) return item;
+        updatedProperty = updater(item);
+        return updatedProperty;
+      })));
     }
     setPortfolioProperties(getPortfolioPropertyOptions());
+    if (updatedProperty) setPropertyDetails((current) => syncPropertyDetailsFromLinkedProperty(current, updatedProperty));
+    return updatedProperty;
+  };
+
+  const syncLinkedPortfolioProperty = (updates: Partial<CashflowPropertyDetails>) => {
+    updateLinkedPortfolioProperty((item) => ({
+      ...item,
+      nickname: updates.nickname ?? item.nickname,
+      address: updates.address ?? item.address,
+      ownership: updates.ownership ?? item.ownership,
+      trustName: (updates.ownership ?? item.ownership) === "trust" ? updates.trustName ?? item.trustName : undefined,
+      investmentType: updates.investmentType ?? item.investmentType,
+      loanBalance: updates.loanAmount ?? item.loanBalance,
+      loanSplits: updates.loanSplits ?? item.loanSplits,
+      loan: { ...item.loan, lenderName: updates.bank ?? item.loan.lenderName, interestRate: updates.interestRate ?? item.loan.interestRate },
+      rental: { ...item.rental, weeklyRent: updates.weeklyRent ?? item.rental.weeklyRent },
+    }));
   };
 
   const updateLoanAmount = (loanAmount: number) => {
@@ -388,6 +457,22 @@ const CashflowTracker = () => {
       return { ...current, interestRate };
     });
     syncLinkedPortfolioProperty({ interestRate });
+  };
+
+  const updatePropertyIdentity = (updates: Partial<CashflowPropertyDetails>) => {
+    setPropertyDetails((current) => {
+      const next = { ...current, ...updates };
+      syncLinkedPortfolioProperty(next);
+      return next;
+    });
+  };
+
+  const updateLoanSplits = (loanSplits: LoanSplit[]) => {
+    const loanAmount = loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0);
+    const interestRate = loanSplits.find((split) => split.interestRate !== undefined)?.interestRate ?? propertyDetails.interestRate;
+    setPropertyDetails((current) => ({ ...current, loanSplits, loanAmount, interestRate }));
+    updateInterestRow(loanAmount, interestRate);
+    syncLinkedPortfolioProperty({ loanSplits, loanAmount, interestRate });
   };
 
   const addRow = (type: CashflowRow["type"]) => {
@@ -410,8 +495,9 @@ const CashflowTracker = () => {
     const record = getCashflowForProperty<CashflowState>(nextContext);
     if (record?.state) {
       const normalized = normalizeCashflowState(record.state);
+      const linked = getLinkedProperty(selected.id);
       setRows(normalized.rows);
-      setPropertyDetails(normalized.propertyDetails);
+      setPropertyDetails(syncPropertyDetailsFromLinkedProperty(normalized.propertyDetails, linked));
       setCouncilRates(normalized.councilRates);
       setInsurance(normalized.insurance);
       setLandTax(normalized.landTax);
@@ -424,16 +510,7 @@ const CashflowTracker = () => {
     }
     setPropertyDetails((current) => ({
       ...current,
-      nickname: selected.label,
-      address: selected.address,
-      owner: selected.owner,
-      bank: selected.bank,
-      weeklyRent: selected.weeklyRent,
-      interestRate: selected.interestRate,
-      loanAmount: selected.loanAmount,
-      investmentType: selected.investmentType,
-      ownership: selected.ownership,
-      trustName: selected.trustName || "",
+      ...syncPropertyDetailsFromLinkedProperty(current, getLinkedProperty(selected.id)),
     }));
     setLastAutosavedAt(null);
     setAutosaveStatus("idle");
@@ -448,6 +525,7 @@ const CashflowTracker = () => {
       address: propertyDetails.address,
       estimatedValue: 0,
       loanBalance: propertyDetails.loanAmount || 0,
+      loanSplits: propertyDetails.loanSplits,
       earmarked: false,
       sellInYears: 0,
       ownership: propertyDetails.ownership,
@@ -482,41 +560,11 @@ const CashflowTracker = () => {
     const linkedId = selectedPropertyId;
     const isLinkedPortfolioProperty = linkedId && linkedId !== "ppor" && propertySheetMode === "current";
     if (isLinkedPortfolioProperty) {
-      const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
-      const updated = existing.map((item) => item.id === linkedId ? {
-        ...item,
-        nickname: propertyDetails.nickname || item.nickname,
-        address: propertyDetails.address,
-        ownership: propertyDetails.ownership,
-        trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
-        investmentType: propertyDetails.investmentType,
-        loanBalance: propertyDetails.loanAmount || item.loanBalance,
-        loanSplits: item.loanSplits?.length ? item.loanSplits.map((split, index) => index === 0 ? { ...split, amount: propertyDetails.loanAmount || split.amount, interestRate: propertyDetails.interestRate } : { ...split, amount: 0 }) : item.loanSplits,
-        loan: { ...item.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
-        rental: { ...item.rental, weeklyRent: propertyDetails.weeklyRent },
-      } : item);
-      localStorage.setItem("portfolio-properties", JSON.stringify(updated));
-      setPortfolioProperties(getPortfolioPropertyOptions());
+      syncLinkedPortfolioProperty(propertyDetails);
       toast.success("Property details updated");
     } else if (linkedId === "ppor" && propertySheetMode === "current") {
-      const stored = localStorage.getItem("portfolio-ppor");
-      if (stored) {
-        const ppor = JSON.parse(stored) as ExistingProperty;
-        localStorage.setItem("portfolio-ppor", JSON.stringify({
-          ...ppor,
-          nickname: propertyDetails.nickname || ppor.nickname,
-          address: propertyDetails.address,
-          ownership: propertyDetails.ownership,
-          trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
-          investmentType: propertyDetails.investmentType,
-          loanBalance: propertyDetails.loanAmount || ppor.loanBalance,
-          loanSplits: ppor.loanSplits?.length ? ppor.loanSplits.map((split, index) => index === 0 ? { ...split, amount: propertyDetails.loanAmount || split.amount, interestRate: propertyDetails.interestRate } : { ...split, amount: 0 }) : ppor.loanSplits,
-          loan: { ...ppor.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
-          rental: { ...ppor.rental, weeklyRent: propertyDetails.weeklyRent },
-        }));
-        setPortfolioProperties(getPortfolioPropertyOptions());
-        toast.success("Property details updated");
-      }
+      syncLinkedPortfolioProperty(propertyDetails);
+      toast.success("Property details updated");
     } else {
       addNewPortfolioProperty();
     }
@@ -540,8 +588,9 @@ const CashflowTracker = () => {
     const record = getCashflowForProperty<CashflowState>(nextContext);
     if (record?.state) {
       const normalized = normalizeCashflowState(record.state);
+      const linked = getLinkedProperty(nextContext.propertyId);
       setRows(normalized.rows);
-      setPropertyDetails(normalized.propertyDetails);
+      setPropertyDetails(syncPropertyDetailsFromLinkedProperty(normalized.propertyDetails, linked));
       setCouncilRates(normalized.councilRates);
       setInsurance(normalized.insurance);
       setLandTax(normalized.landTax);
@@ -805,7 +854,7 @@ const CashflowTracker = () => {
                     {investmentTypes.map((type) => (
                       <button
                         key={type}
-                        onClick={() => setPropertyDetails((current) => ({ ...current, investmentType: type }))}
+                        onClick={() => updatePropertyIdentity({ investmentType: type })}
                         className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border text-sm font-semibold transition-colors ${propertyDetails.investmentType === type ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground hover:border-accent/50 hover:text-foreground"}`}
                       >
                         <InvestmentTypeIcon type={type} size={20} />
@@ -817,28 +866,33 @@ const CashflowTracker = () => {
                 <PropertySheetField label="Ownership Structure">
                   <OwnershipToggle
                     value={propertyDetails.ownership}
-                    onChange={(ownership) => setPropertyDetails((current) => ({ ...current, ownership, owner: ownership === "trust" ? current.trustName || "Trust" : "Personal" }))}
+                    onChange={(ownership) => updatePropertyIdentity({ ownership, owner: ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal" })}
                     trustName={propertyDetails.trustName}
-                    onTrustNameChange={(trustName) => setPropertyDetails((current) => ({ ...current, trustName, owner: trustName || "Trust" }))}
+                    onTrustNameChange={(trustName) => updatePropertyIdentity({ trustName, owner: trustName || "Trust" })}
                   />
                 </PropertySheetField>
                 <PropertySheetField label="Property Nickname">
-                  <Input value={propertyDetails.nickname} onChange={(event) => setPropertyDetails((current) => ({ ...current, nickname: event.target.value }))} placeholder="e.g. Brisbane townhouse" className="h-10" />
+                  <Input value={propertyDetails.nickname} onChange={(event) => updatePropertyIdentity({ nickname: event.target.value })} placeholder="e.g. Brisbane townhouse" className="h-10" />
                 </PropertySheetField>
                 <PropertySheetField label="Full Address (Optional)">
-                  <AddressSearchInput value={propertyDetails.address} onChange={(value) => setPropertyDetails((current) => ({ ...current, address: value }))} placeholder="Search address or enter manually" className="h-10" />
+                  <AddressSearchInput value={propertyDetails.address} onChange={(value) => updatePropertyIdentity({ address: value })} placeholder="Search address or enter manually" className="h-10" />
                 </PropertySheetField>
               </div>
               <div className="space-y-4 border-t border-border pt-6">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Loan & Rental Details</h3>
-                <PropertySheetField label="Total Loan Amount">
-                  <CurrencyEntryField value={propertyDetails.loanAmount} onChange={updateLoanAmount} />
-                </PropertySheetField>
-                <PropertySheetField label="Interest Rate">
-                  <RateEntryField value={propertyDetails.interestRate} onChange={updateInterestRate} />
-                </PropertySheetField>
+                <LoanSplitsEditor
+                  loanAmount={propertyDetails.loanAmount}
+                  interestRate={propertyDetails.interestRate}
+                  loanSplits={propertyDetails.loanSplits}
+                  nickname={propertyDetails.nickname}
+                  highlightFirstSplit={highlightFirstSplit}
+                  firstSplitAmountRef={firstSplitAmountRef}
+                  onFocusFirstSplit={() => setHighlightFirstSplit(true)}
+                  onCreateFirstSplit={() => updateLoanSplits([{ id: crypto.randomUUID(), label: propertyDetails.nickname || "Primary Loan", amount: propertyDetails.loanAmount, interestRate: propertyDetails.interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 }])}
+                  onChange={updateLoanSplits}
+                />
                 <PropertySheetField label="Lender / Bank">
-                  <Input value={propertyDetails.bank} onChange={(event) => setPropertyDetails((current) => ({ ...current, bank: event.target.value }))} className="h-10" />
+                  <Input value={propertyDetails.bank} onChange={(event) => updatePropertyIdentity({ bank: event.target.value })} className="h-10" />
                 </PropertySheetField>
                 <PropertySheetField label="Weekly Rent">
                   <CurrencyEntryField value={propertyDetails.weeklyRent} onChange={updatePropertyWeeklyRent} />
@@ -937,6 +991,101 @@ const PropertySheetField = ({ label, children }: { label: string; children: Reac
   </div>
 );
 
+const LoanSplitsEditor = ({
+  loanAmount,
+  interestRate,
+  loanSplits,
+  nickname,
+  highlightFirstSplit,
+  firstSplitAmountRef,
+  onFocusFirstSplit,
+  onCreateFirstSplit,
+  onChange,
+}: {
+  loanAmount: number;
+  interestRate: number;
+  loanSplits: LoanSplit[];
+  nickname: string;
+  highlightFirstSplit: boolean;
+  firstSplitAmountRef: React.RefObject<HTMLInputElement>;
+  onFocusFirstSplit: () => void;
+  onCreateFirstSplit: () => void;
+  onChange: (loanSplits: LoanSplit[]) => void;
+}) => {
+  const updateSplit = (index: number, patch: Partial<LoanSplit>) => {
+    const next = loanSplits.map((split, splitIndex) => splitIndex === index ? { ...split, ...patch } : split);
+    onChange(next);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="mb-1 block text-xs font-medium text-muted-foreground">Current Loan Balance</label>
+        {loanSplits.length === 0 ? (
+          <button
+            onClick={onCreateFirstSplit}
+            className="group flex w-full cursor-pointer items-center gap-2 rounded-lg border border-dashed border-accent/50 bg-accent/5 px-3 py-2.5 text-sm font-medium text-foreground transition-all hover:border-accent hover:bg-accent/10"
+          >
+            <span className="text-muted-foreground">$</span>
+            <span>{loanAmount.toLocaleString()}</span>
+            <span className="ml-auto text-[10px] font-normal text-accent group-hover:underline">Click to set up loan details →</span>
+          </button>
+        ) : (
+          <button
+            onClick={onFocusFirstSplit}
+            className="group flex w-full cursor-pointer items-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm font-medium text-foreground transition-all hover:border-accent/50"
+          >
+            <span className="text-muted-foreground">$</span>
+            <span>{loanAmount.toLocaleString()}</span>
+            <span className="ml-auto text-[10px] text-muted-foreground transition-colors group-hover:text-accent">Edit in splits below ↓</span>
+          </button>
+        )}
+        {loanSplits.length > 0 && <p className="mt-0.5 text-[10px] text-muted-foreground">Auto-calculated from loan splits below</p>}
+      </div>
+
+      <div className="space-y-2 border-l-2 border-accent/20 pl-2">
+        <div className="flex items-center justify-between">
+          <label className="flex cursor-help items-center gap-1 text-xs font-medium text-muted-foreground">
+            Loan Details <InfoIcon size={10} className="text-muted-foreground" />
+          </label>
+          <button
+            onClick={() => onChange([...loanSplits, { id: crypto.randomUUID(), label: loanSplits.length === 0 ? nickname || "Split 1" : `Split ${loanSplits.length + 1}`, amount: 0, interestRate, loanTermYears: 30, interestOnlyPeriodYears: 0, offsetBalance: 0 }])}
+            className="p-0.5 text-accent transition-colors hover:text-accent/80"
+            aria-label="Add loan split"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+        {loanSplits.length > 0 && (
+          <div className="flex items-center gap-1 text-[8px] font-medium text-muted-foreground">
+            <span className="min-w-0 flex-[2]">Label</span>
+            <span className="min-w-0 flex-[2]">Amt ($)</span>
+            <span className="min-w-0 flex-[1.2]">Rate (%)</span>
+            <span className="min-w-0 flex-1">IO</span>
+            <span className="min-w-0 flex-[1.2]">Term (yr)</span>
+            <span className="min-w-0 flex-[2]">Offset ($)</span>
+            <span className="w-4" />
+          </div>
+        )}
+        {loanSplits.map((split, index) => (
+          <div key={split.id} className="flex items-center gap-1">
+            <Input value={split.label} onChange={(event) => updateSplit(index, { label: event.target.value })} className="h-8 min-w-0 flex-[2] px-1 text-[10px] font-medium" placeholder="Label" />
+            <CurrencyEntryField value={split.amount || 0} onChange={(amount) => updateSplit(index, { amount })} compact inputRef={index === 0 ? firstSplitAmountRef : undefined} highlight={index === 0 && highlightFirstSplit} />
+            <RateEntryField value={split.interestRate ?? interestRate} onChange={(rate) => updateSplit(index, { interestRate: rate })} compact />
+            <Input type="number" min={0} max={99} value={split.interestOnlyPeriodYears ?? 0} onChange={(event) => updateSplit(index, { interestOnlyPeriodYears: Math.min(99, Math.max(0, Number(event.target.value) || 0)) })} className="h-8 min-w-0 flex-1 px-1 text-[10px] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+            <Input type="number" min={1} value={split.loanTermYears ?? 30} onChange={(event) => updateSplit(index, { loanTermYears: Number(event.target.value) || 0 })} className="h-8 min-w-0 flex-[1.2] px-1 text-[10px]" />
+            <CurrencyEntryField value={split.offsetBalance ?? 0} onChange={(offsetBalance) => updateSplit(index, { offsetBalance })} compact />
+            <button onClick={() => onChange(loanSplits.filter((_, splitIndex) => splitIndex !== index))} className="w-4 shrink-0 text-muted-foreground transition-colors hover:text-destructive" aria-label="Remove loan split">
+              <X size={10} />
+            </button>
+          </div>
+        ))}
+        {loanSplits.length > 0 && <p className="text-[10px] text-muted-foreground">Total: <span className="font-semibold text-foreground">{formatCurrency(loanAmount)}</span></p>}
+      </div>
+    </div>
+  );
+};
+
 const ExpenseControl = ({
   label,
   value,
@@ -998,19 +1147,20 @@ const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon:
   </div>
 );
 
-const CurrencyEntryField = ({ value, onChange }: { value: number; onChange: (value: number) => void }) => (
-  <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+const CurrencyEntryField = ({ value, onChange, compact = false, inputRef, highlight = false }: { value: number; onChange: (value: number) => void; compact?: boolean; inputRef?: React.Ref<HTMLInputElement>; highlight?: boolean }) => (
+  <div className={`flex items-center gap-1 rounded-md border bg-background ring-offset-background transition-all focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ${compact ? "h-8 min-w-0 flex-[2] px-1" : "h-10 px-3"} ${highlight ? "border-destructive ring-2 ring-destructive/30" : "border-input"}`}>
     <span className="text-sm font-medium text-muted-foreground">$</span>
     <input
+      ref={inputRef}
       inputMode="numeric"
       value={value ? value.toLocaleString() : ""}
       onChange={(event) => onChange(parseCurrencyValue(event.target.value))}
-      className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none tabular-nums"
+      className={`min-w-0 flex-1 bg-transparent font-semibold text-foreground outline-none tabular-nums ${compact ? "text-[10px]" : "text-sm"}`}
     />
   </div>
 );
 
-const RateEntryField = ({ value, onChange }: { value: number; onChange: (value: number) => void }) => {
+const RateEntryField = ({ value, onChange, compact = false }: { value: number; onChange: (value: number) => void; compact?: boolean }) => {
   const [raw, setRaw] = useState(value ? value.toFixed(2) : "");
 
   useEffect(() => {
@@ -1018,7 +1168,7 @@ const RateEntryField = ({ value, onChange }: { value: number; onChange: (value: 
   }, [value]);
 
   return (
-    <div className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+    <div className={`flex items-center gap-2 rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ${compact ? "h-8 min-w-0 flex-[1.2] px-1" : "h-10 px-3"}`}>
       <input
         inputMode="decimal"
         value={raw}
@@ -1030,9 +1180,9 @@ const RateEntryField = ({ value, onChange }: { value: number; onChange: (value: 
           }
         }}
         onBlur={() => setRaw(raw ? (Number(raw) || 0).toFixed(2) : "")}
-        className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none tabular-nums"
+        className={`min-w-0 flex-1 bg-transparent font-semibold text-foreground outline-none tabular-nums ${compact ? "text-[10px]" : "text-sm"}`}
       />
-      <span className="text-sm font-semibold text-muted-foreground">%</span>
+      <span className={`${compact ? "text-[10px]" : "text-sm"} font-semibold text-muted-foreground`}>%</span>
     </div>
   );
 };
