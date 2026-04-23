@@ -1016,13 +1016,15 @@ const CashflowTracker = () => {
                 {rows.map((row) => (
                   <tr key={row.id} className="border-b border-border/70 hover:bg-muted/30">
                     <td className="sticky left-0 z-20 bg-card px-2 py-2 font-medium text-foreground shadow-[6px_0_12px_-12px_hsl(var(--foreground))] sm:px-3 lg:px-4">
-                      <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-11 bg-card px-2 text-xs font-semibold lg:h-10 lg:text-sm" />
+                      <div className="flex items-center gap-2">
+                        <Input value={row.label} onChange={(event) => updateRow(row.id, { label: event.target.value })} className="h-11 bg-card px-2 text-xs font-semibold lg:h-10 lg:text-sm" />
+                        <span className="shrink-0 text-sm font-bold text-accent">$</span>
+                      </div>
                     </td>
                     {row.values.map((value, i) => (
                       <td key={i} className={`px-1 py-2 text-right tabular-nums lg:px-1.5 ${activeMonth === i ? "bg-accent/10 font-bold text-foreground" : "text-muted-foreground"}`}>
                         <div className="flex h-11 items-center rounded-md border border-input bg-background px-1 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 lg:h-10 lg:px-2">
-                          <span className="text-xs font-bold text-accent">$</span>
-                          <input inputMode="numeric" value={value || ""} onChange={(event) => updateValue(row.id, i, parseCurrencyValue(event.target.value))} className="min-w-0 flex-1 bg-transparent pl-1 text-right text-xs text-foreground outline-none tabular-nums lg:text-sm" />
+                          <input inputMode="numeric" value={value || ""} onChange={(event) => updateValue(row.id, i, parseCurrencyValue(event.target.value))} className="min-w-0 flex-1 bg-transparent text-right text-xs text-foreground outline-none tabular-nums lg:text-sm" />
                         </div>
                       </td>
                     ))}
