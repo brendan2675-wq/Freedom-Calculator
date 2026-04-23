@@ -1,196 +1,192 @@
 
-Update the Cashflow Tracker header layout as planned, but rename the compact “Period” tile to better capture both the financial year selection and document upload function.
+Update the `FY & Docs` tile so it feels purposeful, removes unnecessary autosave noise, and makes the copy action clearer.
 
-## Recommended tile name
+## Recommendation
 
-Use:
+### 1. Remove the persistent `Saved` label
+
+I agree: `Saved` does not add much value here, especially in a compact tile.
+
+Most modern apps handle autosave like this:
 
 ```text
-FY & Docs
+Google Docs: subtle "Saving..." / "Saved to Drive" near document title
+Notion: mostly invisible, only shows errors or sync issues
+Airtable: no prominent saved label during normal use
+Xero/MYOB-style tools: usually confirm after explicit actions, not constant autosave status
 ```
 
-## Why
-
-`FY & Docs` is short enough to fit the narrower tile, but still communicates both key actions:
-
-- selecting the financial year / tax period
-- uploading invoices, receipts, and related documents
-
-It is punchier than `Period & Documents` and more descriptive than just `Period`.
-
-## Other naming options considered
+For this app, the best fit is:
 
 ```text
-Tax Year & Docs
+Only show autosave status when something is happening or wrong.
 ```
 
-Clear, but may wrap or feel too long in the compact tile.
+So the tile should normally show nothing. If saving is active, briefly show:
 
 ```text
-FY Documents
+Saving...
 ```
 
-Compact, but sounds more like a document archive than a period selector.
+If save fails in future, show an error/toast. Do not show `Saved` permanently.
+
+## 2. Make the copy action explicit
+
+The current `Copy FY` label is too vague, and the behaviour is surprising because it silently copies to the other available year.
+
+Instead of:
 
 ```text
-Tax Docs
-```
-
-Very short, but underplays the financial year selector.
-
-```text
-Year & Docs
-```
-
-Simple, but less precise than `FY & Docs`.
-
-## Updated implementation plan
-
-### 1. Change the header grid sizing
-
-Update the Cashflow header grid so the top tiles align as:
-
-```text
-Property details       Utilities & Charges   FY & Docs
-2 columns wide         1 column wide         1 column wide
-```
-
-Technically, keep the existing 8-column grid and use:
-
-```text
-Property details:       xl:col-span-4
-Utilities & Charges:    xl:col-span-2
-FY & Docs:              xl:col-span-2
-```
-
-### 2. Set the tile order
-
-Use this order:
-
-```text
-Property details | Utilities & Charges | FY & Docs
-```
-
-This keeps the charge inputs near the property summary and places the compact financial-year/document controls on the right.
-
-### 3. Rename the Period tile
-
-Change the tile heading from:
-
-```text
-Period & documents
-```
-
-to:
-
-```text
-FY & Docs
-```
-
-Keep the calendar/upload-related visual treatment compact.
-
-### 4. Shorten the dropdown labels
-
-Change the financial year dropdown labels from:
-
-```text
-Period ended 30 June 2027
-Period ended 30 June 2026
-```
-
-to:
-
-```text
-FY 2027
-FY 2026
-```
-
-### 5. Shorten the upload button
-
-Change:
-
-```text
-Upload invoices / receipts
-```
-
-to:
-
-```text
-Upload docs
-```
-
-Keep the upload icon.
-
-### 6. Tighten the status and action labels
-
-Change:
-
-```text
-Autosave ready
-Copy to another period
-```
-
-to:
-
-```text
-Saved
 Copy FY
 ```
 
-If autosave has multiple states, map them as:
+Use a contextual label:
 
 ```text
-Autosave ready  → Saved
-Saving...       → Saving...
-Unsaved changes → Unsaved
+Copy to FY 2026
 ```
 
-### 7. Keep Utilities & Charges one-column wide
-
-Keep the `Utilities & Charges` tile one column wide and prevent dropdown overflow by using a compact stacked row layout:
+or, in compact form:
 
 ```text
-Council rates
-$ [ amount ]     [ Annual ]
+Copy → FY 2026
 ```
 
-Apply the same pattern to:
+When the current selected year is `FY 2026`, the button should become:
 
 ```text
-Insurance
-Land tax
-Water charges
+Copy → FY 2027
 ```
 
-Keep the `+ Add` button for extra custom charges.
+This makes the action clear without needing a dialog.
 
-### 8. Preserve functionality
+## 3. Do not switch years after copying
 
-No calculation or data behaviour changes:
+Currently, clicking copy changes the selected financial year after copying. That can feel like the app unexpectedly navigated away.
 
-- Council rates, Insurance, Land tax, and Water charges remain Cashflow-period-specific.
-- `+ Add` still adds a custom expense row.
-- Upload still accepts the same document types.
-- Financial year switching still uses the same state.
-- Copy functionality still copies the current financial year’s cashflow data.
-- No valuation fields are added.
+Change the behaviour so:
+
+- the current FY data is copied to the target FY
+- the user stays on the current FY
+- a toast confirms the action
+
+Example:
+
+```text
+Copied FY 2027 data to FY 2026
+```
+
+This is safer and easier to understand.
+
+## 4. Optional future functionality for this tile
+
+The `FY & Docs` tile could eventually include:
+
+```text
+FY selector
+Upload docs
+Document count
+Copy to FY XXXX
+Export FY summary
+```
+
+Recommended compact version for now:
+
+```text
+FY & Docs
+FY 2027
+Upload docs
+Copy → FY 2026
+```
+
+Optional future enhancement:
+
+```text
+3 docs uploaded
+```
+
+This would make the upload function feel more useful, but only if uploaded documents are actually tracked/persisted.
+
+## Implementation plan
+
+### 1. Remove the normal `Saved` display
+
+In `src/pages/CashflowTracker.tsx`:
+
+- remove the always-visible autosave label from the `FY & Docs` tile
+- keep autosave logic intact
+- render only a small `Saving...` line when `autosaveStatus === "saving"`
+
+Result:
+
+```text
+Saving...
+```
+
+appears only during active autosave, then disappears.
+
+### 2. Replace `Copy FY` with a contextual target label
+
+Add a helper that determines the target financial year:
+
+```text
+Current FY 2027 → target FY 2026
+Current FY 2026 → target FY 2027
+```
+
+Then display:
+
+```text
+Copy → FY 2026
+```
+
+or:
+
+```text
+Copy → FY 2027
+```
+
+### 3. Update the copy behaviour
+
+Modify the existing `saveAsNewPeriod` function so it:
+
+- copies the current cashflow state to the target FY
+- does not call `setFinancialYear(targetYear)`
+- does not switch the active tile/dropdown to the target year
+- shows a confirmation toast
+
+Example toast:
+
+```text
+Copied FY 2027 to FY 2026
+```
+
+### 4. Preserve existing functionality
+
+No changes to:
+
+- financial year dropdown state
+- upload accepted file types
+- cashflow calculations
+- Utilities & Charges
+- property details
+- localStorage-based save structure
 
 ## Expected result
 
-The header becomes:
-
-```text
-[ Property details - 2 columns ] [ Utilities & Charges - 1 column ] [ FY & Docs - 1 column ]
-```
-
-The compact right tile becomes:
+The compact tile becomes cleaner:
 
 ```text
 FY & Docs
 FY 2027
 Upload docs
-Saved
-Copy FY
+Copy → FY 2026
 ```
 
-This should fix the overflow while keeping the document upload purpose visible.
+During autosave only:
+
+```text
+Saving...
+```
+
+No permanent `Saved` label is shown.
