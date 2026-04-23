@@ -233,6 +233,7 @@ const getInitialCashflowState = (): CashflowState => {
 const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`;
 const parseCurrencyValue = (value: string) => Number(value.replace(/[^0-9]/g, "")) || 0;
 const formatInterestRate = (value: number) => `${value.toFixed(2)}%`;
+const getCashflowPropertyTypeLabel = (propertyType?: CashflowPropertyType) => propertyType === "ppor" ? "Owner occupier" : "Investment";
 const annualTotalsFromRows = (cashflowRows: CashflowRow[]) => {
   const income = cashflowRows.filter((row) => row.type === "income").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
   const expenses = cashflowRows.filter((row) => row.type === "expense").reduce((sum, row) => sum + row.values.reduce((a, b) => a + b, 0), 0);
@@ -881,13 +882,16 @@ const CashflowTracker = () => {
                   <div className="flex min-w-0 items-center gap-2">
                     <InvestmentTypeIcon type={propertyDetails.investmentType} size={18} className="shrink-0 text-accent" />
                     <p className="truncate text-base font-semibold text-foreground">{propertyDetails.nickname || "Untitled property"}</p>
+                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                      {getCashflowPropertyTypeLabel(selectedPortfolioProperty?.propertyType)}
+                    </span>
                   </div>
                   {propertyDetails.address && <p className="mt-1 truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
                 </div>
                 <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
                   <select value={selectedPropertyId} onChange={(event) => linkPortfolioProperty(event.target.value)} className="min-h-11 w-full rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
                     <option value="" disabled>Select property</option>
-                    {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+                    {portfolioProperties.map((item) => <option key={item.id} value={item.id}>{item.label} · {getCashflowPropertyTypeLabel(item.propertyType)}</option>)}
                   </select>
                 </div>
                 <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
@@ -907,8 +911,8 @@ const CashflowTracker = () => {
               </div>
               <div className="grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-3">
                 <div className="flex items-center">
-                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                    {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                      {getCashflowPropertyTypeLabel(selectedPortfolioProperty?.propertyType)} · {propertyDetails.ownership === "trust" ? propertyDetails.trustName || "Trust" : "Personal"}
                   </span>
                 </div>
                 <div className="flex items-center">
