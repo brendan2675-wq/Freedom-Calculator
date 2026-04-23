@@ -17,6 +17,11 @@ const FyDocsUploadSourceDialog = ({ open, onOpenChange, onDeviceUpload, onPhoneU
     window.setTimeout(action, 0);
   };
 
+  const chooseCloudSource = (service: string) => {
+    onOpenChange(false);
+    onCloudPlaceholder(service);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl bg-card p-4 sm:p-6">
@@ -42,7 +47,7 @@ const FyDocsUploadSourceDialog = ({ open, onOpenChange, onDeviceUpload, onPhoneU
             </span>
           </button>
 
-          <button type="button" onClick={() => chooseSource(() => onCloudPlaceholder("Google Drive"))} className={sourceCardClass}>
+          <button type="button" onClick={() => chooseCloudSource("Google Drive")} className={sourceCardClass}>
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground"><Cloud size={20} /></span>
             <span className="min-w-0">
               <span className="block text-sm font-bold text-foreground">Google Drive</span>
@@ -50,7 +55,7 @@ const FyDocsUploadSourceDialog = ({ open, onOpenChange, onDeviceUpload, onPhoneU
             </span>
           </button>
 
-          <button type="button" onClick={() => chooseSource(() => onCloudPlaceholder("OneDrive"))} className={sourceCardClass}>
+          <button type="button" onClick={() => chooseCloudSource("OneDrive")} className={sourceCardClass}>
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground"><Cloud size={20} /></span>
             <span className="min-w-0">
               <span className="block text-sm font-bold text-foreground">OneDrive</span>
