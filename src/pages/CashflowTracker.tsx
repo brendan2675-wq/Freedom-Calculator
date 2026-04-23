@@ -93,6 +93,7 @@ type PortfolioPropertyOption = { id: string; label: string; address: string; own
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
 const CASHFLOW_WORKING_STATE_KEY = "cashflow-working-state";
+const CURRENT_CASHFLOW_PLAN_ID = "current-cashflow-plan";
 const defaultCouncilRates: CouncilRatesState = { amount: 0, frequency: "annual" };
 const defaultInsurance: InsuranceState = { amount: 0, frequency: "monthly" };
 const defaultLandTax: LandTaxState = { amount: 0, frequency: "annual" };
@@ -208,7 +209,9 @@ const CashflowTracker = () => {
   const linkedScenario = cashflowContext ? getScenario(cashflowContext.scenarioId) || getActiveScenario() : getActiveScenario();
   const userRole = getRole();
   const showScenarioStatus = Boolean(linkedScenario) || userRole === "adviser" || userRole === "agent";
-  const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId);
+  const selectedPortfolioProperty = portfolioProperties.find((item) => item.id === cashflowContext?.propertyId)
+    || portfolioProperties.find((item) => item.label === propertyDetails.nickname && (!propertyDetails.address || item.address === propertyDetails.address));
+  const selectedPropertyId = cashflowContext?.propertyId || selectedPortfolioProperty?.id || "";
   const autosaveLabel = autosaveStatus === "saving"
     ? "Saving…"
     : lastAutosavedAt
@@ -401,25 +404,23 @@ const CashflowTracker = () => {
     setPropertySheetMode("current");
     skipNextAutosaveRef.current = true;
     const scenario = getActiveScenario();
-    if (scenario) {
-      const nextContext = { clientId: scenario.clientId, scenarioId: scenario.id, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
-      setActiveCashflowContext(nextContext);
-      setCashflowContextState(nextContext);
-      const record = getCashflowForProperty<CashflowState>(nextContext);
-      if (record?.state) {
-        const normalized = normalizeCashflowState(record.state);
-        setRows(normalized.rows);
-        setPropertyDetails(normalized.propertyDetails);
-        setCouncilRates(normalized.councilRates);
-        setInsurance(normalized.insurance);
-        setLandTax(normalized.landTax);
-        setWater(normalized.water);
-        setActiveMonth(normalized.activeMonth);
-        setLastAutosavedAt(new Date(record.savedAt));
-        setAutosaveStatus("saved");
-        toast.success(`Loaded ${selected.label} cashflow`);
-        return;
-      }
+    const nextContext = { clientId: scenario?.clientId, scenarioId: scenario?.id || CURRENT_CASHFLOW_PLAN_ID, propertyId: selected.id, propertyType: selected.propertyType, financialYear };
+    setActiveCashflowContext(nextContext);
+    setCashflowContextState(nextContext);
+    const record = getCashflowForProperty<CashflowState>(nextContext);
+    if (record?.state) {
+      const normalized = normalizeCashflowState(record.state);
+      setRows(normalized.rows);
+      setPropertyDetails(normalized.propertyDetails);
+      setCouncilRates(normalized.councilRates);
+      setInsurance(normalized.insurance);
+      setLandTax(normalized.landTax);
+      setWater(normalized.water);
+      setActiveMonth(normalized.activeMonth);
+      setLastAutosavedAt(new Date(record.savedAt));
+      setAutosaveStatus("saved");
+      toast.success(`Loaded ${selected.label} cashflow`);
+      return;
     }
     setPropertyDetails((current) => ({
       ...current,
@@ -478,7 +479,7 @@ const CashflowTracker = () => {
   };
 
   const savePropertyDetailsFromSheet = () => {
-    const linkedId = cashflowContext?.propertyId;
+    const linkedId = selectedPropertyId;
     const isLinkedPortfolioProperty = linkedId && linkedId !== "ppor" && propertySheetMode === "current";
     if (isLinkedPortfolioProperty) {
       const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
