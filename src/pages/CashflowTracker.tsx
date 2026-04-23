@@ -36,6 +36,7 @@ type CashflowRow = {
 const monthlyRentFromWeekly = (weeklyRent: number) => Math.round((weeklyRent * 52) / 12);
 const monthlyInterestOnlyCost = (loanAmount: number, interestRate: number) => Math.round((loanAmount * (interestRate / 100)) / 12);
 const monthlyAgentFee = (weeklyRent: number) => Math.round(monthlyRentFromWeekly(weeklyRent) * 0.06);
+const getLoanBalance = (item: ExistingProperty) => item.loanSplits?.length ? item.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : item.loanBalance || 0;
 const scheduledExpenseValues = (amount: number, frequency: "annual" | "quarterly" | "monthly") => {
   if (frequency === "annual") return months.map((_, index) => index === 11 ? amount : 0);
   if (frequency === "quarterly") return months.map((_, index) => index % 3 === 0 ? amount : 0);
@@ -119,7 +120,7 @@ const getPortfolioPropertyOptions = (): PortfolioPropertyOption[] => {
       bank: item.loan?.lenderName || "",
       weeklyRent: item.rental?.weeklyRent || 0,
       interestRate: item.loan?.interestRate || 0,
-      loanAmount: item.loanSplits?.length ? item.loanSplits.reduce((sum, split) => sum + (split.amount || 0), 0) : item.loanBalance || 0,
+      loanAmount: getLoanBalance(item),
       propertyType: item.id === "ppor" ? "ppor" : item.ownership === "trust" ? "smsf" : "investment",
       investmentType: item.investmentType || "house",
       ownership: item.ownership,
@@ -174,6 +175,8 @@ const getInitialCashflowState = (): CashflowState => {
 };
 
 const formatCurrency = (value: number) => value === 0 ? "$0" : value < 0 ? `-$${Math.abs(value).toLocaleString()}` : `$${value.toLocaleString()}`;
+const parseCurrencyValue = (value: string) => Number(value.replace(/[^0-9]/g, "")) || 0;
+const formatInterestRate = (value: number) => `${value.toFixed(2)}%`;
 
 const CashflowTracker = () => {
   const navigate = useNavigate();
@@ -334,6 +337,35 @@ const CashflowTracker = () => {
     if (rentalRow) {
       updateWeeklyRent(rentalRow.id, weeklyRent);
     }
+    syncLinkedPortfolioProperty({ weeklyRent });
+  };
+
+  const syncLinkedPortfolioProperty = (updates: { loanAmount?: number; interestRate?: number; weeklyRent?: number }) => {
+    const linkedId = cashflowContext?.propertyId;
+    if (!linkedId) return;
+    const applyUpdates = (item: ExistingProperty): ExistingProperty => {
+      const nextLoanBalance = updates.loanAmount ?? item.loanBalance;
+      const hasLoanSplits = Boolean(item.loanSplits?.length);
+      const nextLoanSplits = updates.loanAmount !== undefined && hasLoanSplits
+        ? item.loanSplits?.map((split, index) => index === 0 ? { ...split, amount: updates.loanAmount ?? split.amount } : { ...split, amount: 0 })
+        : item.loanSplits;
+      return {
+        ...item,
+        loanBalance: nextLoanBalance,
+        loanSplits: nextLoanSplits,
+        loan: { ...item.loan, interestRate: updates.interestRate ?? item.loan.interestRate },
+        rental: { ...item.rental, weeklyRent: updates.weeklyRent ?? item.rental.weeklyRent },
+      };
+    };
+
+    if (linkedId === "ppor") {
+      const stored = localStorage.getItem("portfolio-ppor");
+      if (stored) localStorage.setItem("portfolio-ppor", JSON.stringify(applyUpdates(JSON.parse(stored) as ExistingProperty)));
+    } else {
+      const existing = JSON.parse(localStorage.getItem("portfolio-properties") || "[]") as ExistingProperty[];
+      localStorage.setItem("portfolio-properties", JSON.stringify(existing.map((item) => item.id === linkedId ? applyUpdates(item) : item)));
+    }
+    setPortfolioProperties(getPortfolioPropertyOptions());
   };
 
   const updateLoanAmount = (loanAmount: number) => {
@@ -341,6 +373,7 @@ const CashflowTracker = () => {
       updateInterestRow(loanAmount, current.interestRate);
       return { ...current, loanAmount };
     });
+    syncLinkedPortfolioProperty({ loanAmount });
   };
 
   const updateInterestRate = (interestRate: number) => {
@@ -348,6 +381,7 @@ const CashflowTracker = () => {
       updateInterestRow(current.loanAmount, interestRate);
       return { ...current, interestRate };
     });
+    syncLinkedPortfolioProperty({ interestRate });
   };
 
   const addRow = (type: CashflowRow["type"]) => {
@@ -453,6 +487,7 @@ const CashflowTracker = () => {
         trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
         investmentType: propertyDetails.investmentType,
         loanBalance: propertyDetails.loanAmount || item.loanBalance,
+        loanSplits: item.loanSplits?.length ? item.loanSplits.map((split, index) => index === 0 ? { ...split, amount: propertyDetails.loanAmount || split.amount, interestRate: propertyDetails.interestRate } : { ...split, amount: 0 }) : item.loanSplits,
         loan: { ...item.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
         rental: { ...item.rental, weeklyRent: propertyDetails.weeklyRent },
       } : item);
@@ -471,6 +506,7 @@ const CashflowTracker = () => {
           trustName: propertyDetails.ownership === "trust" ? propertyDetails.trustName : undefined,
           investmentType: propertyDetails.investmentType,
           loanBalance: propertyDetails.loanAmount || ppor.loanBalance,
+          loanSplits: ppor.loanSplits?.length ? ppor.loanSplits.map((split, index) => index === 0 ? { ...split, amount: propertyDetails.loanAmount || split.amount, interestRate: propertyDetails.interestRate } : { ...split, amount: 0 }) : ppor.loanSplits,
           loan: { ...ppor.loan, lenderName: propertyDetails.bank, interestRate: propertyDetails.interestRate },
           rental: { ...ppor.rental, weeklyRent: propertyDetails.weeklyRent },
         }));
@@ -689,10 +725,10 @@ const CashflowTracker = () => {
                 </div>
               </div>
               {propertyDetails.address && <p className="truncate text-sm text-muted-foreground">{propertyDetails.address}</p>}
-              <div className="grid gap-3 border-t border-border/70 pt-3 sm:grid-cols-3" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                <AssumptionInput label="Total loan amount" value={propertyDetails.loanAmount} icon={Banknote} onChange={updateLoanAmount} />
-                <AssumptionInput label="Interest rate" value={propertyDetails.interestRate} icon={Percent} suffix="%" step="0.01" onChange={updateInterestRate} />
-                <AssumptionInput label="Weekly rent" value={propertyDetails.weeklyRent} icon={Home} onChange={updatePropertyWeeklyRent} />
+              <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
+                <SummaryMeasure icon={Banknote} label="Total loan amount" value={formatCurrency(propertyDetails.loanAmount)} />
+                <SummaryMeasure icon={Percent} label="Interest rate" value={formatInterestRate(propertyDetails.interestRate)} />
+                <SummaryMeasure icon={Home} label="Weekly rent" value={formatCurrency(propertyDetails.weeklyRent)} />
               </div>
               <div className="grid gap-x-3 gap-y-2 border-t border-border/70 pt-3 sm:grid-cols-3">
                 <SummaryMeasure icon={Banknote} label="Rental income" value={formatCurrency(totals.income)} />
@@ -790,16 +826,16 @@ const CashflowTracker = () => {
               <div className="space-y-4 border-t border-border pt-6">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Loan & Rental Details</h3>
                 <PropertySheetField label="Total Loan Amount">
-                  <Input type="number" min="0" value={propertyDetails.loanAmount || ""} onChange={(event) => updateLoanAmount(Number(event.target.value) || 0)} className="h-10" />
+                  <CurrencyEntryField value={propertyDetails.loanAmount} onChange={updateLoanAmount} />
                 </PropertySheetField>
                 <PropertySheetField label="Interest Rate">
-                  <Input type="number" min="0" step="0.01" value={propertyDetails.interestRate || ""} onChange={(event) => updateInterestRate(Number(event.target.value) || 0)} className="h-10" />
+                  <RateEntryField value={propertyDetails.interestRate} onChange={updateInterestRate} />
                 </PropertySheetField>
                 <PropertySheetField label="Lender / Bank">
                   <Input value={propertyDetails.bank} onChange={(event) => setPropertyDetails((current) => ({ ...current, bank: event.target.value }))} className="h-10" />
                 </PropertySheetField>
                 <PropertySheetField label="Weekly Rent">
-                  <Input type="number" min="0" value={propertyDetails.weeklyRent || ""} onChange={(event) => updatePropertyWeeklyRent(Number(event.target.value) || 0)} className="h-10" />
+                  <CurrencyEntryField value={propertyDetails.weeklyRent} onChange={updatePropertyWeeklyRent} />
                 </PropertySheetField>
                 <PropertySheetField label="Property Manager">
                   <Input value={propertyDetails.manager} onChange={(event) => setPropertyDetails((current) => ({ ...current, manager: event.target.value }))} className="h-10" />
@@ -956,18 +992,44 @@ const SummaryMeasure = ({ icon: Icon, label, value, highlight = false }: { icon:
   </div>
 );
 
-const AssumptionInput = ({ icon: Icon, label, value, onChange, suffix, step = "1" }: { icon: typeof Home; label: string; value: number; onChange: (value: number) => void; suffix?: string; step?: string }) => (
-  <div className="rounded-lg bg-muted/30 p-3">
-    <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-      <Icon size={14} className="shrink-0 text-accent" />
-      <span className="truncate">{label}</span>
-    </div>
-    <div className="flex items-center gap-2">
-      <Input type="number" min="0" step={step} value={value === 0 ? "" : value} onChange={(event) => onChange(Number(event.target.value) || 0)} className="h-11 bg-background text-base font-bold tabular-nums" />
-      {suffix ? <span className="text-base font-bold text-muted-foreground">{suffix}</span> : null}
-    </div>
+const CurrencyEntryField = ({ value, onChange }: { value: number; onChange: (value: number) => void }) => (
+  <div className="flex h-10 items-center gap-1 rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+    <span className="text-sm font-medium text-muted-foreground">$</span>
+    <input
+      inputMode="numeric"
+      value={value ? value.toLocaleString() : ""}
+      onChange={(event) => onChange(parseCurrencyValue(event.target.value))}
+      className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none tabular-nums"
+    />
   </div>
 );
+
+const RateEntryField = ({ value, onChange }: { value: number; onChange: (value: number) => void }) => {
+  const [raw, setRaw] = useState(value ? value.toFixed(2) : "");
+
+  useEffect(() => {
+    setRaw(value ? value.toFixed(2) : "");
+  }, [value]);
+
+  return (
+    <div className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+      <input
+        inputMode="decimal"
+        value={raw}
+        onChange={(event) => {
+          const next = event.target.value;
+          if (next === "" || /^[0-9]*\.?[0-9]{0,2}$/.test(next)) {
+            setRaw(next);
+            onChange(next === "" ? 0 : Number(next) || 0);
+          }
+        }}
+        onBlur={() => setRaw(raw ? (Number(raw) || 0).toFixed(2) : "")}
+        className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none tabular-nums"
+      />
+      <span className="text-sm font-semibold text-muted-foreground">%</span>
+    </div>
+  );
+};
 
 const SummaryRow = ({ label, values, total }: { label: string; values: number[]; total: number }) => (
   <tr className="border-t-2 border-border bg-accent/10 font-bold">
