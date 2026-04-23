@@ -786,7 +786,7 @@ const CashflowTracker = () => {
           >
             <div className="flex h-full flex-col gap-4">
               <div className="grid gap-3 sm:grid-cols-3 sm:items-start">
-                <div className="min-w-0">
+                <div className="flex min-h-11 min-w-0 flex-col justify-center">
                   <div className="flex min-w-0 items-center gap-2">
                     <InvestmentTypeIcon type={propertyDetails.investmentType} size={18} className="shrink-0 text-accent" />
                     <p className="truncate text-base font-semibold text-foreground">{propertyDetails.nickname || "Untitled property"}</p>
