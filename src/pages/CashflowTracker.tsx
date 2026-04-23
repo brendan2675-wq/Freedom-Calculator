@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, CalendarDays, Download, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
+import { Banknote, CalendarDays, Copy, Download, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
@@ -254,6 +254,8 @@ const CashflowTracker = () => {
   const selectedPropertyId = cashflowContext?.propertyId || selectedPortfolioProperty?.id || "";
   const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || financialPeriods[0];
   const copyTargetPeriod = financialPeriods.find((period) => period.financialYear !== financialYear) || selectedFinancialPeriod;
+  const selectedPeriodIndex = financialPeriods.findIndex((period) => period.financialYear === financialYear);
+  const previousFinancialPeriod = selectedPeriodIndex >= 0 ? financialPeriods[selectedPeriodIndex + 1] : undefined;
   const displayMonths = selectedFinancialPeriod.months;
 
   const syncHorizontalScroll = (source: "top" | "table") => {
@@ -629,7 +631,31 @@ const CashflowTracker = () => {
     if (!cashflowContext) return updateActiveCashflowScenario();
     const nextContext = { ...cashflowContext, financialYear: copyTargetPeriod.financialYear };
     saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${copyTargetPeriod.financialYear}`);
+    setActiveCashflowContext({ ...cashflowContext, financialYear });
     toast.success(`Copied ${selectedFinancialPeriod.label} to ${copyTargetPeriod.label}`);
+  };
+
+  const copyFromPreviousPeriod = () => {
+    if (!cashflowContext || !previousFinancialPeriod) return;
+    const previousContext = { ...cashflowContext, financialYear: previousFinancialPeriod.financialYear };
+    const previousRecord = getCashflowForProperty<CashflowState>(previousContext);
+    if (!previousRecord?.state) {
+      toast.info(`No ${previousFinancialPeriod.label} cashflow to copy`);
+      return;
+    }
+    const normalized = normalizeCashflowState(previousRecord.state);
+    const linked = getLinkedProperty(cashflowContext.propertyId);
+    const nextState = { ...normalized, propertyDetails: syncPropertyDetailsFromLinkedProperty(normalized.propertyDetails, linked) };
+    saveCashflowForProperty({ ...cashflowContext, financialYear }, nextState, `${propertyDetails.nickname || propertyDetails.address || "Property"} ${financialYear}`);
+    setRows(nextState.rows);
+    setPropertyDetails(nextState.propertyDetails);
+    setCouncilRates(nextState.councilRates);
+    setInsurance(nextState.insurance);
+    setLandTax(nextState.landTax);
+    setWater(nextState.water);
+    setActiveMonth(nextState.activeMonth);
+    setAutosaveStatus("saved");
+    toast.success(`Copied ${previousFinancialPeriod.label} to ${selectedFinancialPeriod.label}`);
   };
 
   const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
