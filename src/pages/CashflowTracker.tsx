@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Banknote, CalendarDays, Download, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
+import { Banknote, CalendarDays, Copy, Download, Home, Info as InfoIcon, LayoutDashboard, Percent, Plus, Save, Trash2, TrendingDown, Upload, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
@@ -254,6 +254,8 @@ const CashflowTracker = () => {
   const selectedPropertyId = cashflowContext?.propertyId || selectedPortfolioProperty?.id || "";
   const selectedFinancialPeriod = financialPeriods.find((period) => period.financialYear === financialYear) || financialPeriods[0];
   const copyTargetPeriod = financialPeriods.find((period) => period.financialYear !== financialYear) || selectedFinancialPeriod;
+  const selectedPeriodIndex = financialPeriods.findIndex((period) => period.financialYear === financialYear);
+  const previousFinancialPeriod = selectedPeriodIndex >= 0 ? financialPeriods[selectedPeriodIndex + 1] : undefined;
   const displayMonths = selectedFinancialPeriod.months;
 
   const syncHorizontalScroll = (source: "top" | "table") => {
@@ -629,7 +631,31 @@ const CashflowTracker = () => {
     if (!cashflowContext) return updateActiveCashflowScenario();
     const nextContext = { ...cashflowContext, financialYear: copyTargetPeriod.financialYear };
     saveCashflowForProperty(nextContext, currentCashflowState(), `${propertyDetails.nickname || propertyDetails.address || "Property"} ${copyTargetPeriod.financialYear}`);
+    setActiveCashflowContext({ ...cashflowContext, financialYear });
     toast.success(`Copied ${selectedFinancialPeriod.label} to ${copyTargetPeriod.label}`);
+  };
+
+  const copyFromPreviousPeriod = () => {
+    if (!cashflowContext || !previousFinancialPeriod) return;
+    const previousContext = { ...cashflowContext, financialYear: previousFinancialPeriod.financialYear };
+    const previousRecord = getCashflowForProperty<CashflowState>(previousContext);
+    if (!previousRecord?.state) {
+      toast.info(`No ${previousFinancialPeriod.label} cashflow to copy`);
+      return;
+    }
+    const normalized = normalizeCashflowState(previousRecord.state);
+    const linked = getLinkedProperty(cashflowContext.propertyId);
+    const nextState = { ...normalized, propertyDetails: syncPropertyDetailsFromLinkedProperty(normalized.propertyDetails, linked) };
+    saveCashflowForProperty({ ...cashflowContext, financialYear }, nextState, `${propertyDetails.nickname || propertyDetails.address || "Property"} ${financialYear}`);
+    setRows(nextState.rows);
+    setPropertyDetails(nextState.propertyDetails);
+    setCouncilRates(nextState.councilRates);
+    setInsurance(nextState.insurance);
+    setLandTax(nextState.landTax);
+    setWater(nextState.water);
+    setActiveMonth(nextState.activeMonth);
+    setAutosaveStatus("saved");
+    toast.success(`Copied ${previousFinancialPeriod.label} to ${selectedFinancialPeriod.label}`);
   };
 
   const loadCashflowScenario = (scenario: SavedCashflowScenario) => {
@@ -801,7 +827,17 @@ const CashflowTracker = () => {
                 <p className="font-semibold text-foreground">Scenario: {linkedScenario?.name || "No active scenario"}</p>
               )}
               {autosaveStatus === "saving" && <p className="font-semibold text-accent">Saving…</p>}
-              <button onClick={saveAsNewPeriod} className="text-sm font-semibold text-foreground underline-offset-4 transition-colors hover:text-accent hover:underline">Copy → {copyTargetPeriod.label}</button>
+              <div className="grid gap-2">
+                <button onClick={copyFromPreviousPeriod} disabled={!previousFinancialPeriod} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-50">
+                  <Copy size={16} /> Copy from prior FY
+                </button>
+                <button onClick={saveAsNewPeriod} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
+                  <Copy size={16} /> Copy → {copyTargetPeriod.label}
+                </button>
+                <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90">
+                  <Download size={16} /> Export summary
+                </button>
+              </div>
             </div>
           </div>
           <div className="order-2 flex h-full flex-col rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-2">
@@ -919,7 +955,6 @@ const CashflowTracker = () => {
               <p className="text-sm text-muted-foreground">Edit weekly rents, row labels and monthly values directly in the worksheet.</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <button onClick={exportCashflowSummary} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent px-3 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"><Download size={16} /> Export summary</button>
               <button onClick={() => addRow("income")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Income row</button>
               <button onClick={() => addRow("expense")} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted"><Plus size={16} /> Expense row</button>
             </div>
