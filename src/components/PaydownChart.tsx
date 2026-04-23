@@ -48,9 +48,9 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   useEffect(() => { if (!growthFocused) setGrowthRateRaw(growthRate.toFixed(2)); }, [growthRate, growthFocused]);
   const chartResult = useMemo(() => {
     const startYear = new Date().getFullYear();
-    const years = Math.max(1, targetYear - startYear + 3);
-    const monthlyRate = interestRate / 100 / 12;
     const totalLoanMonths = loanTermYears * 12 + loanTermMonths;
+    const years = Math.max(1, targetYear - startYear + 3, Math.ceil(totalLoanMonths / 12) + 1);
+    const monthlyRate = interestRate / 100 / 12;
     const ioMonths = repaymentType === "io" ? ioPeriodYears * 12 : 0;
     const piMonths = Math.max(1, totalLoanMonths - ioMonths);
 
@@ -138,6 +138,20 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
   const surplusProfit = chartResult.surplus;
 
   const hasSellDowns = sellDownEvents.length > 0;
+
+  const piYearsRemaining = useMemo(() => {
+    const totalLoanMonths = loanTermYears * 12 + loanTermMonths;
+    if (loanBalance <= 0 || totalLoanMonths <= 0) return 0;
+    return totalLoanMonths / 12;
+  }, [loanBalance, loanTermYears, loanTermMonths]);
+
+  const formatYearsRemaining = (years: number) => {
+    const wholeYears = Math.floor(years);
+    const months = Math.round((years - wholeYears) * 12);
+    if (wholeYears <= 0) return `${months} mths`;
+    if (months === 0) return `${wholeYears} yrs`;
+    return `${wholeYears} yrs ${months} mths`;
+  };
 
   const groupedSellDowns = useMemo(() => {
     const grouped: Record<number, string[]> = {};
@@ -423,6 +437,12 @@ const PaydownChart = ({ loanBalance, totalEquity, targetYear, targetMonth, setTa
       </div>
 
       <h3 className="text-lg font-semibold text-foreground mb-4">Paydown Projection</h3>
+      <div className="mb-4 rounded-xl bg-secondary/60 border border-border px-5 py-3.5 flex items-center gap-3">
+        <Clock size={18} className="text-accent shrink-0" />
+        <p className="text-sm text-foreground">
+          Years remaining at current rate with P&amp;I repayments: <span className="font-semibold text-accent">{formatYearsRemaining(piYearsRemaining)}</span>
+        </p>
+      </div>
       {timeSaved && (
         <div className="mb-4 rounded-xl bg-accent/8 border border-accent/20 px-5 py-3.5 flex items-center gap-3">
           <Clock size={18} className="text-accent shrink-0" />
