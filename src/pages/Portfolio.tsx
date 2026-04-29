@@ -9,6 +9,7 @@ import ScenarioManager from "@/components/ScenarioManager";
 import ReadOnlyBanner from "@/components/ReadOnlyBanner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
+import { getRole } from "@/lib/auth";
 import { getActiveScenario } from "@/lib/scenarioManager";
 import { setActiveCashflowContext } from "@/lib/cashflowManager";
 import type { ExistingProperty } from "@/types/property";
@@ -19,6 +20,8 @@ const Portfolio = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isReadOnly = searchParams.get("readonly") === "1";
+  const role = getRole();
+  const isClient = role === "client";
   const [properties, setProperties] = useState<ExistingProperty[]>([]);
   const blankPpor: ExistingProperty = {
     id: "ppor",
