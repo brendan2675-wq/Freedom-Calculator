@@ -2,7 +2,6 @@ import { LayoutDashboard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ScenarioManager from "@/components/ScenarioManager";
 import UserMenu from "@/components/UserMenu";
-import { getRole } from "@/lib/auth";
 import type { ScenarioState } from "@/lib/scenarioManager";
 
 interface HeaderProps {
@@ -12,7 +11,6 @@ interface HeaderProps {
 
 const Header = ({ getCurrentState, loadState }: HeaderProps) => {
   const navigate = useNavigate();
-  const role = getRole();
   return (
     <header className="bg-header text-primary-foreground">
       <div className="container mx-auto px-4 py-5 md:py-12">
@@ -27,7 +25,7 @@ const Header = ({ getCurrentState, loadState }: HeaderProps) => {
             <LayoutDashboard size={32} className="hidden md:block" />
           </button>
           <div className="flex items-center gap-2 md:gap-4">
-            {role !== "client" && getCurrentState && loadState && (
+            {getCurrentState && loadState && (
               <ScenarioManager getCurrentState={getCurrentState} loadState={loadState} />
             )}
             <UserMenu />
