@@ -20,6 +20,7 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
   const { user, role } = useAuth();
   const isAdviser = role === "adviser";
   const isAgent = role === "agent";
+  const isClient = role === "client";
 
   const [open, setOpen] = useState(false);
   const [saveName, setSaveName] = useState("");
@@ -130,10 +131,10 @@ const ScenarioManager = ({ getCurrentState, loadState }: ScenarioManagerProps) =
       <DialogTrigger asChild>
         <button
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-accent/70 border border-accent/20 hover:bg-accent/10 hover:text-accent transition-all"
-          aria-label="Scenarios"
+          aria-label={isClient ? "Save" : "Scenarios"}
         >
-          <FolderOpen size={14} />
-          Scenarios
+          {isClient ? <Save size={14} /> : <FolderOpen size={14} />}
+          {isClient ? "Save" : "Scenarios"}
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
