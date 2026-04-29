@@ -848,6 +848,13 @@ const CashflowTracker = () => {
               <LayoutDashboard size={32} className="hidden md:block" />
             </button>
             <div className="flex items-center gap-2 md:gap-4">
+              <ScenarioManager
+                getCurrentState={buildScenarioFromStorage}
+                loadState={(s) => {
+                  applyScenarioToStorage(s);
+                  window.location.reload();
+                }}
+              />
               <UserMenu />
             </div>
           </div>
