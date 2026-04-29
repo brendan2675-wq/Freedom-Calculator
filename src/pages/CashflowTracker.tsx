@@ -1226,65 +1226,73 @@ const OverallCashflowView = ({
   periods: typeof financialPeriods;
   onFinancialYearChange: (value: string) => void;
   rows: OverallCashflowRow[];
-  totals: ReturnType<typeof annualTotalsFromRows>;
+  totals: { income: number; expenses: number; net: number; holdingCost: number; totalLoans: number; totalValue: number; weeklyRent: number; monthlyLoanRepayment: number; averageYield: number; averageMonthlyExpenses: number };
   onOpenDetail: (propertyId: string) => void;
 }) => (
-  <section className="rounded-xl border border-border bg-card shadow-sm">
-    <div className="flex flex-col gap-3 border-b border-border p-4 md:flex-row md:items-center md:justify-between">
+  <section className="space-y-6">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm md:flex-row md:items-center md:justify-between">
       <div>
         <h2 className="text-xl font-bold text-foreground">Overall cashflow</h2>
-        <p className="text-sm text-muted-foreground">Compare annual property income, expenses and net position side-by-side.</p>
+        <p className="text-sm text-muted-foreground">Portfolio-wide measures across all investment properties.</p>
       </div>
       <select value={financialYear} onChange={(event) => onFinancialYearChange(event.target.value)} className="min-h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground">
         {periods.map((period) => <option key={period.financialYear} value={period.financialYear}>{period.label}</option>)}
       </select>
     </div>
-    <div className="grid gap-3 border-b border-border p-4 md:grid-cols-4">
-      <SummaryTotal label="Annual income" value={formatCurrency(totals.income)} />
-      <SummaryTotal label="Annual expenses" value={formatCurrency(totals.expenses)} />
-      <SummaryTotal label="Net p.a." value={formatCurrency(totals.net)} highlight={totals.net < 0} />
-      <SummaryTotal label="Holding cost" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
+
+    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+      <div className="grid gap-x-3 gap-y-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+        <SummaryMeasure icon={Banknote} label="Monthly loan repayments" value={formatCurrency(totals.monthlyLoanRepayment)} />
+        <SummaryMeasure icon={Banknote} label="Total loan amounts" value={formatCurrency(totals.totalLoans)} />
+        <SummaryMeasure icon={Percent} label="Average yield" value={totals.averageYield ? `${totals.averageYield.toFixed(2)}%` : "—"} />
+        <SummaryMeasure icon={TrendingDown} label="Average monthly expenses" value={formatCurrency(totals.averageMonthlyExpenses)} />
+        <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={formatCurrency(totals.holdingCost)} highlight={totals.holdingCost > 0} />
+      </div>
     </div>
-    <div className="overflow-x-auto scrollbar-thin">
-      <table className="w-full min-w-[980px] table-fixed text-sm">
-        <thead>
-          <tr className="border-b border-border bg-muted/40 text-left text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            <th className="px-4 py-3">Property</th>
-            <th className="px-4 py-3 text-right">Current value</th>
-            <th className="px-4 py-3 text-right">Current loan</th>
-            <th className="px-4 py-3 text-right">Weekly rent</th>
-            <th className="px-4 py-3 text-right">Rental yield</th>
-            <th className="px-4 py-3 text-right">Income p.a.</th>
-            <th className="px-4 py-3 text-right">Expenses p.a.</th>
-            <th className="px-4 py-3 text-right">Net p.a.</th>
-            <th className="px-4 py-3 text-center">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
-            const status = !row.annualTotals ? "No worksheet" : row.annualTotals.net > 0 ? "Positive" : row.annualTotals.net < 0 ? "Negative" : "Neutral";
-            return (
-              <tr key={row.id} className="border-b border-border/70 text-foreground hover:bg-muted/30">
-                <td className="px-4 py-4">
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <button onClick={() => onOpenDetail(row.id)} className="w-fit max-w-full truncate text-left font-bold text-accent hover:underline">{row.label}</button>
-                    <span className="truncate text-xs text-muted-foreground">{row.owner}{row.address ? ` · ${row.address}` : ""}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-4 text-right font-semibold tabular-nums">{formatCurrency(row.estimatedValue)}</td>
-                <td className="px-4 py-4 text-right font-semibold tabular-nums">{formatCurrency(row.loanAmount)}</td>
-                <td className="px-4 py-4 text-right font-semibold tabular-nums">{formatCurrency(row.weeklyRent)}</td>
-                <td className="px-4 py-4 text-right font-semibold tabular-nums">{row.rentalYield ? `${row.rentalYield.toFixed(2)}%` : "—"}</td>
-                <td className="px-4 py-4 text-right font-semibold tabular-nums">{row.annualTotals ? formatCurrency(row.annualTotals.income) : "—"}</td>
-                <td className="px-4 py-4 text-right font-semibold tabular-nums">{row.annualTotals ? formatCurrency(row.annualTotals.expenses) : "—"}</td>
-                <td className={`px-4 py-4 text-right font-bold tabular-nums ${row.annualTotals?.net && row.annualTotals.net < 0 ? "text-destructive" : "text-foreground"}`}>{row.annualTotals ? formatCurrency(row.annualTotals.net) : "—"}</td>
-                <td className="px-4 py-4 text-center"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${status === "Negative" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>{status}</span></td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+
+    {rows.length === 0 ? (
+      <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
+        No investment properties yet. Add one from your Portfolio to see it here.
+      </div>
+    ) : (
+      <div className="grid gap-4 lg:grid-cols-2">
+        {rows.map((row) => (
+          <button
+            key={row.id}
+            onClick={() => onOpenDetail(row.id)}
+            className="group w-full rounded-xl border-2 border-border bg-card p-4 text-left shadow-md transition-all hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <div className="mb-4 flex min-w-0 items-center justify-between gap-3 border-b border-border/70 pb-3">
+              <div className="flex min-w-0 items-center gap-2">
+                <InvestmentTypeIcon type={row.investmentType} size={18} className="shrink-0 text-accent" />
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold text-foreground">{row.label}</p>
+                  {row.address && <p className="truncate text-xs text-muted-foreground">{row.address}</p>}
+                </div>
+              </div>
+              {!row.annualTotals && <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">No worksheet</span>}
+            </div>
+            <div className="grid content-start gap-x-3 gap-y-4 sm:grid-cols-3">
+              <SummaryMeasure icon={Percent} label="Interest rate" value={formatInterestRate(row.interestRate)} />
+              <SummaryMeasure icon={Home} label="Weekly rent" value={formatCurrency(row.weeklyRent)} />
+              <SummaryMeasure icon={TrendingDown} label="Average monthly expenses" value={formatCurrency(row.averageMonthlyExpenses)} />
+              <SummaryMeasure icon={Banknote} label="Monthly loan repayment" value={formatCurrency(row.monthlyLoanRepayment)} />
+              <SummaryMeasure icon={Percent} label="Yield" value={row.rentalYield ? `${row.rentalYield.toFixed(2)}%` : "—"} />
+              <SummaryMeasure icon={TrendingDown} label="Total expenses" value={row.annualTotals ? formatCurrency(row.annualTotals.expenses) : "—"} />
+              <SummaryMeasure icon={Banknote} label="Total loan amount" value={formatCurrency(row.loanAmount)} />
+              <SummaryMeasure icon={Banknote} label="Rental income" value={row.annualTotals ? formatCurrency(row.annualTotals.income) : "—"} />
+              <SummaryMeasure icon={CalendarDays} label="Yearly cashflow" value={row.annualTotals ? formatCurrency(row.annualTotals.holdingCost) : "—"} highlight={!!row.annualTotals && row.annualTotals.holdingCost > 0} />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 border-t border-border/70 pt-3">
+              <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                {row.ownership === "trust" ? row.trustName || "Trust" : "Personal"}
+              </span>
+              {row.bank && <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">Bank: {row.bank}</span>}
+            </div>
+          </button>
+        ))}
+      </div>
+    )}
   </section>
 );
 
