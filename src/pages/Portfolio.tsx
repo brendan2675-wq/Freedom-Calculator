@@ -210,7 +210,7 @@ const Portfolio = () => {
                 window.location.reload();
               }}
             />}
-            {!isReadOnly && <button
+            {!isReadOnly && !isClient && <button
               onClick={() => {
                 if (window.confirm("Reset all data to defaults? This cannot be undone.\n\nSaved scenarios will be preserved.")) {
                   const savedScenarios = localStorage.getItem("saved-scenarios");
