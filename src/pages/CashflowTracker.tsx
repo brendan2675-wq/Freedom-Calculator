@@ -105,7 +105,7 @@ type SavedCashflowScenario = { id: string; name: string; savedAt: string; state:
 type CashflowPropertyDetails = typeof property;
 type PortfolioPropertyOption = { id: string; label: string; address: string; owner: string; bank: string; weeklyRent: number; estimatedValue: number; interestRate: number; loanAmount: number; loanSplits: LoanSplit[]; propertyType: CashflowPropertyType; investmentType: InvestmentType; ownership: "trust" | "personal"; trustName?: string };
 type CashflowView = "detail" | "overall";
-type OverallCashflowRow = PortfolioPropertyOption & { annualTotals: ReturnType<typeof annualTotalsFromRows> | null; rentalYield: number };
+type OverallCashflowRow = PortfolioPropertyOption & { annualTotals: ReturnType<typeof annualTotalsFromRows> | null; rentalYield: number; monthlyLoanRepayment: number; averageMonthlyExpenses: number };
 
 const CASHFLOW_SCENARIOS_KEY = "saved-cashflow-scenarios";
 const ACTIVE_CASHFLOW_SCENARIO_KEY = "active-cashflow-scenario-id";
