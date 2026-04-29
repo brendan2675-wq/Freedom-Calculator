@@ -198,23 +198,10 @@ const Index = () => {
   useEffect(() => {
     const hasSeenDragHint = localStorage.getItem("drag-hint-seen");
     if (!hasSeenDragHint) {
-      const isEmpty = ppor.estimatedValue === 0 && existingProperties.length === 0;
       const timer = setTimeout(() => {
         toast("⚠️ Important: These projections are estimates only and do not constitute financial advice. Please consult a qualified financial adviser before making any investment decisions.", {
           duration: 8000,
         });
-        setTimeout(() => {
-          toast("💡 Tip: You can drag property cards between sections to move them", {
-            duration: 5000,
-          });
-        }, 1500);
-        if (isEmpty) {
-          setTimeout(() => {
-            toast("🏠 Start by adding your owner-occupied home above", {
-              duration: 6000,
-            });
-          }, 3000);
-        }
         localStorage.setItem("drag-hint-seen", "true");
       }, 2000);
       return () => clearTimeout(timer);
