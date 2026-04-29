@@ -402,16 +402,27 @@ const CashflowTracker = () => {
       const record = records.find((entry) => entry.propertyId === item.id && entry.financialYear === financialYear && entry.scenarioId === activeScenarioIdForRecords);
       const annualTotals = record?.state ? annualTotalsFromRows(normalizeCashflowState(record.state).rows) : null;
       const rentalYield = item.estimatedValue > 0 ? ((item.weeklyRent * 52) / item.estimatedValue) * 100 : 0;
-      return { ...item, record, annualTotals, rentalYield };
+      const monthlyLoanRepayment = monthlyInterestOnlyCost(item.loanAmount, item.interestRate);
+      const averageMonthlyExpenses = annualTotals ? Math.round(annualTotals.expenses / 12) : 0;
+      return { ...item, record, annualTotals, rentalYield, monthlyLoanRepayment, averageMonthlyExpenses };
     });
   }, [portfolioProperties, financialYear, cashflowContext?.scenarioId]);
 
-  const overallTotals = useMemo(() => overallRows.reduce((acc, item) => ({
-    income: acc.income + (item.annualTotals?.income || 0),
-    expenses: acc.expenses + (item.annualTotals?.expenses || 0),
-    net: acc.net + (item.annualTotals?.net || 0),
-    holdingCost: acc.holdingCost + (item.annualTotals?.holdingCost || 0),
-  }), { income: 0, expenses: 0, net: 0, holdingCost: 0 }), [overallRows]);
+  const overallTotals = useMemo(() => {
+    const base = overallRows.reduce((acc, item) => ({
+      income: acc.income + (item.annualTotals?.income || 0),
+      expenses: acc.expenses + (item.annualTotals?.expenses || 0),
+      net: acc.net + (item.annualTotals?.net || 0),
+      holdingCost: acc.holdingCost + (item.annualTotals?.holdingCost || 0),
+      totalLoans: acc.totalLoans + (item.loanAmount || 0),
+      totalValue: acc.totalValue + (item.estimatedValue || 0),
+      weeklyRent: acc.weeklyRent + (item.weeklyRent || 0),
+      monthlyLoanRepayment: acc.monthlyLoanRepayment + (item.monthlyLoanRepayment || 0),
+    }), { income: 0, expenses: 0, net: 0, holdingCost: 0, totalLoans: 0, totalValue: 0, weeklyRent: 0, monthlyLoanRepayment: 0 });
+    const averageYield = base.totalValue > 0 ? ((base.weeklyRent * 52) / base.totalValue) * 100 : 0;
+    const averageMonthlyExpenses = Math.round(base.expenses / 12);
+    return { ...base, averageYield, averageMonthlyExpenses };
+  }, [overallRows]);
 
   const updateCashflowView = (nextView: CashflowView) => {
     setCashflowView(nextView);
