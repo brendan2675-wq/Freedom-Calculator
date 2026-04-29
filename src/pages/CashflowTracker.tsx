@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ScenarioContextBanner from "@/components/ScenarioContextBanner";
 import UserMenu from "@/components/UserMenu";
+import ScenarioManager from "@/components/ScenarioManager";
+import { buildScenarioFromStorage, applyScenarioToStorage } from "@/lib/scenarioManager";
 import FyDocsReviewDialog from "@/components/FyDocsReviewDialog";
 import FyDocsUploadSourceDialog from "@/components/FyDocsUploadSourceDialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
